@@ -12,24 +12,59 @@ import { Builder, $ } from 'vs/base/browser/builder';
 import { Registry } from 'vs/platform/platform';
 import { Scope } from 'vs/workbench/browser/actions';
 import { IPanel } from 'vs/workbench/common/panel';
-import { CompositePart, ICompositeTitleLabel } from 'vs/workbench/browser/parts/compositePart';
-import { Panel, PanelRegistry, Extensions as PanelExtensions } from 'vs/workbench/browser/panel';
-import { IPanelService, IPanelIdentifier } from 'vs/workbench/services/panel/common/panelService';
-import { IPartService, Parts } from 'vs/workbench/services/part/common/partService';
+import {
+	CompositePart,
+	ICompositeTitleLabel
+} from 'vs/workbench/browser/parts/compositePart';
+import {
+	Panel,
+	PanelRegistry,
+	Extensions as PanelExtensions
+} from 'vs/workbench/browser/panel';
+import {
+	IPanelService,
+	IPanelIdentifier
+} from 'vs/workbench/services/panel/common/panelService';
+import {
+	IPartService,
+	Parts
+} from 'vs/workbench/services/part/common/partService';
 import { IStorageService } from 'vs/platform/storage/common/storage';
 import { IContextMenuService } from 'vs/platform/contextview/browser/contextView';
 import { IMessageService } from 'vs/platform/message/common/message';
 import { ITelemetryService } from 'vs/platform/telemetry/common/telemetry';
 import { IKeybindingService } from 'vs/platform/keybinding/common/keybinding';
 import { IInstantiationService } from 'vs/platform/instantiation/common/instantiation';
-import { ActionsOrientation, ActionBar } from 'vs/base/browser/ui/actionbar/actionbar';
-import { ClosePanelAction, PanelAction, ToggleMaximizedPanelAction } from 'vs/workbench/browser/parts/panel/panelActions';
-import { IThemeService, registerThemingParticipant, ITheme, ICssStyleCollector } from 'vs/platform/theme/common/themeService';
-import { PANEL_BACKGROUND, PANEL_BORDER, PANEL_ACTIVE_TITLE_FOREGROUND, PANEL_INACTIVE_TITLE_FOREGROUND, PANEL_ACTIVE_TITLE_BORDER } from 'vs/workbench/common/theme';
-import { activeContrastBorder, focusBorder, contrastBorder, editorBackground } from 'vs/platform/theme/common/colorRegistry';
+import {
+	ActionsOrientation,
+	ActionBar
+} from 'vs/base/browser/ui/actionbar/actionbar';
+import {
+	ClosePanelAction,
+	PanelAction,
+	ToggleMaximizedPanelAction
+} from 'vs/workbench/browser/parts/panel/panelActions';
+import {
+	IThemeService,
+	registerThemingParticipant,
+	ITheme,
+	ICssStyleCollector
+} from 'vs/platform/theme/common/themeService';
+import {
+	PANEL_BACKGROUND,
+	PANEL_BORDER,
+	PANEL_ACTIVE_TITLE_FOREGROUND,
+	PANEL_INACTIVE_TITLE_FOREGROUND,
+	PANEL_ACTIVE_TITLE_BORDER
+} from 'vs/workbench/common/theme';
+import {
+	activeContrastBorder,
+	focusBorder,
+	contrastBorder,
+	editorBackground
+} from 'vs/platform/theme/common/colorRegistry';
 
 export class PanelPart extends CompositePart<Panel> implements IPanelService {
-
 	public static activePanelSettingsKey = 'workbench.panelpart.activepanelid';
 
 	public _serviceBrand: any;
@@ -37,7 +72,7 @@ export class PanelPart extends CompositePart<Panel> implements IPanelService {
 	private blockOpeningPanel: boolean;
 	private panelSwitcherBar: ActionBar;
 
-	private panelIdToActions: { [panelId: string]: PanelAction; };
+	private panelIdToActions: { [panelId: string]: PanelAction };
 
 	constructor(
 		id: string,
@@ -75,17 +110,24 @@ export class PanelPart extends CompositePart<Panel> implements IPanelService {
 	}
 
 	private registerListeners(): void {
-
 		// Activate panel action on opening of a panel
-		this.toUnbind.push(this.onDidPanelOpen(panel => this.updatePanelActions(panel.getId(), true)));
+		this.toUnbind.push(
+			this.onDidPanelOpen(panel => this.updatePanelActions(panel.getId(), true))
+		);
 
 		// Deactivate panel action on close
-		this.toUnbind.push(this.onDidPanelClose(panel => this.updatePanelActions(panel.getId(), false)));
+		this.toUnbind.push(
+			this.onDidPanelClose(panel =>
+				this.updatePanelActions(panel.getId(), false)
+			)
+		);
 	}
 
 	private updatePanelActions(id: string, didOpen: boolean): void {
 		if (this.panelIdToActions[id]) {
-			didOpen ? this.panelIdToActions[id].activate() : this.panelIdToActions[id].deactivate();
+			didOpen
+				? this.panelIdToActions[id].activate()
+				: this.panelIdToActions[id].deactivate();
 		}
 	}
 
@@ -104,7 +146,10 @@ export class PanelPart extends CompositePart<Panel> implements IPanelService {
 		container.style('background-color', this.getColor(PANEL_BACKGROUND));
 
 		const title = this.getTitleArea();
-		title.style('border-top-color', this.getColor(PANEL_BORDER) || this.getColor(contrastBorder));
+		title.style(
+			'border-top-color',
+			this.getColor(PANEL_BORDER) || this.getColor(contrastBorder)
+		);
 	}
 
 	public openPanel(id: string, focus?: boolean): TPromise<Panel> {
@@ -127,14 +172,23 @@ export class PanelPart extends CompositePart<Panel> implements IPanelService {
 	}
 
 	public getPanels(): IPanelIdentifier[] {
-		return Registry.as<PanelRegistry>(PanelExtensions.Panels).getPanels()
+		return Registry.as<PanelRegistry>(PanelExtensions.Panels)
+			.getPanels()
 			.sort((v1, v2) => v1.order - v2.order);
 	}
 
 	protected getActions(): IAction[] {
 		return [
-			this.instantiationService.createInstance(ToggleMaximizedPanelAction, ToggleMaximizedPanelAction.ID, ToggleMaximizedPanelAction.LABEL),
-			this.instantiationService.createInstance(ClosePanelAction, ClosePanelAction.ID, ClosePanelAction.LABEL)
+			this.instantiationService.createInstance(
+				ToggleMaximizedPanelAction,
+				ToggleMaximizedPanelAction.ID,
+				ToggleMaximizedPanelAction.LABEL
+			),
+			this.instantiationService.createInstance(
+				ClosePanelAction,
+				ClosePanelAction.ID,
+				ClosePanelAction.LABEL
+			)
 		];
 	}
 
@@ -152,13 +206,16 @@ export class PanelPart extends CompositePart<Panel> implements IPanelService {
 
 	protected createTitleLabel(parent: Builder): ICompositeTitleLabel {
 		let titleArea = $(parent).div({
-			'class': ['panel-switcher-container']
+			class: ['panel-switcher-container']
 		});
 
 		// Show a panel switcher
 		this.panelSwitcherBar = new ActionBar(titleArea, {
 			orientation: ActionsOrientation.HORIZONTAL,
-			ariaLabel: nls.localize('panelSwitcherBarAriaLabel', "Active Panel Switcher"),
+			ariaLabel: nls.localize(
+				'panelSwitcherBarAriaLabel',
+				'Active Panel Switcher'
+			),
 			animated: false
 		});
 		this.toUnbind.push(this.panelSwitcherBar);
@@ -181,19 +238,23 @@ export class PanelPart extends CompositePart<Panel> implements IPanelService {
 	private fillPanelSwitcher(): void {
 		const panels = this.getPanels();
 
-		this.panelSwitcherBar.push(panels.map(panel => {
-			const action = this.instantiationService.createInstance(PanelAction, panel);
+		this.panelSwitcherBar.push(
+			panels.map(panel => {
+				const action = this.instantiationService.createInstance(
+					PanelAction,
+					panel
+				);
 
-			this.panelIdToActions[panel.id] = action;
-			this.toUnbind.push(action);
+				this.panelIdToActions[panel.id] = action;
+				this.toUnbind.push(action);
 
-			return action;
-		}));
+				return action;
+			})
+		);
 	}
 }
 
 registerThemingParticipant((theme: ITheme, collector: ICssStyleCollector) => {
-
 	// Panel Background: since panels can host editors, we apply a background rule if the panel background
 	// color is different from the editor background color. This is a bit of a hack though. The better way
 	// would be to have a way to push the background color onto each editor widget itself somehow.

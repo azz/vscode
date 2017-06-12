@@ -2,16 +2,27 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { globals } from 'vs/base/common/platform';
-import { logOnceWebWorkerWarning, IWorker, IWorkerCallback, IWorkerFactory } from 'vs/base/common/worker/simpleWorker';
+import {
+	logOnceWebWorkerWarning,
+	IWorker,
+	IWorkerCallback,
+	IWorkerFactory
+} from 'vs/base/common/worker/simpleWorker';
 
 // Option for hosts to overwrite the worker script url (used in the standalone editor)
-const getCrossOriginWorkerScriptUrl: (workerId: string, label: string) => string = environment('getWorkerUrl', null);
+const getCrossOriginWorkerScriptUrl: (
+	workerId: string,
+	label: string
+) => string = environment('getWorkerUrl', null);
 
 function environment(name: string, fallback: any = false): any {
-	if (globals.MonacoEnvironment && globals.MonacoEnvironment.hasOwnProperty(name)) {
+	if (
+		globals.MonacoEnvironment &&
+		globals.MonacoEnvironment.hasOwnProperty(name)
+	) {
 		return globals.MonacoEnvironment[name];
 	}
 
@@ -28,15 +39,20 @@ var getWorkerUrl = getCrossOriginWorkerScriptUrl || defaultGetWorkerUrl;
  * its own global scope and its own thread.
  */
 class WebWorker implements IWorker {
-
 	private id: number;
 	private worker: Worker;
 
-	constructor(moduleId: string, id: number, label: string, onMessageCallback: IWorkerCallback, onErrorCallback: (err: any) => void) {
+	constructor(
+		moduleId: string,
+		id: number,
+		label: string,
+		onMessageCallback: IWorkerCallback,
+		onErrorCallback: (err: any) => void
+	) {
 		this.id = id;
 		this.worker = new Worker(getWorkerUrl('workerMain.js', label));
 		this.postMessage(moduleId);
-		this.worker.onmessage = function (ev: any) {
+		this.worker.onmessage = function(ev: any) {
 			onMessageCallback(ev.data);
 		};
 		if (typeof this.worker.addEventListener === 'function') {
@@ -61,7 +77,6 @@ class WebWorker implements IWorker {
 }
 
 export class DefaultWorkerFactory implements IWorkerFactory {
-
 	private static LAST_WORKER_ID = 0;
 
 	private _label: string;
@@ -72,17 +87,27 @@ export class DefaultWorkerFactory implements IWorkerFactory {
 		this._webWorkerFailedBeforeError = false;
 	}
 
-	public create(moduleId: string, onMessageCallback: IWorkerCallback, onErrorCallback: (err: any) => void): IWorker {
-		let workerId = (++DefaultWorkerFactory.LAST_WORKER_ID);
+	public create(
+		moduleId: string,
+		onMessageCallback: IWorkerCallback,
+		onErrorCallback: (err: any) => void
+	): IWorker {
+		let workerId = ++DefaultWorkerFactory.LAST_WORKER_ID;
 
 		if (this._webWorkerFailedBeforeError) {
 			throw this._webWorkerFailedBeforeError;
 		}
 
-		return new WebWorker(moduleId, workerId, this._label || 'anonymous' + workerId, onMessageCallback, (err) => {
-			logOnceWebWorkerWarning(err);
-			this._webWorkerFailedBeforeError = err;
-			onErrorCallback(err);
-		});
+		return new WebWorker(
+			moduleId,
+			workerId,
+			this._label || 'anonymous' + workerId,
+			onMessageCallback,
+			err => {
+				logOnceWebWorkerWarning(err);
+				this._webWorkerFailedBeforeError = err;
+				onErrorCallback(err);
+			}
+		);
 	}
 }

@@ -2,20 +2,25 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
-import { IProgressService2, IProgress, IProgressOptions, IProgressStep } from 'vs/platform/progress/common/progress';
+import {
+	IProgressService2,
+	IProgress,
+	IProgressOptions,
+	IProgressStep
+} from 'vs/platform/progress/common/progress';
 import { TPromise } from 'vs/base/common/winjs.base';
 import { MainThreadProgressShape } from '../node/extHost.protocol';
 
 export class MainThreadProgress extends MainThreadProgressShape {
-
 	private _progressService: IProgressService2;
-	private progress = new Map<number, { resolve: Function, progress: IProgress<IProgressStep> }>();
+	private progress = new Map<
+		number,
+		{ resolve: Function; progress: IProgress<IProgressStep> }
+	>();
 
-	constructor(
-		@IProgressService2 progressService: IProgressService2
-	) {
+	constructor(@IProgressService2 progressService: IProgressService2) {
 		super();
 		this._progressService = progressService;
 	}

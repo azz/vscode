@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { isLinux, isWindows } from 'vs/base/common/platform';
 import { fill } from 'vs/base/common/arrays';
@@ -26,13 +26,18 @@ export function relative(from: string, to: string): string {
 
 	// we're assuming here that any non=linux OS is case insensitive
 	// so we must compare each part in its lowercase form
-	const normalizedFrom = isLinux ? originalNormalizedFrom : originalNormalizedFrom.toLowerCase();
-	const normalizedTo = isLinux ? originalNormalizedTo : originalNormalizedTo.toLowerCase();
+	const normalizedFrom = isLinux
+		? originalNormalizedFrom
+		: originalNormalizedFrom.toLowerCase();
+	const normalizedTo = isLinux
+		? originalNormalizedTo
+		: originalNormalizedTo.toLowerCase();
 
 	const fromParts = normalizedFrom.split(sep);
 	const toParts = normalizedTo.split(sep);
 
-	let i = 0, max = Math.min(fromParts.length, toParts.length);
+	let i = 0,
+		max = Math.min(fromParts.length, toParts.length);
 
 	for (; i < max; i++) {
 		if (fromParts[i] !== toParts[i]) {
@@ -93,13 +98,10 @@ const _posixBadPath = /(\/\.\.?\/)|(\/\.\.?)$|^(\.\.?\/)|(\/\/+)|(\\)/;
 const _winBadPath = /(\\\.\.?\\)|(\\\.\.?)$|^(\.\.?\\)|(\\\\+)|(\/)/;
 
 function _isNormal(path: string, win: boolean): boolean {
-	return win
-		? !_winBadPath.test(path)
-		: !_posixBadPath.test(path);
+	return win ? !_winBadPath.test(path) : !_posixBadPath.test(path);
 }
 
 export function normalize(path: string, toOSPath?: boolean): string {
-
 	if (path === null || path === void 0) {
 		return path;
 	}
@@ -123,10 +125,12 @@ export function normalize(path: string, toOSPath?: boolean): string {
 	let res = '';
 
 	for (let end = root.length; end <= len; end++) {
-
 		// either at the end or at a path-separator character
-		if (end === len || path.charCodeAt(end) === CharCode.Slash || path.charCodeAt(end) === CharCode.Backslash) {
-
+		if (
+			end === len ||
+			path.charCodeAt(end) === CharCode.Slash ||
+			path.charCodeAt(end) === CharCode.Backslash
+		) {
 			if (streql(path, start, end, '..')) {
 				// skip current and remove parent (if there is already something)
 				let prev_start = res.lastIndexOf(sep);
@@ -135,7 +139,10 @@ export function normalize(path: string, toOSPath?: boolean): string {
 					res = prev_start === -1 ? '' : res.slice(0, prev_start);
 					skip = true;
 				}
-			} else if (streql(path, start, end, '.') && (root || res || end < len - 1)) {
+			} else if (
+				streql(path, start, end, '.') &&
+				(root || res || end < len - 1)
+			) {
 				// skip current (if there is already something or if there is more to come)
 				skip = true;
 			}
@@ -155,7 +162,12 @@ export function normalize(path: string, toOSPath?: boolean): string {
 	return root + res;
 }
 
-function streql(value: string, start: number, end: number, other: string): boolean {
+function streql(
+	value: string,
+	start: number,
+	end: number,
+	other: string
+): boolean {
 	return start + other.length === end && value.indexOf(other, start) === start;
 }
 
@@ -165,7 +177,6 @@ function streql(value: string, start: number, end: number, other: string): boole
  * or `getRoot('\\server\shares\path') === \\server\shares\`
  */
 export function getRoot(path: string, sep: string = '/'): string {
-
 	if (!path) {
 		return '';
 	}
@@ -173,7 +184,6 @@ export function getRoot(path: string, sep: string = '/'): string {
 	let len = path.length;
 	let code = path.charCodeAt(0);
 	if (code === CharCode.Slash || code === CharCode.Backslash) {
-
 		code = path.charCodeAt(1);
 		if (code === CharCode.Slash || code === CharCode.Backslash) {
 			// UNC candidate \\localhost\shares\ddd
@@ -189,12 +199,17 @@ export function getRoot(path: string, sep: string = '/'): string {
 					}
 				}
 				code = path.charCodeAt(pos + 1);
-				if (start !== pos && code !== CharCode.Slash && code !== CharCode.Backslash) {
+				if (
+					start !== pos &&
+					code !== CharCode.Slash &&
+					code !== CharCode.Backslash
+				) {
 					pos += 1;
 					for (; pos < len; pos++) {
 						code = path.charCodeAt(pos);
 						if (code === CharCode.Slash || code === CharCode.Backslash) {
-							return path.slice(0, pos + 1) // consume this separator
+							return path
+								.slice(0, pos + 1) // consume this separator
 								.replace(/[\\/]/g, sep);
 						}
 					}
@@ -205,8 +220,10 @@ export function getRoot(path: string, sep: string = '/'): string {
 		// /user/far
 		// ^
 		return sep;
-
-	} else if ((code >= CharCode.A && code <= CharCode.Z) || (code >= CharCode.a && code <= CharCode.z)) {
+	} else if (
+		(code >= CharCode.A && code <= CharCode.Z) ||
+		(code >= CharCode.a && code <= CharCode.z)
+	) {
 		// check for windows drive letter c:\ or c:
 
 		if (path.charCodeAt(1) === CharCode.Colon) {
@@ -240,7 +257,7 @@ export function getRoot(path: string, sep: string = '/'): string {
 	return '';
 }
 
-export const join: (...parts: string[]) => string = function () {
+export const join: (...parts: string[]) => string = function() {
 	// Not using a function with var-args because of how TS compiles
 	// them to JS - it would result in 2*n runtime cost instead
 	// of 1*n, where n is parts.length.
@@ -255,7 +272,6 @@ export const join: (...parts: string[]) => string = function () {
 			if (last !== CharCode.Slash && last !== CharCode.Backslash) {
 				let next = part.charCodeAt(0);
 				if (next !== CharCode.Slash && next !== CharCode.Backslash) {
-
 					value += sep;
 				}
 			}
@@ -265,7 +281,6 @@ export const join: (...parts: string[]) => string = function () {
 
 	return normalize(value);
 };
-
 
 /**
  * Check if the path follows this pattern: `\\hostname\sharename`.

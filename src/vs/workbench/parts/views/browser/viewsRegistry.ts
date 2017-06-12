@@ -9,12 +9,10 @@ import { ITreeViewDataProvider } from 'vs/workbench/parts/views/common/views';
 import { ContextKeyExpr } from 'vs/platform/contextkey/common/contextkey';
 
 export class ViewLocation {
-
 	static readonly Explorer = new ViewLocation('explorer');
 	static readonly Debug = new ViewLocation('debug');
 
-	constructor(private _id: string) {
-	}
+	constructor(private _id: string) {}
 
 	get id(): string {
 		return this._id;
@@ -22,7 +20,6 @@ export class ViewLocation {
 }
 
 export interface IViewDescriptor {
-
 	readonly id: string;
 
 	readonly name: string;
@@ -39,7 +36,6 @@ export interface IViewDescriptor {
 }
 
 export interface IViewsRegistry {
-
 	readonly onViewsRegistered: Event<IViewDescriptor[]>;
 
 	readonly onViewsDeregistered: Event<IViewDescriptor[]>;
@@ -50,27 +46,43 @@ export interface IViewsRegistry {
 
 	deregisterViews(ids: string[], location: ViewLocation): void;
 
-	registerTreeViewDataProvider(id: string, factory: ITreeViewDataProvider): void;
+	registerTreeViewDataProvider(
+		id: string,
+		factory: ITreeViewDataProvider
+	): void;
 
 	getViews(loc: ViewLocation): IViewDescriptor[];
 
 	getTreeViewDataProvider(id: string): ITreeViewDataProvider;
-
 }
 
 export const ViewsRegistry: IViewsRegistry = new class {
+	private _onViewsRegistered: Emitter<IViewDescriptor[]> = new Emitter<
+		IViewDescriptor[]
+	>();
+	readonly onViewsRegistered: Event<IViewDescriptor[]> = this._onViewsRegistered
+		.event;
 
-	private _onViewsRegistered: Emitter<IViewDescriptor[]> = new Emitter<IViewDescriptor[]>();
-	readonly onViewsRegistered: Event<IViewDescriptor[]> = this._onViewsRegistered.event;
+	private _onViewsDeregistered: Emitter<IViewDescriptor[]> = new Emitter<
+		IViewDescriptor[]
+	>();
+	readonly onViewsDeregistered: Event<IViewDescriptor[]> = this
+		._onViewsDeregistered.event;
 
-	private _onViewsDeregistered: Emitter<IViewDescriptor[]> = new Emitter<IViewDescriptor[]>();
-	readonly onViewsDeregistered: Event<IViewDescriptor[]> = this._onViewsDeregistered.event;
+	private _onTreeViewDataProviderRegistered: Emitter<string> = new Emitter<
+		string
+	>();
+	readonly onTreeViewDataProviderRegistered: Event<string> = this
+		._onTreeViewDataProviderRegistered.event;
 
-	private _onTreeViewDataProviderRegistered: Emitter<string> = new Emitter<string>();
-	readonly onTreeViewDataProviderRegistered: Event<string> = this._onTreeViewDataProviderRegistered.event;
-
-	private _views: Map<ViewLocation, IViewDescriptor[]> = new Map<ViewLocation, IViewDescriptor[]>();
-	private _treeViewDataPoviders: Map<string, ITreeViewDataProvider> = new Map<string, ITreeViewDataProvider>();
+	private _views: Map<ViewLocation, IViewDescriptor[]> = new Map<
+		ViewLocation,
+		IViewDescriptor[]
+	>();
+	private _treeViewDataPoviders: Map<string, ITreeViewDataProvider> = new Map<
+		string,
+		ITreeViewDataProvider
+	>();
 
 	registerViews(viewDescriptors: IViewDescriptor[]): void {
 		if (viewDescriptors.length) {
@@ -87,9 +99,14 @@ export const ViewsRegistry: IViewsRegistry = new class {
 	}
 
 	deregisterViews(ids: string[], location: ViewLocation): void {
-		const viewsToDeregister = this._views.get(location).filter(view => ids.indexOf(view.id) !== -1);
+		const viewsToDeregister = this._views
+			.get(location)
+			.filter(view => ids.indexOf(view.id) !== -1);
 		if (viewsToDeregister.length) {
-			this._views.set(location, this._views.get(location).filter(view => ids.indexOf(view.id) === -1));
+			this._views.set(
+				location,
+				this._views.get(location).filter(view => ids.indexOf(view.id) === -1)
+			);
 		}
 		this._onViewsDeregistered.fire(viewsToDeregister);
 	}
@@ -112,7 +129,9 @@ export const ViewsRegistry: IViewsRegistry = new class {
 
 	private isViewRegistered(id: string): boolean {
 		let registered = false;
-		this._views.forEach(views => registered = registered || views.some(view => view.id === id));
+		this._views.forEach(
+			views => (registered = registered || views.some(view => view.id === id))
+		);
 		return registered;
 	}
-};
+}();

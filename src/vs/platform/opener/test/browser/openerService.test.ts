@@ -2,17 +2,23 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import URI from 'vs/base/common/uri';
 import * as assert from 'assert';
 import { TPromise } from 'vs/base/common/winjs.base';
-import { IEditorService, IResourceInput } from 'vs/platform/editor/common/editor';
-import { ICommandService, NullCommandService, CommandsRegistry } from 'vs/platform/commands/common/commands';
+import {
+	IEditorService,
+	IResourceInput
+} from 'vs/platform/editor/common/editor';
+import {
+	ICommandService,
+	NullCommandService,
+	CommandsRegistry
+} from 'vs/platform/commands/common/commands';
 import { OpenerService } from 'vs/platform/opener/browser/openerService';
 
-suite('OpenerService', function () {
-
+suite('OpenerService', function() {
 	let lastInput: IResourceInput;
 
 	const editorService = new class implements IEditorService {
@@ -20,32 +26,31 @@ suite('OpenerService', function () {
 		openEditor(input: IResourceInput): any {
 			lastInput = input;
 		}
-	};
+	}();
 
-	let lastCommand: { id: string, args: any[] };
+	let lastCommand: { id: string; args: any[] };
 
 	const commandService = new class implements ICommandService {
 		_serviceBrand: any;
-		onWillExecuteCommand = () => ({ dispose: () => { } });
+		onWillExecuteCommand = () => ({ dispose: () => {} });
 		executeCommand(id: string, ...args: any[]): TPromise<any> {
 			lastCommand = { id, args };
 			return TPromise.as(undefined);
 		}
-	};
+	}();
 
-	setup(function () {
+	setup(function() {
 		lastInput = undefined;
 		lastCommand = undefined;
 	});
 
-	test('delegate to editorService, scheme:///fff', function () {
+	test('delegate to editorService, scheme:///fff', function() {
 		const openerService = new OpenerService(editorService, NullCommandService);
 		openerService.open(URI.parse('another:///somepath'));
 		assert.equal(lastInput.options.selection, undefined);
 	});
 
-	test('delegate to editorService, scheme:///fff#L123', function () {
-
+	test('delegate to editorService, scheme:///fff#L123', function() {
 		const openerService = new OpenerService(editorService, NullCommandService);
 
 		openerService.open(URI.parse('file:///somepath#L23'));
@@ -67,8 +72,7 @@ suite('OpenerService', function () {
 		assert.equal(lastInput.resource.fragment, '');
 	});
 
-	test('delegate to editorService, scheme:///fff#123,123', function () {
-
+	test('delegate to editorService, scheme:///fff#123,123', function() {
 		const openerService = new OpenerService(editorService, NullCommandService);
 
 		openerService.open(URI.parse('file:///somepath#23'));
@@ -86,8 +90,7 @@ suite('OpenerService', function () {
 		assert.equal(lastInput.resource.fragment, '');
 	});
 
-	test('delegate to commandsService, command:someid', function () {
-
+	test('delegate to commandsService, command:someid', function() {
 		const openerService = new OpenerService(editorService, commandService);
 
 		// unknown command
@@ -97,7 +100,7 @@ suite('OpenerService', function () {
 		assert.equal(lastInput.options.selection, undefined);
 
 		const id = `aCommand${Math.random()}`;
-		CommandsRegistry.registerCommand(id, function () { });
+		CommandsRegistry.registerCommand(id, function() {});
 
 		openerService.open(URI.parse('command:' + id));
 		assert.equal(lastCommand.id, id);
@@ -108,7 +111,9 @@ suite('OpenerService', function () {
 		assert.equal(lastCommand.args.length, 1);
 		assert.equal(lastCommand.args[0], '123');
 
-		openerService.open(URI.parse('command:' + id).with({ query: JSON.stringify([12, true]) }));
+		openerService.open(
+			URI.parse('command:' + id).with({ query: JSON.stringify([12, true]) })
+		);
 		assert.equal(lastCommand.id, id);
 		assert.equal(lastCommand.args.length, 2);
 		assert.equal(lastCommand.args[0], 12);

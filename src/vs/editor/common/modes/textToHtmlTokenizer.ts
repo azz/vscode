@@ -2,10 +2,15 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as strings from 'vs/base/common/strings';
-import { IState, ITokenizationSupport, TokenizationRegistry, LanguageId } from 'vs/editor/common/modes';
+import {
+	IState,
+	ITokenizationSupport,
+	TokenizationRegistry,
+	LanguageId
+} from 'vs/editor/common/modes';
 import { NULL_STATE, nullTokenize2 } from 'vs/editor/common/modes/nullMode';
 import { LineTokens } from 'vs/editor/common/core/lineTokens';
 import { CharCode } from 'vs/base/common/charCode';
@@ -15,12 +20,23 @@ export function tokenizeToString(text: string, languageId: string): string {
 	return _tokenizeToString(text, _getSafeTokenizationSupport(languageId));
 }
 
-export function tokenizeLineToHTML(text: string, viewLineTokens: ViewLineToken[], colorMap: string[], startOffset: number, endOffset: number, tabSize: number): string {
+export function tokenizeLineToHTML(
+	text: string,
+	viewLineTokens: ViewLineToken[],
+	colorMap: string[],
+	startOffset: number,
+	endOffset: number,
+	tabSize: number
+): string {
 	let result = `<div>`;
 	let charIndex = startOffset;
 	let tabsCharDelta = 0;
 
-	for (let tokenIndex = 0, lenJ = viewLineTokens.length; tokenIndex < lenJ; tokenIndex++) {
+	for (
+		let tokenIndex = 0, lenJ = viewLineTokens.length;
+		tokenIndex < lenJ;
+		tokenIndex++
+	) {
 		const token = viewLineTokens[tokenIndex];
 		const tokenEndIndex = token.endIndex;
 
@@ -35,7 +51,8 @@ export function tokenizeLineToHTML(text: string, viewLineTokens: ViewLineToken[]
 
 			switch (charCode) {
 				case CharCode.Tab:
-					let insertSpacesCount = tabSize - (charIndex + tabsCharDelta) % tabSize;
+					let insertSpacesCount =
+						tabSize - (charIndex + tabsCharDelta) % tabSize;
 					tabsCharDelta += insertSpacesCount - 1;
 					while (insertSpacesCount > 0) {
 						partContent += '&nbsp;';
@@ -74,7 +91,9 @@ export function tokenizeLineToHTML(text: string, viewLineTokens: ViewLineToken[]
 			}
 		}
 
-		result += `<span style="${token.getInlineStyle(colorMap)}">${partContent}</span>`;
+		result += `<span style="${token.getInlineStyle(
+			colorMap
+		)}">${partContent}</span>`;
 
 		if (token.endIndex > endOffset || charIndex >= endOffset) {
 			break;
@@ -93,11 +112,15 @@ function _getSafeTokenizationSupport(languageId: string): ITokenizationSupport {
 	return {
 		getInitialState: () => NULL_STATE,
 		tokenize: undefined,
-		tokenize2: (buffer: string, state: IState, deltaOffset: number) => nullTokenize2(LanguageId.Null, buffer, state, deltaOffset)
+		tokenize2: (buffer: string, state: IState, deltaOffset: number) =>
+			nullTokenize2(LanguageId.Null, buffer, state, deltaOffset)
 	};
 }
 
-function _tokenizeToString(text: string, tokenizationSupport: ITokenizationSupport): string {
+function _tokenizeToString(
+	text: string,
+	tokenizationSupport: ITokenizationSupport
+): string {
 	let result = `<div class="monaco-tokenized-source">`;
 	let lines = text.split(/\r\n|\r|\n/);
 	let currentState = tokenizationSupport.getInitialState();
@@ -108,14 +131,20 @@ function _tokenizeToString(text: string, tokenizationSupport: ITokenizationSuppo
 			result += `<br/>`;
 		}
 
-		let tokenizationResult = tokenizationSupport.tokenize2(line, currentState, 0);
+		let tokenizationResult = tokenizationSupport.tokenize2(
+			line,
+			currentState,
+			0
+		);
 		let lineTokens = new LineTokens(tokenizationResult.tokens, line);
 		let viewLineTokens = lineTokens.inflate();
 
 		let startOffset = 0;
 		for (let j = 0, lenJ = viewLineTokens.length; j < lenJ; j++) {
 			const viewLineToken = viewLineTokens[j];
-			result += `<span class="${viewLineToken.getType()}">${strings.escape(line.substring(startOffset, viewLineToken.endIndex))}</span>`;
+			result += `<span class="${viewLineToken.getType()}">${strings.escape(
+				line.substring(startOffset, viewLineToken.endIndex)
+			)}</span>`;
 			startOffset = viewLineToken.endIndex;
 		}
 

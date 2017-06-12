@@ -2,16 +2,19 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { notImplemented } from 'vs/base/common/errors';
 import { TPromise } from 'vs/base/common/winjs.base';
-import { ITelemetryService, ITelemetryInfo, ITelemetryExperiments } from 'vs/platform/telemetry/common/telemetry';
+import {
+	ITelemetryService,
+	ITelemetryInfo,
+	ITelemetryExperiments
+} from 'vs/platform/telemetry/common/telemetry';
 import { IThreadService } from 'vs/workbench/services/thread/common/threadService';
 import { MainContext, MainThreadTelemetryShape } from './extHost.protocol';
 
 export class RemoteTelemetryService implements ITelemetryService {
-
 	_serviceBrand: any;
 
 	private _name: string;

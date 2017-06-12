@@ -2,30 +2,74 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
-import { LanguageModelCache, getLanguageModelCache } from '../languageModelCache';
-import { SymbolInformation, SymbolKind, CompletionItem, Location, SignatureHelp, SignatureInformation, ParameterInformation, Definition, TextEdit, TextDocument, Diagnostic, DiagnosticSeverity, Range, CompletionItemKind, Hover, MarkedString, DocumentHighlight, DocumentHighlightKind, CompletionList, Position, FormattingOptions } from 'vscode-languageserver-types';
+import {
+	LanguageModelCache,
+	getLanguageModelCache
+} from '../languageModelCache';
+import {
+	SymbolInformation,
+	SymbolKind,
+	CompletionItem,
+	Location,
+	SignatureHelp,
+	SignatureInformation,
+	ParameterInformation,
+	Definition,
+	TextEdit,
+	TextDocument,
+	Diagnostic,
+	DiagnosticSeverity,
+	Range,
+	CompletionItemKind,
+	Hover,
+	MarkedString,
+	DocumentHighlight,
+	DocumentHighlightKind,
+	CompletionList,
+	Position,
+	FormattingOptions
+} from 'vscode-languageserver-types';
 import { LanguageMode } from './languageModes';
-import { getWordAtText, startsWith, isWhitespaceOnly, repeat } from '../utils/strings';
+import {
+	getWordAtText,
+	startsWith,
+	isWhitespaceOnly,
+	repeat
+} from '../utils/strings';
 import { HTMLDocumentRegions } from './embeddedSupport';
 
 import * as ts from 'typescript';
 import { join } from 'path';
 
-const FILE_NAME = 'vscode://javascript/1';  // the same 'file' is used for all contents
+const FILE_NAME = 'vscode://javascript/1'; // the same 'file' is used for all contents
 const JQUERY_D_TS = join(__dirname, '../../lib/jquery.d.ts');
 
 const JS_WORD_REGEX = /(-?\d*\.\d\w*)|([^\`\~\!\@\#\%\^\&\*\(\)\-\=\+\[\{\]\}\\\|\;\:\'\"\,\.\<\>\/\?\s]+)/g;
 
-export function getJavascriptMode(documentRegions: LanguageModelCache<HTMLDocumentRegions>): LanguageMode {
-	let jsDocuments = getLanguageModelCache<TextDocument>(10, 60, document => documentRegions.get(document).getEmbeddedDocument('javascript'));
+export function getJavascriptMode(
+	documentRegions: LanguageModelCache<HTMLDocumentRegions>
+): LanguageMode {
+	let jsDocuments = getLanguageModelCache<TextDocument>(10, 60, document =>
+		documentRegions.get(document).getEmbeddedDocument('javascript')
+	);
 
-	let compilerOptions: ts.CompilerOptions = { allowNonTsExtensions: true, allowJs: true, lib: ['lib.es6.d.ts'], target: ts.ScriptTarget.Latest, moduleResolution: ts.ModuleResolutionKind.Classic };
+	let compilerOptions: ts.CompilerOptions = {
+		allowNonTsExtensions: true,
+		allowJs: true,
+		lib: ['lib.es6.d.ts'],
+		target: ts.ScriptTarget.Latest,
+		moduleResolution: ts.ModuleResolutionKind.Classic
+	};
 	let currentTextDocument: TextDocument;
 	let scriptFileVersion: number = 0;
 	function updateCurrentTextDocument(doc: TextDocument) {
-		if (!currentTextDocument || doc.uri !== currentTextDocument.uri || doc.version !== currentTextDocument.version) {
+		if (
+			!currentTextDocument ||
+			doc.uri !== currentTextDocument.uri ||
+			doc.version !== currentTextDocument.version
+		) {
 			currentTextDocument = jsDocuments.get(doc);
 			scriptFileVersion++;
 		}
@@ -56,7 +100,7 @@ export function getJavascriptMode(documentRegions: LanguageModelCache<HTMLDocume
 			};
 		},
 		getCurrentDirectory: () => '',
-		getDefaultLibFileName: (options) => ts.getDefaultLibFilePath(options)
+		getDefaultLibFileName: options => ts.getDefaultLibFilePath(options)
 	};
 	let jsLanguageService = ts.createLanguageService(host);
 
@@ -71,24 +115,36 @@ export function getJavascriptMode(documentRegions: LanguageModelCache<HTMLDocume
 		},
 		doValidation(document: TextDocument): Diagnostic[] {
 			updateCurrentTextDocument(document);
-			const syntaxDiagnostics = jsLanguageService.getSyntacticDiagnostics(FILE_NAME);
-			const semanticDiagnostics = jsLanguageService.getSemanticDiagnostics(FILE_NAME);
-			return syntaxDiagnostics.concat(semanticDiagnostics).map((diag): Diagnostic => {
-				return {
-					range: convertRange(currentTextDocument, diag),
-					severity: DiagnosticSeverity.Error,
-					message: ts.flattenDiagnosticMessageText(diag.messageText, '\n')
-				};
-			});
+			const syntaxDiagnostics = jsLanguageService.getSyntacticDiagnostics(
+				FILE_NAME
+			);
+			const semanticDiagnostics = jsLanguageService.getSemanticDiagnostics(
+				FILE_NAME
+			);
+			return syntaxDiagnostics
+				.concat(semanticDiagnostics)
+				.map((diag): Diagnostic => {
+					return {
+						range: convertRange(currentTextDocument, diag),
+						severity: DiagnosticSeverity.Error,
+						message: ts.flattenDiagnosticMessageText(diag.messageText, '\n')
+					};
+				});
 		},
 		doComplete(document: TextDocument, position: Position): CompletionList {
 			updateCurrentTextDocument(document);
 			let offset = currentTextDocument.offsetAt(position);
-			let completions = jsLanguageService.getCompletionsAtPosition(FILE_NAME, offset);
+			let completions = jsLanguageService.getCompletionsAtPosition(
+				FILE_NAME,
+				offset
+			);
 			if (!completions) {
 				return { isIncomplete: false, items: [] };
 			}
-			let replaceRange = convertRange(currentTextDocument, getWordAtText(currentTextDocument.getText(), offset, JS_WORD_REGEX));
+			let replaceRange = convertRange(
+				currentTextDocument,
+				getWordAtText(currentTextDocument.getText(), offset, JS_WORD_REGEX)
+			);
 			return {
 				isIncomplete: false,
 				items: completions.entries.map(entry => {
@@ -99,7 +155,8 @@ export function getJavascriptMode(documentRegions: LanguageModelCache<HTMLDocume
 						sortText: entry.sortText,
 						kind: convertKind(entry.kind),
 						textEdit: TextEdit.replace(replaceRange, entry.name),
-						data: { // data used for resolving item details (see 'doResolve')
+						data: {
+							// data used for resolving item details (see 'doResolve')
 							languageId: 'javascript',
 							uri: document.uri,
 							offset: offset
@@ -110,7 +167,11 @@ export function getJavascriptMode(documentRegions: LanguageModelCache<HTMLDocume
 		},
 		doResolve(document: TextDocument, item: CompletionItem): CompletionItem {
 			updateCurrentTextDocument(document);
-			let details = jsLanguageService.getCompletionEntryDetails(FILE_NAME, item.data.offset, item.label);
+			let details = jsLanguageService.getCompletionEntryDetails(
+				FILE_NAME,
+				item.data.offset,
+				item.label
+			);
 			if (details) {
 				item.detail = ts.displayPartsToString(details.displayParts);
 				item.documentation = ts.displayPartsToString(details.documentation);
@@ -120,7 +181,10 @@ export function getJavascriptMode(documentRegions: LanguageModelCache<HTMLDocume
 		},
 		doHover(document: TextDocument, position: Position): Hover {
 			updateCurrentTextDocument(document);
-			let info = jsLanguageService.getQuickInfoAtPosition(FILE_NAME, currentTextDocument.offsetAt(position));
+			let info = jsLanguageService.getQuickInfoAtPosition(
+				FILE_NAME,
+				currentTextDocument.offsetAt(position)
+			);
 			if (info) {
 				let contents = ts.displayPartsToString(info.displayParts);
 				return {
@@ -132,7 +196,10 @@ export function getJavascriptMode(documentRegions: LanguageModelCache<HTMLDocume
 		},
 		doSignatureHelp(document: TextDocument, position: Position): SignatureHelp {
 			updateCurrentTextDocument(document);
-			let signHelp = jsLanguageService.getSignatureHelpItems(FILE_NAME, currentTextDocument.offsetAt(position));
+			let signHelp = jsLanguageService.getSignatureHelpItems(
+				FILE_NAME,
+				currentTextDocument.offsetAt(position)
+			);
 			if (signHelp) {
 				let ret: SignatureHelp = {
 					activeSignature: signHelp.selectedItemIndex,
@@ -140,7 +207,6 @@ export function getJavascriptMode(documentRegions: LanguageModelCache<HTMLDocume
 					signatures: []
 				};
 				signHelp.items.forEach(item => {
-
 					let signature: SignatureInformation = {
 						label: '',
 						documentation: null,
@@ -157,27 +223,37 @@ export function getJavascriptMode(documentRegions: LanguageModelCache<HTMLDocume
 						signature.label += label;
 						signature.parameters.push(parameter);
 						if (i < a.length - 1) {
-							signature.label += ts.displayPartsToString(item.separatorDisplayParts);
+							signature.label += ts.displayPartsToString(
+								item.separatorDisplayParts
+							);
 						}
 					});
 					signature.label += ts.displayPartsToString(item.suffixDisplayParts);
 					ret.signatures.push(signature);
 				});
 				return ret;
-			};
+			}
 			return null;
 		},
-		findDocumentHighlight(document: TextDocument, position: Position): DocumentHighlight[] {
+		findDocumentHighlight(
+			document: TextDocument,
+			position: Position
+		): DocumentHighlight[] {
 			updateCurrentTextDocument(document);
-			let occurrences = jsLanguageService.getOccurrencesAtPosition(FILE_NAME, currentTextDocument.offsetAt(position));
+			let occurrences = jsLanguageService.getOccurrencesAtPosition(
+				FILE_NAME,
+				currentTextDocument.offsetAt(position)
+			);
 			if (occurrences) {
 				return occurrences.map(entry => {
 					return {
 						range: convertRange(currentTextDocument, entry.textSpan),
-						kind: <DocumentHighlightKind>(entry.isWriteAccess ? DocumentHighlightKind.Write : DocumentHighlightKind.Text)
+						kind: <DocumentHighlightKind>(entry.isWriteAccess
+							? DocumentHighlightKind.Write
+							: DocumentHighlightKind.Text)
 					};
 				});
-			};
+			}
 			return null;
 		},
 		findDocumentSymbols(document: TextDocument): SymbolInformation[] {
@@ -186,7 +262,10 @@ export function getJavascriptMode(documentRegions: LanguageModelCache<HTMLDocume
 			if (items) {
 				let result: SymbolInformation[] = [];
 				let existing = {};
-				let collectSymbols = (item: ts.NavigationBarItem, containerLabel?: string) => {
+				let collectSymbols = (
+					item: ts.NavigationBarItem,
+					containerLabel?: string
+				) => {
 					let sig = item.text + item.kind + item.spans[0].start;
 					if (item.kind !== 'script' && !existing[sig]) {
 						let symbol: SymbolInformation = {
@@ -208,7 +287,6 @@ export function getJavascriptMode(documentRegions: LanguageModelCache<HTMLDocume
 							collectSymbols(child, containerLabel);
 						}
 					}
-
 				};
 
 				items.forEach(item => collectSymbols(item));
@@ -218,7 +296,10 @@ export function getJavascriptMode(documentRegions: LanguageModelCache<HTMLDocume
 		},
 		findDefinition(document: TextDocument, position: Position): Definition {
 			updateCurrentTextDocument(document);
-			let definition = jsLanguageService.getDefinitionAtPosition(FILE_NAME, currentTextDocument.offsetAt(position));
+			let definition = jsLanguageService.getDefinitionAtPosition(
+				FILE_NAME,
+				currentTextDocument.offsetAt(position)
+			);
 			if (definition) {
 				return definition.filter(d => d.fileName === FILE_NAME).map(d => {
 					return {
@@ -231,7 +312,10 @@ export function getJavascriptMode(documentRegions: LanguageModelCache<HTMLDocume
 		},
 		findReferences(document: TextDocument, position: Position): Location[] {
 			updateCurrentTextDocument(document);
-			let references = jsLanguageService.getReferencesAtPosition(FILE_NAME, currentTextDocument.offsetAt(position));
+			let references = jsLanguageService.getReferencesAtPosition(
+				FILE_NAME,
+				currentTextDocument.offsetAt(position)
+			);
 			if (references) {
 				return references.filter(d => d.fileName === FILE_NAME).map(d => {
 					return {
@@ -242,24 +326,56 @@ export function getJavascriptMode(documentRegions: LanguageModelCache<HTMLDocume
 			}
 			return null;
 		},
-		format(document: TextDocument, range: Range, formatParams: FormattingOptions): TextEdit[] {
-			currentTextDocument = documentRegions.get(document).getEmbeddedDocument('javascript', true);
+		format(
+			document: TextDocument,
+			range: Range,
+			formatParams: FormattingOptions
+		): TextEdit[] {
+			currentTextDocument = documentRegions
+				.get(document)
+				.getEmbeddedDocument('javascript', true);
 			scriptFileVersion++;
 
-			let initialIndentLevel = computeInitialIndent(document, range, formatParams);
-			let formatSettings = convertOptions(formatParams, settings && settings.format, initialIndentLevel + 1);
+			let initialIndentLevel = computeInitialIndent(
+				document,
+				range,
+				formatParams
+			);
+			let formatSettings = convertOptions(
+				formatParams,
+				settings && settings.format,
+				initialIndentLevel + 1
+			);
 			let start = currentTextDocument.offsetAt(range.start);
 			let end = currentTextDocument.offsetAt(range.end);
 			let lastLineRange = null;
-			if (range.end.character === 0 || isWhitespaceOnly(currentTextDocument.getText().substr(end - range.end.character, range.end.character))) {
+			if (
+				range.end.character === 0 ||
+				isWhitespaceOnly(
+					currentTextDocument
+						.getText()
+						.substr(end - range.end.character, range.end.character)
+				)
+			) {
 				end -= range.end.character;
-				lastLineRange = Range.create(Position.create(range.end.line, 0), range.end);
+				lastLineRange = Range.create(
+					Position.create(range.end.line, 0),
+					range.end
+				);
 			}
-			let edits = jsLanguageService.getFormattingEditsForRange(FILE_NAME, start, end, formatSettings);
+			let edits = jsLanguageService.getFormattingEditsForRange(
+				FILE_NAME,
+				start,
+				end,
+				formatSettings
+			);
 			if (edits) {
 				let result = [];
 				for (let edit of edits) {
-					if (edit.span.start >= start && edit.span.start + edit.span.length <= end) {
+					if (
+						edit.span.start >= start &&
+						edit.span.start + edit.span.length <= end
+					) {
 						result.push({
 							range: convertRange(currentTextDocument, edit.span),
 							newText: edit.newText
@@ -284,9 +400,12 @@ export function getJavascriptMode(documentRegions: LanguageModelCache<HTMLDocume
 			jsDocuments.dispose();
 		}
 	};
-};
+}
 
-function convertRange(document: TextDocument, span: { start: number, length: number }): Range {
+function convertRange(
+	document: TextDocument,
+	span: { start: number; length: number }
+): Range {
 	let startPosition = document.positionAt(span.start);
 	let endPosition = document.positionAt(span.start + span.length);
 	return Range.create(startPosition, endPosition);
@@ -352,7 +471,11 @@ function convertSymbolKind(kind: string): SymbolKind {
 	return SymbolKind.Variable;
 }
 
-function convertOptions(options: FormattingOptions, formatSettings: any, initialIndentLevel: number): ts.FormatCodeOptions {
+function convertOptions(
+	options: FormattingOptions,
+	formatSettings: any,
+	initialIndentLevel: number
+): ts.FormatCodeOptions {
 	return {
 		ConvertTabsToSpaces: options.insertSpaces,
 		TabSize: options.tabSize,
@@ -360,21 +483,53 @@ function convertOptions(options: FormattingOptions, formatSettings: any, initial
 		IndentStyle: ts.IndentStyle.Smart,
 		NewLineCharacter: '\n',
 		BaseIndentSize: options.tabSize * initialIndentLevel,
-		InsertSpaceAfterCommaDelimiter: Boolean(!formatSettings || formatSettings.insertSpaceAfterCommaDelimiter),
-		InsertSpaceAfterSemicolonInForStatements: Boolean(!formatSettings || formatSettings.insertSpaceAfterSemicolonInForStatements),
-		InsertSpaceBeforeAndAfterBinaryOperators: Boolean(!formatSettings || formatSettings.insertSpaceBeforeAndAfterBinaryOperators),
-		InsertSpaceAfterKeywordsInControlFlowStatements: Boolean(!formatSettings || formatSettings.insertSpaceAfterKeywordsInControlFlowStatements),
-		InsertSpaceAfterFunctionKeywordForAnonymousFunctions: Boolean(!formatSettings || formatSettings.insertSpaceAfterFunctionKeywordForAnonymousFunctions),
-		InsertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis: Boolean(formatSettings && formatSettings.insertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis),
-		InsertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets: Boolean(formatSettings && formatSettings.insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets),
-		InsertSpaceAfterOpeningAndBeforeClosingNonemptyBraces: Boolean(formatSettings && formatSettings.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces),
-		InsertSpaceAfterOpeningAndBeforeClosingTemplateStringBraces: Boolean(formatSettings && formatSettings.insertSpaceAfterOpeningAndBeforeClosingTemplateStringBraces),
-		PlaceOpenBraceOnNewLineForControlBlocks: Boolean(formatSettings && formatSettings.placeOpenBraceOnNewLineForFunctions),
-		PlaceOpenBraceOnNewLineForFunctions: Boolean(formatSettings && formatSettings.placeOpenBraceOnNewLineForControlBlocks)
+		InsertSpaceAfterCommaDelimiter: Boolean(
+			!formatSettings || formatSettings.insertSpaceAfterCommaDelimiter
+		),
+		InsertSpaceAfterSemicolonInForStatements: Boolean(
+			!formatSettings || formatSettings.insertSpaceAfterSemicolonInForStatements
+		),
+		InsertSpaceBeforeAndAfterBinaryOperators: Boolean(
+			!formatSettings || formatSettings.insertSpaceBeforeAndAfterBinaryOperators
+		),
+		InsertSpaceAfterKeywordsInControlFlowStatements: Boolean(
+			!formatSettings ||
+				formatSettings.insertSpaceAfterKeywordsInControlFlowStatements
+		),
+		InsertSpaceAfterFunctionKeywordForAnonymousFunctions: Boolean(
+			!formatSettings ||
+				formatSettings.insertSpaceAfterFunctionKeywordForAnonymousFunctions
+		),
+		InsertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis: Boolean(
+			formatSettings &&
+				formatSettings.insertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis
+		),
+		InsertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets: Boolean(
+			formatSettings &&
+				formatSettings.insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets
+		),
+		InsertSpaceAfterOpeningAndBeforeClosingNonemptyBraces: Boolean(
+			formatSettings &&
+				formatSettings.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces
+		),
+		InsertSpaceAfterOpeningAndBeforeClosingTemplateStringBraces: Boolean(
+			formatSettings &&
+				formatSettings.insertSpaceAfterOpeningAndBeforeClosingTemplateStringBraces
+		),
+		PlaceOpenBraceOnNewLineForControlBlocks: Boolean(
+			formatSettings && formatSettings.placeOpenBraceOnNewLineForFunctions
+		),
+		PlaceOpenBraceOnNewLineForFunctions: Boolean(
+			formatSettings && formatSettings.placeOpenBraceOnNewLineForControlBlocks
+		)
 	};
 }
 
-function computeInitialIndent(document: TextDocument, range: Range, options: FormattingOptions) {
+function computeInitialIndent(
+	document: TextDocument,
+	range: Range,
+	options: FormattingOptions
+) {
 	let lineStart = document.offsetAt(Position.create(range.start.line, 0));
 	let content = document.getText();
 

@@ -4,7 +4,6 @@
  *--------------------------------------------------------------------------------------------*/
 
 declare module 'https-proxy-agent' {
-
 	import * as tls from 'tls';
 
 	interface IHttpsProxyAgentOptions extends tls.ConnectionOptions {

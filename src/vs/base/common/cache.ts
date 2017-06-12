@@ -3,14 +3,13 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 
 export default class Cache<T> {
-
 	private promise: TPromise<T> = null;
-	constructor(private task: () => TPromise<T>) { }
+	constructor(private task: () => TPromise<T>) {}
 
 	get(): TPromise<T> {
 		if (this.promise) {
@@ -19,10 +18,13 @@ export default class Cache<T> {
 
 		const promise = this.task();
 
-		this.promise = new TPromise<T>((c, e) => promise.done(c, e), () => {
-			this.promise = null;
-			promise.cancel();
-		});
+		this.promise = new TPromise<T>(
+			(c, e) => promise.done(c, e),
+			() => {
+				this.promise = null;
+				promise.cancel();
+			}
+		);
 
 		return this.promise;
 	}

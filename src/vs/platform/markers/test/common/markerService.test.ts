@@ -2,8 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
-
+('use strict');
 
 import assert = require('assert');
 import URI from 'vs/base/common/uri';
@@ -22,35 +21,43 @@ function randomMarkerData(): IMarkerData {
 }
 
 suite('Marker Service', () => {
-
 	test('query', () => {
-
 		let service = new markerService.MarkerService();
 
-		service.changeAll('far', [{
-			resource: URI.parse('file:///c/test/file.cs'),
-			marker: randomMarkerData()
-		}]);
+		service.changeAll('far', [
+			{
+				resource: URI.parse('file:///c/test/file.cs'),
+				marker: randomMarkerData()
+			}
+		]);
 
 		assert.equal(service.read().length, 1);
 		assert.equal(service.read({ owner: 'far' }).length, 1);
-		assert.equal(service.read({ resource: URI.parse('file:///c/test/file.cs') }).length, 1);
-		assert.equal(service.read({ owner: 'far', resource: URI.parse('file:///c/test/file.cs') }).length, 1);
+		assert.equal(
+			service.read({ resource: URI.parse('file:///c/test/file.cs') }).length,
+			1
+		);
+		assert.equal(
+			service.read({
+				owner: 'far',
+				resource: URI.parse('file:///c/test/file.cs')
+			}).length,
+			1
+		);
 
-
-		service.changeAll('boo', [{
-			resource: URI.parse('file:///c/test/file.cs'),
-			marker: randomMarkerData()
-		}]);
+		service.changeAll('boo', [
+			{
+				resource: URI.parse('file:///c/test/file.cs'),
+				marker: randomMarkerData()
+			}
+		]);
 
 		assert.equal(service.read().length, 2);
 		assert.equal(service.read({ owner: 'far' }).length, 1);
 		assert.equal(service.read({ owner: 'boo' }).length, 1);
 	});
 
-
 	test('changeOne override', () => {
-
 		let service = new markerService.MarkerService();
 		service.changeOne('far', URI.parse('/path/only.cs'), [randomMarkerData()]);
 		assert.equal(service.read().length, 1);
@@ -61,14 +68,15 @@ suite('Marker Service', () => {
 		assert.equal(service.read({ owner: 'far' }).length, 1);
 		assert.equal(service.read({ owner: 'boo' }).length, 1);
 
-		service.changeOne('far', URI.parse('/path/only.cs'), [randomMarkerData(), randomMarkerData()]);
+		service.changeOne('far', URI.parse('/path/only.cs'), [
+			randomMarkerData(),
+			randomMarkerData()
+		]);
 		assert.equal(service.read({ owner: 'far' }).length, 2);
 		assert.equal(service.read({ owner: 'boo' }).length, 1);
-
 	});
 
 	test('changeOne/All clears', () => {
-
 		let service = new markerService.MarkerService();
 		service.changeOne('far', URI.parse('/path/only.cs'), [randomMarkerData()]);
 		service.changeOne('boo', URI.parse('/path/only.cs'), [randomMarkerData()]);
@@ -88,21 +96,25 @@ suite('Marker Service', () => {
 	});
 
 	test('changeAll sends event for cleared', () => {
-
 		let service = new markerService.MarkerService();
-		service.changeAll('far', [{
-			resource: URI.parse('file:///d/path'),
-			marker: randomMarkerData()
-		}, {
-			resource: URI.parse('file:///d/path'),
-			marker: randomMarkerData()
-		}]);
+		service.changeAll('far', [
+			{
+				resource: URI.parse('file:///d/path'),
+				marker: randomMarkerData()
+			},
+			{
+				resource: URI.parse('file:///d/path'),
+				marker: randomMarkerData()
+			}
+		]);
 
 		assert.equal(service.read({ owner: 'far' }).length, 2);
 
 		service.onMarkerChanged(changedResources => {
 			assert.equal(changedResources.length, 1);
-			changedResources.forEach(u => assert.equal(u.toString(), 'file:///d/path'));
+			changedResources.forEach(u =>
+				assert.equal(u.toString(), 'file:///d/path')
+			);
 			assert.equal(service.read({ owner: 'far' }).length, 0);
 		});
 
@@ -112,13 +124,16 @@ suite('Marker Service', () => {
 	test('changeAll merges', () => {
 		let service = new markerService.MarkerService();
 
-		service.changeAll('far', [{
-			resource: URI.parse('file:///c/test/file.cs'),
-			marker: randomMarkerData()
-		}, {
-			resource: URI.parse('file:///c/test/file.cs'),
-			marker: randomMarkerData()
-		}]);
+		service.changeAll('far', [
+			{
+				resource: URI.parse('file:///c/test/file.cs'),
+				marker: randomMarkerData()
+			},
+			{
+				resource: URI.parse('file:///c/test/file.cs'),
+				marker: randomMarkerData()
+			}
+		]);
 
 		assert.equal(service.read({ owner: 'far' }).length, 2);
 	});
@@ -126,33 +141,43 @@ suite('Marker Service', () => {
 	test('changeAll must not break integrety, issue #12635', () => {
 		let service = new markerService.MarkerService();
 
-		service.changeAll('far', [{
-			resource: URI.parse('scheme:path1'),
-			marker: randomMarkerData()
-		}, {
-			resource: URI.parse('scheme:path2'),
-			marker: randomMarkerData()
-		}]);
+		service.changeAll('far', [
+			{
+				resource: URI.parse('scheme:path1'),
+				marker: randomMarkerData()
+			},
+			{
+				resource: URI.parse('scheme:path2'),
+				marker: randomMarkerData()
+			}
+		]);
 
-		service.changeAll('boo', [{
-			resource: URI.parse('scheme:path1'),
-			marker: randomMarkerData()
-		}]);
+		service.changeAll('boo', [
+			{
+				resource: URI.parse('scheme:path1'),
+				marker: randomMarkerData()
+			}
+		]);
 
-		service.changeAll('far', [{
-			resource: URI.parse('scheme:path1'),
-			marker: randomMarkerData()
-		}, {
-			resource: URI.parse('scheme:path2'),
-			marker: randomMarkerData()
-		}]);
+		service.changeAll('far', [
+			{
+				resource: URI.parse('scheme:path1'),
+				marker: randomMarkerData()
+			},
+			{
+				resource: URI.parse('scheme:path2'),
+				marker: randomMarkerData()
+			}
+		]);
 
 		assert.equal(service.read({ owner: 'far' }).length, 2);
-		assert.equal(service.read({ resource: URI.parse('scheme:path1') }).length, 2);
+		assert.equal(
+			service.read({ resource: URI.parse('scheme:path1') }).length,
+			2
+		);
 	});
 
 	test('invalid marker data', () => {
-
 		let data = randomMarkerData();
 		let service = new markerService.MarkerService();
 
@@ -174,6 +199,5 @@ suite('Marker Service', () => {
 
 		service.changeOne('o', URI.parse('some:uri/1'), [randomMarkerData()]);
 		service.changeOne('o', URI.parse('some:uri/2'), []);
-
 	});
 });

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import * as platform from 'vs/base/common/platform';
@@ -14,7 +14,10 @@ import path = require('path');
 import extfs = require('vs/base/node/extfs');
 import pfs = require('vs/base/node/pfs');
 import Uri from 'vs/base/common/uri';
-import { BackupFileService, BackupFilesModel } from 'vs/workbench/services/backup/node/backupFileService';
+import {
+	BackupFileService,
+	BackupFilesModel
+} from 'vs/workbench/services/backup/node/backupFileService';
 import { FileService } from 'vs/workbench/services/files/node/fileService';
 import { EnvironmentService } from 'vs/platform/environment/node/environmentService';
 import { IBackupService } from 'vs/platform/backup/common/backup';
@@ -24,43 +27,83 @@ import { TestWindowService } from 'vs/workbench/test/workbenchTestServices';
 import { RawTextSource } from 'vs/editor/common/model/textSource';
 
 class TestEnvironmentService extends EnvironmentService {
-
-	constructor(private _backupHome: string, private _backupWorkspacesPath: string) {
+	constructor(
+		private _backupHome: string,
+		private _backupWorkspacesPath: string
+	) {
 		super(parseArgs(process.argv), process.execPath);
 	}
 
-	get backupHome(): string { return this._backupHome; }
+	get backupHome(): string {
+		return this._backupHome;
+	}
 
-	get backupWorkspacesPath(): string { return this._backupWorkspacesPath; }
+	get backupWorkspacesPath(): string {
+		return this._backupWorkspacesPath;
+	}
 }
 
 const parentDir = path.join(os.tmpdir(), 'vsctests', 'service');
 const backupHome = path.join(parentDir, 'Backups');
 const workspacesJsonPath = path.join(backupHome, 'workspaces.json');
 
-const workspaceResource = Uri.file(platform.isWindows ? 'c:\\workspace' : '/workspace');
-const workspaceBackupPath = path.join(backupHome, crypto.createHash('md5').update(workspaceResource.fsPath).digest('hex'));
+const workspaceResource = Uri.file(
+	platform.isWindows ? 'c:\\workspace' : '/workspace'
+);
+const workspaceBackupPath = path.join(
+	backupHome,
+	crypto.createHash('md5').update(workspaceResource.fsPath).digest('hex')
+);
 const fooFile = Uri.file(platform.isWindows ? 'c:\\Foo' : '/Foo');
 const barFile = Uri.file(platform.isWindows ? 'c:\\Bar' : '/Bar');
 const untitledFile = Uri.from({ scheme: 'untitled', path: 'Untitled-1' });
-const fooBackupPath = path.join(workspaceBackupPath, 'file', crypto.createHash('md5').update(fooFile.fsPath).digest('hex'));
-const fooBackupPathLegacy = path.join(workspaceBackupPath, 'file', crypto.createHash('md5').update(fooFile.fsPath.toLowerCase()).digest('hex'));
-const barBackupPath = path.join(workspaceBackupPath, 'file', crypto.createHash('md5').update(barFile.fsPath).digest('hex'));
-const untitledBackupPath = path.join(workspaceBackupPath, 'untitled', crypto.createHash('md5').update(untitledFile.fsPath).digest('hex'));
+const fooBackupPath = path.join(
+	workspaceBackupPath,
+	'file',
+	crypto.createHash('md5').update(fooFile.fsPath).digest('hex')
+);
+const fooBackupPathLegacy = path.join(
+	workspaceBackupPath,
+	'file',
+	crypto.createHash('md5').update(fooFile.fsPath.toLowerCase()).digest('hex')
+);
+const barBackupPath = path.join(
+	workspaceBackupPath,
+	'file',
+	crypto.createHash('md5').update(barFile.fsPath).digest('hex')
+);
+const untitledBackupPath = path.join(
+	workspaceBackupPath,
+	'untitled',
+	crypto.createHash('md5').update(untitledFile.fsPath).digest('hex')
+);
 
 class TestBackupFileService extends BackupFileService {
 	constructor(workspace: Uri, backupHome: string, workspacesJsonPath: string) {
-		const fileService = new FileService(workspace.fsPath, { disableWatcher: true });
-		const environmentService = new TestEnvironmentService(backupHome, workspacesJsonPath);
+		const fileService = new FileService(workspace.fsPath, {
+			disableWatcher: true
+		});
+		const environmentService = new TestEnvironmentService(
+			backupHome,
+			workspacesJsonPath
+		);
 		const backupService: IBackupService = {
 			_serviceBrand: null,
 			getBackupPath: () => TPromise.as(workspaceBackupPath)
 		};
 
-		super(environmentService, fileService, new TestWindowService(), backupService);
+		super(
+			environmentService,
+			fileService,
+			new TestWindowService(),
+			backupService
+		);
 	}
 
-	public getBackupResource(resource: Uri, legacyMacWindowsFormat?: boolean): Uri {
+	public getBackupResource(
+		resource: Uri,
+		legacyMacWindowsFormat?: boolean
+	): Uri {
 		return super.getBackupResource(resource, legacyMacWindowsFormat);
 	}
 }
@@ -69,7 +112,11 @@ suite('BackupFileService', () => {
 	let service: TestBackupFileService;
 
 	setup(done => {
-		service = new TestBackupFileService(workspaceResource, backupHome, workspacesJsonPath);
+		service = new TestBackupFileService(
+			workspaceResource,
+			backupHome,
+			workspacesJsonPath
+		);
 
 		// Delete any existing backups completely and then re-create it.
 		extfs.del(backupHome, os.tmpdir(), () => {
@@ -89,19 +136,44 @@ suite('BackupFileService', () => {
 		test('should get the correct backup path for text files', () => {
 			// Format should be: <backupHome>/<workspaceHash>/<scheme>/<filePathHash>
 			const backupResource = fooFile;
-			const workspaceHash = crypto.createHash('md5').update(workspaceResource.fsPath).digest('hex');
-			const filePathHash = crypto.createHash('md5').update(backupResource.fsPath).digest('hex');
-			const expectedPath = Uri.file(path.join(backupHome, workspaceHash, 'file', filePathHash)).fsPath;
-			assert.equal(service.getBackupResource(backupResource).fsPath, expectedPath);
+			const workspaceHash = crypto
+				.createHash('md5')
+				.update(workspaceResource.fsPath)
+				.digest('hex');
+			const filePathHash = crypto
+				.createHash('md5')
+				.update(backupResource.fsPath)
+				.digest('hex');
+			const expectedPath = Uri.file(
+				path.join(backupHome, workspaceHash, 'file', filePathHash)
+			).fsPath;
+			assert.equal(
+				service.getBackupResource(backupResource).fsPath,
+				expectedPath
+			);
 		});
 
 		test('should get the correct backup path for untitled files', () => {
 			// Format should be: <backupHome>/<workspaceHash>/<scheme>/<filePath>
-			const backupResource = Uri.from({ scheme: 'untitled', path: 'Untitled-1' });
-			const workspaceHash = crypto.createHash('md5').update(workspaceResource.fsPath).digest('hex');
-			const filePathHash = crypto.createHash('md5').update(backupResource.fsPath).digest('hex');
-			const expectedPath = Uri.file(path.join(backupHome, workspaceHash, 'untitled', filePathHash)).fsPath;
-			assert.equal(service.getBackupResource(backupResource).fsPath, expectedPath);
+			const backupResource = Uri.from({
+				scheme: 'untitled',
+				path: 'Untitled-1'
+			});
+			const workspaceHash = crypto
+				.createHash('md5')
+				.update(workspaceResource.fsPath)
+				.digest('hex');
+			const filePathHash = crypto
+				.createHash('md5')
+				.update(backupResource.fsPath)
+				.digest('hex');
+			const expectedPath = Uri.file(
+				path.join(backupHome, workspaceHash, 'untitled', filePathHash)
+			).fsPath;
+			assert.equal(
+				service.getBackupResource(backupResource).fsPath,
+				expectedPath
+			);
 		});
 	});
 
@@ -109,10 +181,17 @@ suite('BackupFileService', () => {
 		test('should return whether a backup resource exists', done => {
 			pfs.mkdirp(path.dirname(fooBackupPath)).then(() => {
 				fs.writeFileSync(fooBackupPath, 'foo');
-				service = new TestBackupFileService(workspaceResource, backupHome, workspacesJsonPath);
+				service = new TestBackupFileService(
+					workspaceResource,
+					backupHome,
+					workspacesJsonPath
+				);
 				service.loadBackupResource(fooFile).then(resource => {
 					assert.ok(resource);
-					assert.equal(path.basename(resource.fsPath), path.basename(fooBackupPath));
+					assert.equal(
+						path.basename(resource.fsPath),
+						path.basename(fooBackupPath)
+					);
 					return service.hasBackups().then(hasBackups => {
 						assert.ok(hasBackups);
 						done();
@@ -129,10 +208,17 @@ suite('BackupFileService', () => {
 
 			pfs.mkdirp(path.dirname(fooBackupPath)).then(() => {
 				fs.writeFileSync(fooBackupPathLegacy, 'foo');
-				service = new TestBackupFileService(workspaceResource, backupHome, workspacesJsonPath);
+				service = new TestBackupFileService(
+					workspaceResource,
+					backupHome,
+					workspacesJsonPath
+				);
 				service.loadBackupResource(fooFile).then(resource => {
 					assert.ok(resource);
-					assert.equal(path.basename(resource.fsPath), path.basename(fooBackupPathLegacy));
+					assert.equal(
+						path.basename(resource.fsPath),
+						path.basename(fooBackupPathLegacy)
+					);
 					return service.hasBackups().then(hasBackups => {
 						assert.ok(hasBackups);
 						done();
@@ -150,10 +236,17 @@ suite('BackupFileService', () => {
 			pfs.mkdirp(path.dirname(fooBackupPath)).then(() => {
 				fs.writeFileSync(fooBackupPath, 'foo');
 				fs.writeFileSync(fooBackupPathLegacy, 'foo');
-				service = new TestBackupFileService(workspaceResource, backupHome, workspacesJsonPath);
+				service = new TestBackupFileService(
+					workspaceResource,
+					backupHome,
+					workspacesJsonPath
+				);
 				service.loadBackupResource(fooFile).then(resource => {
 					assert.ok(resource);
-					assert.equal(path.basename(resource.fsPath), path.basename(fooBackupPath));
+					assert.equal(
+						path.basename(resource.fsPath),
+						path.basename(fooBackupPath)
+					);
 					return service.hasBackups().then(hasBackups => {
 						assert.ok(hasBackups);
 						done();
@@ -164,43 +257,67 @@ suite('BackupFileService', () => {
 	});
 
 	suite('backupResource', () => {
-		test('text file', function (done: () => void) {
+		test('text file', function(done: () => void) {
 			service.backupResource(fooFile, 'test').then(() => {
-				assert.equal(fs.readdirSync(path.join(workspaceBackupPath, 'file')).length, 1);
+				assert.equal(
+					fs.readdirSync(path.join(workspaceBackupPath, 'file')).length,
+					1
+				);
 				assert.equal(fs.existsSync(fooBackupPath), true);
-				assert.equal(fs.readFileSync(fooBackupPath), `${fooFile.toString()}\ntest`);
+				assert.equal(
+					fs.readFileSync(fooBackupPath),
+					`${fooFile.toString()}\ntest`
+				);
 				done();
 			});
 		});
 
-		test('untitled file', function (done: () => void) {
+		test('untitled file', function(done: () => void) {
 			service.backupResource(untitledFile, 'test').then(() => {
-				assert.equal(fs.readdirSync(path.join(workspaceBackupPath, 'untitled')).length, 1);
+				assert.equal(
+					fs.readdirSync(path.join(workspaceBackupPath, 'untitled')).length,
+					1
+				);
 				assert.equal(fs.existsSync(untitledBackupPath), true);
-				assert.equal(fs.readFileSync(untitledBackupPath), `${untitledFile.toString()}\ntest`);
+				assert.equal(
+					fs.readFileSync(untitledBackupPath),
+					`${untitledFile.toString()}\ntest`
+				);
 				done();
 			});
 		});
 	});
 
 	suite('discardResourceBackup', () => {
-		test('text file', function (done: () => void) {
+		test('text file', function(done: () => void) {
 			service.backupResource(fooFile, 'test').then(() => {
-				assert.equal(fs.readdirSync(path.join(workspaceBackupPath, 'file')).length, 1);
+				assert.equal(
+					fs.readdirSync(path.join(workspaceBackupPath, 'file')).length,
+					1
+				);
 				service.discardResourceBackup(fooFile).then(() => {
 					assert.equal(fs.existsSync(fooBackupPath), false);
-					assert.equal(fs.readdirSync(path.join(workspaceBackupPath, 'file')).length, 0);
+					assert.equal(
+						fs.readdirSync(path.join(workspaceBackupPath, 'file')).length,
+						0
+					);
 					done();
 				});
 			});
 		});
 
-		test('untitled file', function (done: () => void) {
+		test('untitled file', function(done: () => void) {
 			service.backupResource(untitledFile, 'test').then(() => {
-				assert.equal(fs.readdirSync(path.join(workspaceBackupPath, 'untitled')).length, 1);
+				assert.equal(
+					fs.readdirSync(path.join(workspaceBackupPath, 'untitled')).length,
+					1
+				);
 				service.discardResourceBackup(untitledFile).then(() => {
 					assert.equal(fs.existsSync(untitledBackupPath), false);
-					assert.equal(fs.readdirSync(path.join(workspaceBackupPath, 'untitled')).length, 0);
+					assert.equal(
+						fs.readdirSync(path.join(workspaceBackupPath, 'untitled')).length,
+						0
+					);
 					done();
 				});
 			});
@@ -214,13 +331,23 @@ suite('BackupFileService', () => {
 
 			pfs.mkdirp(path.dirname(fooBackupPath)).then(() => {
 				fs.writeFileSync(fooBackupPathLegacy, 'foo');
-				service = new TestBackupFileService(workspaceResource, backupHome, workspacesJsonPath);
+				service = new TestBackupFileService(
+					workspaceResource,
+					backupHome,
+					workspacesJsonPath
+				);
 				service.backupResource(fooFile, 'test').then(() => {
-					assert.equal(fs.readdirSync(path.join(workspaceBackupPath, 'file')).length, 2);
+					assert.equal(
+						fs.readdirSync(path.join(workspaceBackupPath, 'file')).length,
+						2
+					);
 					service.discardResourceBackup(fooFile).then(() => {
 						assert.equal(fs.existsSync(fooBackupPath), false);
 						assert.equal(fs.existsSync(fooBackupPathLegacy), false);
-						assert.equal(fs.readdirSync(path.join(workspaceBackupPath, 'file')).length, 0);
+						assert.equal(
+							fs.readdirSync(path.join(workspaceBackupPath, 'file')).length,
+							0
+						);
 						done();
 					});
 				});
@@ -229,33 +356,48 @@ suite('BackupFileService', () => {
 	});
 
 	suite('discardAllWorkspaceBackups', () => {
-		test('text file', function (done: () => void) {
+		test('text file', function(done: () => void) {
 			service.backupResource(fooFile, 'test').then(() => {
-				assert.equal(fs.readdirSync(path.join(workspaceBackupPath, 'file')).length, 1);
+				assert.equal(
+					fs.readdirSync(path.join(workspaceBackupPath, 'file')).length,
+					1
+				);
 				service.backupResource(barFile, 'test').then(() => {
-					assert.equal(fs.readdirSync(path.join(workspaceBackupPath, 'file')).length, 2);
+					assert.equal(
+						fs.readdirSync(path.join(workspaceBackupPath, 'file')).length,
+						2
+					);
 					service.discardAllWorkspaceBackups().then(() => {
 						assert.equal(fs.existsSync(fooBackupPath), false);
 						assert.equal(fs.existsSync(barBackupPath), false);
-						assert.equal(fs.existsSync(path.join(workspaceBackupPath, 'file')), false);
+						assert.equal(
+							fs.existsSync(path.join(workspaceBackupPath, 'file')),
+							false
+						);
 						done();
 					});
 				});
 			});
 		});
 
-		test('untitled file', function (done: () => void) {
+		test('untitled file', function(done: () => void) {
 			service.backupResource(untitledFile, 'test').then(() => {
-				assert.equal(fs.readdirSync(path.join(workspaceBackupPath, 'untitled')).length, 1);
+				assert.equal(
+					fs.readdirSync(path.join(workspaceBackupPath, 'untitled')).length,
+					1
+				);
 				service.discardAllWorkspaceBackups().then(() => {
 					assert.equal(fs.existsSync(untitledBackupPath), false);
-					assert.equal(fs.existsSync(path.join(workspaceBackupPath, 'untitled')), false);
+					assert.equal(
+						fs.existsSync(path.join(workspaceBackupPath, 'untitled')),
+						false
+					);
 					done();
 				});
 			});
 		});
 
-		test('should disable further backups', function (done: () => void) {
+		test('should disable further backups', function(done: () => void) {
 			service.discardAllWorkspaceBackups().then(() => {
 				service.backupResource(untitledFile, 'test').then(() => {
 					assert.equal(fs.existsSync(workspaceBackupPath), false);
@@ -272,7 +414,10 @@ suite('BackupFileService', () => {
 					assert.deepEqual(textFiles.map(f => f.fsPath), [fooFile.fsPath]);
 					service.backupResource(barFile, `test`).then(() => {
 						service.getWorkspaceFileBackups().then(textFiles => {
-							assert.deepEqual(textFiles.map(f => f.fsPath), [fooFile.fsPath, barFile.fsPath]);
+							assert.deepEqual(textFiles.map(f => f.fsPath), [
+								fooFile.fsPath,
+								barFile.fsPath
+							]);
 							done();
 						});
 					});
@@ -355,7 +500,7 @@ suite('BackupFilesModel', () => {
 		assert.equal(model.has(resource4), true);
 	});
 
-	test('resolve', (done) => {
+	test('resolve', done => {
 		pfs.mkdirp(path.dirname(fooBackupPath)).then(() => {
 			fs.writeFileSync(fooBackupPath, 'foo');
 
@@ -382,6 +527,10 @@ suite('BackupFilesModel', () => {
 		model.add(file2);
 		model.add(untitled);
 
-		assert.deepEqual(model.get().map(f => f.fsPath), [file1.fsPath, file2.fsPath, untitled.fsPath]);
+		assert.deepEqual(model.get().map(f => f.fsPath), [
+			file1.fsPath,
+			file2.fsPath,
+			untitled.fsPath
+		]);
 	});
 });

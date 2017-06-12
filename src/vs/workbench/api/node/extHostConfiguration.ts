@@ -2,12 +2,15 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { mixin } from 'vs/base/common/objects';
 import Event, { Emitter } from 'vs/base/common/event';
 import { WorkspaceConfiguration } from 'vscode';
-import { ExtHostConfigurationShape, MainThreadConfigurationShape } from './extHost.protocol';
+import {
+	ExtHostConfigurationShape,
+	MainThreadConfigurationShape
+} from './extHost.protocol';
 import { ConfigurationTarget } from 'vs/workbench/services/configuration/common/configurationEditing';
 import { IWorkspaceConfigurationValues } from 'vs/workbench/services/configuration/common/configuration';
 import { toValuesTree } from 'vs/platform/configuration/common/model';
@@ -28,14 +31,18 @@ interface UsefulConfiguration {
 	valueTree: any;
 }
 
-function createUsefulConfiguration(data: IWorkspaceConfigurationValues): { data: IWorkspaceConfigurationValues, valueTree: any } {
+function createUsefulConfiguration(
+	data: IWorkspaceConfigurationValues
+): { data: IWorkspaceConfigurationValues; valueTree: any } {
 	const valueMap: { [key: string]: any } = Object.create(null);
 	for (let key in data) {
 		if (Object.prototype.hasOwnProperty.call(data, key)) {
 			valueMap[key] = data[key].value;
 		}
 	}
-	const valueTree = toValuesTree(valueMap, message => console.error(`Conflict in configuration settings: ${message}`));
+	const valueTree = toValuesTree(valueMap, message =>
+		console.error(`Conflict in configuration settings: ${message}`)
+	);
 	return {
 		data,
 		valueTree
@@ -43,19 +50,23 @@ function createUsefulConfiguration(data: IWorkspaceConfigurationValues): { data:
 }
 
 export class ExtHostConfiguration extends ExtHostConfigurationShape {
-
 	private _onDidChangeConfiguration = new Emitter<void>();
 	private _proxy: MainThreadConfigurationShape;
 	private _configuration: UsefulConfiguration;
 
-	constructor(proxy: MainThreadConfigurationShape, data: IWorkspaceConfigurationValues) {
+	constructor(
+		proxy: MainThreadConfigurationShape,
+		data: IWorkspaceConfigurationValues
+	) {
 		super();
 		this._proxy = proxy;
 		this._configuration = createUsefulConfiguration(data);
 	}
 
 	get onDidChangeConfiguration(): Event<void> {
-		return this._onDidChangeConfiguration && this._onDidChangeConfiguration.event;
+		return (
+			this._onDidChangeConfiguration && this._onDidChangeConfiguration.event
+		);
 	}
 
 	public $acceptConfigurationChanged(data: IWorkspaceConfigurationValues) {
@@ -64,7 +75,6 @@ export class ExtHostConfiguration extends ExtHostConfigurationShape {
 	}
 
 	public getConfiguration(section?: string): WorkspaceConfiguration {
-
 		const config = section
 			? lookUp(this._configuration.valueTree, section)
 			: this._configuration.valueTree;
@@ -82,14 +92,23 @@ export class ExtHostConfiguration extends ExtHostConfigurationShape {
 			},
 			update: (key: string, value: any, global: boolean = false) => {
 				key = section ? `${section}.${key}` : key;
-				const target = global ? ConfigurationTarget.USER : ConfigurationTarget.WORKSPACE;
+				const target = global
+					? ConfigurationTarget.USER
+					: ConfigurationTarget.WORKSPACE;
 				if (value !== void 0) {
 					return this._proxy.$updateConfigurationOption(target, key, value);
 				} else {
 					return this._proxy.$removeConfigurationOption(target, key);
 				}
 			},
-			inspect: <T>(key: string): { key: string; defaultValue?: T; globalValue?: T; workspaceValue?: T } => {
+			inspect: <T>(
+				key: string
+			): {
+				key: string;
+				defaultValue?: T;
+				globalValue?: T;
+				workspaceValue?: T;
+			} => {
 				key = section ? `${section}.${key}` : key;
 				const config = this._configuration.data[key];
 				if (config) {

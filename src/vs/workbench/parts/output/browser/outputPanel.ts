@@ -19,8 +19,18 @@ import { ServiceCollection } from 'vs/platform/instantiation/common/serviceColle
 import { IContextKeyService } from 'vs/platform/contextkey/common/contextkey';
 import { EditorInput, EditorOptions } from 'vs/workbench/common/editor';
 import { TextResourceEditor } from 'vs/workbench/browser/parts/editor/textResourceEditor';
-import { OutputEditors, OUTPUT_PANEL_ID, IOutputService, CONTEXT_IN_OUTPUT } from 'vs/workbench/parts/output/common/output';
-import { SwitchOutputAction, SwitchOutputActionItem, ClearOutputAction, ToggleOutputScrollLockAction } from 'vs/workbench/parts/output/browser/outputActions';
+import {
+	OutputEditors,
+	OUTPUT_PANEL_ID,
+	IOutputService,
+	CONTEXT_IN_OUTPUT
+} from 'vs/workbench/parts/output/common/output';
+import {
+	SwitchOutputAction,
+	SwitchOutputActionItem,
+	ClearOutputAction,
+	ToggleOutputScrollLockAction
+} from 'vs/workbench/parts/output/browser/outputActions';
 import { IThemeService } from 'vs/platform/theme/common/themeService';
 import { IEditorGroupService } from 'vs/workbench/services/group/common/groupService';
 import { IModeService } from 'vs/editor/common/services/modeService';
@@ -43,7 +53,16 @@ export class OutputPanel extends TextResourceEditor {
 		@IModeService modeService: IModeService,
 		@ITextFileService textFileService: ITextFileService
 	) {
-		super(telemetryService, instantiationService, storageService, configurationService, themeService, editorGroupService, modeService, textFileService);
+		super(
+			telemetryService,
+			instantiationService,
+			storageService,
+			configurationService,
+			themeService,
+			editorGroupService,
+			modeService,
+			textFileService
+		);
 
 		this.scopedInstantiationService = instantiationService;
 		this.toDispose = [];
@@ -57,8 +76,16 @@ export class OutputPanel extends TextResourceEditor {
 		if (!this.actions) {
 			this.actions = [
 				this.instantiationService.createInstance(SwitchOutputAction),
-				this.instantiationService.createInstance(ClearOutputAction, ClearOutputAction.ID, ClearOutputAction.LABEL),
-				this.instantiationService.createInstance(ToggleOutputScrollLockAction, ToggleOutputScrollLockAction.ID, ToggleOutputScrollLockAction.LABEL)
+				this.instantiationService.createInstance(
+					ClearOutputAction,
+					ClearOutputAction.ID,
+					ClearOutputAction.LABEL
+				),
+				this.instantiationService.createInstance(
+					ToggleOutputScrollLockAction,
+					ToggleOutputScrollLockAction.ID,
+					ToggleOutputScrollLockAction.LABEL
+				)
 			];
 
 			this.actions.forEach(a => {
@@ -71,7 +98,10 @@ export class OutputPanel extends TextResourceEditor {
 
 	public getActionItem(action: Action): IActionItem {
 		if (action.id === SwitchOutputAction.ID) {
-			return this.instantiationService.createInstance(SwitchOutputActionItem, action);
+			return this.instantiationService.createInstance(
+				SwitchOutputActionItem,
+				action
+			);
 		}
 
 		return super.getActionItem(action);
@@ -79,8 +109,8 @@ export class OutputPanel extends TextResourceEditor {
 
 	protected getConfigurationOverrides(): IEditorOptions {
 		const options = super.getConfigurationOverrides();
-		options.wordWrap = 'on';				// all output editors wrap
-		options.lineNumbers = 'off';			// all output editors hide line numbers
+		options.wordWrap = 'on'; // all output editors wrap
+		options.lineNumbers = 'off'; // all output editors hide line numbers
 		options.glyphMargin = false;
 		options.lineDecorationsWidth = 20;
 		options.rulers = [];
@@ -100,7 +130,13 @@ export class OutputPanel extends TextResourceEditor {
 	protected getAriaLabel(): string {
 		const channel = this.outputService.getActiveChannel();
 
-		return channel ? nls.localize('outputPanelWithInputAriaLabel', "{0}, Output panel", channel.label) : nls.localize('outputPanelAriaLabel', "Output panel");
+		return channel
+			? nls.localize(
+					'outputPanelWithInputAriaLabel',
+					'{0}, Output panel',
+					channel.label
+				)
+			: nls.localize('outputPanelAriaLabel', 'Output panel');
 	}
 
 	public setInput(input: EditorInput, options?: EditorOptions): TPromise<void> {
@@ -108,15 +144,24 @@ export class OutputPanel extends TextResourceEditor {
 	}
 
 	protected createEditor(parent: Builder): void {
-
 		// First create the scoped instantation service and only then construct the editor using the scoped service
-		const scopedContextKeyService = this.contextKeyService.createScoped(parent.getHTMLElement());
+		const scopedContextKeyService = this.contextKeyService.createScoped(
+			parent.getHTMLElement()
+		);
 		this.toDispose.push(scopedContextKeyService);
-		this.scopedInstantiationService = this.instantiationService.createChild(new ServiceCollection([IContextKeyService, scopedContextKeyService]));
+		this.scopedInstantiationService = this.instantiationService.createChild(
+			new ServiceCollection([IContextKeyService, scopedContextKeyService])
+		);
 		super.createEditor(parent);
 
 		CONTEXT_IN_OUTPUT.bindTo(scopedContextKeyService).set(true);
-		this.setInput(OutputEditors.getInstance(this.instantiationService, this.outputService.getActiveChannel()), null);
+		this.setInput(
+			OutputEditors.getInstance(
+				this.instantiationService,
+				this.outputService.getActiveChannel()
+			),
+			null
+		);
 	}
 
 	public get instantiationService(): IInstantiationService {

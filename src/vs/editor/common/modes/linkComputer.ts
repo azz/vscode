@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { ILink } from 'vs/editor/common/modes';
 import { CharCode } from 'vs/base/common/charCode';
@@ -34,7 +34,6 @@ const enum State {
 type Edge = [State, number, State];
 
 class StateMachine {
-
 	private _states: Uint8Matrix;
 	private _maxCharCode: number;
 
@@ -111,12 +110,11 @@ function getStateMachine(): StateMachine {
 
 			[State.AfterColon, CharCode.Slash, State.AlmostThere],
 
-			[State.AlmostThere, CharCode.Slash, State.End],
+			[State.AlmostThere, CharCode.Slash, State.End]
 		]);
 	}
 	return _stateMachine;
 }
-
 
 const enum CharacterClass {
 	None = 0,
@@ -129,22 +127,34 @@ function getClassifier(): CharacterClassifier<CharacterClass> {
 	if (_classifier === null) {
 		_classifier = new CharacterClassifier<CharacterClass>(CharacterClass.None);
 
-		const FORCE_TERMINATION_CHARACTERS = ' \t<>\'\"、。｡､，．：；？！＠＃＄％＆＊‘“〈《「『【〔（［｛｢｣｝］）〕】』」》〉”’｀～…';
+		const FORCE_TERMINATION_CHARACTERS =
+			' \t<>\'"、。｡､，．：；？！＠＃＄％＆＊‘“〈《「『【〔（［｛｢｣｝］）〕】』」》〉”’｀～…';
 		for (let i = 0; i < FORCE_TERMINATION_CHARACTERS.length; i++) {
-			_classifier.set(FORCE_TERMINATION_CHARACTERS.charCodeAt(i), CharacterClass.ForceTermination);
+			_classifier.set(
+				FORCE_TERMINATION_CHARACTERS.charCodeAt(i),
+				CharacterClass.ForceTermination
+			);
 		}
 
 		const CANNOT_END_WITH_CHARACTERS = '.,;';
 		for (let i = 0; i < CANNOT_END_WITH_CHARACTERS.length; i++) {
-			_classifier.set(CANNOT_END_WITH_CHARACTERS.charCodeAt(i), CharacterClass.CannotEndIn);
+			_classifier.set(
+				CANNOT_END_WITH_CHARACTERS.charCodeAt(i),
+				CharacterClass.CannotEndIn
+			);
 		}
 	}
 	return _classifier;
 }
 
 class LinkComputer {
-
-	private static _createLink(classifier: CharacterClassifier<CharacterClass>, line: string, lineNumber: number, linkBeginIndex: number, linkEndIndex: number): ILink {
+	private static _createLink(
+		classifier: CharacterClassifier<CharacterClass>,
+		line: string,
+		lineNumber: number,
+		linkBeginIndex: number,
+		linkEndIndex: number
+	): ILink {
 		// Do not allow to end link in certain characters...
 		let lastIncludedCharIndex = linkEndIndex - 1;
 		do {
@@ -185,7 +195,6 @@ class LinkComputer {
 			let hasOpenCurlyBracket = false;
 
 			while (j < len) {
-
 				let resetStateMachine = false;
 				const chCode = line.charCodeAt(j);
 
@@ -197,31 +206,46 @@ class LinkComputer {
 							chClass = CharacterClass.None;
 							break;
 						case CharCode.CloseParen:
-							chClass = (hasOpenParens ? CharacterClass.None : CharacterClass.ForceTermination);
+							chClass = hasOpenParens
+								? CharacterClass.None
+								: CharacterClass.ForceTermination;
 							break;
 						case CharCode.OpenSquareBracket:
 							hasOpenSquareBracket = true;
 							chClass = CharacterClass.None;
 							break;
 						case CharCode.CloseSquareBracket:
-							chClass = (hasOpenSquareBracket ? CharacterClass.None : CharacterClass.ForceTermination);
+							chClass = hasOpenSquareBracket
+								? CharacterClass.None
+								: CharacterClass.ForceTermination;
 							break;
 						case CharCode.OpenCurlyBrace:
 							hasOpenCurlyBracket = true;
 							chClass = CharacterClass.None;
 							break;
 						case CharCode.CloseCurlyBrace:
-							chClass = (hasOpenCurlyBracket ? CharacterClass.None : CharacterClass.ForceTermination);
+							chClass = hasOpenCurlyBracket
+								? CharacterClass.None
+								: CharacterClass.ForceTermination;
 							break;
 						/* The following three rules make it that ' or " or ` are allowed inside links if the link began with a different one */
 						case CharCode.SingleQuote:
-							chClass = (linkBeginChCode === CharCode.DoubleQuote || linkBeginChCode === CharCode.BackTick) ? CharacterClass.None : CharacterClass.ForceTermination;
+							chClass = linkBeginChCode === CharCode.DoubleQuote ||
+								linkBeginChCode === CharCode.BackTick
+								? CharacterClass.None
+								: CharacterClass.ForceTermination;
 							break;
 						case CharCode.DoubleQuote:
-							chClass = (linkBeginChCode === CharCode.SingleQuote || linkBeginChCode === CharCode.BackTick) ? CharacterClass.None : CharacterClass.ForceTermination;
+							chClass = linkBeginChCode === CharCode.SingleQuote ||
+								linkBeginChCode === CharCode.BackTick
+								? CharacterClass.None
+								: CharacterClass.ForceTermination;
 							break;
 						case CharCode.BackTick:
-							chClass = (linkBeginChCode === CharCode.SingleQuote || linkBeginChCode === CharCode.DoubleQuote) ? CharacterClass.None : CharacterClass.ForceTermination;
+							chClass = linkBeginChCode === CharCode.SingleQuote ||
+								linkBeginChCode === CharCode.DoubleQuote
+								? CharacterClass.None
+								: CharacterClass.ForceTermination;
 							break;
 						default:
 							chClass = classifier.get(chCode);
@@ -229,7 +253,9 @@ class LinkComputer {
 
 					// Check if character terminates link
 					if (chClass === CharacterClass.ForceTermination) {
-						result.push(LinkComputer._createLink(classifier, line, i, linkBeginIndex, j));
+						result.push(
+							LinkComputer._createLink(classifier, line, i, linkBeginIndex, j)
+						);
 						resetStateMachine = true;
 					}
 				} else if (state === State.End) {
@@ -263,9 +289,10 @@ class LinkComputer {
 			}
 
 			if (state === State.Accept) {
-				result.push(LinkComputer._createLink(classifier, line, i, linkBeginIndex, len));
+				result.push(
+					LinkComputer._createLink(classifier, line, i, linkBeginIndex, len)
+				);
 			}
-
 		}
 
 		return result;
@@ -278,7 +305,11 @@ class LinkComputer {
  * expensive and should not run in the UI thread.
  */
 export function computeLinks(model: ILinkComputerTarget): ILink[] {
-	if (!model || typeof model.getLineCount !== 'function' || typeof model.getLineContent !== 'function') {
+	if (
+		!model ||
+		typeof model.getLineCount !== 'function' ||
+		typeof model.getLineContent !== 'function'
+	) {
 		// Unknown caller!
 		return [];
 	}

@@ -36,16 +36,29 @@ export default class TsConfigProvider extends vscode.Disposable {
 			this.tsconfigs.add(config.fsPath);
 		}
 
-		const configFileWatcher = vscode.workspace.createFileSystemWatcher('**/tsconfig*.json');
+		const configFileWatcher = vscode.workspace.createFileSystemWatcher(
+			'**/tsconfig*.json'
+		);
 		this.disposables.push(configFileWatcher);
-		configFileWatcher.onDidCreate(this.handleProjectCreate, this, this.disposables);
-		configFileWatcher.onDidDelete(this.handleProjectDelete, this, this.disposables);
+		configFileWatcher.onDidCreate(
+			this.handleProjectCreate,
+			this,
+			this.disposables
+		);
+		configFileWatcher.onDidDelete(
+			this.handleProjectDelete,
+			this,
+			this.disposables
+		);
 
 		return this;
 	}
 
 	private static loadWorkspaceTsconfigs() {
-		return vscode.workspace.findFiles('**/tsconfig*.json', '**/node_modules/**');
+		return vscode.workspace.findFiles(
+			'**/tsconfig*.json',
+			'**/node_modules/**'
+		);
 	}
 
 	private handleProjectCreate(e: vscode.Uri) {

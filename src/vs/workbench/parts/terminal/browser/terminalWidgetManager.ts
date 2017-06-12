@@ -26,9 +26,14 @@ export class TerminalWidgetManager {
 
 	private _initTerminalHeightWatcher(terminalWrapper: HTMLElement) {
 		// Watch the xterm.js viewport for style changes and do a layout if it changes
-		this._xtermViewport = <HTMLElement>terminalWrapper.querySelector('.xterm-viewport');
+		this._xtermViewport = <HTMLElement>terminalWrapper.querySelector(
+			'.xterm-viewport'
+		);
 		const mutationObserver = new MutationObserver(() => this._refreshHeight());
-		mutationObserver.observe(this._xtermViewport, { attributes: true, attributeFilter: ['style'] });
+		mutationObserver.observe(this._xtermViewport, {
+			attributes: true,
+			attributeFilter: ['style']
+		});
 	}
 
 	public showMessage(left: number, top: number, text: string): void {
@@ -52,10 +57,18 @@ export class TerminalWidgetManager {
 class MessageWidget {
 	private _domNode: HTMLDivElement;
 
-	public get left(): number { return this._left; }
-	public get top(): number { return this._top; }
-	public get text(): string { return this._text; }
-	public get domNode(): HTMLElement { return this._domNode; }
+	public get left(): number {
+		return this._left;
+	}
+	public get top(): number {
+		return this._top;
+	}
+	public get text(): string {
+		return this._text;
+	}
+	public get domNode(): HTMLElement {
+		return this._domNode;
+	}
 
 	public static fadeOut(messageWidget: MessageWidget): IDisposable {
 		let handle: number;

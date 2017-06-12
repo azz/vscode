@@ -3,26 +3,33 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { IInstantiationService } from 'vs/platform/instantiation/common/instantiation';
 import { FinalNewLineParticipant } from 'vs/workbench/api/electron-browser/mainThreadSaveParticipant';
 import { TestConfigurationService } from 'vs/platform/configuration/test/common/testConfigurationService';
-import { workbenchInstantiationService, TestTextFileService } from 'vs/workbench/test/workbenchTestServices';
+import {
+	workbenchInstantiationService,
+	TestTextFileService
+} from 'vs/workbench/test/workbenchTestServices';
 import { toResource } from 'vs/base/test/common/utils';
 import { IModelService } from 'vs/editor/common/services/modelService';
 import { TextFileEditorModel } from 'vs/workbench/services/textfile/common/textFileEditorModel';
-import { ITextFileService, SaveReason } from 'vs/workbench/services/textfile/common/textfiles';
+import {
+	ITextFileService,
+	SaveReason
+} from 'vs/workbench/services/textfile/common/textfiles';
 import { TextFileEditorModelManager } from 'vs/workbench/services/textfile/common/textFileEditorModelManager';
 
 class ServiceAccessor {
-	constructor( @ITextFileService public textFileService: TestTextFileService, @IModelService public modelService: IModelService) {
-	}
+	constructor(
+		@ITextFileService public textFileService: TestTextFileService,
+		@IModelService public modelService: IModelService
+	) {}
 }
 
-suite('MainThreadSaveParticipant', function () {
-
+suite('MainThreadSaveParticipant', function() {
 	let instantiationService: IInstantiationService;
 	let accessor: ServiceAccessor;
 
@@ -36,12 +43,16 @@ suite('MainThreadSaveParticipant', function () {
 		TextFileEditorModel.setSaveParticipant(null); // reset any set participant
 	});
 
-	test('insert final new line', function (done) {
-		const model: TextFileEditorModel = instantiationService.createInstance(TextFileEditorModel, toResource.call(this, '/path/final_new_line.txt'), 'utf8');
+	test('insert final new line', function(done) {
+		const model: TextFileEditorModel = instantiationService.createInstance(
+			TextFileEditorModel,
+			toResource.call(this, '/path/final_new_line.txt'),
+			'utf8'
+		);
 
 		model.load().then(() => {
 			const configService = new TestConfigurationService();
-			configService.setUserConfiguration('files', { 'insertFinalNewline': true });
+			configService.setUserConfiguration('files', { insertFinalNewline: true });
 
 			const participant = new FinalNewLineParticipant(configService, undefined);
 
@@ -61,13 +72,19 @@ suite('MainThreadSaveParticipant', function () {
 			lineContent = 'Hello New Line';
 			model.textEditorModel.setValue(lineContent);
 			participant.participate(model, { reason: SaveReason.EXPLICIT });
-			assert.equal(model.getValue(), `${lineContent}${model.textEditorModel.getEOL()}`);
+			assert.equal(
+				model.getValue(),
+				`${lineContent}${model.textEditorModel.getEOL()}`
+			);
 
 			// New empty line added (multi line)
 			lineContent = `Hello New Line${model.textEditorModel.getEOL()}Hello New Line${model.textEditorModel.getEOL()}Hello New Line`;
 			model.textEditorModel.setValue(lineContent);
 			participant.participate(model, { reason: SaveReason.EXPLICIT });
-			assert.equal(model.getValue(), `${lineContent}${model.textEditorModel.getEOL()}`);
+			assert.equal(
+				model.getValue(),
+				`${lineContent}${model.textEditorModel.getEOL()}`
+			);
 
 			done();
 		});

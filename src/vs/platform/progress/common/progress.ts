@@ -2,12 +2,14 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
 
-export const IProgressService = createDecorator<IProgressService>('progressService');
+export const IProgressService = createDecorator<IProgressService>(
+	'progressService'
+);
 
 export interface IProgressService {
 	_serviceBrand: any;
@@ -35,10 +37,9 @@ export interface IProgress<T> {
 	report(item: T): void;
 }
 
-export const emptyProgress: IProgress<any> = Object.freeze({ report() { } });
+export const emptyProgress: IProgress<any> = Object.freeze({ report() {} });
 
 export class Progress<T> implements IProgress<T> {
-
 	private _callback: () => void;
 	private _value: T;
 
@@ -58,7 +59,7 @@ export class Progress<T> implements IProgress<T> {
 
 export enum ProgressLocation {
 	Scm = 1,
-	Window = 10,
+	Window = 10
 }
 
 export interface IProgressOptions {
@@ -72,11 +73,15 @@ export interface IProgressStep {
 	percentage?: number;
 }
 
-export const IProgressService2 = createDecorator<IProgressService2>('progressService2');
+export const IProgressService2 = createDecorator<IProgressService2>(
+	'progressService2'
+);
 
 export interface IProgressService2 {
-
 	_serviceBrand: any;
 
-	withProgress(options: IProgressOptions, task: (progress: IProgress<IProgressStep>) => TPromise<any>): void;
+	withProgress(
+		options: IProgressOptions,
+		task: (progress: IProgress<IProgressStep>) => TPromise<any>
+	): void;
 }

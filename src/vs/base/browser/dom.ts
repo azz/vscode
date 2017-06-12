@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import { TimeoutTimer } from 'vs/base/common/async';
@@ -11,7 +11,10 @@ import { EventEmitter } from 'vs/base/common/eventEmitter';
 import { Disposable, IDisposable } from 'vs/base/common/lifecycle';
 import { isObject } from 'vs/base/common/types';
 import * as browser from 'vs/base/browser/browser';
-import { IKeyboardEvent, StandardKeyboardEvent } from 'vs/base/browser/keyboardEvent';
+import {
+	IKeyboardEvent,
+	StandardKeyboardEvent
+} from 'vs/base/browser/keyboardEvent';
 import { IMouseEvent, StandardMouseEvent } from 'vs/base/browser/mouseEvent';
 import { CharCode } from 'vs/base/common/charCode';
 
@@ -29,7 +32,6 @@ export function clearNode(node: HTMLElement) {
 export function safeStringifyDOMAware(obj: any): string {
 	let seen: any[] = [];
 	return JSON.stringify(obj, (key, value) => {
-
 		// HTML elements are never going to serialize nicely
 		if (value instanceof Element) {
 			return '[Element]';
@@ -57,12 +59,10 @@ export function isInDOM(node: Node): boolean {
 }
 
 const _manualClassList = new class {
-
 	private _lastStart: number;
 	private _lastEnd: number;
 
 	private _findClassName(node: HTMLElement, className: string): void {
-
 		let classes = node.className;
 		if (!classes) {
 			this._lastStart = -1;
@@ -94,18 +94,24 @@ const _manualClassList = new class {
 			idxEnd: number;
 
 		while ((idx = classes.indexOf(className, idx + 1)) >= 0) {
-
 			idxEnd = idx + classLen;
 
 			// a class that is followed by another class
-			if ((idx === 0 || classes.charCodeAt(idx - 1) === CharCode.Space) && classes.charCodeAt(idxEnd) === CharCode.Space) {
+			if (
+				(idx === 0 || classes.charCodeAt(idx - 1) === CharCode.Space) &&
+				classes.charCodeAt(idxEnd) === CharCode.Space
+			) {
 				this._lastStart = idx;
 				this._lastEnd = idxEnd + 1;
 				return;
 			}
 
 			// last class
-			if (idx > 0 && classes.charCodeAt(idx - 1) === CharCode.Space && idxEnd === classesLen) {
+			if (
+				idx > 0 &&
+				classes.charCodeAt(idx - 1) === CharCode.Space &&
+				idxEnd === classesLen
+			) {
 				this._lastStart = idx - 1;
 				this._lastEnd = idxEnd;
 				return;
@@ -128,7 +134,8 @@ const _manualClassList = new class {
 	}
 
 	addClass(node: HTMLElement, className: string): void {
-		if (!node.className) { // doesn't have it for sure
+		if (!node.className) {
+			// doesn't have it for sure
 			node.className = className;
 		} else {
 			this._findClassName(node, className); // see if it's already there
@@ -143,11 +150,17 @@ const _manualClassList = new class {
 		if (this._lastStart === -1) {
 			return; // Prevent styles invalidation if not necessary
 		} else {
-			node.className = node.className.substring(0, this._lastStart) + node.className.substring(this._lastEnd);
+			node.className =
+				node.className.substring(0, this._lastStart) +
+				node.className.substring(this._lastEnd);
 		}
 	}
 
-	toggleClass(node: HTMLElement, className: string, shouldHaveIt?: boolean): void {
+	toggleClass(
+		node: HTMLElement,
+		className: string,
+		shouldHaveIt?: boolean
+	): void {
 		this._findClassName(node, className);
 		if (this._lastStart !== -1 && (shouldHaveIt === void 0 || !shouldHaveIt)) {
 			this.removeClass(node, className);
@@ -156,7 +169,7 @@ const _manualClassList = new class {
 			this.addClass(node, className);
 		}
 	}
-};
+}();
 
 const _nativeClassList = new class {
 	hasClass(node: HTMLElement, className: string): boolean {
@@ -175,33 +188,54 @@ const _nativeClassList = new class {
 		}
 	}
 
-	toggleClass(node: HTMLElement, className: string, shouldHaveIt?: boolean): void {
+	toggleClass(
+		node: HTMLElement,
+		className: string,
+		shouldHaveIt?: boolean
+	): void {
 		if (node.classList) {
 			node.classList.toggle(className, shouldHaveIt);
 		}
 	}
-};
+}();
 
 // In IE11 there is only partial support for `classList` which makes us keep our
 // custom implementation. Otherwise use the native implementation, see: http://caniuse.com/#search=classlist
 const _classList = browser.isIE ? _manualClassList : _nativeClassList;
-export const hasClass: (node: HTMLElement, className: string) => boolean = _classList.hasClass.bind(_classList);
-export const addClass: (node: HTMLElement, className: string) => void = _classList.addClass.bind(_classList);
-export const removeClass: (node: HTMLElement, className: string) => void = _classList.removeClass.bind(_classList);
-export const toggleClass: (node: HTMLElement, className: string, shouldHaveIt?: boolean) => void = _classList.toggleClass.bind(_classList);
+export const hasClass: (
+	node: HTMLElement,
+	className: string
+) => boolean = _classList.hasClass.bind(_classList);
+export const addClass: (
+	node: HTMLElement,
+	className: string
+) => void = _classList.addClass.bind(_classList);
+export const removeClass: (
+	node: HTMLElement,
+	className: string
+) => void = _classList.removeClass.bind(_classList);
+export const toggleClass: (
+	node: HTMLElement,
+	className: string,
+	shouldHaveIt?: boolean
+) => void = _classList.toggleClass.bind(_classList);
 
 class DomListener implements IDisposable {
-
 	private _handler: (e: any) => void;
 	private _node: Element | Window | Document;
 	private readonly _type: string;
 	private readonly _useCapture: boolean;
 
-	constructor(node: Element | Window | Document, type: string, handler: (e: any) => void, useCapture: boolean) {
+	constructor(
+		node: Element | Window | Document,
+		type: string,
+		handler: (e: any) => void,
+		useCapture: boolean
+	) {
 		this._node = node;
 		this._type = type;
 		this._handler = handler;
-		this._useCapture = (useCapture || false);
+		this._useCapture = useCapture || false;
 		this._node.addEventListener(this._type, this._handler, this._useCapture);
 	}
 
@@ -219,29 +253,55 @@ class DomListener implements IDisposable {
 	}
 }
 
-export function addDisposableListener(node: Element | Window | Document, type: string, handler: (event: any) => void, useCapture?: boolean): IDisposable {
+export function addDisposableListener(
+	node: Element | Window | Document,
+	type: string,
+	handler: (event: any) => void,
+	useCapture?: boolean
+): IDisposable {
 	return new DomListener(node, type, handler, useCapture);
 }
 
 export interface IAddStandardDisposableListenerSignature {
-	(node: HTMLElement, type: 'click', handler: (event: IMouseEvent) => void, useCapture?: boolean): IDisposable;
-	(node: HTMLElement, type: 'mousedown', handler: (event: IMouseEvent) => void, useCapture?: boolean): IDisposable;
-	(node: HTMLElement, type: 'keydown', handler: (event: IKeyboardEvent) => void, useCapture?: boolean): IDisposable;
-	(node: HTMLElement, type: 'keypress', handler: (event: IKeyboardEvent) => void, useCapture?: boolean): IDisposable;
-	(node: HTMLElement, type: 'keyup', handler: (event: IKeyboardEvent) => void, useCapture?: boolean): IDisposable;
-	(node: HTMLElement, type: string, handler: (event: any) => void, useCapture?: boolean): IDisposable;
+	(node: HTMLElement, type: 'click', handler: (
+		event: IMouseEvent
+	) => void, useCapture?: boolean): IDisposable;
+	(node: HTMLElement, type: 'mousedown', handler: (
+		event: IMouseEvent
+	) => void, useCapture?: boolean): IDisposable;
+	(node: HTMLElement, type: 'keydown', handler: (
+		event: IKeyboardEvent
+	) => void, useCapture?: boolean): IDisposable;
+	(node: HTMLElement, type: 'keypress', handler: (
+		event: IKeyboardEvent
+	) => void, useCapture?: boolean): IDisposable;
+	(node: HTMLElement, type: 'keyup', handler: (
+		event: IKeyboardEvent
+	) => void, useCapture?: boolean): IDisposable;
+	(node: HTMLElement, type: string, handler: (
+		event: any
+	) => void, useCapture?: boolean): IDisposable;
 }
-function _wrapAsStandardMouseEvent(handler: (e: IMouseEvent) => void): (e: MouseEvent) => void {
-	return function (e: MouseEvent) {
+function _wrapAsStandardMouseEvent(
+	handler: (e: IMouseEvent) => void
+): (e: MouseEvent) => void {
+	return function(e: MouseEvent) {
 		return handler(new StandardMouseEvent(e));
 	};
 }
-function _wrapAsStandardKeyboardEvent(handler: (e: IKeyboardEvent) => void): (e: KeyboardEvent) => void {
-	return function (e: KeyboardEvent) {
+function _wrapAsStandardKeyboardEvent(
+	handler: (e: IKeyboardEvent) => void
+): (e: KeyboardEvent) => void {
+	return function(e: KeyboardEvent) {
 		return handler(new StandardKeyboardEvent(e));
 	};
 }
-export let addStandardDisposableListener: IAddStandardDisposableListenerSignature = function addStandardDisposableListener(node: HTMLElement, type: string, handler: (event: any) => void, useCapture?: boolean): IDisposable {
+export let addStandardDisposableListener: IAddStandardDisposableListenerSignature = function addStandardDisposableListener(
+	node: HTMLElement,
+	type: string,
+	handler: (event: any) => void,
+	useCapture?: boolean
+): IDisposable {
 	let wrapHandler = handler;
 
 	if (type === 'click' || type === 'mousedown') {
@@ -253,7 +313,10 @@ export let addStandardDisposableListener: IAddStandardDisposableListenerSignatur
 	return addDisposableListener(node, type, wrapHandler, useCapture);
 };
 
-export function addDisposableNonBubblingMouseOutListener(node: Element, handler: (event: MouseEvent) => void): IDisposable {
+export function addDisposableNonBubblingMouseOutListener(
+	node: Element,
+	handler: (event: MouseEvent) => void
+): IDisposable {
 	return addDisposableListener(node, 'mouseout', (e: MouseEvent) => {
 		// Mouse out bubbles, so this is an attempt to ignore faux mouse outs coming from children elements
 		let toElement = <Node>(e.relatedTarget || e.toElement);
@@ -268,26 +331,33 @@ export function addDisposableNonBubblingMouseOutListener(node: Element, handler:
 	});
 }
 
-const _animationFrame = (function () {
-	let emulatedRequestAnimationFrame = (callback: (time: number) => void): number => {
+const _animationFrame = (function() {
+	let emulatedRequestAnimationFrame = (
+		callback: (time: number) => void
+	): number => {
 		return setTimeout(() => callback(new Date().getTime()), 0);
 	};
-	let nativeRequestAnimationFrame: (callback: (time: number) => void) => number =
-		self.requestAnimationFrame
-		|| (<any>self).msRequestAnimationFrame
-		|| (<any>self).webkitRequestAnimationFrame
-		|| (<any>self).mozRequestAnimationFrame
-		|| (<any>self).oRequestAnimationFrame;
+	let nativeRequestAnimationFrame: (
+		callback: (time: number) => void
+	) => number =
+		self.requestAnimationFrame ||
+		(<any>self).msRequestAnimationFrame ||
+		(<any>self).webkitRequestAnimationFrame ||
+		(<any>self).mozRequestAnimationFrame ||
+		(<any>self).oRequestAnimationFrame;
 
-
-
-	let emulatedCancelAnimationFrame = (id: number) => { };
+	let emulatedCancelAnimationFrame = (id: number) => {};
 	let nativeCancelAnimationFrame: (id: number) => void =
-		self.cancelAnimationFrame || (<any>self).cancelRequestAnimationFrame
-		|| (<any>self).msCancelAnimationFrame || (<any>self).msCancelRequestAnimationFrame
-		|| (<any>self).webkitCancelAnimationFrame || (<any>self).webkitCancelRequestAnimationFrame
-		|| (<any>self).mozCancelAnimationFrame || (<any>self).mozCancelRequestAnimationFrame
-		|| (<any>self).oCancelAnimationFrame || (<any>self).oCancelRequestAnimationFrame;
+		self.cancelAnimationFrame ||
+		(<any>self).cancelRequestAnimationFrame ||
+		(<any>self).msCancelAnimationFrame ||
+		(<any>self).msCancelRequestAnimationFrame ||
+		(<any>self).webkitCancelAnimationFrame ||
+		(<any>self).webkitCancelRequestAnimationFrame ||
+		(<any>self).mozCancelAnimationFrame ||
+		(<any>self).mozCancelRequestAnimationFrame ||
+		(<any>self).oCancelAnimationFrame ||
+		(<any>self).oCancelRequestAnimationFrame;
 
 	let isNative = !!nativeRequestAnimationFrame;
 	let request = nativeRequestAnimationFrame || emulatedRequestAnimationFrame;
@@ -310,17 +380,22 @@ const _animationFrame = (function () {
  * If currently in an animation frame, `runner` will be executed immediately.
  * @return token that can be used to cancel the scheduled runner (only if `runner` was not executed immediately).
  */
-export let runAtThisOrScheduleAtNextAnimationFrame: (runner: () => void, priority?: number) => IDisposable;
+export let runAtThisOrScheduleAtNextAnimationFrame: (
+	runner: () => void,
+	priority?: number
+) => IDisposable;
 /**
  * Schedule a callback to be run at the next animation frame.
  * This allows multiple parties to register callbacks that should run at the next animation frame.
  * If currently in an animation frame, `runner` will be executed at the next animation frame.
  * @return token that can be used to cancel the scheduled runner.
  */
-export let scheduleAtNextAnimationFrame: (runner: () => void, priority?: number) => IDisposable;
+export let scheduleAtNextAnimationFrame: (
+	runner: () => void,
+	priority?: number
+) => IDisposable;
 
 class AnimationFrameQueueItem implements IDisposable {
-
 	private _runner: () => void;
 	public priority: number;
 	private _canceled: boolean;
@@ -348,12 +423,15 @@ class AnimationFrameQueueItem implements IDisposable {
 	}
 
 	// Sort by priority (largest to lowest)
-	public static sort(a: AnimationFrameQueueItem, b: AnimationFrameQueueItem): number {
+	public static sort(
+		a: AnimationFrameQueueItem,
+		b: AnimationFrameQueueItem
+	): number {
 		return b.priority - a.priority;
 	}
 }
 
-(function () {
+(function() {
 	/**
 	 * The runners scheduled at the next animation frame
 	 */
@@ -398,7 +476,10 @@ class AnimationFrameQueueItem implements IDisposable {
 		return item;
 	};
 
-	runAtThisOrScheduleAtNextAnimationFrame = (runner: () => void, priority?: number) => {
+	runAtThisOrScheduleAtNextAnimationFrame = (
+		runner: () => void,
+		priority?: number
+	) => {
 		if (inAnimationFrameRunner) {
 			let item = new AnimationFrameQueueItem(runner, priority);
 			CURRENT_QUEUE.push(item);
@@ -417,13 +498,21 @@ export interface IEventMerger<R> {
 }
 
 const MINIMUM_TIME_MS = 16;
-const DEFAULT_EVENT_MERGER: IEventMerger<Event> = function (lastEvent: Event, currentEvent: Event) {
+const DEFAULT_EVENT_MERGER: IEventMerger<Event> = function(
+	lastEvent: Event,
+	currentEvent: Event
+) {
 	return currentEvent;
 };
 
 class TimeoutThrottledDomListener<R> extends Disposable {
-
-	constructor(node: any, type: string, handler: (event: R) => void, eventMerger: IEventMerger<R> = <any>DEFAULT_EVENT_MERGER, minimumTimeMs: number = MINIMUM_TIME_MS) {
+	constructor(
+		node: any,
+		type: string,
+		handler: (event: R) => void,
+		eventMerger: IEventMerger<R> = <any>DEFAULT_EVENT_MERGER,
+		minimumTimeMs: number = MINIMUM_TIME_MS
+	) {
 		super();
 
 		let lastEvent: R = null;
@@ -431,28 +520,41 @@ class TimeoutThrottledDomListener<R> extends Disposable {
 		let timeout = this._register(new TimeoutTimer());
 
 		let invokeHandler = () => {
-			lastHandlerTime = (new Date()).getTime();
+			lastHandlerTime = new Date().getTime();
 			handler(lastEvent);
 			lastEvent = null;
 		};
 
-		this._register(addDisposableListener(node, type, (e) => {
+		this._register(
+			addDisposableListener(node, type, e => {
+				lastEvent = eventMerger(lastEvent, e);
+				let elapsedTime = new Date().getTime() - lastHandlerTime;
 
-			lastEvent = eventMerger(lastEvent, e);
-			let elapsedTime = (new Date()).getTime() - lastHandlerTime;
-
-			if (elapsedTime >= minimumTimeMs) {
-				timeout.cancel();
-				invokeHandler();
-			} else {
-				timeout.setIfNotSet(invokeHandler, minimumTimeMs - elapsedTime);
-			}
-		}));
+				if (elapsedTime >= minimumTimeMs) {
+					timeout.cancel();
+					invokeHandler();
+				} else {
+					timeout.setIfNotSet(invokeHandler, minimumTimeMs - elapsedTime);
+				}
+			})
+		);
 	}
 }
 
-export function addDisposableThrottledListener<R>(node: any, type: string, handler: (event: R) => void, eventMerger?: IEventMerger<R>, minimumTimeMs?: number): IDisposable {
-	return new TimeoutThrottledDomListener<R>(node, type, handler, eventMerger, minimumTimeMs);
+export function addDisposableThrottledListener<R>(
+	node: any,
+	type: string,
+	handler: (event: R) => void,
+	eventMerger?: IEventMerger<R>,
+	minimumTimeMs?: number
+): IDisposable {
+	return new TimeoutThrottledDomListener<R>(
+		node,
+		type,
+		handler,
+		eventMerger,
+		minimumTimeMs
+	);
 }
 
 export function getComputedStyle(el: HTMLElement): CSSStyleDeclaration {
@@ -461,13 +563,20 @@ export function getComputedStyle(el: HTMLElement): CSSStyleDeclaration {
 
 // Adapted from WinJS
 // Converts a CSS positioning string for the specified element to pixels.
-const convertToPixels: (element: HTMLElement, value: string) => number = (function () {
-	return function (element: HTMLElement, value: string): number {
+const convertToPixels: (
+	element: HTMLElement,
+	value: string
+) => number = (function() {
+	return function(element: HTMLElement, value: string): number {
 		return parseFloat(value) || 0;
 	};
 })();
 
-function getDimension(element: HTMLElement, cssPropertyName: string, jsPropertyName: string): number {
+function getDimension(
+	element: HTMLElement,
+	cssPropertyName: string,
+	jsPropertyName: string
+): number {
 	let computedStyle: CSSStyleDeclaration = getComputedStyle(element);
 	let value = '0';
 	if (computedStyle) {
@@ -482,43 +591,42 @@ function getDimension(element: HTMLElement, cssPropertyName: string, jsPropertyN
 }
 
 const sizeUtils = {
-
-	getBorderLeftWidth: function (element: HTMLElement): number {
+	getBorderLeftWidth: function(element: HTMLElement): number {
 		return getDimension(element, 'border-left-width', 'borderLeftWidth');
 	},
-	getBorderTopWidth: function (element: HTMLElement): number {
+	getBorderTopWidth: function(element: HTMLElement): number {
 		return getDimension(element, 'border-top-width', 'borderTopWidth');
 	},
-	getBorderRightWidth: function (element: HTMLElement): number {
+	getBorderRightWidth: function(element: HTMLElement): number {
 		return getDimension(element, 'border-right-width', 'borderRightWidth');
 	},
-	getBorderBottomWidth: function (element: HTMLElement): number {
+	getBorderBottomWidth: function(element: HTMLElement): number {
 		return getDimension(element, 'border-bottom-width', 'borderBottomWidth');
 	},
 
-	getPaddingLeft: function (element: HTMLElement): number {
+	getPaddingLeft: function(element: HTMLElement): number {
 		return getDimension(element, 'padding-left', 'paddingLeft');
 	},
-	getPaddingTop: function (element: HTMLElement): number {
+	getPaddingTop: function(element: HTMLElement): number {
 		return getDimension(element, 'padding-top', 'paddingTop');
 	},
-	getPaddingRight: function (element: HTMLElement): number {
+	getPaddingRight: function(element: HTMLElement): number {
 		return getDimension(element, 'padding-right', 'paddingRight');
 	},
-	getPaddingBottom: function (element: HTMLElement): number {
+	getPaddingBottom: function(element: HTMLElement): number {
 		return getDimension(element, 'padding-bottom', 'paddingBottom');
 	},
 
-	getMarginLeft: function (element: HTMLElement): number {
+	getMarginLeft: function(element: HTMLElement): number {
 		return getDimension(element, 'margin-left', 'marginLeft');
 	},
-	getMarginTop: function (element: HTMLElement): number {
+	getMarginTop: function(element: HTMLElement): number {
 		return getDimension(element, 'margin-top', 'marginTop');
 	},
-	getMarginRight: function (element: HTMLElement): number {
+	getMarginRight: function(element: HTMLElement): number {
 		return getDimension(element, 'margin-right', 'marginRight');
 	},
-	getMarginBottom: function (element: HTMLElement): number {
+	getMarginBottom: function(element: HTMLElement): number {
 		return getDimension(element, 'margin-bottom', 'marginBottom');
 	},
 	__commaSentinel: false
@@ -527,13 +635,21 @@ const sizeUtils = {
 // ----------------------------------------------------------------------------------------
 // Position & Dimension
 
-export function getTopLeftOffset(element: HTMLElement): { left: number; top: number; } {
+export function getTopLeftOffset(
+	element: HTMLElement
+): { left: number; top: number } {
 	// Adapted from WinJS.Utilities.getPosition
 	// and added borders to the mix
 
-	let offsetParent = element.offsetParent, top = element.offsetTop, left = element.offsetLeft;
+	let offsetParent = element.offsetParent,
+		top = element.offsetTop,
+		left = element.offsetLeft;
 
-	while ((element = <HTMLElement>element.parentNode) !== null && element !== document.body && element !== document.documentElement) {
+	while (
+		(element = <HTMLElement>element.parentNode) !== null &&
+		element !== document.body &&
+		element !== document.documentElement
+	) {
 		top -= element.scrollTop;
 		let c = getComputedStyle(element);
 		if (c) {
@@ -565,7 +681,9 @@ export interface IDomNodePagePosition {
 /**
  * Returns the position of a dom node relative to the entire page.
  */
-export function getDomNodePagePosition(domNode: HTMLElement): IDomNodePagePosition {
+export function getDomNodePagePosition(
+	domNode: HTMLElement
+): IDomNodePagePosition {
 	let bb = domNode.getBoundingClientRect();
 	return {
 		left: bb.left + StandardWindow.scrollX,
@@ -598,40 +716,49 @@ export const StandardWindow: IStandardWindow = new class {
 			return document.body.scrollTop + document.documentElement.scrollTop;
 		}
 	}
-};
+}();
 
 // Adapted from WinJS
 // Gets the width of the content of the specified element. The content width does not include borders or padding.
 export function getContentWidth(element: HTMLElement): number {
-	let border = sizeUtils.getBorderLeftWidth(element) + sizeUtils.getBorderRightWidth(element);
-	let padding = sizeUtils.getPaddingLeft(element) + sizeUtils.getPaddingRight(element);
+	let border =
+		sizeUtils.getBorderLeftWidth(element) +
+		sizeUtils.getBorderRightWidth(element);
+	let padding =
+		sizeUtils.getPaddingLeft(element) + sizeUtils.getPaddingRight(element);
 	return element.offsetWidth - border - padding;
 }
 
 // Adapted from WinJS
 // Gets the width of the element, including margins.
 export function getTotalWidth(element: HTMLElement): number {
-	let margin = sizeUtils.getMarginLeft(element) + sizeUtils.getMarginRight(element);
+	let margin =
+		sizeUtils.getMarginLeft(element) + sizeUtils.getMarginRight(element);
 	return element.offsetWidth + margin;
 }
 
 export function getTotalScrollWidth(element: HTMLElement): number {
-	let margin = sizeUtils.getMarginLeft(element) + sizeUtils.getMarginRight(element);
+	let margin =
+		sizeUtils.getMarginLeft(element) + sizeUtils.getMarginRight(element);
 	return element.scrollWidth + margin;
 }
 
 // Adapted from WinJS
 // Gets the height of the content of the specified element. The content height does not include borders or padding.
 export function getContentHeight(element: HTMLElement): number {
-	let border = sizeUtils.getBorderTopWidth(element) + sizeUtils.getBorderBottomWidth(element);
-	let padding = sizeUtils.getPaddingTop(element) + sizeUtils.getPaddingBottom(element);
+	let border =
+		sizeUtils.getBorderTopWidth(element) +
+		sizeUtils.getBorderBottomWidth(element);
+	let padding =
+		sizeUtils.getPaddingTop(element) + sizeUtils.getPaddingBottom(element);
 	return element.offsetHeight - border - padding;
 }
 
 // Adapted from WinJS
 // Gets the height of the element, including its margins.
 export function getTotalHeight(element: HTMLElement): number {
-	let margin = sizeUtils.getMarginTop(element) + sizeUtils.getMarginBottom(element);
+	let margin =
+		sizeUtils.getMarginTop(element) + sizeUtils.getMarginBottom(element);
 	return element.offsetHeight + margin;
 }
 
@@ -646,9 +773,15 @@ function getRelativeLeft(element: HTMLElement, parent: HTMLElement): number {
 	return elementPosition.left - parentPosition.left;
 }
 
-export function getLargestChildWidth(parent: HTMLElement, children: HTMLElement[]): number {
-	let childWidths = children.map((child) => {
-		return Math.max(getTotalScrollWidth(child), getTotalWidth(child)) + getRelativeLeft(child, parent) || 0;
+export function getLargestChildWidth(
+	parent: HTMLElement,
+	children: HTMLElement[]
+): number {
+	let childWidths = children.map(child => {
+		return (
+			Math.max(getTotalScrollWidth(child), getTotalWidth(child)) +
+				getRelativeLeft(child, parent) || 0
+		);
 	});
 	let maxWidth = Math.max(...childWidths);
 	return maxWidth;
@@ -667,7 +800,11 @@ export function isAncestor(testChild: Node, testAncestor: Node): boolean {
 	return false;
 }
 
-export function findParentWithClass(node: HTMLElement, clazz: string, stopAtClazz?: string): HTMLElement {
+export function findParentWithClass(
+	node: HTMLElement,
+	clazz: string,
+	stopAtClazz?: string
+): HTMLElement {
 	while (node) {
 		if (hasClass(node, clazz)) {
 			return node;
@@ -683,7 +820,9 @@ export function findParentWithClass(node: HTMLElement, clazz: string, stopAtClaz
 	return null;
 }
 
-export function createStyleSheet(container: HTMLElement = document.getElementsByTagName('head')[0]): HTMLStyleElement {
+export function createStyleSheet(
+	container: HTMLElement = document.getElementsByTagName('head')[0]
+): HTMLStyleElement {
 	let style = document.createElement('style');
 	style.type = 'text/css';
 	style.media = 'screen';
@@ -705,7 +844,11 @@ function getDynamicStyleSheetRules(style: any) {
 	return [];
 }
 
-export function createCSSRule(selector: string, cssText: string, style: HTMLStyleElement = sharedStyle): void {
+export function createCSSRule(
+	selector: string,
+	cssText: string,
+	style: HTMLStyleElement = sharedStyle
+): void {
 	if (!style || !cssText) {
 		return;
 	}
@@ -713,7 +856,10 @@ export function createCSSRule(selector: string, cssText: string, style: HTMLStyl
 	(<CSSStyleSheet>style.sheet).insertRule(selector + '{' + cssText + '}', 0);
 }
 
-export function getCSSRule(selector: string, style: HTMLStyleElement = sharedStyle): any {
+export function getCSSRule(
+	selector: string,
+	style: HTMLStyleElement = sharedStyle
+): any {
 	if (!style) {
 		return null;
 	}
@@ -730,7 +876,10 @@ export function getCSSRule(selector: string, style: HTMLStyleElement = sharedSty
 	return null;
 }
 
-export function removeCSSRulesContainingSelector(ruleName: string, style = sharedStyle): void {
+export function removeCSSRulesContainingSelector(
+	ruleName: string,
+	style = sharedStyle
+): void {
 	if (!style) {
 		return;
 	}
@@ -753,7 +902,12 @@ export function isHTMLElement(o: any): o is HTMLElement {
 	if (typeof HTMLElement === 'object') {
 		return o instanceof HTMLElement;
 	}
-	return o && typeof o === 'object' && o.nodeType === 1 && typeof o.nodeName === 'string';
+	return (
+		o &&
+		typeof o === 'object' &&
+		o.nodeType === 1 &&
+		typeof o.nodeName === 'string'
+	);
 }
 
 export const EventType = {
@@ -800,7 +954,9 @@ export const EventType = {
 	// Animation
 	ANIMATION_START: browser.isWebKit ? 'webkitAnimationStart' : 'animationstart',
 	ANIMATION_END: browser.isWebKit ? 'webkitAnimationEnd' : 'animationend',
-	ANIMATION_ITERATION: browser.isWebKit ? 'webkitAnimationIteration' : 'animationiteration'
+	ANIMATION_ITERATION: browser.isWebKit
+		? 'webkitAnimationIteration'
+		: 'animationiteration'
 };
 
 export interface EventLike {
@@ -809,7 +965,7 @@ export interface EventLike {
 }
 
 export const EventHelper = {
-	stop: function (e: EventLike, cancelBubble?: boolean) {
+	stop: function(e: EventLike, cancelBubble?: boolean) {
 		if (e.preventDefault) {
 			e.preventDefault();
 		} else {
@@ -853,7 +1009,6 @@ export function restoreParentsScrollTop(node: Element, state: number[]): void {
 }
 
 class FocusTracker extends Disposable implements IFocusTracker {
-
 	private _eventEmitter: EventEmitter;
 
 	constructor(element: HTMLElement | Window) {
@@ -885,8 +1040,12 @@ class FocusTracker extends Disposable implements IFocusTracker {
 			}
 		};
 
-		this._register(addDisposableListener(element, EventType.FOCUS, onFocus, true));
-		this._register(addDisposableListener(element, EventType.BLUR, onBlur, true));
+		this._register(
+			addDisposableListener(element, EventType.FOCUS, onFocus, true)
+		);
+		this._register(
+			addDisposableListener(element, EventType.BLUR, onBlur, true)
+		);
 	}
 
 	public addFocusListener(fn: () => void): IDisposable {
@@ -902,7 +1061,10 @@ export function trackFocus(element: HTMLElement | Window): IFocusTracker {
 	return new FocusTracker(element);
 }
 
-export function append<T extends Node>(parent: HTMLElement, ...children: T[]): T {
+export function append<T extends Node>(
+	parent: HTMLElement,
+	...children: T[]
+): T {
 	children.forEach(child => parent.appendChild(child));
 	return children[children.length - 1];
 }
@@ -915,7 +1077,11 @@ export function prepend<T extends Node>(parent: HTMLElement, child: T): T {
 const SELECTOR_REGEX = /([\w\-]+)?(#([\w\-]+))?((.([\w\-]+))*)/;
 
 // Similar to builder, but much more lightweight
-export function $<T extends HTMLElement>(description: string, attrs?: { [key: string]: any; }, ...children: (Node | string)[]): T {
+export function $<T extends HTMLElement>(
+	description: string,
+	attrs?: { [key: string]: any },
+	...children: (Node | string)[]
+): T {
 	let match = SELECTOR_REGEX.exec(description);
 
 	if (!match) {
@@ -939,21 +1105,18 @@ export function $<T extends HTMLElement>(description: string, attrs?: { [key: st
 			if (value) {
 				result.setAttribute(name, 'true');
 			}
-
 		} else {
 			result.setAttribute(name, attrs[name]);
 		}
 	});
 
-	children
-		.filter(child => !!child)
-		.forEach(child => {
-			if (child instanceof Node) {
-				result.appendChild(child);
-			} else {
-				result.appendChild(document.createTextNode(child as string));
-			}
-		});
+	children.filter(child => !!child).forEach(child => {
+		if (child instanceof Node) {
+			result.appendChild(child);
+		} else {
+			result.appendChild(document.createTextNode(child as string));
+		}
+	});
 
 	return result as T;
 }
@@ -1010,7 +1173,10 @@ export function removeTabIndexAndUpdateFocus(node: HTMLElement): void {
 	// typically never want that, rather put focus to the closest element
 	// in the hierarchy of the parent DOM nodes.
 	if (document.activeElement === node) {
-		let parentFocusable = findParentWithAttribute(node.parentElement, 'tabIndex');
+		let parentFocusable = findParentWithAttribute(
+			node.parentElement,
+			'tabIndex'
+		);
 		if (parentFocusable) {
 			parentFocusable.focus();
 		}
@@ -1023,7 +1189,9 @@ export function getElementsByTagName(tag: string): HTMLElement[] {
 	return Array.prototype.slice.call(document.getElementsByTagName(tag), 0);
 }
 
-export function finalHandler<T extends Event>(fn: (event: T) => any): (event: T) => any {
+export function finalHandler<T extends Event>(
+	fn: (event: T) => any
+): (event: T) => any {
 	return e => {
 		e.preventDefault();
 		e.stopPropagation();

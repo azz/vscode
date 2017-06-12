@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./countBadge';
 import { $, append } from 'vs/base/browser/dom';
@@ -28,7 +28,6 @@ const defaultOpts = {
 };
 
 export class CountBadge {
-
 	private element: HTMLElement;
 	private count: number;
 	private titleFormat: string;
@@ -79,8 +78,12 @@ export class CountBadge {
 
 	private applyStyles(): void {
 		if (this.element) {
-			const background = this.badgeBackground ? this.badgeBackground.toString() : null;
-			const foreground = this.badgeForeground ? this.badgeForeground.toString() : null;
+			const background = this.badgeBackground
+				? this.badgeBackground.toString()
+				: null;
+			const foreground = this.badgeForeground
+				? this.badgeForeground.toString()
+				: null;
 			const border = this.badgeBorder ? this.badgeBorder.toString() : null;
 
 			this.element.style.backgroundColor = background;

@@ -3,30 +3,31 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import URI from 'vs/base/common/uri';
 import { ICommonCodeEditor, IModel } from 'vs/editor/common/editorCommon';
-import { EditorState, CodeEditorStateFlag } from 'vs/editor/common/core/editorState';
+import {
+	EditorState,
+	CodeEditorStateFlag
+} from 'vs/editor/common/core/editorState';
 import { Selection } from 'vs/editor/common/core/selection';
 import { Position } from 'vs/editor/common/core/position';
 
 interface IStubEditorState {
-	model?: { uri?: URI, version?: number };
+	model?: { uri?: URI; version?: number };
 	position?: Position;
 	selection?: Selection;
-	scroll?: { left?: number, top?: number };
+	scroll?: { left?: number; top?: number };
 }
 
 suite('Editor Core - Editor State', () => {
-
-	const allFlags = (
-		CodeEditorStateFlag.Value
-		| CodeEditorStateFlag.Selection
-		| CodeEditorStateFlag.Position
-		| CodeEditorStateFlag.Scroll
-	);
+	const allFlags =
+		CodeEditorStateFlag.Value |
+		CodeEditorStateFlag.Selection |
+		CodeEditorStateFlag.Position |
+		CodeEditorStateFlag.Scroll;
 
 	test('empty editor state should be valid', () => {
 		let result = validate({}, {});
@@ -43,10 +44,7 @@ suite('Editor Core - Editor State', () => {
 	});
 
 	test('different model versions should be invalid', () => {
-		let result = validate(
-			{ model: { version: 1 } },
-			{ model: { version: 2 } }
-		);
+		let result = validate({ model: { version: 1 } }, { model: { version: 2 } });
 
 		assert.equal(result, false);
 	});
@@ -78,7 +76,6 @@ suite('Editor Core - Editor State', () => {
 		assert.equal(result, false);
 	});
 
-
 	function validate(source: IStubEditorState, target: IStubEditorState) {
 		let sourceEditor = createEditor(source),
 			targetEditor = createEditor(target);
@@ -88,8 +85,15 @@ suite('Editor Core - Editor State', () => {
 		return result;
 	}
 
-	function createEditor({ model, position, selection, scroll }: IStubEditorState = {}): ICommonCodeEditor {
-		let mappedModel = model ? { uri: model.uri ? model.uri : URI.parse('http://dummy.org'), getVersionId: () => model.version } : null;
+	function createEditor(
+		{ model, position, selection, scroll }: IStubEditorState = {}
+	): ICommonCodeEditor {
+		let mappedModel = model
+			? {
+					uri: model.uri ? model.uri : URI.parse('http://dummy.org'),
+					getVersionId: () => model.version
+				}
+			: null;
 
 		return <any>{
 			getModel: (): IModel => <any>mappedModel,
@@ -99,6 +103,4 @@ suite('Editor Core - Editor State', () => {
 			getScrollTop: (): number => scroll && scroll.top
 		};
 	}
-
 });
-

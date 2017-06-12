@@ -4,7 +4,12 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
-import { getNode, getNodeOuterSelection, getNodeInnerSelection, isStyleSheet } from './util';
+import {
+	getNode,
+	getNodeOuterSelection,
+	getNodeInnerSelection,
+	isStyleSheet
+} from './util';
 import parse from '@emmetio/html-matcher';
 import Node from '@emmetio/node';
 
@@ -41,23 +46,37 @@ function balance(out: boolean) {
 	editor.selections = newSelections;
 }
 
-function getRangeToBalanceOut(document: vscode.TextDocument, selection: vscode.Selection, rootNode: Node): vscode.Selection {
+function getRangeToBalanceOut(
+	document: vscode.TextDocument,
+	selection: vscode.Selection,
+	rootNode: Node
+): vscode.Selection {
 	let offset = document.offsetAt(selection.start);
 	let nodeToBalance = getNode(rootNode, offset);
 
 	let innerSelection = getNodeInnerSelection(document, nodeToBalance);
 	let outerSelection = getNodeOuterSelection(document, nodeToBalance);
 
-	if (innerSelection.contains(selection) && !innerSelection.isEqual(selection)) {
+	if (
+		innerSelection.contains(selection) &&
+		!innerSelection.isEqual(selection)
+	) {
 		return innerSelection;
 	}
-	if (outerSelection.contains(selection) && !outerSelection.isEqual(selection)) {
+	if (
+		outerSelection.contains(selection) &&
+		!outerSelection.isEqual(selection)
+	) {
 		return outerSelection;
 	}
 	return;
 }
 
-function getRangeToBalanceIn(document: vscode.TextDocument, selection: vscode.Selection, rootNode: Node): vscode.Selection {
+function getRangeToBalanceIn(
+	document: vscode.TextDocument,
+	selection: vscode.Selection,
+	rootNode: Node
+): vscode.Selection {
 	let offset = document.offsetAt(selection.start);
 	let nodeToBalance: Node = getNode(rootNode, offset);
 
@@ -65,11 +84,15 @@ function getRangeToBalanceIn(document: vscode.TextDocument, selection: vscode.Se
 		return selection;
 	}
 
-	if (nodeToBalance.firstChild.start === offset && nodeToBalance.firstChild.end === document.offsetAt(selection.end)) {
+	if (
+		nodeToBalance.firstChild.start === offset &&
+		nodeToBalance.firstChild.end === document.offsetAt(selection.end)
+	) {
 		return getNodeInnerSelection(document, nodeToBalance.firstChild);
 	}
 
-	return new vscode.Selection(document.positionAt(nodeToBalance.firstChild.start), document.positionAt(nodeToBalance.firstChild.end));
-
+	return new vscode.Selection(
+		document.positionAt(nodeToBalance.firstChild.start),
+		document.positionAt(nodeToBalance.firstChild.end)
+	);
 }
-

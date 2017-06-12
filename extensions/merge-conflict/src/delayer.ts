@@ -2,14 +2,13 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 export interface ITask<T> {
 	(): T;
 }
 
 export class Delayer<T> {
-
 	public defaultDelay: number;
 	private timeout: any; // Timer
 	private completionPromise: Promise<T> | null;
@@ -24,14 +23,17 @@ export class Delayer<T> {
 		this.task = null;
 	}
 
-	public trigger(task: ITask<T>, delay: number = this.defaultDelay): Promise<T> {
+	public trigger(
+		task: ITask<T>,
+		delay: number = this.defaultDelay
+	): Promise<T> {
 		this.task = task;
 		if (delay >= 0) {
 			this.cancelTimeout();
 		}
 
 		if (!this.completionPromise) {
-			this.completionPromise = new Promise<T>((resolve) => {
+			this.completionPromise = new Promise<T>(resolve => {
 				this.onSuccess = resolve;
 			}).then(() => {
 				this.completionPromise = null;

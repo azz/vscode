@@ -6,7 +6,17 @@
 import * as cp from 'child_process';
 import * as fs from 'fs';
 
-import { workspace, window, TextDocument, TextDocumentChangeEvent, TextDocumentContentChangeEvent, Disposable, MessageItem, Uri, commands } from 'vscode';
+import {
+	workspace,
+	window,
+	TextDocument,
+	TextDocumentChangeEvent,
+	TextDocumentContentChangeEvent,
+	Disposable,
+	MessageItem,
+	Uri,
+	commands
+} from 'vscode';
 import * as Proto from '../protocol';
 import { ITypescriptServiceClient } from '../typescriptService';
 import { Delayer } from '../utils/async';
@@ -18,29 +28,34 @@ interface IDiagnosticRequestor {
 	requestDiagnostic(filepath: string): void;
 }
 
-function mode2ScriptKind(mode: string): 'TS' | 'TSX' | 'JS' | 'JSX' | undefined {
+function mode2ScriptKind(
+	mode: string
+): 'TS' | 'TSX' | 'JS' | 'JSX' | undefined {
 	switch (mode) {
-		case 'typescript': return 'TS';
-		case 'typescriptreact': return 'TSX';
-		case 'javascript': return 'JS';
-		case 'javascriptreact': return 'JSX';
+		case 'typescript':
+			return 'TS';
+		case 'typescriptreact':
+			return 'TSX';
+		case 'javascript':
+			return 'JS';
+		case 'javascriptreact':
+			return 'JSX';
 	}
 	return undefined;
 }
 
 class SyncedBuffer {
-
 	constructor(
 		private readonly document: TextDocument,
 		private readonly filepath: string,
 		private readonly diagnosticRequestor: IDiagnosticRequestor,
 		private readonly client: ITypescriptServiceClient
-	) { }
+	) {}
 
 	public open(): void {
 		const args: Proto.OpenRequestArgs = {
 			file: this.filepath,
-			fileContent: this.document.getText(),
+			fileContent: this.document.getText()
 		};
 
 		if (this.client.apiVersion.has203Features()) {
@@ -97,7 +112,6 @@ export interface Diagnostics {
 
 const checkTscVersionSettingKey = 'check.tscVersion';
 export default class BufferSyncSupport {
-
 	private readonly client: ITypescriptServiceClient;
 
 	private _validate: boolean;
@@ -106,11 +120,16 @@ export default class BufferSyncSupport {
 	private readonly disposables: Disposable[] = [];
 	private readonly syncedBuffers: Map<string, SyncedBuffer>;
 
-	private pendingDiagnostics: { [key: string]: number; };
+	private pendingDiagnostics: { [key: string]: number };
 	private readonly diagnosticDelayer: Delayer<any>;
 	private checkGlobalTSCVersion: boolean;
 
-	constructor(client: ITypescriptServiceClient, modeIds: string[], diagnostics: Diagnostics, validate: boolean = true) {
+	constructor(
+		client: ITypescriptServiceClient,
+		modeIds: string[],
+		diagnostics: Diagnostics,
+		validate: boolean = true
+	) {
 		this.client = client;
 		this.modeIds = new Set<string>(modeIds);
 		this.diagnostics = diagnostics;
@@ -122,13 +141,28 @@ export default class BufferSyncSupport {
 		this.syncedBuffers = new Map<string, SyncedBuffer>();
 
 		const tsConfig = workspace.getConfiguration('typescript');
-		this.checkGlobalTSCVersion = client.checkGlobalTSCVersion && this.modeIds.has('typescript') && tsConfig.get(checkTscVersionSettingKey, true);
+		this.checkGlobalTSCVersion =
+			client.checkGlobalTSCVersion &&
+			this.modeIds.has('typescript') &&
+			tsConfig.get(checkTscVersionSettingKey, true);
 	}
 
 	public listen(): void {
-		workspace.onDidOpenTextDocument(this.onDidOpenTextDocument, this, this.disposables);
-		workspace.onDidCloseTextDocument(this.onDidCloseTextDocument, this, this.disposables);
-		workspace.onDidChangeTextDocument(this.onDidChangeTextDocument, this, this.disposables);
+		workspace.onDidOpenTextDocument(
+			this.onDidOpenTextDocument,
+			this,
+			this.disposables
+		);
+		workspace.onDidCloseTextDocument(
+			this.onDidCloseTextDocument,
+			this,
+			this.disposables
+		);
+		workspace.onDidChangeTextDocument(
+			this.onDidChangeTextDocument,
+			this,
+			this.disposables
+		);
 		workspace.textDocuments.forEach(this.onDidOpenTextDocument, this);
 	}
 
@@ -168,11 +202,19 @@ export default class BufferSyncSupport {
 		if (!filepath) {
 			return;
 		}
-		const syncedBuffer = new SyncedBuffer(document, filepath, this, this.client);
+		const syncedBuffer = new SyncedBuffer(
+			document,
+			filepath,
+			this,
+			this.client
+		);
 		this.syncedBuffers.set(filepath, syncedBuffer);
 		syncedBuffer.open();
 		this.requestDiagnostic(filepath);
-		if (document.languageId === 'typescript' || document.languageId === 'typescriptreact') {
+		if (
+			document.languageId === 'typescript' ||
+			document.languageId === 'typescriptreact'
+		) {
 			this.checkTSCVersion();
 		}
 	}
@@ -239,16 +281,19 @@ export default class BufferSyncSupport {
 		if (!this._validate) {
 			return;
 		}
-		let files = Object.keys(this.pendingDiagnostics).map((key) => {
-			return {
-				file: key,
-				time: this.pendingDiagnostics[key]
-			};
-		}).sort((a, b) => {
-			return a.time - b.time;
-		}).map((value) => {
-			return value.file;
-		});
+		let files = Object.keys(this.pendingDiagnostics)
+			.map(key => {
+				return {
+					file: key,
+					time: this.pendingDiagnostics[key]
+				};
+			})
+			.sort((a, b) => {
+				return a.time - b.time;
+			})
+			.map(value => {
+				return value.file;
+			});
 
 		// Add all open TS buffers to the geterr request. They might be visible
 		for (const file of this.syncedBuffers.keys()) {
@@ -284,39 +329,53 @@ export default class BufferSyncSupport {
 					tscVersion = matches[1];
 				}
 			}
-		} catch (error) {
-		}
+		} catch (error) {}
 		if (tscVersion && tscVersion !== this.client.apiVersion.versionString) {
-			window.showInformationMessage<MyMessageItem>(
-				localize('versionMismatch', 'Using TypeScript ({1}) for editor features. TypeScript ({0}) is installed globally on your machine. Errors in VS Code  may differ from TSC errors', tscVersion, this.client.apiVersion.versionString),
-				{
-					title: localize('moreInformation', 'More Information'),
-					id: 1
-				},
-				{
-					title: localize('doNotCheckAgain', 'Don\'t Check Again'),
-					id: 2
-				},
-				{
-					title: localize('close', 'Close'),
-					id: 3,
-					isCloseAffordance: true
-				}
-			).then((selected) => {
-				if (!selected || selected.id === 3) {
-					return;
-				}
-				switch (selected.id) {
-					case 1:
-						commands.executeCommand('vscode.open', Uri.parse('http://go.microsoft.com/fwlink/?LinkId=826239'));
-						break;
-					case 2:
-						const tsConfig = workspace.getConfiguration('typescript');
-						tsConfig.update(checkTscVersionSettingKey, false, true);
-						window.showInformationMessage(localize('updateTscCheck', 'Updated user setting \'typescript.check.tscVersion\' to false'));
-						break;
-				}
-			});
+			window
+				.showInformationMessage<MyMessageItem>(
+					localize(
+						'versionMismatch',
+						'Using TypeScript ({1}) for editor features. TypeScript ({0}) is installed globally on your machine. Errors in VS Code  may differ from TSC errors',
+						tscVersion,
+						this.client.apiVersion.versionString
+					),
+					{
+						title: localize('moreInformation', 'More Information'),
+						id: 1
+					},
+					{
+						title: localize('doNotCheckAgain', "Don't Check Again"),
+						id: 2
+					},
+					{
+						title: localize('close', 'Close'),
+						id: 3,
+						isCloseAffordance: true
+					}
+				)
+				.then(selected => {
+					if (!selected || selected.id === 3) {
+						return;
+					}
+					switch (selected.id) {
+						case 1:
+							commands.executeCommand(
+								'vscode.open',
+								Uri.parse('http://go.microsoft.com/fwlink/?LinkId=826239')
+							);
+							break;
+						case 2:
+							const tsConfig = workspace.getConfiguration('typescript');
+							tsConfig.update(checkTscVersionSettingKey, false, true);
+							window.showInformationMessage(
+								localize(
+									'updateTscCheck',
+									"Updated user setting 'typescript.check.tscVersion' to false"
+								)
+							);
+							break;
+					}
+				});
 		}
 	}
 }

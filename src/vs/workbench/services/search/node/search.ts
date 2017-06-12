@@ -3,11 +3,16 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { PPromise, TPromise } from 'vs/base/common/winjs.base';
 import { IExpression } from 'vs/base/common/glob';
-import { IProgress, ILineMatch, IPatternInfo, ISearchStats } from 'vs/platform/search/common/search';
+import {
+	IProgress,
+	ILineMatch,
+	IPatternInfo,
+	ISearchStats
+} from 'vs/platform/search/common/search';
 
 export interface IRawSearch {
 	rootFolders: string[];
@@ -27,8 +32,12 @@ export interface IRawSearch {
 }
 
 export interface IRawSearchService {
-	fileSearch(search: IRawSearch): PPromise<ISerializedSearchComplete, ISerializedSearchProgressItem>;
-	textSearch(search: IRawSearch): PPromise<ISerializedSearchComplete, ISerializedSearchProgressItem>;
+	fileSearch(
+		search: IRawSearch
+	): PPromise<ISerializedSearchComplete, ISerializedSearchProgressItem>;
+	textSearch(
+		search: IRawSearch
+	): PPromise<ISerializedSearchComplete, ISerializedSearchProgressItem>;
 	clearCache(cacheKey: string): TPromise<void>;
 }
 
@@ -40,7 +49,11 @@ export interface IRawFileMatch {
 }
 
 export interface ISearchEngine<T> {
-	search: (onResult: (matches: T) => void, onProgress: (progress: IProgress) => void, done: (error: Error, complete: ISerializedSearchComplete) => void) => void;
+	search: (
+		onResult: (matches: T) => void,
+		onProgress: (progress: IProgress) => void,
+		done: (error: Error, complete: ISerializedSearchComplete) => void
+	) => void;
 	cancel: () => void;
 }
 
@@ -56,4 +69,7 @@ export interface ISerializedFileMatch {
 }
 
 // Type of the possible values for progress calls from the engine
-export type ISerializedSearchProgressItem = ISerializedFileMatch | ISerializedFileMatch[] | IProgress;
+export type ISerializedSearchProgressItem =
+	| ISerializedFileMatch
+	| ISerializedFileMatch[]
+	| IProgress;

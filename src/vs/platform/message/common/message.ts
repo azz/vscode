@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import nls = require('vs/nls');
 import { TPromise } from 'vs/base/common/winjs.base';
@@ -24,14 +24,33 @@ export interface IConfirmation {
 	secondaryButton?: string;
 }
 
-export const CloseAction = new Action('close.message', nls.localize('close', "Close"), null, true, () => TPromise.as(true));
-export const LaterAction = new Action('later.message', nls.localize('later', "Later"), null, true, () => TPromise.as(true));
-export const CancelAction = new Action('cancel.message', nls.localize('cancel', "Cancel"), null, true, () => TPromise.as(true));
+export const CloseAction = new Action(
+	'close.message',
+	nls.localize('close', 'Close'),
+	null,
+	true,
+	() => TPromise.as(true)
+);
+export const LaterAction = new Action(
+	'later.message',
+	nls.localize('later', 'Later'),
+	null,
+	true,
+	() => TPromise.as(true)
+);
+export const CancelAction = new Action(
+	'cancel.message',
+	nls.localize('cancel', 'Cancel'),
+	null,
+	true,
+	() => TPromise.as(true)
+);
 
-export const IMessageService = createDecorator<IMessageService>('messageService');
+export const IMessageService = createDecorator<IMessageService>(
+	'messageService'
+);
 
 export interface IMessageService {
-
 	_serviceBrand: any;
 
 	/**
@@ -58,7 +77,6 @@ export interface IMessageService {
 export const IChoiceService = createDecorator<IChoiceService>('choiceService');
 
 export interface IChoiceService {
-
 	_serviceBrand: any;
 
 	/**
@@ -74,7 +92,13 @@ export interface IChoiceService {
 	 * `Cancel` option is returned. If there is no such option then promise with
 	 * `0` index is returned.
 	 */
-	choose(severity: Severity, message: string, options: string[], cancelId: number, modal?: boolean): TPromise<number>;
+	choose(
+		severity: Severity,
+		message: string,
+		options: string[],
+		cancelId: number,
+		modal?: boolean
+	): TPromise<number>;
 }
 
 export import Severity = Severity;

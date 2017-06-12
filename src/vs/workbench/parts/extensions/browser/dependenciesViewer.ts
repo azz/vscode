@@ -9,9 +9,15 @@ import { IMouseEvent } from 'vs/base/browser/mouseEvent';
 import { IDisposable, dispose } from 'vs/base/common/lifecycle';
 import { TPromise, Promise } from 'vs/base/common/winjs.base';
 import { IDataSource, ITree, IRenderer } from 'vs/base/parts/tree/browser/tree';
-import { DefaultController, ClickBehavior } from 'vs/base/parts/tree/browser/treeDefaults';
+import {
+	DefaultController,
+	ClickBehavior
+} from 'vs/base/parts/tree/browser/treeDefaults';
 import { Action } from 'vs/base/common/actions';
-import { IExtensionDependencies, IExtensionsWorkbenchService } from 'vs/workbench/parts/extensions/common/extensions';
+import {
+	IExtensionDependencies,
+	IExtensionsWorkbenchService
+} from 'vs/workbench/parts/extensions/common/extensions';
 import { once } from 'vs/base/common/event';
 import { domEvent } from 'vs/base/browser/event';
 import { IInstantiationService } from 'vs/platform/instantiation/common/instantiation';
@@ -31,7 +37,6 @@ export interface IUnknownExtensionTemplateData {
 }
 
 export class DataSource implements IDataSource {
-
 	public getId(tree: ITree, element: IExtensionDependencies): string {
 		let id = element.identifier;
 		this.getParent(tree, element).then(parent => {
@@ -54,29 +59,38 @@ export class DataSource implements IDataSource {
 }
 
 export class Renderer implements IRenderer {
-
 	private static EXTENSION_TEMPLATE_ID = 'extension-template';
 	private static UNKNOWN_EXTENSION_TEMPLATE_ID = 'unknown-extension-template';
 
-	constructor( @IInstantiationService private instantiationService: IInstantiationService) {
-	}
+	constructor(
+		@IInstantiationService private instantiationService: IInstantiationService
+	) {}
 
 	public getHeight(tree: ITree, element: IExtensionDependencies): number {
 		return 62;
 	}
 
 	public getTemplateId(tree: ITree, element: IExtensionDependencies): string {
-		return element.extension ? Renderer.EXTENSION_TEMPLATE_ID : Renderer.UNKNOWN_EXTENSION_TEMPLATE_ID;
+		return element.extension
+			? Renderer.EXTENSION_TEMPLATE_ID
+			: Renderer.UNKNOWN_EXTENSION_TEMPLATE_ID;
 	}
 
-	public renderTemplate(tree: ITree, templateId: string, container: HTMLElement): any {
+	public renderTemplate(
+		tree: ITree,
+		templateId: string,
+		container: HTMLElement
+	): any {
 		if (Renderer.EXTENSION_TEMPLATE_ID === templateId) {
 			return this.renderExtensionTemplate(tree, container);
 		}
 		return this.renderUnknownExtensionTemplate(tree, container);
 	}
 
-	private renderExtensionTemplate(tree: ITree, container: HTMLElement): IExtensionTemplateData {
+	private renderExtensionTemplate(
+		tree: ITree,
+		container: HTMLElement
+	): IExtensionTemplateData {
 		dom.addClass(container, 'dependency');
 
 		const icon = dom.append(container, dom.$<HTMLImageElement>('img.icon'));
@@ -84,14 +98,18 @@ export class Renderer implements IRenderer {
 
 		const header = dom.append(details, dom.$('.header'));
 		const name = dom.append(header, dom.$('span.name'));
-		const openExtensionAction = this.instantiationService.createInstance(OpenExtensionAction);
-		const extensionDisposables = [dom.addDisposableListener(name, 'click', (e: MouseEvent) => {
-			tree.setFocus(openExtensionAction.extensionDependencies);
-			tree.setSelection([openExtensionAction.extensionDependencies]);
-			openExtensionAction.run(e.ctrlKey || e.metaKey);
-			e.stopPropagation();
-			e.preventDefault();
-		})];
+		const openExtensionAction = this.instantiationService.createInstance(
+			OpenExtensionAction
+		);
+		const extensionDisposables = [
+			dom.addDisposableListener(name, 'click', (e: MouseEvent) => {
+				tree.setFocus(openExtensionAction.extensionDependencies);
+				tree.setSelection([openExtensionAction.extensionDependencies]);
+				openExtensionAction.run(e.ctrlKey || e.metaKey);
+				e.stopPropagation();
+				e.preventDefault();
+			})
+		];
 		var identifier = dom.append(header, dom.$('span.identifier'));
 
 		const footer = dom.append(details, dom.$('.footer'));
@@ -108,16 +126,33 @@ export class Renderer implements IRenderer {
 		};
 	}
 
-	private renderUnknownExtensionTemplate(tree: ITree, container: HTMLElement): IUnknownExtensionTemplateData {
-		const messageContainer = dom.append(container, dom.$('div.unknown-dependency'));
-		dom.append(messageContainer, dom.$('span.error-marker')).textContent = localize('error', "Error");
-		dom.append(messageContainer, dom.$('span.message')).textContent = localize('Unknown Dependency', "Unknown Dependency:");
+	private renderUnknownExtensionTemplate(
+		tree: ITree,
+		container: HTMLElement
+	): IUnknownExtensionTemplateData {
+		const messageContainer = dom.append(
+			container,
+			dom.$('div.unknown-dependency')
+		);
+		dom.append(
+			messageContainer,
+			dom.$('span.error-marker')
+		).textContent = localize('error', 'Error');
+		dom.append(messageContainer, dom.$('span.message')).textContent = localize(
+			'Unknown Dependency',
+			'Unknown Dependency:'
+		);
 
 		const identifier = dom.append(messageContainer, dom.$('span.message'));
 		return { identifier };
 	}
 
-	public renderElement(tree: ITree, element: IExtensionDependencies, templateId: string, templateData: any): void {
+	public renderElement(
+		tree: ITree,
+		element: IExtensionDependencies,
+		templateId: string,
+		templateData: any
+	): void {
 		if (templateId === Renderer.EXTENSION_TEMPLATE_ID) {
 			this.renderExtension(tree, element, templateData);
 			return;
@@ -125,16 +160,24 @@ export class Renderer implements IRenderer {
 		this.renderUnknownExtension(tree, element, templateData);
 	}
 
-	private renderExtension(tree: ITree, element: IExtensionDependencies, data: IExtensionTemplateData): void {
+	private renderExtension(
+		tree: ITree,
+		element: IExtensionDependencies,
+		data: IExtensionTemplateData
+	): void {
 		const extension = element.extension;
 
 		const onError = once(domEvent(data.icon, 'error'));
-		onError(() => data.icon.src = extension.iconUrlFallback, null, data.extensionDisposables);
+		onError(
+			() => (data.icon.src = extension.iconUrlFallback),
+			null,
+			data.extensionDisposables
+		);
 		data.icon.src = extension.iconUrl;
 
 		if (!data.icon.complete) {
 			data.icon.style.visibility = 'hidden';
-			data.icon.onload = () => data.icon.style.visibility = 'inherit';
+			data.icon.onload = () => (data.icon.style.visibility = 'inherit');
 		} else {
 			data.icon.style.visibility = 'inherit';
 		}
@@ -145,27 +188,46 @@ export class Renderer implements IRenderer {
 		data.extensionDependencies = element;
 	}
 
-	private renderUnknownExtension(tree: ITree, element: IExtensionDependencies, data: IUnknownExtensionTemplateData): void {
+	private renderUnknownExtension(
+		tree: ITree,
+		element: IExtensionDependencies,
+		data: IUnknownExtensionTemplateData
+	): void {
 		data.identifier.textContent = element.identifier;
 	}
 
-	public disposeTemplate(tree: ITree, templateId: string, templateData: any): void {
+	public disposeTemplate(
+		tree: ITree,
+		templateId: string,
+		templateData: any
+	): void {
 		if (templateId === Renderer.EXTENSION_TEMPLATE_ID) {
-			templateData.extensionDisposables = dispose((<IExtensionTemplateData>templateData).extensionDisposables);
+			templateData.extensionDisposables = dispose(
+				(<IExtensionTemplateData>templateData).extensionDisposables
+			);
 		}
 	}
 }
 
 export class Controller extends DefaultController {
-
-	constructor( @IExtensionsWorkbenchService private extensionsWorkdbenchService: IExtensionsWorkbenchService) {
+	constructor(
+		@IExtensionsWorkbenchService
+		private extensionsWorkdbenchService: IExtensionsWorkbenchService
+	) {
 		super({ clickBehavior: ClickBehavior.ON_MOUSE_UP, keyboardSupport: false });
 
 		// TODO@Sandeep this should be a command
-		this.downKeyBindingDispatcher.set(KeyMod.CtrlCmd | KeyCode.Enter, (tree: ITree, event: any) => this.openExtension(tree, true));
+		this.downKeyBindingDispatcher.set(
+			KeyMod.CtrlCmd | KeyCode.Enter,
+			(tree: ITree, event: any) => this.openExtension(tree, true)
+		);
 	}
 
-	protected onLeftClick(tree: ITree, element: IExtensionDependencies, event: IMouseEvent): boolean {
+	protected onLeftClick(
+		tree: ITree,
+		element: IExtensionDependencies,
+		event: IMouseEvent
+	): boolean {
 		let currentFoucssed = tree.getFocus();
 		if (super.onLeftClick(tree, element, event)) {
 			if (element.dependent === null) {
@@ -191,14 +253,18 @@ export class Controller extends DefaultController {
 }
 
 class OpenExtensionAction extends Action {
-
 	private _extensionDependencies: IExtensionDependencies;
 
-	constructor( @IExtensionsWorkbenchService private extensionsWorkdbenchService: IExtensionsWorkbenchService) {
+	constructor(
+		@IExtensionsWorkbenchService
+		private extensionsWorkdbenchService: IExtensionsWorkbenchService
+	) {
 		super('extensions.action.openDependency', '');
 	}
 
-	public set extensionDependencies(extensionDependencies: IExtensionDependencies) {
+	public set extensionDependencies(
+		extensionDependencies: IExtensionDependencies
+	) {
 		this._extensionDependencies = extensionDependencies;
 	}
 
@@ -207,6 +273,9 @@ class OpenExtensionAction extends Action {
 	}
 
 	run(sideByside: boolean): TPromise<any> {
-		return this.extensionsWorkdbenchService.open(this._extensionDependencies.extension, sideByside);
+		return this.extensionsWorkdbenchService.open(
+			this._extensionDependencies.extension,
+			sideByside
+		);
 	}
 }

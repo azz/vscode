@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { PPromise, TPromise } from 'vs/base/common/winjs.base';
 import uri from 'vs/base/common/uri';
@@ -117,7 +117,6 @@ export interface IUncachedSearchStats extends ISearchStats {
 	cmdResultCount?: number;
 }
 
-
 // ---- very simple implementation of the search model --------------------
 
 export class FileMatch implements IFileMatch {
@@ -128,7 +127,11 @@ export class FileMatch implements IFileMatch {
 }
 
 export class LineMatch implements ILineMatch {
-	constructor(public preview: string, public lineNumber: number, public offsetAndLengths: number[][]) {
+	constructor(
+		public preview: string,
+		public lineNumber: number,
+		public offsetAndLengths: number[][]
+	) {
 		// empty
 	}
 }
@@ -145,8 +148,10 @@ export interface ISearchConfiguration extends IFilesConfiguration {
 }
 
 export function getExcludes(configuration: ISearchConfiguration): IExpression {
-	const fileExcludes = configuration && configuration.files && configuration.files.exclude;
-	const searchExcludes = configuration && configuration.search && configuration.search.exclude;
+	const fileExcludes =
+		configuration && configuration.files && configuration.files.exclude;
+	const searchExcludes =
+		configuration && configuration.search && configuration.search.exclude;
 
 	if (!fileExcludes && !searchExcludes) {
 		return null;

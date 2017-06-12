@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { execSync } from 'child_process';
 import { DocumentClient } from 'documentdb';
@@ -20,18 +20,26 @@ interface Asset {
 function queueSigningRequest(quality: string, commit: string): Promise<void> {
 	const retryOperations = new azure.ExponentialRetryPolicyFilter();
 	const queueSvc = azure
-		.createQueueService(process.env['AZURE_STORAGE_ACCOUNT_2'], process.env['AZURE_STORAGE_ACCESS_KEY_2'])
+		.createQueueService(
+			process.env['AZURE_STORAGE_ACCOUNT_2'],
+			process.env['AZURE_STORAGE_ACCESS_KEY_2']
+		)
 		.withFilter(retryOperations);
 
-	queueSvc.messageEncoder = new azure.QueueMessageEncoder.TextBase64QueueMessageEncoder();
+	queueSvc.messageEncoder = new azure.QueueMessageEncoder
+		.TextBase64QueueMessageEncoder();
 
 	const message = `${quality}/${commit}`;
 
-	return new Promise<void>((c, e) => queueSvc.createMessage('sign-darwin', message, err => err ? e(err) : c()));
+	return new Promise<void>((c, e) =>
+		queueSvc.createMessage('sign-darwin', message, err => (err ? e(err) : c()))
+	);
 }
 
 function isBuildSigned(quality: string, commit: string): Promise<boolean> {
-	const client = new DocumentClient(process.env['AZURE_DOCUMENTDB_ENDPOINT'], { masterKey: process.env['AZURE_DOCUMENTDB_MASTERKEY'] });
+	const client = new DocumentClient(process.env['AZURE_DOCUMENTDB_ENDPOINT'], {
+		masterKey: process.env['AZURE_DOCUMENTDB_MASTERKEY']
+	});
 	const collection = 'dbs/builds/colls/' + quality;
 	const updateQuery = {
 		query: 'SELECT TOP 1 * FROM c WHERE c.id = @id',
@@ -40,19 +48,28 @@ function isBuildSigned(quality: string, commit: string): Promise<boolean> {
 
 	return new Promise<boolean>((c, e) => {
 		client.queryDocuments(collection, updateQuery).toArray((err, results) => {
-			if (err) { return e(err); }
-			if (results.length !== 1) { return c(false); }
+			if (err) {
+				return e(err);
+			}
+			if (results.length !== 1) {
+				return c(false);
+			}
 
 			const [release] = results;
 			const assets: Asset[] = release.assets;
-			const isSigned = assets.some(a => a.platform === 'darwin' && a.type === 'archive');
+			const isSigned = assets.some(
+				a => a.platform === 'darwin' && a.type === 'archive'
+			);
 
 			c(isSigned);
 		});
 	});
 }
 
-async function waitForSignedBuild(quality: string, commit: string): Promise<void> {
+async function waitForSignedBuild(
+	quality: string,
+	commit: string
+): Promise<void> {
 	let retries = 0;
 
 	while (retries < 180) {

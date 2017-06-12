@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import objects = require('vs/base/common/objects');
@@ -18,8 +18,7 @@ let checkNot = (one, other, msg) => {
 };
 
 suite('Objects', () => {
-
-	test('equals', function () {
+	test('equals', function() {
 		check(null, null, 'null');
 		check(undefined, undefined, 'undefined');
 		check(1234, 1234, 'numbers');
@@ -31,7 +30,11 @@ suite('Objects', () => {
 		check({}, {}, 'empty objects');
 		check({ a: 1, b: '123' }, { a: 1, b: '123' }, 'objects');
 		check({ a: 1, b: '123' }, { b: '123', a: 1 }, 'objects (key order)');
-		check({ a: { b: 1, c: 2 }, b: 3 }, { a: { b: 1, c: 2 }, b: 3 }, 'nested objects');
+		check(
+			{ a: { b: 1, c: 2 }, b: 3 },
+			{ a: { b: 1, c: 2 }, b: 3 },
+			'nested objects'
+		);
 
 		checkNot(null, undefined, 'null != undefined');
 		checkNot(null, '', 'null != empty string');
@@ -52,11 +55,14 @@ suite('Objects', () => {
 		checkNot('1234', 1234, 'string !== number');
 
 		checkNot([[1, 2, 3], [4, 5, 6]], [[1, 2, 3], [4, 5, 6000]], 'arrays');
-		checkNot({ a: { b: 1, c: 2 }, b: 3 }, { b: 3, a: { b: 9, c: 2 } }, 'objects');
+		checkNot(
+			{ a: { b: 1, c: 2 }, b: 3 },
+			{ b: 3, a: { b: 9, c: 2 } },
+			'objects'
+		);
 	});
 
-	test('mixin - array', function () {
-
+	test('mixin - array', function() {
 		let foo: any = {};
 		objects.mixin(foo, { bar: [1, 2, 3] });
 
@@ -68,7 +74,7 @@ suite('Objects', () => {
 		assert.equal(foo.bar[2], 3);
 	});
 
-	test('mixin - no overwrite', function () {
+	test('mixin - no overwrite', function() {
 		let foo: any = {
 			bar: '123'
 		};
@@ -88,10 +94,10 @@ suite('Objects', () => {
 			o1: o1,
 			o2: o1
 		};
-		assert.deepEqual(objects.cloneAndChange(o, () => { }), o);
+		assert.deepEqual(objects.cloneAndChange(o, () => {}), o);
 	});
 
-	test('safeStringify', function () {
+	test('safeStringify', function() {
 		let obj1 = {
 			friend: null
 		};
@@ -109,14 +115,11 @@ suite('Objects', () => {
 		let circular = {
 			a: 42,
 			b: null,
-			c: [
-				obj1, obj2
-			],
+			c: [obj1, obj2],
 			d: null
 		};
 
 		arr.push(circular);
-
 
 		circular.b = circular;
 		circular.d = arr;
@@ -138,22 +141,27 @@ suite('Objects', () => {
 		});
 	});
 
-	test('derive', function () {
-
+	test('derive', function() {
 		let someValue = 2;
 
 		function Base(): void {
 			//example
 		}
 		(<any>Base).favoriteColor = 'blue';
-		Base.prototype.test = function () { return 42; };
+		Base.prototype.test = function() {
+			return 42;
+		};
 
 		function Child(): void {
 			//example
 		}
-		Child.prototype.test2 = function () { return 43; };
+		Child.prototype.test2 = function() {
+			return 43;
+		};
 		Object.defineProperty(Child.prototype, 'getter', {
-			get: function () { return someValue; },
+			get: function() {
+				return someValue;
+			},
 			enumerable: true,
 			configurable: true
 		});
@@ -174,7 +182,7 @@ suite('Objects', () => {
 		assert.strictEqual(child.getter, 4);
 	});
 
-	test('distinct', function () {
+	test('distinct', function() {
 		let base = {
 			one: 'one',
 			two: 2,

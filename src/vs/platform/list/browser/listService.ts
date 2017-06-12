@@ -2,19 +2,22 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { ITree } from 'vs/base/parts/tree/browser/tree';
 import { List } from 'vs/base/browser/ui/list/listWidget';
 import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
 import { dispose, IDisposable } from 'vs/base/common/lifecycle';
-import { IContextKeyService, IContextKey, RawContextKey } from 'vs/platform/contextkey/common/contextkey';
+import {
+	IContextKeyService,
+	IContextKey,
+	RawContextKey
+} from 'vs/platform/contextkey/common/contextkey';
 import { RunOnceScheduler } from 'vs/base/common/async';
 
 export const IListService = createDecorator<IListService>('listService');
 
 export interface IListService {
-
 	_serviceBrand: any;
 
 	/**
@@ -24,8 +27,14 @@ export interface IListService {
 	 * @param extraContextKeys an optional list of additional context keys to update based on
 	 * the widget being focused or not.
 	 */
-	register(tree: ITree, extraContextKeys?: (IContextKey<boolean>)[]): IDisposable;
-	register(list: List<any>, extraContextKeys?: (IContextKey<boolean>)[]): IDisposable;
+	register(
+		tree: ITree,
+		extraContextKeys?: (IContextKey<boolean>)[]
+	): IDisposable;
+	register(
+		list: List<any>,
+		extraContextKeys?: (IContextKey<boolean>)[]
+	): IDisposable;
 
 	/**
 	 * Returns the currently focused list widget if any.
@@ -41,7 +50,6 @@ interface IRegisteredList {
 }
 
 export class ListService implements IListService {
-
 	public _serviceBrand: any;
 
 	private focusedTreeOrList: ITree | List<any>;
@@ -51,17 +59,27 @@ export class ListService implements IListService {
 
 	private focusChangeScheduler: RunOnceScheduler;
 
-	constructor(
-		@IContextKeyService contextKeyService: IContextKeyService
-	) {
+	constructor(@IContextKeyService contextKeyService: IContextKeyService) {
 		this.listFocusContext = ListFocusContext.bindTo(contextKeyService);
 		this.lists = [];
-		this.focusChangeScheduler = new RunOnceScheduler(() => this.onFocusChange(), 50 /* delay until the focus/blur dust settles */);
+		this.focusChangeScheduler = new RunOnceScheduler(
+			() => this.onFocusChange(),
+			50 /* delay until the focus/blur dust settles */
+		);
 	}
 
-	public register(tree: ITree, extraContextKeys?: (IContextKey<boolean>)[]): IDisposable;
-	public register(list: List<any>, extraContextKeys?: (IContextKey<boolean>)[]): IDisposable;
-	public register(widget: ITree | List<any>, extraContextKeys?: (IContextKey<boolean>)[]): IDisposable {
+	public register(
+		tree: ITree,
+		extraContextKeys?: (IContextKey<boolean>)[]
+	): IDisposable;
+	public register(
+		list: List<any>,
+		extraContextKeys?: (IContextKey<boolean>)[]
+	): IDisposable;
+	public register(
+		widget: ITree | List<any>,
+		extraContextKeys?: (IContextKey<boolean>)[]
+	): IDisposable {
 		if (this.indexOf(widget) >= 0) {
 			throw new Error('Cannot register the same widget multiple times');
 		}
@@ -84,14 +102,18 @@ export class ListService implements IListService {
 		if (!(widget instanceof List)) {
 			const tree = widget;
 
-			toDispose.push(tree.onHighlightChange(() => {
-				this.focusChangeScheduler.schedule();
-			}));
+			toDispose.push(
+				tree.onHighlightChange(() => {
+					this.focusChangeScheduler.schedule();
+				})
+			);
 		}
 
 		// Remove list once disposed
 		toDispose.push({
-			dispose: () => { this.lists.splice(this.lists.indexOf(registeredList), 1); }
+			dispose: () => {
+				this.lists.splice(this.lists.indexOf(registeredList), 1);
+			}
 		});
 
 		return {
@@ -124,7 +146,6 @@ export class ListService implements IListService {
 	}
 
 	private setFocusedList(focusedList?: IRegisteredList): void {
-
 		// First update our context
 		if (focusedList) {
 			this.focusedTreeOrList = focusedList.widget;

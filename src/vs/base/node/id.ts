@@ -22,7 +22,6 @@ import { TrieMap } from 'vs/base/common/map';
 // Novell Xen	00-16-3E
 // Sun xVM VirtualBox	08-00-27
 export const virtualMachineHint: { value(): number } = new class {
-
 	private _virtualMachineOUIs: TrieMap<boolean>;
 	private _value: number;
 
@@ -37,7 +36,6 @@ export const virtualMachineHint: { value(): number } = new class {
 			this._virtualMachineOUIs.insert('00-1C-42', true);
 			this._virtualMachineOUIs.insert('00-16-3E', true);
 			this._virtualMachineOUIs.insert('08-00-27', true);
-
 		}
 		return this._virtualMachineOUIs.findSubstr(mac);
 	}
@@ -60,19 +58,19 @@ export const virtualMachineHint: { value(): number } = new class {
 					}
 				}
 			}
-			this._value = interfaceCount > 0
-				? vmOui / interfaceCount
-				: 0;
+			this._value = interfaceCount > 0 ? vmOui / interfaceCount : 0;
 		}
 
 		return this._value;
 	}
-};
+}();
 
 let machineId: TPromise<string>;
 export function getMachineId(): TPromise<string> {
-	return machineId || (machineId = getMacMachineId()
-		.then(id => id || uuid.generateUuid())); // fallback, generate a UUID
+	return (
+		machineId ||
+		(machineId = getMacMachineId().then(id => id || uuid.generateUuid()))
+	); // fallback, generate a UUID
 }
 
 function getMacMachineId(): TPromise<string> {
@@ -80,7 +78,9 @@ function getMacMachineId(): TPromise<string> {
 		try {
 			getmac.getMac((error, macAddress) => {
 				if (!error) {
-					resolve(crypto.createHash('sha256').update(macAddress, 'utf8').digest('hex'));
+					resolve(
+						crypto.createHash('sha256').update(macAddress, 'utf8').digest('hex')
+					);
 				} else {
 					resolve(undefined);
 				}

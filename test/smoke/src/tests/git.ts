@@ -5,9 +5,13 @@
 
 import * as assert from 'assert';
 
-import { SpectronApplication, LATEST_PATH, WORKSPACE_PATH } from "../spectron/application";
+import {
+	SpectronApplication,
+	LATEST_PATH,
+	WORKSPACE_PATH
+} from '../spectron/application';
 import { CommonActions } from '../areas/common';
-import { Git } from "../areas/git";
+import { Git } from '../areas/git';
 
 let app: SpectronApplication;
 let common: CommonActions;
@@ -16,18 +20,23 @@ export function testGit() {
 	context('Git', () => {
 		let git: Git;
 
-		beforeEach(async function () {
-			app = new SpectronApplication(LATEST_PATH, this.currentTest.fullTitle(), (this.currentTest as any).currentRetry(), [WORKSPACE_PATH]);
+		beforeEach(async function() {
+			app = new SpectronApplication(
+				LATEST_PATH,
+				this.currentTest.fullTitle(),
+				(this.currentTest as any).currentRetry(),
+				[WORKSPACE_PATH]
+			);
 			common = new CommonActions(app);
 			git = new Git(app, common);
 
 			return await app.start();
 		});
-		afterEach(async function () {
+		afterEach(async function() {
 			return await app.stop();
 		});
 
-		it('verifies current changes are picked up by Git viewlet', async function () {
+		it('verifies current changes are picked up by Git viewlet', async function() {
 			const changesCount = await git.getScmIconChanges();
 			assert.equal(changesCount, 2);
 			await git.openGitViewlet();
@@ -35,7 +44,7 @@ export function testGit() {
 			assert.ok(await git.verifyScmChange('launch.json'));
 		});
 
-		it(`verifies 'app.js' diff viewer changes`, async function () {
+		it(`verifies 'app.js' diff viewer changes`, async function() {
 			await git.openGitViewlet();
 			await common.openFile('app.js');
 			const original = await git.getOriginalAppJsBodyVarName();
@@ -44,7 +53,7 @@ export function testGit() {
 			assert.equal(modified, 'ydobParser');
 		});
 
-		it(`stages 'app.js' changes and checks stage count`, async function () {
+		it(`stages 'app.js' changes and checks stage count`, async function() {
 			await git.openGitViewlet();
 			await app.wait();
 			await git.stageFile('app.js');
@@ -55,7 +64,7 @@ export function testGit() {
 			await git.unstageFile('app.js');
 		});
 
-		it(`stages, commits change to 'app.js' locally and verifies outgoing change`, async function () {
+		it(`stages, commits change to 'app.js' locally and verifies outgoing change`, async function() {
 			await git.openGitViewlet();
 			await app.wait();
 			await git.stageFile('app.js');

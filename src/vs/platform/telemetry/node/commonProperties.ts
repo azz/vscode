@@ -11,8 +11,11 @@ import * as uuid from 'vs/base/common/uuid';
 export const machineIdStorageKey = 'telemetry.machineId';
 export const machineIdIpcChannel = 'vscode:machineId';
 
-export function resolveCommonProperties(commit: string, version: string): TPromise<{ [name: string]: string; }> {
-	const result: { [name: string]: string; } = Object.create(null);
+export function resolveCommonProperties(
+	commit: string,
+	version: string
+): TPromise<{ [name: string]: string }> {
+	const result: { [name: string]: string } = Object.create(null);
 
 	result['sessionID'] = uuid.generateUuid() + Date.now();
 	result['commitHash'] = commit;
@@ -26,7 +29,7 @@ export function resolveCommonProperties(commit: string, version: string): TPromi
 	let seq = 0;
 	const startTime = Date.now();
 	Object.defineProperties(result, {
-		'timestamp': {
+		timestamp: {
 			get: () => new Date(),
 			enumerable: true
 		},

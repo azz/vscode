@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import * as sinon from 'sinon';
@@ -11,7 +11,14 @@ import { DeferredPPromise } from 'vs/base/test/common/utils';
 import { PPromise } from 'vs/base/common/winjs.base';
 import { SearchModel } from 'vs/workbench/parts/search/common/searchModel';
 import URI from 'vs/base/common/uri';
-import { IFileMatch, ILineMatch, ISearchService, ISearchComplete, ISearchProgressItem, IUncachedSearchStats } from 'vs/platform/search/common/search';
+import {
+	IFileMatch,
+	ILineMatch,
+	ISearchService,
+	ISearchComplete,
+	ISearchProgressItem,
+	IUncachedSearchStats
+} from 'vs/platform/search/common/search';
 import { ITelemetryService } from 'vs/platform/telemetry/common/telemetry';
 import { NullTelemetryService } from 'vs/platform/telemetry/common/telemetryUtils';
 import { Range } from 'vs/editor/common/core/range';
@@ -21,7 +28,6 @@ import { TestConfigurationService } from 'vs/platform/configuration/test/common/
 import { ModelServiceImpl } from 'vs/editor/common/services/modelServiceImpl';
 
 const nullEvent = new class {
-
 	public id: number;
 	public topic: string;
 	public name: string;
@@ -38,11 +44,9 @@ const nullEvent = new class {
 	public timeTaken(): number {
 		return -1;
 	}
-};
-
+}();
 
 suite('SearchModel', () => {
-
 	let instantiationService: TestInstantiationService;
 	let restoreStubs;
 
@@ -61,9 +65,16 @@ suite('SearchModel', () => {
 		restoreStubs = [];
 		instantiationService = new TestInstantiationService();
 		instantiationService.stub(ITelemetryService, NullTelemetryService);
-		instantiationService.stub(IModelService, stubModelService(instantiationService));
+		instantiationService.stub(
+			IModelService,
+			stubModelService(instantiationService)
+		);
 		instantiationService.stub(ISearchService, {});
-		instantiationService.stub(ISearchService, 'search', PPromise.as({ results: [] }));
+		instantiationService.stub(
+			ISearchService,
+			'search',
+			PPromise.as({ results: [] })
+		);
 	});
 
 	teardown(() => {
@@ -72,9 +83,16 @@ suite('SearchModel', () => {
 		});
 	});
 
-	test('Search Model: Search adds to results', function () {
-		let results = [aRawMatch('file://c:/1', aLineMatch('preview 1', 1, [[1, 3], [4, 7]])), aRawMatch('file://c:/2', aLineMatch('preview 2'))];
-		instantiationService.stub(ISearchService, 'search', PPromise.as({ results: results }));
+	test('Search Model: Search adds to results', function() {
+		let results = [
+			aRawMatch('file://c:/1', aLineMatch('preview 1', 1, [[1, 3], [4, 7]])),
+			aRawMatch('file://c:/2', aLineMatch('preview 2'))
+		];
+		instantiationService.stub(
+			ISearchService,
+			'search',
+			PPromise.as({ results: results })
+		);
 
 		let testObject = instantiationService.createInstance(SearchModel);
 		testObject.search({ contentPattern: { pattern: 'somestring' }, type: 1 });
@@ -97,13 +115,19 @@ suite('SearchModel', () => {
 		assert.ok(new Range(2, 1, 2, 2).equalsRange(actuaMatches[0].range()));
 	});
 
-	test('Search Model: Search adds to results during progress', function (done) {
-		let results = [aRawMatch('file://c:/1', aLineMatch('preview 1', 1, [[1, 3], [4, 7]])), aRawMatch('file://c:/2', aLineMatch('preview 2'))];
+	test('Search Model: Search adds to results during progress', function(done) {
+		let results = [
+			aRawMatch('file://c:/1', aLineMatch('preview 1', 1, [[1, 3], [4, 7]])),
+			aRawMatch('file://c:/2', aLineMatch('preview 2'))
+		];
 		let promise = new DeferredPPromise<ISearchComplete, ISearchProgressItem>();
 		instantiationService.stub(ISearchService, 'search', promise);
 
 		let testObject = instantiationService.createInstance(SearchModel);
-		let result = testObject.search({ contentPattern: { pattern: 'somestring' }, type: 1 });
+		let result = testObject.search({
+			contentPattern: { pattern: 'somestring' },
+			type: 1
+		});
 
 		promise.progress(results[0]);
 		promise.progress(results[1]);
@@ -131,10 +155,17 @@ suite('SearchModel', () => {
 		});
 	});
 
-	test('Search Model: Search reports telemetry on search completed', function () {
+	test('Search Model: Search reports telemetry on search completed', function() {
 		let target = instantiationService.spy(ITelemetryService, 'publicLog');
-		let results = [aRawMatch('file://c:/1', aLineMatch('preview 1', 1, [[1, 3], [4, 7]])), aRawMatch('file://c:/2', aLineMatch('preview 2'))];
-		instantiationService.stub(ISearchService, 'search', PPromise.as({ results: results }));
+		let results = [
+			aRawMatch('file://c:/1', aLineMatch('preview 1', 1, [[1, 3], [4, 7]])),
+			aRawMatch('file://c:/2', aLineMatch('preview 2'))
+		];
+		instantiationService.stub(
+			ISearchService,
+			'search',
+			PPromise.as({ results: results })
+		);
 
 		let testObject = instantiationService.createInstance(SearchModel);
 		testObject.search({ contentPattern: { pattern: 'somestring' }, type: 1 });
@@ -142,19 +173,34 @@ suite('SearchModel', () => {
 		assert.ok(target.calledOnce);
 		const data = target.args[0];
 		data[1].duration = -1;
-		assert.deepEqual(['searchResultsShown', { count: 3, fileCount: 2, options: {}, duration: -1 }], data);
+		assert.deepEqual(
+			[
+				'searchResultsShown',
+				{ count: 3, fileCount: 2, options: {}, duration: -1 }
+			],
+			data
+		);
 	});
 
-	test('Search Model: Search reports timed telemetry on search when progress is not called', function (done) {
+	test('Search Model: Search reports timed telemetry on search when progress is not called', function(
+		done
+	) {
 		let target2 = sinon.spy();
 		stub(nullEvent, 'stop', target2);
 		let target1 = sinon.stub().returns(nullEvent);
 		instantiationService.stub(ITelemetryService, 'publicLog', target1);
 
-		instantiationService.stub(ISearchService, 'search', PPromise.as({ results: [] }));
+		instantiationService.stub(
+			ISearchService,
+			'search',
+			PPromise.as({ results: [] })
+		);
 
 		let testObject = instantiationService.createInstance(SearchModel);
-		const result = testObject.search({ contentPattern: { pattern: 'somestring' }, type: 1 });
+		const result = testObject.search({
+			contentPattern: { pattern: 'somestring' },
+			type: 1
+		});
 
 		setTimeout(() => {
 			result.done(() => {
@@ -166,7 +212,9 @@ suite('SearchModel', () => {
 		}, 0);
 	});
 
-	test('Search Model: Search reports timed telemetry on search when progress is called', function (done) {
+	test('Search Model: Search reports timed telemetry on search when progress is called', function(
+		done
+	) {
 		let target2 = sinon.spy();
 		stub(nullEvent, 'stop', target2);
 		let target1 = sinon.stub().returns(nullEvent);
@@ -176,7 +224,10 @@ suite('SearchModel', () => {
 		instantiationService.stub(ISearchService, 'search', promise);
 
 		let testObject = instantiationService.createInstance(SearchModel);
-		let result = testObject.search({ contentPattern: { pattern: 'somestring' }, type: 1 });
+		let result = testObject.search({
+			contentPattern: { pattern: 'somestring' },
+			type: 1
+		});
 
 		promise.progress(aRawMatch('file://c:/1', aLineMatch('some preview')));
 		promise.complete({ results: [], stats: testSearchStats });
@@ -192,7 +243,9 @@ suite('SearchModel', () => {
 		}, 0);
 	});
 
-	test('Search Model: Search reports timed telemetry on search when error is called', function (done) {
+	test('Search Model: Search reports timed telemetry on search when error is called', function(
+		done
+	) {
 		let target2 = sinon.spy();
 		stub(nullEvent, 'stop', target2);
 		let target1 = sinon.stub().returns(nullEvent);
@@ -202,22 +255,30 @@ suite('SearchModel', () => {
 		instantiationService.stub(ISearchService, 'search', promise);
 
 		let testObject = instantiationService.createInstance(SearchModel);
-		let result = testObject.search({ contentPattern: { pattern: 'somestring' }, type: 1 });
+		let result = testObject.search({
+			contentPattern: { pattern: 'somestring' },
+			type: 1
+		});
 
 		promise.error('error');
 
 		setTimeout(() => {
-			result.done(() => { }, () => {
-				assert.ok(target1.calledWith('searchResultsFirstRender'));
-				assert.ok(target1.calledWith('searchResultsFinished'));
-				// assert.ok(target2.calledOnce);
+			result.done(
+				() => {},
+				() => {
+					assert.ok(target1.calledWith('searchResultsFirstRender'));
+					assert.ok(target1.calledWith('searchResultsFinished'));
+					// assert.ok(target2.calledOnce);
 
-				done();
-			});
+					done();
+				}
+			);
 		}, 0);
 	});
 
-	test('Search Model: Search reports timed telemetry on search when error is cancelled error', function (done) {
+	test('Search Model: Search reports timed telemetry on search when error is cancelled error', function(
+		done
+	) {
 		let target2 = sinon.spy();
 		stub(nullEvent, 'stop', target2);
 		let target1 = sinon.stub().returns(nullEvent);
@@ -227,78 +288,134 @@ suite('SearchModel', () => {
 		instantiationService.stub(ISearchService, 'search', promise);
 
 		let testObject = instantiationService.createInstance(SearchModel);
-		let result = testObject.search({ contentPattern: { pattern: 'somestring' }, type: 1 });
+		let result = testObject.search({
+			contentPattern: { pattern: 'somestring' },
+			type: 1
+		});
 
 		promise.cancel();
 
 		setTimeout(() => {
-			result.done(() => { }, () => {
-				assert.ok(target1.calledWith('searchResultsFirstRender'));
-				assert.ok(target1.calledWith('searchResultsFinished'));
-				// assert.ok(target2.calledOnce);
-				done();
-			});
+			result.done(
+				() => {},
+				() => {
+					assert.ok(target1.calledWith('searchResultsFirstRender'));
+					assert.ok(target1.calledWith('searchResultsFinished'));
+					// assert.ok(target2.calledOnce);
+					done();
+				}
+			);
 		}, 0);
 	});
 
-	test('Search Model: Search results are cleared during search', function () {
-		let results = [aRawMatch('file://c:/1', aLineMatch('preview 1', 1, [[1, 3], [4, 7]])), aRawMatch('file://c:/2', aLineMatch('preview 2'))];
-		instantiationService.stub(ISearchService, 'search', PPromise.as({ results: results }));
-		let testObject: SearchModel = instantiationService.createInstance(SearchModel);
+	test('Search Model: Search results are cleared during search', function() {
+		let results = [
+			aRawMatch('file://c:/1', aLineMatch('preview 1', 1, [[1, 3], [4, 7]])),
+			aRawMatch('file://c:/2', aLineMatch('preview 2'))
+		];
+		instantiationService.stub(
+			ISearchService,
+			'search',
+			PPromise.as({ results: results })
+		);
+		let testObject: SearchModel = instantiationService.createInstance(
+			SearchModel
+		);
 		testObject.search({ contentPattern: { pattern: 'somestring' }, type: 1 });
 		assert.ok(!testObject.searchResult.isEmpty());
 
-		instantiationService.stub(ISearchService, 'search', new DeferredPPromise<ISearchComplete, ISearchProgressItem>());
+		instantiationService.stub(
+			ISearchService,
+			'search',
+			new DeferredPPromise<ISearchComplete, ISearchProgressItem>()
+		);
 
 		testObject.search({ contentPattern: { pattern: 'somestring' }, type: 1 });
 		assert.ok(testObject.searchResult.isEmpty());
 	});
 
-	test('Search Model: Previous search is cancelled when new search is called', function () {
+	test('Search Model: Previous search is cancelled when new search is called', function() {
 		let target = sinon.spy();
-		instantiationService.stub(ISearchService, 'search', new DeferredPPromise((c, e, p) => { }, target));
-		let testObject: SearchModel = instantiationService.createInstance(SearchModel);
+		instantiationService.stub(
+			ISearchService,
+			'search',
+			new DeferredPPromise((c, e, p) => {}, target)
+		);
+		let testObject: SearchModel = instantiationService.createInstance(
+			SearchModel
+		);
 
 		testObject.search({ contentPattern: { pattern: 'somestring' }, type: 1 });
-		instantiationService.stub(ISearchService, 'search', new DeferredPPromise<ISearchComplete, ISearchProgressItem>());
+		instantiationService.stub(
+			ISearchService,
+			'search',
+			new DeferredPPromise<ISearchComplete, ISearchProgressItem>()
+		);
 		testObject.search({ contentPattern: { pattern: 'somestring' }, type: 1 });
 
 		assert.ok(target.calledOnce);
 	});
 
-	test('getReplaceString returns proper replace string for regExpressions', function () {
-		let results = [aRawMatch('file://c:/1', aLineMatch('preview 1', 1, [[1, 3], [4, 7]]))];
-		instantiationService.stub(ISearchService, 'search', PPromise.as({ results: results }));
+	test('getReplaceString returns proper replace string for regExpressions', function() {
+		let results = [
+			aRawMatch('file://c:/1', aLineMatch('preview 1', 1, [[1, 3], [4, 7]]))
+		];
+		instantiationService.stub(
+			ISearchService,
+			'search',
+			PPromise.as({ results: results })
+		);
 
-		let testObject: SearchModel = instantiationService.createInstance(SearchModel);
+		let testObject: SearchModel = instantiationService.createInstance(
+			SearchModel
+		);
 		testObject.search({ contentPattern: { pattern: 're' }, type: 1 });
 		testObject.replaceString = 'hello';
 		let match = testObject.searchResult.matches()[0].matches()[0];
 		assert.equal('hello', match.replaceString);
 
-		testObject.search({ contentPattern: { pattern: 're', isRegExp: true }, type: 1 });
+		testObject.search({
+			contentPattern: { pattern: 're', isRegExp: true },
+			type: 1
+		});
 		match = testObject.searchResult.matches()[0].matches()[0];
 		assert.equal('hello', match.replaceString);
 
-		testObject.search({ contentPattern: { pattern: 're(?:vi)', isRegExp: true }, type: 1 });
+		testObject.search({
+			contentPattern: { pattern: 're(?:vi)', isRegExp: true },
+			type: 1
+		});
 		match = testObject.searchResult.matches()[0].matches()[0];
 		assert.equal('hello', match.replaceString);
 
-		testObject.search({ contentPattern: { pattern: 'r(e)(?:vi)', isRegExp: true }, type: 1 });
+		testObject.search({
+			contentPattern: { pattern: 'r(e)(?:vi)', isRegExp: true },
+			type: 1
+		});
 		match = testObject.searchResult.matches()[0].matches()[0];
 		assert.equal('hello', match.replaceString);
 
-		testObject.search({ contentPattern: { pattern: 'r(e)(?:vi)', isRegExp: true }, type: 1 });
+		testObject.search({
+			contentPattern: { pattern: 'r(e)(?:vi)', isRegExp: true },
+			type: 1
+		});
 		testObject.replaceString = 'hello$1';
 		match = testObject.searchResult.matches()[0].matches()[0];
 		assert.equal('helloe', match.replaceString);
 	});
 
-	function aRawMatch(resource: string, ...lineMatches: ILineMatch[]): IFileMatch {
+	function aRawMatch(
+		resource: string,
+		...lineMatches: ILineMatch[]
+	): IFileMatch {
 		return { resource: URI.parse(resource), lineMatches };
 	}
 
-	function aLineMatch(preview: string, lineNumber: number = 1, offsetAndLengths: number[][] = [[0, 1]]): ILineMatch {
+	function aLineMatch(
+		preview: string,
+		lineNumber: number = 1,
+		offsetAndLengths: number[][] = [[0, 1]]
+	): ILineMatch {
 		return { preview, lineNumber, offsetAndLengths };
 	}
 
@@ -308,9 +425,13 @@ suite('SearchModel', () => {
 		return stub;
 	}
 
-	function stubModelService(instantiationService: TestInstantiationService): IModelService {
-		instantiationService.stub(IConfigurationService, new TestConfigurationService());
+	function stubModelService(
+		instantiationService: TestInstantiationService
+	): IModelService {
+		instantiationService.stub(
+			IConfigurationService,
+			new TestConfigurationService()
+		);
 		return instantiationService.createInstance(ModelServiceImpl);
 	}
-
 });

@@ -3,20 +3,25 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { Build, Builder } from 'vs/base/browser/builder';
 import { Part } from 'vs/workbench/browser/part';
 import * as Types from 'vs/base/common/types';
-import { IWorkspaceContextService, WorkspaceContextService } from 'vs/platform/workspace/common/workspace';
+import {
+	IWorkspaceContextService,
+	WorkspaceContextService
+} from 'vs/platform/workspace/common/workspace';
 import { IStorageService } from 'vs/platform/storage/common/storage';
-import { StorageService, InMemoryLocalStorage } from 'vs/platform/storage/common/storageService';
+import {
+	StorageService,
+	InMemoryLocalStorage
+} from 'vs/platform/storage/common/storageService';
 import { TestWorkspace } from 'vs/platform/workspace/test/common/testWorkspace';
 import { TestThemeService } from 'vs/workbench/test/workbenchTestServices';
 
 class MyPart extends Part {
-
 	constructor(private expectedParent: Builder) {
 		super('myPart', { hasTitle: true }, new TestThemeService());
 	}
@@ -37,13 +42,12 @@ class MyPart extends Part {
 }
 
 class MyPart2 extends Part {
-
 	constructor() {
 		super('myPart2', { hasTitle: true }, new TestThemeService());
 	}
 
 	public createTitleArea(parent: Builder): Builder {
-		return parent.div(function (div) {
+		return parent.div(function(div) {
 			div.span({
 				id: 'myPart.title',
 				innerHtml: 'Title'
@@ -52,7 +56,7 @@ class MyPart2 extends Part {
 	}
 
 	public createContentArea(parent: Builder): Builder {
-		return parent.div(function (div) {
+		return parent.div(function(div) {
 			div.span({
 				id: 'myPart.content',
 				innerHtml: 'Content'
@@ -62,7 +66,6 @@ class MyPart2 extends Part {
 }
 
 class MyPart3 extends Part {
-
 	constructor() {
 		super('myPart2', { hasTitle: false }, new TestThemeService());
 	}
@@ -72,7 +75,7 @@ class MyPart3 extends Part {
 	}
 
 	public createContentArea(parent: Builder): Builder {
-		return parent.div(function (div) {
+		return parent.div(function(div) {
 			div.span({
 				id: 'myPart.content',
 				innerHtml: 'Content'
@@ -99,7 +102,7 @@ suite('Workbench Part', () => {
 		document.body.removeChild(fixture);
 	});
 
-	test('Creation', function () {
+	test('Creation', function() {
 		let b = Build.withElementById(fixtureId);
 		b.div().hide();
 
@@ -136,7 +139,7 @@ suite('Workbench Part', () => {
 		assert.strictEqual(Types.isEmptyObject(memento), true);
 	});
 
-	test('Part Layout with Title and Content', function () {
+	test('Part Layout with Title and Content', function() {
 		let b = Build.withElementById(fixtureId);
 		b.div().hide();
 
@@ -147,7 +150,7 @@ suite('Workbench Part', () => {
 		assert(Build.withElementById('myPart.content'));
 	});
 
-	test('Part Layout with Content only', function () {
+	test('Part Layout with Content only', function() {
 		let b = Build.withElementById(fixtureId);
 		b.div().hide();
 

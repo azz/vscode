@@ -2,20 +2,41 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { BracketsUtils } from 'vs/editor/common/modes/supports/richEditBrackets';
 import { Range } from 'vs/editor/common/core/range';
 
 suite('richEditBrackets', () => {
-
-	function findPrevBracketInToken(reversedBracketRegex: RegExp, lineText: string, currentTokenStart: number, currentTokenEnd: number): Range {
-		return BracketsUtils.findPrevBracketInToken(reversedBracketRegex, 1, lineText, currentTokenStart, currentTokenEnd);
+	function findPrevBracketInToken(
+		reversedBracketRegex: RegExp,
+		lineText: string,
+		currentTokenStart: number,
+		currentTokenEnd: number
+	): Range {
+		return BracketsUtils.findPrevBracketInToken(
+			reversedBracketRegex,
+			1,
+			lineText,
+			currentTokenStart,
+			currentTokenEnd
+		);
 	}
 
-	function findNextBracketInToken(forwardBracketRegex: RegExp, lineText: string, currentTokenStart: number, currentTokenEnd: number): Range {
-		return BracketsUtils.findNextBracketInToken(forwardBracketRegex, 1, lineText, currentTokenStart, currentTokenEnd);
+	function findNextBracketInToken(
+		forwardBracketRegex: RegExp,
+		lineText: string,
+		currentTokenStart: number,
+		currentTokenEnd: number
+	): Range {
+		return BracketsUtils.findNextBracketInToken(
+			forwardBracketRegex,
+			1,
+			lineText,
+			currentTokenStart,
+			currentTokenEnd
+		);
 	}
 
 	test('findPrevBracketInToken one char 1', () => {
@@ -67,9 +88,13 @@ suite('richEditBrackets', () => {
 	});
 
 	test('issue #3894: [Handlebars] Curly braces edit issues', () => {
-		let result = findPrevBracketInToken(/(\-\-!<)|(>\-\-)|(\{\{)|(\}\})/i, '{{asd}}', 0, 2);
+		let result = findPrevBracketInToken(
+			/(\-\-!<)|(>\-\-)|(\{\{)|(\}\})/i,
+			'{{asd}}',
+			0,
+			2
+		);
 		assert.equal(result.startColumn, 1);
 		assert.equal(result.endColumn, 3);
 	});
-
 });

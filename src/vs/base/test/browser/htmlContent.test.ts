@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { marked } from 'vs/base/common/marked/marked';
@@ -17,17 +17,18 @@ suite('HtmlContent', () => {
 		assert.strictEqual(result.nodeType, document.TEXT_NODE);
 	});
 
-	test('cannot render script tag', function () {
+	test('cannot render script tag', function() {
 		var host = document.createElement('div');
 		document.body.appendChild(host);
-		host.appendChild(renderHtml({
-			tagName: 'script',
-			text: 'alert(\'owned -- injected script tag via htmlContent!\')'
-		}));
+		host.appendChild(
+			renderHtml({
+				tagName: 'script',
+				text: "alert('owned -- injected script tag via htmlContent!')"
+			})
+		);
 		assert(true);
 		document.body.removeChild(host);
 	});
-
 
 	test('render simple element', () => {
 		var result: HTMLElement = <any>renderHtml({
@@ -59,7 +60,7 @@ suite('HtmlContent', () => {
 		var result: HTMLElement = <any>renderHtml({
 			text: 'testing',
 			customStyle: {
-				'width': '100px'
+				width: '100px'
 			}
 		});
 		assert.strictEqual(result.style.width, '100px');
@@ -68,9 +69,11 @@ suite('HtmlContent', () => {
 	test('render element with children', () => {
 		var result: HTMLElement = <any>renderHtml({
 			className: 'parent',
-			children: [{
-				text: 'child'
-			}]
+			children: [
+				{
+					text: 'child'
+				}
+			]
 		});
 		assert.strictEqual(result.children.length, 1);
 		assert.strictEqual(result.className, 'parent');
@@ -96,7 +99,10 @@ suite('HtmlContent', () => {
 			formattedText: 'this string has **bold** and __italics__'
 		});
 
-		assert.strictEqual(result.innerHTML, 'this string has <b>bold</b> and <i>italics</i>');
+		assert.strictEqual(
+			result.innerHTML,
+			'this string has <b>bold</b> and <i>italics</i>'
+		);
 	});
 
 	test('no formatting', () => {
@@ -115,14 +121,17 @@ suite('HtmlContent', () => {
 
 	test('action', () => {
 		var callbackCalled = false;
-		var result: HTMLElement = <any>renderHtml({
-			formattedText: '[[action]]'
-		}, {
+		var result: HTMLElement = <any>renderHtml(
+			{
+				formattedText: '[[action]]'
+			},
+			{
 				actionCallback(content) {
 					assert.strictEqual(content, '0');
 					callbackCalled = true;
 				}
-			});
+			}
+		);
 		assert.strictEqual(result.innerHTML, '<a href="#">action</a>');
 
 		var event: MouseEvent = <any>document.createEvent('MouseEvent');
@@ -133,15 +142,21 @@ suite('HtmlContent', () => {
 
 	test('fancy action', () => {
 		var callbackCalled = false;
-		var result: HTMLElement = <any>renderHtml({
-			formattedText: '__**[[action]]**__'
-		}, {
+		var result: HTMLElement = <any>renderHtml(
+			{
+				formattedText: '__**[[action]]**__'
+			},
+			{
 				actionCallback(content) {
 					assert.strictEqual(content, '0');
 					callbackCalled = true;
 				}
-			});
-		assert.strictEqual(result.innerHTML, '<i><b><a href="#">action</a></b></i>');
+			}
+		);
+		assert.strictEqual(
+			result.innerHTML,
+			'<i><b><a href="#">action</a></b></i>'
+		);
 
 		var event: MouseEvent = <any>document.createEvent('MouseEvent');
 		event.initEvent('click', true, true);
@@ -184,18 +199,27 @@ suite('HtmlContent', () => {
 		var result: HTMLElement = <any>renderHtml({
 			markdown: `![image](someimageurl|width=100 'caption')`
 		});
-		assert.strictEqual(result.innerHTML, `<p><img src="someimageurl" alt="image" title="caption" width="100"></p>`);
+		assert.strictEqual(
+			result.innerHTML,
+			`<p><img src="someimageurl" alt="image" title="caption" width="100"></p>`
+		);
 	});
 	test('image height from title params', () => {
 		var result: HTMLElement = <any>renderHtml({
 			markdown: `![image](someimageurl|height=100 'caption')`
 		});
-		assert.strictEqual(result.innerHTML, `<p><img src="someimageurl" alt="image" title="caption" height="100"></p>`);
+		assert.strictEqual(
+			result.innerHTML,
+			`<p><img src="someimageurl" alt="image" title="caption" height="100"></p>`
+		);
 	});
 	test('image width and height from title params', () => {
 		var result: HTMLElement = <any>renderHtml({
 			markdown: `![image](someimageurl|height=200,width=100 'caption')`
 		});
-		assert.strictEqual(result.innerHTML, `<p><img src="someimageurl" alt="image" title="caption" width="100" height="200"></p>`);
+		assert.strictEqual(
+			result.innerHTML,
+			`<p><img src="someimageurl" alt="image" title="caption" width="100" height="200"></p>`
+		);
 	});
 });

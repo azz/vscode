@@ -2,16 +2,23 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { IDisposable, dispose } from 'vs/base/common/lifecycle';
-import { ITerminalService, ITerminalInstance, IShellLaunchConfig } from 'vs/workbench/parts/terminal/common/terminal';
+import {
+	ITerminalService,
+	ITerminalInstance,
+	IShellLaunchConfig
+} from 'vs/workbench/parts/terminal/common/terminal';
 import { IThreadService } from 'vs/workbench/services/thread/common/threadService';
 import { TPromise } from 'vs/base/common/winjs.base';
-import { ExtHostContext, ExtHostTerminalServiceShape, MainThreadTerminalServiceShape } from '../node/extHost.protocol';
+import {
+	ExtHostContext,
+	ExtHostTerminalServiceShape,
+	MainThreadTerminalServiceShape
+} from '../node/extHost.protocol';
 
 export class MainThreadTerminalService extends MainThreadTerminalServiceShape {
-
 	private _proxy: ExtHostTerminalServiceShape;
 	private _toDispose: IDisposable[];
 
@@ -22,16 +29,33 @@ export class MainThreadTerminalService extends MainThreadTerminalServiceShape {
 		super();
 		this._proxy = threadService.get(ExtHostContext.ExtHostTerminalService);
 		this._toDispose = [];
-		this._toDispose.push(terminalService.onInstanceDisposed((terminalInstance) => this._onTerminalDisposed(terminalInstance)));
-		this._toDispose.push(terminalService.onInstanceProcessIdReady((terminalInstance) => this._onTerminalProcessIdReady(terminalInstance)));
-		this._toDispose.push(terminalService.onInstanceData(event => this._onTerminalData(event.instance, event.data)));
+		this._toDispose.push(
+			terminalService.onInstanceDisposed(terminalInstance =>
+				this._onTerminalDisposed(terminalInstance)
+			)
+		);
+		this._toDispose.push(
+			terminalService.onInstanceProcessIdReady(terminalInstance =>
+				this._onTerminalProcessIdReady(terminalInstance)
+			)
+		);
+		this._toDispose.push(
+			terminalService.onInstanceData(event =>
+				this._onTerminalData(event.instance, event.data)
+			)
+		);
 	}
 
 	public dispose(): void {
 		this._toDispose = dispose(this._toDispose);
 	}
 
-	public $createTerminal(name?: string, shellPath?: string, shellArgs?: string[], waitOnExit?: boolean): TPromise<number> {
+	public $createTerminal(
+		name?: string,
+		shellPath?: string,
+		shellArgs?: string[],
+		waitOnExit?: boolean
+	): TPromise<number> {
 		const shellLaunchConfig: IShellLaunchConfig = {
 			name,
 			executable: shellPath,
@@ -39,7 +63,9 @@ export class MainThreadTerminalService extends MainThreadTerminalServiceShape {
 			waitOnExit,
 			ignoreConfigurationCwd: true
 		};
-		return TPromise.as(this.terminalService.createInstance(shellLaunchConfig).id);
+		return TPromise.as(
+			this.terminalService.createInstance(shellLaunchConfig).id
+		);
 	}
 
 	public $show(terminalId: number, preserveFocus: boolean): void {
@@ -70,7 +96,11 @@ export class MainThreadTerminalService extends MainThreadTerminalServiceShape {
 		}
 	}
 
-	public $sendText(terminalId: number, text: string, addNewLine: boolean): void {
+	public $sendText(
+		terminalId: number,
+		text: string,
+		addNewLine: boolean
+	): void {
 		let terminalInstance = this.terminalService.getInstanceFromId(terminalId);
 		if (terminalInstance) {
 			terminalInstance.sendText(text, addNewLine);
@@ -82,10 +112,16 @@ export class MainThreadTerminalService extends MainThreadTerminalServiceShape {
 	}
 
 	private _onTerminalProcessIdReady(terminalInstance: ITerminalInstance): void {
-		this._proxy.$acceptTerminalProcessId(terminalInstance.id, terminalInstance.processId);
+		this._proxy.$acceptTerminalProcessId(
+			terminalInstance.id,
+			terminalInstance.processId
+		);
 	}
 
-	private _onTerminalData(terminalInstance: ITerminalInstance, data: string): void {
+	private _onTerminalData(
+		terminalInstance: ITerminalInstance,
+		data: string
+	): void {
 		this._proxy.$acceptTerminalData(terminalInstance.id, data);
 	}
 }

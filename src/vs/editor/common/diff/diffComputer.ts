@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { IDiffChange, ISequence, LcsDiff } from 'vs/base/common/diff/diff';
 import * as strings from 'vs/base/common/strings';
@@ -17,13 +17,20 @@ interface IMarker {
 	offset: number;
 }
 
-function computeDiff(originalSequence: ISequence, modifiedSequence: ISequence, continueProcessingPredicate: () => boolean): IDiffChange[] {
-	var diffAlgo = new LcsDiff(originalSequence, modifiedSequence, continueProcessingPredicate);
+function computeDiff(
+	originalSequence: ISequence,
+	modifiedSequence: ISequence,
+	continueProcessingPredicate: () => boolean
+): IDiffChange[] {
+	var diffAlgo = new LcsDiff(
+		originalSequence,
+		modifiedSequence,
+		continueProcessingPredicate
+	);
 	return diffAlgo.ComputeDiff();
 }
 
 class MarkerSequence implements ISequence {
-
 	public buffer: string;
 	public startMarkers: IMarker[];
 	public endMarkers: IMarker[];
@@ -57,7 +64,10 @@ class MarkerSequence implements ISequence {
 	}
 
 	public getElementHash(i: number): string {
-		return this.buffer.substring(this.startMarkers[i].offset, this.endMarkers[i].offset);
+		return this.buffer.substring(
+			this.startMarkers[i].offset,
+			this.endMarkers[i].offset
+		);
 	}
 
 	public getStartLineNumber(i: number): number {
@@ -79,15 +89,16 @@ class MarkerSequence implements ISequence {
 	public getEndColumn(i: number): number {
 		return this.endMarkers[i].column;
 	}
-
 }
 
 class LineMarkerSequence extends MarkerSequence {
-
 	constructor(lines: string[], shouldIgnoreTrimWhitespace: boolean) {
 		var i: number, length: number, pos: number;
 		var buffer = '';
-		var startMarkers: IMarker[] = [], endMarkers: IMarker[] = [], startColumn: number, endColumn: number;
+		var startMarkers: IMarker[] = [],
+			endMarkers: IMarker[] = [],
+			startColumn: number,
+			endColumn: number;
 
 		for (pos = 0, i = 0, length = lines.length; i < length; i++) {
 			buffer += lines[i];
@@ -117,7 +128,10 @@ class LineMarkerSequence extends MarkerSequence {
 		super(buffer, startMarkers, endMarkers);
 	}
 
-	private static _getFirstNonBlankColumn(txt: string, defaultValue: number): number {
+	private static _getFirstNonBlankColumn(
+		txt: string,
+		defaultValue: number
+	): number {
 		var r = strings.firstNonWhitespaceIndex(txt);
 		if (r === -1) {
 			return defaultValue;
@@ -125,7 +139,10 @@ class LineMarkerSequence extends MarkerSequence {
 		return r + 1;
 	}
 
-	private static _getLastNonBlankColumn(txt: string, defaultValue: number): number {
+	private static _getLastNonBlankColumn(
+		txt: string,
+		defaultValue: number
+	): number {
 		var r = strings.lastNonWhitespaceIndex(txt);
 		if (r === -1) {
 			return defaultValue;
@@ -134,7 +151,12 @@ class LineMarkerSequence extends MarkerSequence {
 	}
 
 	public getCharSequence(startIndex: number, endIndex: number): MarkerSequence {
-		var startMarkers: IMarker[] = [], endMarkers: IMarker[] = [], index: number, i: number, startMarker: IMarker, endMarker: IMarker;
+		var startMarkers: IMarker[] = [],
+			endMarkers: IMarker[] = [],
+			index: number,
+			i: number,
+			startMarker: IMarker,
+			endMarker: IMarker;
 		for (index = startIndex; index <= endIndex; index++) {
 			startMarker = this.startMarkers[index];
 			endMarker = this.endMarkers[index];
@@ -156,7 +178,6 @@ class LineMarkerSequence extends MarkerSequence {
 }
 
 class CharChange implements ICharChange {
-
 	public originalStartLineNumber: number;
 	public originalStartColumn: number;
 	public originalEndLineNumber: number;
@@ -167,17 +188,29 @@ class CharChange implements ICharChange {
 	public modifiedEndLineNumber: number;
 	public modifiedEndColumn: number;
 
-	constructor(diffChange: IDiffChange, originalCharSequence: MarkerSequence, modifiedCharSequence: MarkerSequence) {
+	constructor(
+		diffChange: IDiffChange,
+		originalCharSequence: MarkerSequence,
+		modifiedCharSequence: MarkerSequence
+	) {
 		if (diffChange.originalLength === 0) {
 			this.originalStartLineNumber = 0;
 			this.originalStartColumn = 0;
 			this.originalEndLineNumber = 0;
 			this.originalEndColumn = 0;
 		} else {
-			this.originalStartLineNumber = originalCharSequence.getStartLineNumber(diffChange.originalStart);
-			this.originalStartColumn = originalCharSequence.getStartColumn(diffChange.originalStart);
-			this.originalEndLineNumber = originalCharSequence.getEndLineNumber(diffChange.originalStart + diffChange.originalLength - 1);
-			this.originalEndColumn = originalCharSequence.getEndColumn(diffChange.originalStart + diffChange.originalLength - 1);
+			this.originalStartLineNumber = originalCharSequence.getStartLineNumber(
+				diffChange.originalStart
+			);
+			this.originalStartColumn = originalCharSequence.getStartColumn(
+				diffChange.originalStart
+			);
+			this.originalEndLineNumber = originalCharSequence.getEndLineNumber(
+				diffChange.originalStart + diffChange.originalLength - 1
+			);
+			this.originalEndColumn = originalCharSequence.getEndColumn(
+				diffChange.originalStart + diffChange.originalLength - 1
+			);
 		}
 
 		if (diffChange.modifiedLength === 0) {
@@ -186,13 +219,20 @@ class CharChange implements ICharChange {
 			this.modifiedEndLineNumber = 0;
 			this.modifiedEndColumn = 0;
 		} else {
-			this.modifiedStartLineNumber = modifiedCharSequence.getStartLineNumber(diffChange.modifiedStart);
-			this.modifiedStartColumn = modifiedCharSequence.getStartColumn(diffChange.modifiedStart);
-			this.modifiedEndLineNumber = modifiedCharSequence.getEndLineNumber(diffChange.modifiedStart + diffChange.modifiedLength - 1);
-			this.modifiedEndColumn = modifiedCharSequence.getEndColumn(diffChange.modifiedStart + diffChange.modifiedLength - 1);
+			this.modifiedStartLineNumber = modifiedCharSequence.getStartLineNumber(
+				diffChange.modifiedStart
+			);
+			this.modifiedStartColumn = modifiedCharSequence.getStartColumn(
+				diffChange.modifiedStart
+			);
+			this.modifiedEndLineNumber = modifiedCharSequence.getEndLineNumber(
+				diffChange.modifiedStart + diffChange.modifiedLength - 1
+			);
+			this.modifiedEndColumn = modifiedCharSequence.getEndColumn(
+				diffChange.modifiedStart + diffChange.modifiedLength - 1
+			);
 		}
 	}
-
 }
 
 function postProcessCharChanges(rawChanges: IDiffChange[]): IDiffChange[] {
@@ -201,19 +241,35 @@ function postProcessCharChanges(rawChanges: IDiffChange[]): IDiffChange[] {
 	}
 	var result = [rawChanges[0]];
 
-	var i: number, len: number, originalMatchingLength: number, modifiedMatchingLength: number, matchingLength: number, prevChange = result[0], currChange: IDiffChange;
+	var i: number,
+		len: number,
+		originalMatchingLength: number,
+		modifiedMatchingLength: number,
+		matchingLength: number,
+		prevChange = result[0],
+		currChange: IDiffChange;
 	for (i = 1, len = rawChanges.length; i < len; i++) {
 		currChange = rawChanges[i];
 
-		originalMatchingLength = currChange.originalStart - (prevChange.originalStart + prevChange.originalLength);
-		modifiedMatchingLength = currChange.modifiedStart - (prevChange.modifiedStart + prevChange.modifiedLength);
+		originalMatchingLength =
+			currChange.originalStart -
+			(prevChange.originalStart + prevChange.originalLength);
+		modifiedMatchingLength =
+			currChange.modifiedStart -
+			(prevChange.modifiedStart + prevChange.modifiedLength);
 		// Both of the above should be equal, but the continueProcessingPredicate may prevent this from being true
 		matchingLength = Math.min(originalMatchingLength, modifiedMatchingLength);
 
 		if (matchingLength < MINIMUM_MATCHING_CHARACTER_LENGTH) {
 			// Merge the current change into the previous one
-			prevChange.originalLength = (currChange.originalStart + currChange.originalLength) - prevChange.originalStart;
-			prevChange.modifiedLength = (currChange.modifiedStart + currChange.modifiedLength) - prevChange.modifiedStart;
+			prevChange.originalLength =
+				currChange.originalStart +
+				currChange.originalLength -
+				prevChange.originalStart;
+			prevChange.modifiedLength =
+				currChange.modifiedStart +
+				currChange.modifiedLength -
+				prevChange.modifiedStart;
 		} else {
 			// Add the current change
 			result.push(currChange);
@@ -231,28 +287,58 @@ class LineChange implements ILineChange {
 	public modifiedEndLineNumber: number;
 	public charChanges: CharChange[];
 
-	constructor(diffChange: IDiffChange, originalLineSequence: LineMarkerSequence, modifiedLineSequence: LineMarkerSequence, continueProcessingPredicate: () => boolean, shouldPostProcessCharChanges: boolean) {
+	constructor(
+		diffChange: IDiffChange,
+		originalLineSequence: LineMarkerSequence,
+		modifiedLineSequence: LineMarkerSequence,
+		continueProcessingPredicate: () => boolean,
+		shouldPostProcessCharChanges: boolean
+	) {
 		if (diffChange.originalLength === 0) {
-			this.originalStartLineNumber = originalLineSequence.getStartLineNumber(diffChange.originalStart) - 1;
+			this.originalStartLineNumber =
+				originalLineSequence.getStartLineNumber(diffChange.originalStart) - 1;
 			this.originalEndLineNumber = 0;
 		} else {
-			this.originalStartLineNumber = originalLineSequence.getStartLineNumber(diffChange.originalStart);
-			this.originalEndLineNumber = originalLineSequence.getEndLineNumber(diffChange.originalStart + diffChange.originalLength - 1);
+			this.originalStartLineNumber = originalLineSequence.getStartLineNumber(
+				diffChange.originalStart
+			);
+			this.originalEndLineNumber = originalLineSequence.getEndLineNumber(
+				diffChange.originalStart + diffChange.originalLength - 1
+			);
 		}
 
 		if (diffChange.modifiedLength === 0) {
-			this.modifiedStartLineNumber = modifiedLineSequence.getStartLineNumber(diffChange.modifiedStart) - 1;
+			this.modifiedStartLineNumber =
+				modifiedLineSequence.getStartLineNumber(diffChange.modifiedStart) - 1;
 			this.modifiedEndLineNumber = 0;
 		} else {
-			this.modifiedStartLineNumber = modifiedLineSequence.getStartLineNumber(diffChange.modifiedStart);
-			this.modifiedEndLineNumber = modifiedLineSequence.getEndLineNumber(diffChange.modifiedStart + diffChange.modifiedLength - 1);
+			this.modifiedStartLineNumber = modifiedLineSequence.getStartLineNumber(
+				diffChange.modifiedStart
+			);
+			this.modifiedEndLineNumber = modifiedLineSequence.getEndLineNumber(
+				diffChange.modifiedStart + diffChange.modifiedLength - 1
+			);
 		}
 
-		if (diffChange.originalLength !== 0 && diffChange.modifiedLength !== 0 && continueProcessingPredicate()) {
-			var originalCharSequence = originalLineSequence.getCharSequence(diffChange.originalStart, diffChange.originalStart + diffChange.originalLength - 1);
-			var modifiedCharSequence = modifiedLineSequence.getCharSequence(diffChange.modifiedStart, diffChange.modifiedStart + diffChange.modifiedLength - 1);
+		if (
+			diffChange.originalLength !== 0 &&
+			diffChange.modifiedLength !== 0 &&
+			continueProcessingPredicate()
+		) {
+			var originalCharSequence = originalLineSequence.getCharSequence(
+				diffChange.originalStart,
+				diffChange.originalStart + diffChange.originalLength - 1
+			);
+			var modifiedCharSequence = modifiedLineSequence.getCharSequence(
+				diffChange.modifiedStart,
+				diffChange.modifiedStart + diffChange.modifiedLength - 1
+			);
 
-			var rawChanges = computeDiff(originalCharSequence, modifiedCharSequence, continueProcessingPredicate);
+			var rawChanges = computeDiff(
+				originalCharSequence,
+				modifiedCharSequence,
+				continueProcessingPredicate
+			);
 
 			if (shouldPostProcessCharChanges) {
 				rawChanges = postProcessCharChanges(rawChanges);
@@ -260,11 +346,16 @@ class LineChange implements ILineChange {
 
 			this.charChanges = [];
 			for (var i = 0, length = rawChanges.length; i < length; i++) {
-				this.charChanges.push(new CharChange(rawChanges[i], originalCharSequence, modifiedCharSequence));
+				this.charChanges.push(
+					new CharChange(
+						rawChanges[i],
+						originalCharSequence,
+						modifiedCharSequence
+					)
+				);
 			}
 		}
 	}
-
 }
 
 export interface IDiffComputerOpts {
@@ -274,7 +365,6 @@ export interface IDiffComputerOpts {
 }
 
 export class DiffComputer {
-
 	private shouldPostProcessCharChanges: boolean;
 	private shouldIgnoreTrimWhitespace: boolean;
 	private maximumRunTimeMs: number;
@@ -283,69 +373,114 @@ export class DiffComputer {
 
 	private computationStartTime: number;
 
-	constructor(originalLines: string[], modifiedLines: string[], opts: IDiffComputerOpts) {
+	constructor(
+		originalLines: string[],
+		modifiedLines: string[],
+		opts: IDiffComputerOpts
+	) {
 		this.shouldPostProcessCharChanges = opts.shouldPostProcessCharChanges;
 		this.shouldIgnoreTrimWhitespace = opts.shouldIgnoreTrimWhitespace;
 		this.maximumRunTimeMs = MAXIMUM_RUN_TIME;
-		this.original = new LineMarkerSequence(originalLines, this.shouldIgnoreTrimWhitespace);
-		this.modified = new LineMarkerSequence(modifiedLines, this.shouldIgnoreTrimWhitespace);
-		if (opts.shouldConsiderTrimWhitespaceInEmptyCase && this.shouldIgnoreTrimWhitespace && this.original.equals(this.modified)) {
+		this.original = new LineMarkerSequence(
+			originalLines,
+			this.shouldIgnoreTrimWhitespace
+		);
+		this.modified = new LineMarkerSequence(
+			modifiedLines,
+			this.shouldIgnoreTrimWhitespace
+		);
+		if (
+			opts.shouldConsiderTrimWhitespaceInEmptyCase &&
+			this.shouldIgnoreTrimWhitespace &&
+			this.original.equals(this.modified)
+		) {
 			// Diff would be empty with `shouldIgnoreTrimWhitespace`
 			this.shouldIgnoreTrimWhitespace = false;
-			this.original = new LineMarkerSequence(originalLines, this.shouldIgnoreTrimWhitespace);
-			this.modified = new LineMarkerSequence(modifiedLines, this.shouldIgnoreTrimWhitespace);
+			this.original = new LineMarkerSequence(
+				originalLines,
+				this.shouldIgnoreTrimWhitespace
+			);
+			this.modified = new LineMarkerSequence(
+				modifiedLines,
+				this.shouldIgnoreTrimWhitespace
+			);
 		}
 	}
 
 	public computeDiff(): ILineChange[] {
-
-		if (this.original.getLength() === 1 && this.original.getElementHash(0).length === 0) {
+		if (
+			this.original.getLength() === 1 &&
+			this.original.getElementHash(0).length === 0
+		) {
 			// empty original => fast path
-			return [{
-				originalStartLineNumber: 1,
-				originalEndLineNumber: 1,
-				modifiedStartLineNumber: 1,
-				modifiedEndLineNumber: this.modified.getLength(),
-				charChanges: [{
-					modifiedEndColumn: 0,
-					modifiedEndLineNumber: 0,
-					modifiedStartColumn: 0,
-					modifiedStartLineNumber: 0,
-					originalEndColumn: 0,
-					originalEndLineNumber: 0,
-					originalStartColumn: 0,
-					originalStartLineNumber: 0
-				}]
-			}];
+			return [
+				{
+					originalStartLineNumber: 1,
+					originalEndLineNumber: 1,
+					modifiedStartLineNumber: 1,
+					modifiedEndLineNumber: this.modified.getLength(),
+					charChanges: [
+						{
+							modifiedEndColumn: 0,
+							modifiedEndLineNumber: 0,
+							modifiedStartColumn: 0,
+							modifiedStartLineNumber: 0,
+							originalEndColumn: 0,
+							originalEndLineNumber: 0,
+							originalStartColumn: 0,
+							originalStartLineNumber: 0
+						}
+					]
+				}
+			];
 		}
 
-		if (this.modified.getLength() === 1 && this.modified.getElementHash(0).length === 0) {
+		if (
+			this.modified.getLength() === 1 &&
+			this.modified.getElementHash(0).length === 0
+		) {
 			// empty modified => fast path
-			return [{
-				originalStartLineNumber: 1,
-				originalEndLineNumber: this.original.getLength(),
-				modifiedStartLineNumber: 1,
-				modifiedEndLineNumber: 1,
-				charChanges: [{
-					modifiedEndColumn: 0,
-					modifiedEndLineNumber: 0,
-					modifiedStartColumn: 0,
-					modifiedStartLineNumber: 0,
-					originalEndColumn: 0,
-					originalEndLineNumber: 0,
-					originalStartColumn: 0,
-					originalStartLineNumber: 0
-				}]
-			}];
+			return [
+				{
+					originalStartLineNumber: 1,
+					originalEndLineNumber: this.original.getLength(),
+					modifiedStartLineNumber: 1,
+					modifiedEndLineNumber: 1,
+					charChanges: [
+						{
+							modifiedEndColumn: 0,
+							modifiedEndLineNumber: 0,
+							modifiedStartColumn: 0,
+							modifiedStartLineNumber: 0,
+							originalEndColumn: 0,
+							originalEndLineNumber: 0,
+							originalStartColumn: 0,
+							originalStartLineNumber: 0
+						}
+					]
+				}
+			];
 		}
 
-		this.computationStartTime = (new Date()).getTime();
+		this.computationStartTime = new Date().getTime();
 
-		var rawChanges = computeDiff(this.original, this.modified, this._continueProcessingPredicate.bind(this));
+		var rawChanges = computeDiff(
+			this.original,
+			this.modified,
+			this._continueProcessingPredicate.bind(this)
+		);
 
 		var lineChanges: ILineChange[] = [];
 		for (var i = 0, length = rawChanges.length; i < length; i++) {
-			lineChanges.push(new LineChange(rawChanges[i], this.original, this.modified, this._continueProcessingPredicate.bind(this), this.shouldPostProcessCharChanges));
+			lineChanges.push(
+				new LineChange(
+					rawChanges[i],
+					this.original,
+					this.modified,
+					this._continueProcessingPredicate.bind(this),
+					this.shouldPostProcessCharChanges
+				)
+			);
 		}
 		return lineChanges;
 	}
@@ -354,8 +489,7 @@ export class DiffComputer {
 		if (this.maximumRunTimeMs === 0) {
 			return true;
 		}
-		var now = (new Date()).getTime();
+		var now = new Date().getTime();
 		return now - this.computationStartTime < this.maximumRunTimeMs;
 	}
-
 }

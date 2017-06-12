@@ -5,33 +5,41 @@
 import * as interfaces from './interfaces';
 import * as vscode from 'vscode';
 
-export class DocumentMergeConflict implements interfaces.IDocumentMergeConflict {
-
+export class DocumentMergeConflict
+	implements interfaces.IDocumentMergeConflict {
 	public range: vscode.Range;
 	public current: interfaces.IMergeRegion;
 	public incoming: interfaces.IMergeRegion;
 	public splitter: vscode.Range;
 
-	constructor(document: vscode.TextDocument, descriptor: interfaces.IDocumentMergeConflictDescriptor) {
+	constructor(
+		document: vscode.TextDocument,
+		descriptor: interfaces.IDocumentMergeConflictDescriptor
+	) {
 		this.range = descriptor.range;
 		this.current = descriptor.current;
 		this.incoming = descriptor.incoming;
 		this.splitter = descriptor.splitter;
 	}
 
-	public commitEdit(type: interfaces.CommitType, editor: vscode.TextEditor, edit?: vscode.TextEditorEdit): Thenable<boolean> {
-
+	public commitEdit(
+		type: interfaces.CommitType,
+		editor: vscode.TextEditor,
+		edit?: vscode.TextEditorEdit
+	): Thenable<boolean> {
 		if (edit) {
-
 			this.applyEdit(type, editor, edit);
 			return Promise.resolve(true);
-		};
+		}
 
-		return editor.edit((edit) => this.applyEdit(type, editor, edit));
+		return editor.edit(edit => this.applyEdit(type, editor, edit));
 	}
 
-	public applyEdit(type: interfaces.CommitType, editor: vscode.TextEditor, edit: vscode.TextEditorEdit): void {
-
+	public applyEdit(
+		type: interfaces.CommitType,
+		editor: vscode.TextEditor,
+		edit: vscode.TextEditorEdit
+	): void {
 		// Each conflict is a set of ranges as follows, note placements or newlines
 		// which may not in in spans
 		// [ Conflict Range             -- (Entire content below)
@@ -45,12 +53,10 @@ export class DocumentMergeConflict implements interfaces.IDocumentMergeConflict 
 			// Replace [ Conflict Range ] with [ Current Content ]
 			let content = editor.document.getText(this.current.content);
 			this.replaceRangeWithContent(content, edit);
-		}
-		else if (type === interfaces.CommitType.Incoming) {
+		} else if (type === interfaces.CommitType.Incoming) {
 			let content = editor.document.getText(this.incoming.content);
 			this.replaceRangeWithContent(content, edit);
-		}
-		else if (type === interfaces.CommitType.Both) {
+		} else if (type === interfaces.CommitType.Both) {
 			// Replace [ Conflict Range ] with [ Current Content ] + \n + [ Incoming Content ]
 
 			const currentContent = editor.document.getText(this.current.content);
@@ -60,7 +66,10 @@ export class DocumentMergeConflict implements interfaces.IDocumentMergeConflict 
 		}
 	}
 
-	private replaceRangeWithContent(content: string, edit: vscode.TextEditorEdit) {
+	private replaceRangeWithContent(
+		content: string,
+		edit: vscode.TextEditorEdit
+	) {
 		if (this.isNewlineOnly(content)) {
 			edit.replace(this.range, '');
 			return;

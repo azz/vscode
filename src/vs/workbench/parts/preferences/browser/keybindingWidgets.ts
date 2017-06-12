@@ -20,13 +20,22 @@ import { IKeybindingService } from 'vs/platform/keybinding/common/keybinding';
 import { Dimension } from 'vs/base/browser/builder';
 import { IContextViewService } from 'vs/platform/contextview/browser/contextView';
 import { IInstantiationService } from 'vs/platform/instantiation/common/instantiation';
-import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition } from 'vs/editor/browser/editorBrowser';
-import { attachInputBoxStyler, attachStylerCallback } from 'vs/platform/theme/common/styler';
+import {
+	ICodeEditor,
+	IOverlayWidget,
+	IOverlayWidgetPosition
+} from 'vs/editor/browser/editorBrowser';
+import {
+	attachInputBoxStyler,
+	attachStylerCallback
+} from 'vs/platform/theme/common/styler';
 import { IThemeService } from 'vs/platform/theme/common/themeService';
-import { editorWidgetBackground, widgetShadow } from 'vs/platform/theme/common/colorRegistry';
+import {
+	editorWidgetBackground,
+	widgetShadow
+} from 'vs/platform/theme/common/colorRegistry';
 
 class KeybindingInputWidget extends Widget {
-
 	private readonly inputBox: InputBox;
 
 	private _acceptChords: boolean;
@@ -34,8 +43,12 @@ class KeybindingInputWidget extends Widget {
 	private _chordPart: ResolvedKeybinding;
 	private _inputValue: string;
 
-	private _onKeybinding = this._register(new Emitter<[ResolvedKeybinding, ResolvedKeybinding]>());
-	public readonly onKeybinding: Event<[ResolvedKeybinding, ResolvedKeybinding]> = this._onKeybinding.event;
+	private _onKeybinding = this._register(
+		new Emitter<[ResolvedKeybinding, ResolvedKeybinding]>()
+	);
+	public readonly onKeybinding: Event<
+		[ResolvedKeybinding, ResolvedKeybinding]
+	> = this._onKeybinding.event;
 
 	private _onEnter = this._register(new Emitter<void>());
 	public readonly onEnter: Event<void> = this._onEnter.event;
@@ -46,18 +59,22 @@ class KeybindingInputWidget extends Widget {
 	private _onBlur = this._register(new Emitter<void>());
 	public readonly onBlur: Event<void> = this._onBlur.event;
 
-	constructor(parent: HTMLElement, private options: IInputOptions,
+	constructor(
+		parent: HTMLElement,
+		private options: IInputOptions,
 		@IContextViewService private contextViewService: IContextViewService,
 		@IKeybindingService private keybindingService: IKeybindingService,
 		@IThemeService themeService: IThemeService
 	) {
 		super();
-		this.inputBox = this._register(new InputBox(parent, this.contextViewService, this.options));
+		this.inputBox = this._register(
+			new InputBox(parent, this.contextViewService, this.options)
+		);
 		this._register(attachInputBoxStyler(this.inputBox, themeService));
 		this.onkeydown(this.inputBox.inputElement, e => this._onKeyDown(e));
-		this.onblur(this.inputBox.inputElement, (e) => this._onBlur.fire());
+		this.onblur(this.inputBox.inputElement, e => this._onBlur.fire());
 
-		this.oninput(this.inputBox.inputElement, (e) => {
+		this.oninput(this.inputBox.inputElement, e => {
 			// Prevent other characters from showing up
 			this.setInputValue(this._inputValue);
 		});
@@ -101,12 +118,19 @@ class KeybindingInputWidget extends Widget {
 	}
 
 	private printKeybinding(keyboardEvent: IKeyboardEvent): void {
-		const keybinding = this.keybindingService.resolveKeyboardEvent(keyboardEvent);
-		const info = `code: ${keyboardEvent.browserEvent.code}, keyCode: ${keyboardEvent.browserEvent.keyCode}, key: ${keyboardEvent.browserEvent.key} => UI: ${keybinding.getAriaLabel()}, user settings: ${keybinding.getUserSettingsLabel()}, dispatch: ${keybinding.getDispatchParts()[0]}`;
+		const keybinding = this.keybindingService.resolveKeyboardEvent(
+			keyboardEvent
+		);
+		const info = `code: ${keyboardEvent.browserEvent
+			.code}, keyCode: ${keyboardEvent.browserEvent
+			.keyCode}, key: ${keyboardEvent.browserEvent
+			.key} => UI: ${keybinding.getAriaLabel()}, user settings: ${keybinding.getUserSettingsLabel()}, dispatch: ${keybinding.getDispatchParts()[0]}`;
 
 		if (this._acceptChords) {
-			const hasFirstPart = (this._firstPart && this._firstPart.getDispatchParts()[0] !== null);
-			const hasChordPart = (this._chordPart && this._chordPart.getDispatchParts()[0] !== null);
+			const hasFirstPart =
+				this._firstPart && this._firstPart.getDispatchParts()[0] !== null;
+			const hasChordPart =
+				this._chordPart && this._chordPart.getDispatchParts()[0] !== null;
 			if (hasFirstPart && hasChordPart) {
 				// Reset
 				this._firstPart = keybinding;
@@ -135,7 +159,6 @@ class KeybindingInputWidget extends Widget {
 }
 
 export class DefineKeybindingWidget extends Widget {
-
 	private static WIDTH = 400;
 	private static HEIGHT = 90;
 
@@ -208,20 +231,47 @@ export class DefineKeybindingWidget extends Widget {
 		this._domNode.setClassName('defineKeybindingWidget');
 		this._domNode.setWidth(DefineKeybindingWidget.WIDTH);
 		this._domNode.setHeight(DefineKeybindingWidget.HEIGHT);
-		dom.append(this._domNode.domNode, dom.$('.message', null, nls.localize('defineKeybinding.initial', "Press desired key combination and ENTER. ESCAPE to cancel.")));
+		dom.append(
+			this._domNode.domNode,
+			dom.$(
+				'.message',
+				null,
+				nls.localize(
+					'defineKeybinding.initial',
+					'Press desired key combination and ENTER. ESCAPE to cancel.'
+				)
+			)
+		);
 
-		this._register(attachStylerCallback(this.themeService, { editorWidgetBackground, widgetShadow }, colors => {
-			this._domNode.domNode.style.backgroundColor = colors.editorWidgetBackground;
+		this._register(
+			attachStylerCallback(
+				this.themeService,
+				{ editorWidgetBackground, widgetShadow },
+				colors => {
+					this._domNode.domNode.style.backgroundColor =
+						colors.editorWidgetBackground;
 
-			if (colors.widgetShadow) {
-				this._domNode.domNode.style.boxShadow = `0 2px 8px ${colors.widgetShadow}`;
-			} else {
-				this._domNode.domNode.style.boxShadow = null;
-			}
-		}));
+					if (colors.widgetShadow) {
+						this._domNode.domNode.style.boxShadow = `0 2px 8px ${colors.widgetShadow}`;
+					} else {
+						this._domNode.domNode.style.boxShadow = null;
+					}
+				}
+			)
+		);
 
-		this._keybindingInputWidget = this._register(this.instantiationService.createInstance(KeybindingInputWidget, this._domNode.domNode, {}));
-		this._register(this._keybindingInputWidget.onKeybinding(keybinding => this.printKeybinding(keybinding)));
+		this._keybindingInputWidget = this._register(
+			this.instantiationService.createInstance(
+				KeybindingInputWidget,
+				this._domNode.domNode,
+				{}
+			)
+		);
+		this._register(
+			this._keybindingInputWidget.onKeybinding(keybinding =>
+				this.printKeybinding(keybinding)
+			)
+		);
 		this._register(this._keybindingInputWidget.onEnter(() => this.hide()));
 		this._register(this._keybindingInputWidget.onEscape(() => this.onCancel()));
 		this._register(this._keybindingInputWidget.onBlur(() => this.onCancel()));
@@ -229,14 +279,20 @@ export class DefineKeybindingWidget extends Widget {
 		this._outputNode = dom.append(this._domNode.domNode, dom.$('.output'));
 	}
 
-	private printKeybinding(keybinding: [ResolvedKeybinding, ResolvedKeybinding]): void {
+	private printKeybinding(
+		keybinding: [ResolvedKeybinding, ResolvedKeybinding]
+	): void {
 		const [firstPart, chordPart] = keybinding;
 		this._firstPart = firstPart;
 		this._chordPart = chordPart;
 		dom.clearNode(this._outputNode);
 		new KeybindingLabel(this._outputNode, OS).set(this._firstPart, null);
 		if (this._chordPart) {
-			this._outputNode.appendChild(document.createTextNode(nls.localize('defineKeybinding.chordsTo', "chord to")));
+			this._outputNode.appendChild(
+				document.createTextNode(
+					nls.localize('defineKeybinding.chordsTo', 'chord to')
+				)
+			);
 			new KeybindingLabel(this._outputNode, OS).set(this._chordPart, null);
 		}
 	}
@@ -254,18 +310,22 @@ export class DefineKeybindingWidget extends Widget {
 	}
 }
 
-export class DefineKeybindingOverlayWidget extends Disposable implements IOverlayWidget {
-
+export class DefineKeybindingOverlayWidget extends Disposable
+	implements IOverlayWidget {
 	private static ID = 'editor.contrib.defineKeybindingWidget';
 
 	private readonly _widget: DefineKeybindingWidget;
 
-	constructor(private _editor: ICodeEditor,
+	constructor(
+		private _editor: ICodeEditor,
 		@IInstantiationService instantiationService: IInstantiationService
 	) {
 		super();
 
-		this._widget = instantiationService.createInstance(DefineKeybindingWidget, null);
+		this._widget = instantiationService.createInstance(
+			DefineKeybindingWidget,
+			null
+		);
 		this._editor.addOverlayWidget(this);
 	}
 
@@ -289,7 +349,9 @@ export class DefineKeybindingOverlayWidget extends Disposable implements IOverla
 	}
 
 	public start(): TPromise<string> {
-		this._editor.revealPositionInCenterIfOutsideViewport(this._editor.getPosition());
+		this._editor.revealPositionInCenterIfOutsideViewport(
+			this._editor.getPosition()
+		);
 		const layoutInfo = this._editor.getLayoutInfo();
 		this._widget.layout(new Dimension(layoutInfo.width, layoutInfo.height));
 		return this._widget.define();

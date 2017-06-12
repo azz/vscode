@@ -2,19 +2,38 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import nls = require('vs/nls');
 import errors = require('vs/base/common/errors');
 import strings = require('vs/base/common/strings');
 import scorer = require('vs/base/common/scorer');
-import { Mode, IEntryRunContext, IAutoFocus, IQuickNavigateConfiguration, IModel } from 'vs/base/parts/quickopen/common/quickOpen';
-import { QuickOpenModel, QuickOpenEntryGroup, QuickOpenEntry } from 'vs/base/parts/quickopen/browser/quickOpenModel';
-import { QuickOpenHandler, QuickOpenAction } from 'vs/workbench/browser/quickopen';
+import {
+	Mode,
+	IEntryRunContext,
+	IAutoFocus,
+	IQuickNavigateConfiguration,
+	IModel
+} from 'vs/base/parts/quickopen/common/quickOpen';
+import {
+	QuickOpenModel,
+	QuickOpenEntryGroup,
+	QuickOpenEntry
+} from 'vs/base/parts/quickopen/browser/quickOpenModel';
+import {
+	QuickOpenHandler,
+	QuickOpenAction
+} from 'vs/workbench/browser/quickopen';
 import { IViewletService } from 'vs/workbench/services/viewlet/browser/viewlet';
-import { IOutputService, OUTPUT_PANEL_ID } from 'vs/workbench/parts/output/common/output';
-import { ITerminalService, TERMINAL_PANEL_ID } from 'vs/workbench/parts/terminal/common/terminal';
+import {
+	IOutputService,
+	OUTPUT_PANEL_ID
+} from 'vs/workbench/parts/output/common/output';
+import {
+	ITerminalService,
+	TERMINAL_PANEL_ID
+} from 'vs/workbench/parts/terminal/common/terminal';
 import { IPanelService } from 'vs/workbench/services/panel/common/panelService';
 import { IQuickOpenService } from 'vs/platform/quickOpen/common/quickOpen';
 import { Action } from 'vs/base/common/actions';
@@ -23,7 +42,6 @@ import { IKeybindingService } from 'vs/platform/keybinding/common/keybinding';
 export const VIEW_PICKER_PREFIX = 'view ';
 
 export class ViewEntry extends QuickOpenEntryGroup {
-
 	constructor(
 		private label: string,
 		private category: string,
@@ -41,7 +59,7 @@ export class ViewEntry extends QuickOpenEntryGroup {
 	}
 
 	public getAriaLabel(): string {
-		return nls.localize('entryAriaLabel', "{0}, view picker", this.getLabel());
+		return nls.localize('entryAriaLabel', '{0}, view picker', this.getLabel());
 	}
 
 	public run(mode: Mode, context: IEntryRunContext): boolean {
@@ -62,7 +80,6 @@ export class ViewEntry extends QuickOpenEntryGroup {
 }
 
 export class ViewPickerHandler extends QuickOpenHandler {
-
 	constructor(
 		@IViewletService private viewletService: IViewletService,
 		@IOutputService private outputService: IOutputService,
@@ -74,7 +91,9 @@ export class ViewPickerHandler extends QuickOpenHandler {
 
 	public getResults(searchValue: string): TPromise<QuickOpenModel> {
 		searchValue = searchValue.trim();
-		const normalizedSearchValueLowercase = strings.stripWildcards(searchValue).toLowerCase();
+		const normalizedSearchValueLowercase = strings
+			.stripWildcards(searchValue)
+			.toLowerCase();
 
 		const viewEntries = this.getViewEntries();
 
@@ -83,11 +102,17 @@ export class ViewPickerHandler extends QuickOpenHandler {
 				return true;
 			}
 
-			if (!scorer.matches(e.getLabel(), normalizedSearchValueLowercase) && !scorer.matches(e.getCategory(), normalizedSearchValueLowercase)) {
+			if (
+				!scorer.matches(e.getLabel(), normalizedSearchValueLowercase) &&
+				!scorer.matches(e.getCategory(), normalizedSearchValueLowercase)
+			) {
 				return false;
 			}
 
-			const { labelHighlights, descriptionHighlights } = QuickOpenEntry.highlight(e, searchValue);
+			const {
+				labelHighlights,
+				descriptionHighlights
+			} = QuickOpenEntry.highlight(e, searchValue);
 			e.setHighlights(labelHighlights, descriptionHighlights);
 
 			return true;
@@ -115,8 +140,12 @@ export class ViewPickerHandler extends QuickOpenHandler {
 		// Viewlets
 		const viewlets = this.viewletService.getViewlets();
 		viewlets.forEach((viewlet, index) => {
-			const viewsCategory = nls.localize('views', "Views");
-			const entry = new ViewEntry(viewlet.name, viewsCategory, () => this.viewletService.openViewlet(viewlet.id, true).done(null, errors.onUnexpectedError));
+			const viewsCategory = nls.localize('views', 'Views');
+			const entry = new ViewEntry(viewlet.name, viewsCategory, () =>
+				this.viewletService
+					.openViewlet(viewlet.id, true)
+					.done(null, errors.onUnexpectedError)
+			);
 			viewEntries.push(entry);
 		});
 
@@ -135,20 +164,28 @@ export class ViewPickerHandler extends QuickOpenHandler {
 			return true;
 		});
 		panels.forEach((panel, index) => {
-			const panelsCategory = nls.localize('panels', "Panels");
-			const entry = new ViewEntry(panel.name, panelsCategory, () => this.panelService.openPanel(panel.id, true).done(null, errors.onUnexpectedError));
+			const panelsCategory = nls.localize('panels', 'Panels');
+			const entry = new ViewEntry(panel.name, panelsCategory, () =>
+				this.panelService
+					.openPanel(panel.id, true)
+					.done(null, errors.onUnexpectedError)
+			);
 
 			viewEntries.push(entry);
 		});
 
 		// Terminals
 		terminals.forEach((terminal, index) => {
-			const terminalsCategory = nls.localize('terminals', "Terminal");
-			const entry = new ViewEntry(nls.localize('terminalTitle', "{0}: {1}", index + 1, terminal.title), terminalsCategory, () => {
-				this.terminalService.showPanel(true).done(() => {
-					this.terminalService.setActiveInstance(terminal);
-				}, errors.onUnexpectedError);
-			});
+			const terminalsCategory = nls.localize('terminals', 'Terminal');
+			const entry = new ViewEntry(
+				nls.localize('terminalTitle', '{0}: {1}', index + 1, terminal.title),
+				terminalsCategory,
+				() => {
+					this.terminalService.showPanel(true).done(() => {
+						this.terminalService.setActiveInstance(terminal);
+					}, errors.onUnexpectedError);
+				}
+			);
 
 			viewEntries.push(entry);
 		});
@@ -156,8 +193,13 @@ export class ViewPickerHandler extends QuickOpenHandler {
 		// Output Channels
 		const channels = this.outputService.getChannels();
 		channels.forEach((channel, index) => {
-			const outputCategory = nls.localize('channels', "Output");
-			const entry = new ViewEntry(channel.label, outputCategory, () => this.outputService.getChannel(channel.id).show().done(null, errors.onUnexpectedError));
+			const outputCategory = nls.localize('channels', 'Output');
+			const entry = new ViewEntry(channel.label, outputCategory, () =>
+				this.outputService
+					.getChannel(channel.id)
+					.show()
+					.done(null, errors.onUnexpectedError)
+			);
 
 			viewEntries.push(entry);
 		});
@@ -165,7 +207,13 @@ export class ViewPickerHandler extends QuickOpenHandler {
 		return viewEntries;
 	}
 
-	public getAutoFocus(searchValue: string, context: { model: IModel<QuickOpenEntry>, quickNavigateConfiguration?: IQuickNavigateConfiguration }): IAutoFocus {
+	public getAutoFocus(
+		searchValue: string,
+		context: {
+			model: IModel<QuickOpenEntry>;
+			quickNavigateConfiguration?: IQuickNavigateConfiguration;
+		}
+	): IAutoFocus {
 		return {
 			autoFocusFirstEntry: !!searchValue || !!context.quickNavigateConfiguration
 		};
@@ -173,9 +221,8 @@ export class ViewPickerHandler extends QuickOpenHandler {
 }
 
 export class OpenViewPickerAction extends QuickOpenAction {
-
 	public static ID = 'workbench.action.openView';
-	public static LABEL = nls.localize('openView', "Open View");
+	public static LABEL = nls.localize('openView', 'Open View');
 
 	constructor(
 		id: string,
@@ -187,9 +234,8 @@ export class OpenViewPickerAction extends QuickOpenAction {
 }
 
 export class QuickOpenViewPickerAction extends Action {
-
 	public static ID = 'workbench.action.quickOpenView';
-	public static LABEL = nls.localize('quickOpenView', "Quick Open View");
+	public static LABEL = nls.localize('quickOpenView', 'Quick Open View');
 
 	constructor(
 		id: string,
@@ -203,7 +249,9 @@ export class QuickOpenViewPickerAction extends Action {
 	public run(): TPromise<any> {
 		const keys = this.keybindingService.lookupKeybindings(this.id);
 
-		this.quickOpenService.show(VIEW_PICKER_PREFIX, { quickNavigateConfiguration: { keybindings: keys } });
+		this.quickOpenService.show(VIEW_PICKER_PREFIX, {
+			quickNavigateConfiguration: { keybindings: keys }
+		});
 
 		return TPromise.as(true);
 	}

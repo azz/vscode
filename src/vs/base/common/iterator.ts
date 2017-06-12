@@ -3,14 +3,13 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 export interface IIterator<T> {
 	next(): T;
 }
 
 export class ArrayIterator<T> implements IIterator<T> {
-
 	private items: T[];
 	protected start: number;
 	protected end: number;
@@ -42,8 +41,8 @@ export class ArrayIterator<T> implements IIterator<T> {
 	}
 }
 
-export class ArrayNavigator<T> extends ArrayIterator<T> implements INavigator<T> {
-
+export class ArrayNavigator<T> extends ArrayIterator<T>
+	implements INavigator<T> {
 	constructor(items: T[], start: number = 0, end: number = items.length) {
 		super(items, start, end);
 	}
@@ -70,16 +69,16 @@ export class ArrayNavigator<T> extends ArrayIterator<T> implements INavigator<T>
 	public parent(): T {
 		return null;
 	}
-
 }
 
 export class MappedIterator<T, R> implements IIterator<R> {
-
 	constructor(protected iterator: IIterator<T>, protected fn: (item: T) => R) {
 		// noop
 	}
 
-	next() { return this.fn(this.iterator.next()); }
+	next() {
+		return this.fn(this.iterator.next());
+	}
 }
 
 export interface INavigator<T> extends IIterator<T> {
@@ -91,16 +90,28 @@ export interface INavigator<T> extends IIterator<T> {
 	next(): T;
 }
 
-export class MappedNavigator<T, R> extends MappedIterator<T, R> implements INavigator<R> {
-
+export class MappedNavigator<T, R> extends MappedIterator<T, R>
+	implements INavigator<R> {
 	constructor(protected navigator: INavigator<T>, fn: (item: T) => R) {
 		super(navigator, fn);
 	}
 
-	current() { return this.fn(this.navigator.current()); }
-	previous() { return this.fn(this.navigator.previous()); }
-	parent() { return this.fn(this.navigator.parent()); }
-	first() { return this.fn(this.navigator.first()); }
-	last() { return this.fn(this.navigator.last()); }
-	next() { return this.fn(this.navigator.next()); }
+	current() {
+		return this.fn(this.navigator.current());
+	}
+	previous() {
+		return this.fn(this.navigator.previous());
+	}
+	parent() {
+		return this.fn(this.navigator.parent());
+	}
+	first() {
+		return this.fn(this.navigator.first());
+	}
+	last() {
+		return this.fn(this.navigator.last());
+	}
+	next() {
+		return this.fn(this.navigator.next());
+	}
 }

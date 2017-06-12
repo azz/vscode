@@ -2,14 +2,13 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { Range } from 'vs/editor/common/core/range';
 import { Selection, SelectionDirection } from 'vs/editor/common/core/selection';
 import * as editorCommon from 'vs/editor/common/editorCommon';
 
 export class CopyLinesCommand implements editorCommon.ICommand {
-
 	private _selection: Selection;
 	private _isCopyingDown: boolean;
 
@@ -23,14 +22,20 @@ export class CopyLinesCommand implements editorCommon.ICommand {
 		this._isCopyingDown = isCopyingDown;
 	}
 
-	public getEditOperations(model: editorCommon.ITokenizedModel, builder: editorCommon.IEditOperationBuilder): void {
+	public getEditOperations(
+		model: editorCommon.ITokenizedModel,
+		builder: editorCommon.IEditOperationBuilder
+	): void {
 		var s = this._selection;
 
 		this._startLineNumberDelta = 0;
 		this._endLineNumberDelta = 0;
 		if (s.startLineNumber < s.endLineNumber && s.endColumn === 1) {
 			this._endLineNumberDelta = 1;
-			s = s.setEndPosition(s.endLineNumber - 1, model.getLineMaxColumn(s.endLineNumber - 1));
+			s = s.setEndPosition(
+				s.endLineNumber - 1,
+				model.getLineMaxColumn(s.endLineNumber - 1)
+			);
 		}
 
 		var sourceLines: string[] = [];
@@ -48,16 +53,30 @@ export class CopyLinesCommand implements editorCommon.ICommand {
 		}
 
 		if (!this._isCopyingDown) {
-			builder.addEditOperation(new Range(s.endLineNumber, model.getLineMaxColumn(s.endLineNumber), s.endLineNumber, model.getLineMaxColumn(s.endLineNumber)), '\n' + sourceText);
+			builder.addEditOperation(
+				new Range(
+					s.endLineNumber,
+					model.getLineMaxColumn(s.endLineNumber),
+					s.endLineNumber,
+					model.getLineMaxColumn(s.endLineNumber)
+				),
+				'\n' + sourceText
+			);
 		} else {
-			builder.addEditOperation(new Range(s.startLineNumber, 1, s.startLineNumber, 1), sourceText + '\n');
+			builder.addEditOperation(
+				new Range(s.startLineNumber, 1, s.startLineNumber, 1),
+				sourceText + '\n'
+			);
 		}
 
 		this._selectionId = builder.trackSelection(s);
 		this._selectionDirection = this._selection.getDirection();
 	}
 
-	public computeCursorState(model: editorCommon.ITokenizedModel, helper: editorCommon.ICursorStateComputerData): Selection {
+	public computeCursorState(
+		model: editorCommon.ITokenizedModel,
+		helper: editorCommon.ICursorStateComputerData
+	): Selection {
 		var result = helper.getTrackedSelection(this._selectionId);
 
 		if (this._startLineNumberDelta !== 0 || this._endLineNumberDelta !== 0) {
@@ -76,7 +95,13 @@ export class CopyLinesCommand implements editorCommon.ICommand {
 				endColumn = 1;
 			}
 
-			result = Selection.createWithDirection(startLineNumber, startColumn, endLineNumber, endColumn, this._selectionDirection);
+			result = Selection.createWithDirection(
+				startLineNumber,
+				startColumn,
+				endLineNumber,
+				endColumn,
+				this._selectionDirection
+			);
 		}
 
 		return result;

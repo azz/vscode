@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import 'vs/css!./tree';
 import WinJS = require('vs/base/common/winjs.base');
@@ -18,7 +18,6 @@ import { Color } from 'vs/base/common/color';
 import { mixin } from 'vs/base/common/objects';
 
 export class TreeContext implements _.ITreeContext {
-
 	public tree: _.ITree;
 	public configuration: _.ITreeConfiguration;
 	public options: _.ITreeOptions;
@@ -31,7 +30,11 @@ export class TreeContext implements _.ITreeContext {
 	public sorter: _.ISorter;
 	public accessibilityProvider: _.IAccessibilityProvider;
 
-	constructor(tree: _.ITree, configuration: _.ITreeConfiguration, options: _.ITreeOptions = {}) {
+	constructor(
+		tree: _.ITree,
+		configuration: _.ITreeConfiguration,
+		options: _.ITreeOptions = {}
+	) {
 		this.tree = tree;
 		this.configuration = configuration;
 		this.options = options;
@@ -42,11 +45,20 @@ export class TreeContext implements _.ITreeContext {
 
 		this.dataSource = configuration.dataSource;
 		this.renderer = configuration.renderer;
-		this.controller = configuration.controller || new TreeDefaults.DefaultController({ clickBehavior: TreeDefaults.ClickBehavior.ON_MOUSE_UP, keyboardSupport: typeof options.keyboardSupport !== 'boolean' || options.keyboardSupport });
+		this.controller =
+			configuration.controller ||
+			new TreeDefaults.DefaultController({
+				clickBehavior: TreeDefaults.ClickBehavior.ON_MOUSE_UP,
+				keyboardSupport:
+					typeof options.keyboardSupport !== 'boolean' ||
+						options.keyboardSupport
+			});
 		this.dnd = configuration.dnd || new TreeDefaults.DefaultDragAndDrop();
 		this.filter = configuration.filter || new TreeDefaults.DefaultFilter();
 		this.sorter = configuration.sorter || null;
-		this.accessibilityProvider = configuration.accessibilityProvider || new TreeDefaults.DefaultAccessibilityProvider();
+		this.accessibilityProvider =
+			configuration.accessibilityProvider ||
+			new TreeDefaults.DefaultAccessibilityProvider();
 	}
 }
 
@@ -62,7 +74,6 @@ const defaultStyles: _.ITreeStyles = {
 };
 
 export class Tree extends Events.EventEmitter implements _.ITree {
-
 	private container: HTMLElement;
 	private configuration: _.ITreeConfiguration;
 	private options: _.ITreeOptions;
@@ -76,7 +87,11 @@ export class Tree extends Events.EventEmitter implements _.ITree {
 
 	private toDispose: Lifecycle.IDisposable[];
 
-	constructor(container: HTMLElement, configuration: _.ITreeConfiguration, options: _.ITreeOptions = {}) {
+	constructor(
+		container: HTMLElement,
+		configuration: _.ITreeConfiguration,
+		options: _.ITreeOptions = {}
+	) {
 		super();
 
 		this.toDispose = [];
@@ -91,12 +106,22 @@ export class Tree extends Events.EventEmitter implements _.ITree {
 		this.options = options;
 		mixin(this.options, defaultStyles, false);
 
-		this.options.twistiePixels = typeof this.options.twistiePixels === 'number' ? this.options.twistiePixels : 32;
-		this.options.showTwistie = this.options.showTwistie === false ? false : true;
-		this.options.indentPixels = typeof this.options.indentPixels === 'number' ? this.options.indentPixels : 12;
-		this.options.alwaysFocused = this.options.alwaysFocused === true ? true : false;
+		this.options.twistiePixels = typeof this.options.twistiePixels === 'number'
+			? this.options.twistiePixels
+			: 32;
+		this.options.showTwistie = this.options.showTwistie === false
+			? false
+			: true;
+		this.options.indentPixels = typeof this.options.indentPixels === 'number'
+			? this.options.indentPixels
+			: 12;
+		this.options.alwaysFocused = this.options.alwaysFocused === true
+			? true
+			: false;
 		this.options.useShadows = this.options.useShadows === false ? false : true;
-		this.options.paddingOnRow = this.options.paddingOnRow === false ? false : true;
+		this.options.paddingOnRow = this.options.paddingOnRow === false
+			? false
+			: true;
 
 		this.context = new TreeContext(this, configuration, options);
 		this.model = new Model.TreeModel(this.context);
@@ -107,7 +132,9 @@ export class Tree extends Events.EventEmitter implements _.ITree {
 		this.addEmitter(this.model);
 		this.addEmitter(this.view);
 
-		this.toDispose.push(this.model.addListener('highlight', () => this._onHighlightChange.fire()));
+		this.toDispose.push(
+			this.model.addListener('highlight', () => this._onHighlightChange.fire())
+		);
 	}
 
 	public style(styles: _.ITreeStyles): void {
@@ -186,7 +213,10 @@ export class Tree extends Events.EventEmitter implements _.ITree {
 		return this.model.collapse(element, recursive);
 	}
 
-	public collapseAll(elements: any[] = null, recursive: boolean = false): WinJS.Promise {
+	public collapseAll(
+		elements: any[] = null,
+		recursive: boolean = false
+	): WinJS.Promise {
 		return this.model.collapseAll(elements, recursive);
 	}
 
@@ -247,11 +277,19 @@ export class Tree extends Events.EventEmitter implements _.ITree {
 		this.model.select(element, eventPayload);
 	}
 
-	public selectRange(fromElement: any, toElement: any, eventPayload?: any): void {
+	public selectRange(
+		fromElement: any,
+		toElement: any,
+		eventPayload?: any
+	): void {
 		this.model.selectRange(fromElement, toElement, eventPayload);
 	}
 
-	public deselectRange(fromElement: any, toElement: any, eventPayload?: any): void {
+	public deselectRange(
+		fromElement: any,
+		toElement: any,
+		eventPayload?: any
+	): void {
 		this.model.deselectRange(fromElement, toElement, eventPayload);
 	}
 
@@ -287,11 +325,19 @@ export class Tree extends Events.EventEmitter implements _.ITree {
 		this.model.setSelection([], eventPayload);
 	}
 
-	public selectNext(count?: number, clearSelection?: boolean, eventPayload?: any): void {
+	public selectNext(
+		count?: number,
+		clearSelection?: boolean,
+		eventPayload?: any
+	): void {
 		this.model.selectNext(count, clearSelection, eventPayload);
 	}
 
-	public selectPrevious(count?: number, clearSelection?: boolean, eventPayload?: any): void {
+	public selectPrevious(
+		count?: number,
+		clearSelection?: boolean,
+		eventPayload?: any
+	): void {
 		this.model.selectPrevious(count, clearSelection, eventPayload);
 	}
 
@@ -360,7 +406,8 @@ export class Tree extends Events.EventEmitter implements _.ITree {
 	}
 
 	public toggleTrait(trait: string, element: any): void {
-		this.model.hasTrait(trait, element) ? this.model.removeTraits(trait, [element])
+		this.model.hasTrait(trait, element)
+			? this.model.removeTraits(trait, [element])
 			: this.model.addTraits(trait, [element]);
 	}
 
@@ -369,7 +416,10 @@ export class Tree extends Events.EventEmitter implements _.ITree {
 	}
 
 	getNavigator(fromElement?: any, subTreeOnly?: boolean): INavigator<any> {
-		return new MappedNavigator(this.model.getNavigator(fromElement, subTreeOnly), i => i && i.getElement());
+		return new MappedNavigator(
+			this.model.getNavigator(fromElement, subTreeOnly),
+			i => i && i.getElement()
+		);
 	}
 
 	public dispose(): void {

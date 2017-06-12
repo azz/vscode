@@ -4,7 +4,6 @@
  *--------------------------------------------------------------------------------------------*/
 
 export class Query {
-
 	constructor(public value: string, public sortBy: string) {
 		this.value = value.trim();
 	}
@@ -12,11 +11,14 @@ export class Query {
 	static parse(value: string): Query {
 		let sortBy = '';
 
-		value = value.replace(/@sort:(\w+)(-\w*)?/g, (match, by: string, order: string) => {
-			sortBy = by;
+		value = value.replace(
+			/@sort:(\w+)(-\w*)?/g,
+			(match, by: string, order: string) => {
+				sortBy = by;
 
-			return '';
-		});
+				return '';
+			}
+		);
 
 		return new Query(value, sortBy);
 	}

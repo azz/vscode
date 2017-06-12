@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { DiffChange } from 'vs/base/common/diff/diffChange';
 
@@ -49,7 +49,6 @@ export interface IHashFunction {
  * An implementation of the difference algorithm described by Hirschberg
  */
 export class LcsDiff2 {
-
 	private x: ISequence;
 	private y: ISequence;
 
@@ -65,7 +64,12 @@ export class LcsDiff2 {
 	private backwardPrev: number[];
 	private backwardCurr: number[];
 
-	constructor(originalSequence: ISequence, newSequence: ISequence, continueProcessingPredicate: IContinueProcessingPredicate, hashFunc: IHashFunction) {
+	constructor(
+		originalSequence: ISequence,
+		newSequence: ISequence,
+		continueProcessingPredicate: IContinueProcessingPredicate,
+		hashFunc: IHashFunction
+	) {
 		this.x = originalSequence;
 		this.y = newSequence;
 		this.ids_for_x = [];
@@ -74,7 +78,7 @@ export class LcsDiff2 {
 		if (hashFunc) {
 			this.hashFunc = hashFunc;
 		} else {
-			this.hashFunc = function (sequence, index) {
+			this.hashFunc = function(sequence, index) {
 				return sequence[index];
 			};
 		}
@@ -105,7 +109,7 @@ export class LcsDiff2 {
 
 		// Create a new hash table for unique elements from the original
 		// sequence.
-		let hashTable: { [key: string]: number; } = {};
+		let hashTable: { [key: string]: number } = {};
 		let currentUniqueId = 1;
 		let i: number;
 
@@ -164,7 +168,14 @@ export class LcsDiff2 {
 				while (j < yLength && !this.resultY[j]) {
 					j++;
 				}
-				changes.push(new DiffChange(xChangeStart, i - xChangeStart, yChangeStart, j - yChangeStart));
+				changes.push(
+					new DiffChange(
+						xChangeStart,
+						i - xChangeStart,
+						yChangeStart,
+						j - yChangeStart
+					)
+				);
 			}
 		}
 		if (i < xLength) {
@@ -176,7 +187,12 @@ export class LcsDiff2 {
 		return changes;
 	}
 
-	private forward(xStart: number, xStop: number, yStart: number, yStop: number): number[] {
+	private forward(
+		xStart: number,
+		xStop: number,
+		yStart: number,
+		yStop: number
+	): number[] {
 		let prev = this.forwardPrev,
 			curr = this.forwardCurr,
 			tmp: number[],
@@ -211,7 +227,12 @@ export class LcsDiff2 {
 		return prev;
 	}
 
-	private backward(xStart: number, xStop: number, yStart: number, yStop: number): number[] {
+	private backward(
+		xStart: number,
+		xStop: number,
+		yStart: number,
+		yStop: number
+	): number[] {
 		let prev = this.backwardPrev,
 			curr = this.backwardCurr,
 			tmp: number[],
@@ -246,12 +267,19 @@ export class LcsDiff2 {
 		return prev;
 	}
 
-	private findCut(xStart: number, xStop: number, yStart: number, yStop: number, middle: number): number {
+	private findCut(
+		xStart: number,
+		xStop: number,
+		yStart: number,
+		yStop: number,
+		middle: number
+	): number {
 		let L1 = this.forward(xStart, middle, yStart, yStop);
 		let L2 = this.backward(middle + 1, xStop, yStart, yStop);
 
 		// First cut
-		let max = L2[yStart], cut = yStart - 1;
+		let max = L2[yStart],
+			cut = yStart - 1;
 
 		// Middle cut
 		for (let j = yStart; j < yStop; j++) {
@@ -270,9 +298,18 @@ export class LcsDiff2 {
 		return cut;
 	}
 
-	private execute(xStart: number, xStop: number, yStart: number, yStop: number) {
+	private execute(
+		xStart: number,
+		xStop: number,
+		yStart: number,
+		yStop: number
+	) {
 		// Do some prefix trimming
-		while (xStart <= xStop && yStart <= yStop && this.ElementsAreEqual(xStart, yStart)) {
+		while (
+			xStart <= xStop &&
+			yStart <= yStop &&
+			this.ElementsAreEqual(xStart, yStart)
+		) {
 			this.resultX[xStart] = true;
 			xStart++;
 			this.resultY[yStart] = true;
@@ -280,7 +317,11 @@ export class LcsDiff2 {
 		}
 
 		// Do some suffix trimming
-		while (xStart <= xStop && yStart <= yStop && this.ElementsAreEqual(xStop, yStop)) {
+		while (
+			xStart <= xStop &&
+			yStart <= yStop &&
+			this.ElementsAreEqual(xStop, yStop)
+		) {
 			this.resultX[xStop] = true;
 			xStop--;
 			this.resultY[yStop] = true;
@@ -330,5 +371,4 @@ export class LcsDiff2 {
 			}
 		}
 	}
-
 }

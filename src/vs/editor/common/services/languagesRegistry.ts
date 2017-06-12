@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { onUnexpectedError } from 'vs/base/common/errors';
 import * as mime from 'vs/base/common/mime';
@@ -11,8 +11,14 @@ import { Registry } from 'vs/platform/platform';
 import { ModesRegistry } from 'vs/editor/common/modes/modesRegistry';
 import { ILanguageExtensionPoint } from 'vs/editor/common/services/modeService';
 import { LanguageId, LanguageIdentifier } from 'vs/editor/common/modes';
-import { NULL_MODE_ID, NULL_LANGUAGE_IDENTIFIER } from 'vs/editor/common/modes/nullMode';
-import { IConfigurationRegistry, Extensions } from 'vs/platform/configuration/common/configurationRegistry';
+import {
+	NULL_MODE_ID,
+	NULL_LANGUAGE_IDENTIFIER
+} from 'vs/editor/common/modes/nullMode';
+import {
+	IConfigurationRegistry,
+	Extensions
+} from 'vs/platform/configuration/common/configurationRegistry';
 
 var hasOwnProperty = Object.prototype.hasOwnProperty;
 
@@ -27,14 +33,13 @@ export interface IResolvedLanguage {
 }
 
 export class LanguagesRegistry {
-
 	private _nextLanguageId: number;
-	private _languages: { [id: string]: IResolvedLanguage; };
+	private _languages: { [id: string]: IResolvedLanguage };
 	private _languageIds: string[];
 
-	private _mimeTypesMap: { [mimeType: string]: LanguageIdentifier; };
-	private _nameMap: { [name: string]: LanguageIdentifier; };
-	private _lowercaseNameMap: { [name: string]: LanguageIdentifier; };
+	private _mimeTypesMap: { [mimeType: string]: LanguageIdentifier };
+	private _nameMap: { [name: string]: LanguageIdentifier };
+	private _lowercaseNameMap: { [name: string]: LanguageIdentifier };
 
 	constructor(useModesRegistry = true) {
 		this._nextLanguageId = 1;
@@ -46,7 +51,7 @@ export class LanguagesRegistry {
 
 		if (useModesRegistry) {
 			this._registerLanguages(ModesRegistry.getLanguages());
-			ModesRegistry.onDidAddLanguages((m) => this._registerLanguages(m));
+			ModesRegistry.onDidAddLanguages(m => this._registerLanguages(m));
 		}
 	}
 
@@ -63,20 +68,24 @@ export class LanguagesRegistry {
 		this._mimeTypesMap = {};
 		this._nameMap = {};
 		this._lowercaseNameMap = {};
-		Object.keys(this._languages).forEach((langId) => {
+		Object.keys(this._languages).forEach(langId => {
 			let language = this._languages[langId];
 			if (language.name) {
 				this._nameMap[language.name] = language.identifier;
 			}
-			language.aliases.forEach((alias) => {
+			language.aliases.forEach(alias => {
 				this._lowercaseNameMap[alias.toLowerCase()] = language.identifier;
 			});
-			language.mimetypes.forEach((mimetype) => {
+			language.mimetypes.forEach(mimetype => {
 				this._mimeTypesMap[mimetype] = language.identifier;
 			});
 		});
 
-		Registry.as<IConfigurationRegistry>(Extensions.Configuration).registerOverrideIdentifiers(ModesRegistry.getLanguages().map(language => language.id));
+		Registry.as<IConfigurationRegistry>(
+			Extensions.Configuration
+		).registerOverrideIdentifiers(
+			ModesRegistry.getLanguages().map(language => language.id)
+		);
 	}
 
 	private _registerLanguage(lang: ILanguageExtensionPoint): void {
@@ -103,12 +112,18 @@ export class LanguagesRegistry {
 		LanguagesRegistry._mergeLanguage(resolvedLanguage, lang);
 	}
 
-	private static _mergeLanguage(resolvedLanguage: IResolvedLanguage, lang: ILanguageExtensionPoint): void {
+	private static _mergeLanguage(
+		resolvedLanguage: IResolvedLanguage,
+		lang: ILanguageExtensionPoint
+	): void {
 		const langId = lang.id;
 
 		let primaryMime: string = null;
 
-		if (typeof lang.mimetypes !== 'undefined' && Array.isArray(lang.mimetypes)) {
+		if (
+			typeof lang.mimetypes !== 'undefined' &&
+			Array.isArray(lang.mimetypes)
+		) {
 			for (let i = 0; i < lang.mimetypes.length; i++) {
 				if (!primaryMime) {
 					primaryMime = lang.mimetypes[i];
@@ -124,21 +139,33 @@ export class LanguagesRegistry {
 
 		if (Array.isArray(lang.extensions)) {
 			for (let extension of lang.extensions) {
-				mime.registerTextMime({ id: langId, mime: primaryMime, extension: extension });
+				mime.registerTextMime({
+					id: langId,
+					mime: primaryMime,
+					extension: extension
+				});
 				resolvedLanguage.extensions.push(extension);
 			}
 		}
 
 		if (Array.isArray(lang.filenames)) {
 			for (let filename of lang.filenames) {
-				mime.registerTextMime({ id: langId, mime: primaryMime, filename: filename });
+				mime.registerTextMime({
+					id: langId,
+					mime: primaryMime,
+					filename: filename
+				});
 				resolvedLanguage.filenames.push(filename);
 			}
 		}
 
 		if (Array.isArray(lang.filenamePatterns)) {
 			for (let filenamePattern of lang.filenamePatterns) {
-				mime.registerTextMime({ id: langId, mime: primaryMime, filepattern: filenamePattern });
+				mime.registerTextMime({
+					id: langId,
+					mime: primaryMime,
+					filepattern: filenamePattern
+				});
 			}
 		}
 
@@ -150,7 +177,11 @@ export class LanguagesRegistry {
 			try {
 				let firstLineRegex = new RegExp(firstLineRegexStr);
 				if (!strings.regExpLeadsToEndlessLoop(firstLineRegex)) {
-					mime.registerTextMime({ id: langId, mime: primaryMime, firstline: firstLineRegex });
+					mime.registerTextMime({
+						id: langId,
+						mime: primaryMime,
+						firstline: firstLineRegex
+					});
 				}
 			} catch (err) {
 				// Most likely, the regex was bad
@@ -179,7 +210,7 @@ export class LanguagesRegistry {
 			}
 		}
 
-		let containsAliases = (langAliases !== null && langAliases.length > 0);
+		let containsAliases = langAliases !== null && langAliases.length > 0;
 		if (containsAliases && langAliases[0] === null) {
 			// signal that this language should not get a name
 		} else {
@@ -237,31 +268,33 @@ export class LanguagesRegistry {
 			return null;
 		}
 		const language = this._languages[modeId];
-		return (language.mimetypes[0] || null);
+		return language.mimetypes[0] || null;
 	}
 
-	public extractModeIds(commaSeparatedMimetypesOrCommaSeparatedIds: string): string[] {
+	public extractModeIds(
+		commaSeparatedMimetypesOrCommaSeparatedIds: string
+	): string[] {
 		if (!commaSeparatedMimetypesOrCommaSeparatedIds) {
 			return [];
 		}
 
-		return (
-			commaSeparatedMimetypesOrCommaSeparatedIds.
-				split(',').
-				map((mimeTypeOrId) => mimeTypeOrId.trim()).
-				map((mimeTypeOrId) => {
-					if (hasOwnProperty.call(this._mimeTypesMap, mimeTypeOrId)) {
-						return this._mimeTypesMap[mimeTypeOrId].language;
-					}
-					return mimeTypeOrId;
-				}).
-				filter((modeId) => {
-					return hasOwnProperty.call(this._languages, modeId);
-				})
-		);
+		return commaSeparatedMimetypesOrCommaSeparatedIds
+			.split(',')
+			.map(mimeTypeOrId => mimeTypeOrId.trim())
+			.map(mimeTypeOrId => {
+				if (hasOwnProperty.call(this._mimeTypesMap, mimeTypeOrId)) {
+					return this._mimeTypesMap[mimeTypeOrId].language;
+				}
+				return mimeTypeOrId;
+			})
+			.filter(modeId => {
+				return hasOwnProperty.call(this._languages, modeId);
+			});
 	}
 
-	public getLanguageIdentifier(_modeId: string | LanguageId): LanguageIdentifier {
+	public getLanguageIdentifier(
+		_modeId: string | LanguageId
+	): LanguageIdentifier {
 		if (_modeId === NULL_MODE_ID || _modeId === LanguageId.Null) {
 			return NULL_LANGUAGE_IDENTIFIER;
 		}
@@ -292,7 +325,10 @@ export class LanguagesRegistry {
 		return [];
 	}
 
-	public getModeIdsFromFilenameOrFirstLine(filename: string, firstLine?: string): string[] {
+	public getModeIdsFromFilenameOrFirstLine(
+		filename: string,
+		firstLine?: string
+	): string[] {
 		if (!filename && !firstLine) {
 			return [];
 		}

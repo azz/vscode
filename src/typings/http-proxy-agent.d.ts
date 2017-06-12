@@ -4,7 +4,6 @@
  *--------------------------------------------------------------------------------------------*/
 
 declare module 'http-proxy-agent' {
-
 	interface IHttpProxyAgentOptions {
 		host: string;
 		port: number;

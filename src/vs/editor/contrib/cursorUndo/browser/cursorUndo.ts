@@ -2,13 +2,20 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { Selection } from 'vs/editor/common/core/selection';
-import { editorCommand, ServicesAccessor, EditorCommand } from 'vs/editor/common/editorCommonExtensions';
+import {
+	editorCommand,
+	ServicesAccessor,
+	EditorCommand
+} from 'vs/editor/common/editorCommonExtensions';
 import { KeyCode, KeyMod } from 'vs/base/common/keyCodes';
 import { Disposable } from 'vs/base/common/lifecycle';
-import { ICommonCodeEditor, IEditorContribution } from 'vs/editor/common/editorCommon';
+import {
+	ICommonCodeEditor,
+	IEditorContribution
+} from 'vs/editor/common/editorCommon';
 import { EditorContextKeys } from 'vs/editor/common/editorContextKeys';
 import { ICodeEditor } from 'vs/editor/browser/editorBrowser';
 import { editorContribution } from 'vs/editor/browser/editorBrowserExtensions';
@@ -36,12 +43,14 @@ class CursorState {
 }
 
 @editorContribution
-export class CursorUndoController extends Disposable implements IEditorContribution {
-
+export class CursorUndoController extends Disposable
+	implements IEditorContribution {
 	private static ID = 'editor.contrib.cursorUndoController';
 
 	public static get(editor: ICommonCodeEditor): CursorUndoController {
-		return editor.getContribution<CursorUndoController>(CursorUndoController.ID);
+		return editor.getContribution<CursorUndoController>(
+			CursorUndoController.ID
+		);
 	}
 
 	private readonly _editor: ICodeEditor;
@@ -58,26 +67,34 @@ export class CursorUndoController extends Disposable implements IEditorContribut
 		this._undoStack = [];
 		this._prevState = this._readState();
 
-		this._register(editor.onDidChangeModel((e) => {
-			this._undoStack = [];
-			this._prevState = null;
-		}));
-		this._register(editor.onDidChangeModelContent((e) => {
-			this._undoStack = [];
-			this._prevState = null;
-		}));
-		this._register(editor.onDidChangeCursorSelection((e) => {
-
-			if (!this._isCursorUndo && this._prevState) {
-				this._undoStack.push(this._prevState);
-				if (this._undoStack.length > 50) {
-					// keep the cursor undo stack bounded
-					this._undoStack = this._undoStack.splice(0, this._undoStack.length - 50);
+		this._register(
+			editor.onDidChangeModel(e => {
+				this._undoStack = [];
+				this._prevState = null;
+			})
+		);
+		this._register(
+			editor.onDidChangeModelContent(e => {
+				this._undoStack = [];
+				this._prevState = null;
+			})
+		);
+		this._register(
+			editor.onDidChangeCursorSelection(e => {
+				if (!this._isCursorUndo && this._prevState) {
+					this._undoStack.push(this._prevState);
+					if (this._undoStack.length > 50) {
+						// keep the cursor undo stack bounded
+						this._undoStack = this._undoStack.splice(
+							0,
+							this._undoStack.length - 50
+						);
+					}
 				}
-			}
 
-			this._prevState = this._readState();
-		}));
+				this._prevState = this._readState();
+			})
+		);
 	}
 
 	private _readState(): CursorState {
@@ -122,7 +139,11 @@ export class CursorUndo extends EditorCommand {
 		});
 	}
 
-	public runEditorCommand(accessor: ServicesAccessor, editor: ICommonCodeEditor, args: any): void {
+	public runEditorCommand(
+		accessor: ServicesAccessor,
+		editor: ICommonCodeEditor,
+		args: any
+	): void {
 		CursorUndoController.get(editor).cursorUndo();
 	}
 }

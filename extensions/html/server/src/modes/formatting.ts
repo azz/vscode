@@ -2,29 +2,47 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { applyEdits } from '../utils/edits';
-import { TextDocument, Range, TextEdit, FormattingOptions, Position } from 'vscode-languageserver-types';
+import {
+	TextDocument,
+	Range,
+	TextEdit,
+	FormattingOptions,
+	Position
+} from 'vscode-languageserver-types';
 import { LanguageModes } from './languageModes';
 import { pushAll } from '../utils/arrays';
 import { isEOL } from '../utils/strings';
 
-export function format(languageModes: LanguageModes, document: TextDocument, formatRange: Range, formattingOptions: FormattingOptions, enabledModes: { [mode: string]: boolean }) {
+export function format(
+	languageModes: LanguageModes,
+	document: TextDocument,
+	formatRange: Range,
+	formattingOptions: FormattingOptions,
+	enabledModes: { [mode: string]: boolean }
+) {
 	let result: TextEdit[] = [];
 
 	let endPos = formatRange.end;
 	let endOffset = document.offsetAt(endPos);
 	let content = document.getText();
-	if (endPos.character === 0 && endPos.line > 0 && endOffset !== content.length) {
+	if (
+		endPos.character === 0 &&
+		endPos.line > 0 &&
+		endOffset !== content.length
+	) {
 		// if selection ends after a new line, exclude that new line
 		let prevLineStart = document.offsetAt(Position.create(endPos.line - 1, 0));
 		while (isEOL(content, endOffset - 1) && endOffset > prevLineStart) {
 			endOffset--;
 		}
-		formatRange = Range.create(formatRange.start, document.positionAt(endOffset));
+		formatRange = Range.create(
+			formatRange.start,
+			document.positionAt(endOffset)
+		);
 	}
-
 
 	// run the html formatter on the full range and pass the result content to the embedded formatters.
 	// from the final content create a single edit
@@ -40,7 +58,11 @@ export function format(languageModes: LanguageModes, document: TextDocument, for
 	while (i < allRanges.length && allRanges[i].mode.getId() !== 'html') {
 		let range = allRanges[i];
 		if (!range.attributeValue && range.mode.format) {
-			let edits = range.mode.format(document, Range.create(startPos, range.end), formattingOptions);
+			let edits = range.mode.format(
+				document,
+				Range.create(startPos, range.end),
+				formattingOptions
+			);
 			pushAll(result, edits);
 		}
 		startPos = range.end;
@@ -56,24 +78,43 @@ export function format(languageModes: LanguageModes, document: TextDocument, for
 	let htmlMode = languageModes.getMode('html');
 	let htmlEdits = htmlMode.format(document, formatRange, formattingOptions);
 	let htmlFormattedContent = applyEdits(document, htmlEdits);
-	let newDocument = TextDocument.create(document.uri + '.tmp', document.languageId, document.version, htmlFormattedContent);
+	let newDocument = TextDocument.create(
+		document.uri + '.tmp',
+		document.languageId,
+		document.version,
+		htmlFormattedContent
+	);
 	try {
 		// run embedded formatters on html formatted content: - formatters see correct initial indent
-		let afterFormatRangeLength = document.getText().length - document.offsetAt(formatRange.end); // length of unchanged content after replace range
-		let newFormatRange = Range.create(formatRange.start, newDocument.positionAt(htmlFormattedContent.length - afterFormatRangeLength));
-		let embeddedRanges = languageModes.getModesInRange(newDocument, newFormatRange);
+		let afterFormatRangeLength =
+			document.getText().length - document.offsetAt(formatRange.end); // length of unchanged content after replace range
+		let newFormatRange = Range.create(
+			formatRange.start,
+			newDocument.positionAt(
+				htmlFormattedContent.length - afterFormatRangeLength
+			)
+		);
+		let embeddedRanges = languageModes.getModesInRange(
+			newDocument,
+			newFormatRange
+		);
 
 		let embeddedEdits: TextEdit[] = [];
 
 		for (let r of embeddedRanges) {
 			let mode = r.mode;
-			if (mode && mode.format && enabledModes[mode.getId()] && !r.attributeValue) {
+			if (
+				mode &&
+				mode.format &&
+				enabledModes[mode.getId()] &&
+				!r.attributeValue
+			) {
 				let edits = mode.format(newDocument, r, formattingOptions);
 				for (let edit of edits) {
 					embeddedEdits.push(edit);
 				}
 			}
-		};
+		}
 
 		if (embeddedEdits.length === 0) {
 			pushAll(result, htmlEdits);
@@ -82,12 +123,14 @@ export function format(languageModes: LanguageModes, document: TextDocument, for
 
 		// apply all embedded format edits and create a single edit for all changes
 		let resultContent = applyEdits(newDocument, embeddedEdits);
-		let resultReplaceText = resultContent.substring(document.offsetAt(formatRange.start), resultContent.length - afterFormatRangeLength);
+		let resultReplaceText = resultContent.substring(
+			document.offsetAt(formatRange.start),
+			resultContent.length - afterFormatRangeLength
+		);
 
 		result.push(TextEdit.replace(formatRange, resultReplaceText));
 		return result;
 	} finally {
 		languageModes.onDocumentRemoved(newDocument);
 	}
-
 }

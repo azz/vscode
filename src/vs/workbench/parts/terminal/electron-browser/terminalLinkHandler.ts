@@ -19,16 +19,40 @@ import { TPromise } from 'vs/base/common/winjs.base';
 const pathPrefix = '(\\.\\.?|\\~)';
 const pathSeparatorClause = '\\/';
 const excludedPathCharactersClause = '[^\\0\\s!$`&*()\\[\\]+\'":;]'; // '":; are allowed in paths but they are often separators so ignore them
-const escapedExcludedPathCharactersClause = '(\\\\s|\\\\!|\\\\$|\\\\`|\\\\&|\\\\*|(|)|\\+)';
+const escapedExcludedPathCharactersClause =
+	'(\\\\s|\\\\!|\\\\$|\\\\`|\\\\&|\\\\*|(|)|\\+)';
 /** A regex that matches paths in the form /foo, ~/foo, ./foo, ../foo, foo/bar */
-const unixLocalLinkClause = '((' + pathPrefix + '|(' + excludedPathCharactersClause + '|' + escapedExcludedPathCharactersClause + ')+)?(' + pathSeparatorClause + '(' + excludedPathCharactersClause + '|' + escapedExcludedPathCharactersClause + ')+)+)';
+const unixLocalLinkClause =
+	'((' +
+	pathPrefix +
+	'|(' +
+	excludedPathCharactersClause +
+	'|' +
+	escapedExcludedPathCharactersClause +
+	')+)?(' +
+	pathSeparatorClause +
+	'(' +
+	excludedPathCharactersClause +
+	'|' +
+	escapedExcludedPathCharactersClause +
+	')+)+)';
 
 const winDrivePrefix = '[a-zA-Z]:';
 const winPathPrefix = '(' + winDrivePrefix + '|\\.\\.?|\\~)';
 const winPathSeparatorClause = '(\\\\|\\/)';
-const winExcludedPathCharactersClause = '[^\\0<>\\?\\|\\/\\s!$`&*()\\[\\]+\'":;]';
+const winExcludedPathCharactersClause =
+	'[^\\0<>\\?\\|\\/\\s!$`&*()\\[\\]+\'":;]';
 /** A regex that matches paths in the form c:\foo, ~\foo, .\foo, ..\foo, foo\bar */
-const winLocalLinkClause = '((' + winPathPrefix + '|(' + winExcludedPathCharactersClause + ')+)?(' + winPathSeparatorClause + '(' + winExcludedPathCharactersClause + ')+)+)';
+const winLocalLinkClause =
+	'((' +
+	winPathPrefix +
+	'|(' +
+	winExcludedPathCharactersClause +
+	')+)?(' +
+	winPathSeparatorClause +
+	'(' +
+	winExcludedPathCharactersClause +
+	')+)+)';
 
 /** As xterm reads from DOM, space in that case is nonbreaking char ASCII code - 160,
 replacing space with nonBreakningSpace or space ASCII code - 32. */
@@ -36,8 +60,10 @@ const lineAndColumnClause = [
 	'((\\S*) on line ((\\d+)(, column (\\d+))?))', // (file path) on line 8, column 13
 	'((\\S*):line ((\\d+)(, column (\\d+))?))', // (file path):line 8, column 13
 	'(([^\\s\\(\\)]*)(\\s?\\((\\d+)(,(\\d+))?)\\))', // (file path)(45), (file path) (45), (file path)(45,18), (file path) (45,18)
-	'(([^:\\s\\(\\)<>\'\"\\[\\]]*)(:(\\d+))?(:(\\d+))?)' // (file path):336, (file path):336:9
-].join('|').replace(/ /g, `[${'\u00A0'} ]`);
+	'(([^:\\s\\(\\)<>\'"\\[\\]]*)(:(\\d+))?(:(\\d+))?)' // (file path):336, (file path):336:9
+]
+	.join('|')
+	.replace(/ /g, `[${'\u00A0'} ]`);
 
 // Changing any regex may effect this value, hence changes this as well if required.
 const winLineAndColumnMatchIndex = 12;
@@ -51,8 +77,15 @@ const CUSTOM_LINK_PRIORITY = -1;
 /** Lowest */
 const LOCAL_LINK_PRIORITY = -2;
 
-export type XtermLinkMatcherHandler = (event: MouseEvent, uri: string) => boolean | void;
-export type XtermLinkMatcherValidationCallback = (uri: string, element: HTMLElement, callback: (isValid: boolean) => void) => void;
+export type XtermLinkMatcherHandler = (
+	event: MouseEvent,
+	uri: string
+) => boolean | void;
+export type XtermLinkMatcherValidationCallback = (
+	uri: string,
+	element: HTMLElement,
+	callback: (isValid: boolean) => void
+) => void;
 
 export class TerminalLinkHandler {
 	private _hoverDisposables: IDisposable[] = [];
@@ -68,21 +101,36 @@ export class TerminalLinkHandler {
 		@IWorkbenchEditorService private _editorService: IWorkbenchEditorService,
 		@IWorkspaceContextService private _contextService: IWorkspaceContextService
 	) {
-		const baseLocalLinkClause = _platform === platform.Platform.Windows ? winLocalLinkClause : unixLocalLinkClause;
+		const baseLocalLinkClause = _platform === platform.Platform.Windows
+			? winLocalLinkClause
+			: unixLocalLinkClause;
 		// Append line and column number regex
-		this._localLinkPattern = new RegExp(`${baseLocalLinkClause}(${lineAndColumnClause})`);
+		this._localLinkPattern = new RegExp(
+			`${baseLocalLinkClause}(${lineAndColumnClause})`
+		);
 
 		this._xterm.setHypertextLinkHandler(this._wrapLinkHandler(() => true));
-		this._xterm.setHypertextValidationCallback((uri: string, element: HTMLElement, callback: (isValid: boolean) => void) => {
-			this._validateWebLink(uri, element, callback);
-		});
+		this._xterm.setHypertextValidationCallback(
+			(
+				uri: string,
+				element: HTMLElement,
+				callback: (isValid: boolean) => void
+			) => {
+				this._validateWebLink(uri, element, callback);
+			}
+		);
 	}
 
 	public setWidgetManager(widgetManager: TerminalWidgetManager): void {
 		this._widgetManager = widgetManager;
 	}
 
-	public registerCustomLinkHandler(regex: RegExp, handler: (uri: string) => void, matchIndex?: number, validationCallback?: XtermLinkMatcherValidationCallback): number {
+	public registerCustomLinkHandler(
+		regex: RegExp,
+		handler: (uri: string) => void,
+		matchIndex?: number,
+		validationCallback?: XtermLinkMatcherValidationCallback
+	): number {
 		const wrappedValidationCallback = (uri, element, callback) => {
 			this._addTooltipEventListeners(element);
 			if (validationCallback) {
@@ -91,11 +139,15 @@ export class TerminalLinkHandler {
 				callback(true);
 			}
 		};
-		return this._xterm.registerLinkMatcher(regex, this._wrapLinkHandler(handler), {
-			matchIndex,
-			validationCallback: wrappedValidationCallback,
-			priority: CUSTOM_LINK_PRIORITY
-		});
+		return this._xterm.registerLinkMatcher(
+			regex,
+			this._wrapLinkHandler(handler),
+			{
+				matchIndex,
+				validationCallback: wrappedValidationCallback,
+				priority: CUSTOM_LINK_PRIORITY
+			}
+		);
 	}
 
 	public registerLocalLinkHandler(): number {
@@ -104,10 +156,18 @@ export class TerminalLinkHandler {
 			return;
 		});
 
-		return this._xterm.registerLinkMatcher(this._localLinkRegex, wrappedHandler, {
-			validationCallback: (link: string, element: HTMLElement, callback: (isValid: boolean) => void) => this._validateLocalLink(link, element, callback),
-			priority: LOCAL_LINK_PRIORITY
-		});
+		return this._xterm.registerLinkMatcher(
+			this._localLinkRegex,
+			wrappedHandler,
+			{
+				validationCallback: (
+					link: string,
+					element: HTMLElement,
+					callback: (isValid: boolean) => void
+				) => this._validateLocalLink(link, element, callback),
+				priority: LOCAL_LINK_PRIORITY
+			}
+		);
 	}
 
 	public dispose(): void {
@@ -115,10 +175,16 @@ export class TerminalLinkHandler {
 		this._mouseMoveDisposable = dispose(this._mouseMoveDisposable);
 	}
 
-	private _wrapLinkHandler(handler: (uri: string) => boolean | void): XtermLinkMatcherHandler {
+	private _wrapLinkHandler(
+		handler: (uri: string) => boolean | void
+	): XtermLinkMatcherHandler {
 		return (event: MouseEvent, uri: string) => {
 			// Require ctrl/cmd on click
-			if (this._platform === platform.Platform.Mac ? !event.metaKey : !event.ctrlKey) {
+			if (
+				this._platform === platform.Platform.Mac
+					? !event.metaKey
+					: !event.ctrlKey
+			) {
 				event.preventDefault();
 				return false;
 			}
@@ -150,7 +216,11 @@ export class TerminalLinkHandler {
 		});
 	}
 
-	private _validateLocalLink(link: string, element: HTMLElement, callback: (isValid: boolean) => void): void {
+	private _validateLocalLink(
+		link: string,
+		element: HTMLElement,
+		callback: (isValid: boolean) => void
+	): void {
 		this._resolvePath(link).then(resolvedLink => {
 			if (resolvedLink) {
 				this._addTooltipEventListeners(element);
@@ -159,7 +229,11 @@ export class TerminalLinkHandler {
 		});
 	}
 
-	private _validateWebLink(link: string, element: HTMLElement, callback: (isValid: boolean) => void): void {
+	private _validateWebLink(
+		link: string,
+		element: HTMLElement,
+		callback: (isValid: boolean) => void
+	): void {
 		this._addTooltipEventListeners(element);
 		callback(true);
 	}
@@ -167,31 +241,55 @@ export class TerminalLinkHandler {
 	private _addTooltipEventListeners(element: HTMLElement): void {
 		let timeout = null;
 		let isMessageShowing = false;
-		this._hoverDisposables.push(dom.addDisposableListener(element, dom.EventType.MOUSE_OVER, e => {
-			element.classList.toggle('active', platform.isMacintosh ? e.metaKey : e.ctrlKey);
-			this._mouseMoveDisposable = dom.addDisposableListener(element, dom.EventType.MOUSE_MOVE, e => {
-				element.classList.toggle('active', platform.isMacintosh ? e.metaKey : e.ctrlKey);
-			});
-			timeout = setTimeout(() => {
-				let message: string;
-				if (platform.isMacintosh) {
-					message = nls.localize('terminalLinkHandler.followLinkCmd', 'Cmd + click to follow link');
-				} else {
-					message = nls.localize('terminalLinkHandler.followLinkCtrl', 'Ctrl + click to follow link');
+		this._hoverDisposables.push(
+			dom.addDisposableListener(element, dom.EventType.MOUSE_OVER, e => {
+				element.classList.toggle(
+					'active',
+					platform.isMacintosh ? e.metaKey : e.ctrlKey
+				);
+				this._mouseMoveDisposable = dom.addDisposableListener(
+					element,
+					dom.EventType.MOUSE_MOVE,
+					e => {
+						element.classList.toggle(
+							'active',
+							platform.isMacintosh ? e.metaKey : e.ctrlKey
+						);
+					}
+				);
+				timeout = setTimeout(() => {
+					let message: string;
+					if (platform.isMacintosh) {
+						message = nls.localize(
+							'terminalLinkHandler.followLinkCmd',
+							'Cmd + click to follow link'
+						);
+					} else {
+						message = nls.localize(
+							'terminalLinkHandler.followLinkCtrl',
+							'Ctrl + click to follow link'
+						);
+					}
+					this._widgetManager.showMessage(
+						element.offsetLeft,
+						element.offsetTop,
+						message
+					);
+					isMessageShowing = true;
+				}, 500);
+			})
+		);
+		this._hoverDisposables.push(
+			dom.addDisposableListener(element, dom.EventType.MOUSE_OUT, () => {
+				element.classList.remove('active');
+				if (this._mouseMoveDisposable) {
+					this._mouseMoveDisposable.dispose();
 				}
-				this._widgetManager.showMessage(element.offsetLeft, element.offsetTop, message);
-				isMessageShowing = true;
-			}, 500);
-		}));
-		this._hoverDisposables.push(dom.addDisposableListener(element, dom.EventType.MOUSE_OUT, () => {
-			element.classList.remove('active');
-			if (this._mouseMoveDisposable) {
-				this._mouseMoveDisposable.dispose();
-			}
-			clearTimeout(timeout);
-			this._widgetManager.closeMessage();
-			isMessageShowing = false;
-		}));
+				clearTimeout(timeout);
+				this._widgetManager.closeMessage();
+				isMessageShowing = false;
+			})
+		);
 	}
 
 	protected _preprocessPath(link: string): string {
@@ -201,7 +299,8 @@ export class TerminalLinkHandler {
 				if (!process.env.HOMEDRIVE || !process.env.HOMEPATH) {
 					return null;
 				}
-				link = `${process.env.HOMEDRIVE}\\${process.env.HOMEPATH + link.substring(1)}`;
+				link = `${process.env.HOMEDRIVE}\\${process.env.HOMEPATH +
+					link.substring(1)}`;
 			}
 
 			// Resolve relative paths (.\a, ..\a, ~\a, a\b)
@@ -210,16 +309,21 @@ export class TerminalLinkHandler {
 					// Abort if no workspace is open
 					return null;
 				}
-				link = path.join(this._contextService.getWorkspace().resource.fsPath, link);
+				link = path.join(
+					this._contextService.getWorkspace().resource.fsPath,
+					link
+				);
 			}
-		}
-		// Resolve workspace path . | .. | <relative_path> -> <path>/. | <path>/.. | <path>/<relative_path>
-		else if (link.charAt(0) !== '/' && link.charAt(0) !== '~') {
+		} else if (link.charAt(0) !== '/' && link.charAt(0) !== '~') {
+			// Resolve workspace path . | .. | <relative_path> -> <path>/. | <path>/.. | <path>/<relative_path>
 			if (!this._contextService.hasWorkspace()) {
 				// Abort if no workspace is open
 				return null;
 			}
-			link = path.join(this._contextService.getWorkspace().resource.fsPath, link);
+			link = path.join(
+				this._contextService.getWorkspace().resource.fsPath,
+				link
+			);
 		}
 		return link;
 	}
@@ -269,10 +373,13 @@ export class TerminalLinkHandler {
 	public extractLineColumnInfo(link: string): LineColumnInfo {
 		const matches: string[] = this._localLinkRegex.exec(link);
 		const lineColumnInfo: LineColumnInfo = {};
-		const lineAndColumnMatchIndex = this._platform === platform.Platform.Windows ? winLineAndColumnMatchIndex : unixLineAndColumnMatchIndex;
+		const lineAndColumnMatchIndex = this._platform === platform.Platform.Windows
+			? winLineAndColumnMatchIndex
+			: unixLineAndColumnMatchIndex;
 
 		for (let i = 0; i < lineAndColumnClause.length; i++) {
-			const lineMatchIndex = lineAndColumnMatchIndex + (lineAndColumnClauseGroupCount * i);
+			const lineMatchIndex =
+				lineAndColumnMatchIndex + lineAndColumnClauseGroupCount * i;
 			const rowNumber = matches[lineMatchIndex];
 			if (rowNumber) {
 				lineColumnInfo['lineNumber'] = rowNumber;
@@ -305,4 +412,4 @@ export class TerminalLinkHandler {
 export interface LineColumnInfo {
 	lineNumber?: string;
 	columnNumber?: string;
-};
+}

@@ -13,4 +13,6 @@ export interface IPackageConfiguration {
 
 const rootPath = path.dirname(uri.parse(require.toUrl('')).fsPath);
 const packageJsonPath = path.join(rootPath, 'package.json');
-export default require.__$__nodeRequire(packageJsonPath) as IPackageConfiguration;
+export default require.__$__nodeRequire(
+	packageJsonPath
+) as IPackageConfiguration;

@@ -15,18 +15,26 @@ export interface IFoldingRange {
 }
 
 export function toString(range: IFoldingRange): string {
-	return (range ? range.startLineNumber + '/' + range.endLineNumber : 'null') + (range.isCollapsed ? ' (collapsed)' : '') + ' - ' + range.indent;
+	return (
+		(range ? range.startLineNumber + '/' + range.endLineNumber : 'null') +
+		(range.isCollapsed ? ' (collapsed)' : '') +
+		' - ' +
+		range.indent
+	);
 }
 
 export class CollapsibleRegion {
-
 	private decorationIds: string[];
 	private _isCollapsed: boolean;
 	private _indent: number;
 
 	private _lastRange: IFoldingRange;
 
-	public constructor(range: IFoldingRange, model: editorCommon.IModel, changeAccessor: editorCommon.IModelDecorationsChangeAccessor) {
+	public constructor(
+		range: IFoldingRange,
+		model: editorCommon.IModel,
+		changeAccessor: editorCommon.IModelDecorationsChangeAccessor
+	) {
 		this.decorationIds = [];
 		this.update(range, model, changeAccessor);
 	}
@@ -55,10 +63,16 @@ export class CollapsibleRegion {
 		return this._lastRange ? this._lastRange.endLineNumber : void 0;
 	}
 
-	public setCollapsed(isCollaped: boolean, changeAccessor: editorCommon.IModelDecorationsChangeAccessor): void {
+	public setCollapsed(
+		isCollaped: boolean,
+		changeAccessor: editorCommon.IModelDecorationsChangeAccessor
+	): void {
 		this._isCollapsed = isCollaped;
 		if (this.decorationIds.length > 0) {
-			changeAccessor.changeDecorationOptions(this.decorationIds[0], this.getVisualDecorationOptions());
+			changeAccessor.changeDecorationOptions(
+				this.decorationIds[0],
+				this.getVisualDecorationOptions()
+			);
 		}
 	}
 
@@ -69,11 +83,14 @@ export class CollapsibleRegion {
 		return null;
 	}
 
-	private static _COLLAPSED_VISUAL_DECORATION = ModelDecorationOptions.register({
-		stickiness: editorCommon.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges,
-		afterContentClassName: 'inline-folded',
-		linesDecorationsClassName: 'folding collapsed'
-	});
+	private static _COLLAPSED_VISUAL_DECORATION = ModelDecorationOptions.register(
+		{
+			stickiness:
+				editorCommon.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges,
+			afterContentClassName: 'inline-folded',
+			linesDecorationsClassName: 'folding collapsed'
+		}
+	);
 
 	private static _EXPANDED_VISUAL_DECORATION = ModelDecorationOptions.register({
 		stickiness: editorCommon.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges,
@@ -96,7 +113,11 @@ export class CollapsibleRegion {
 		return CollapsibleRegion._RANGE_DECORATION;
 	}
 
-	public update(newRange: IFoldingRange, model: editorCommon.IModel, changeAccessor: editorCommon.IModelDecorationsChangeAccessor): void {
+	public update(
+		newRange: IFoldingRange,
+		model: editorCommon.IModel,
+		changeAccessor: editorCommon.IModelDecorationsChangeAccessor
+	): void {
 		this._lastRange = newRange;
 		this._isCollapsed = !!newRange.isCollapsed;
 		this._indent = newRange.indent;
@@ -110,7 +131,10 @@ export class CollapsibleRegion {
 			endLineNumber: newRange.startLineNumber,
 			endColumn: maxColumn
 		};
-		newDecorations.push({ range: visualRng, options: this.getVisualDecorationOptions() });
+		newDecorations.push({
+			range: visualRng,
+			options: this.getVisualDecorationOptions()
+		});
 
 		let colRng = {
 			startLineNumber: newRange.startLineNumber,
@@ -118,21 +142,32 @@ export class CollapsibleRegion {
 			endLineNumber: newRange.endLineNumber,
 			endColumn: model.getLineMaxColumn(newRange.endLineNumber)
 		};
-		newDecorations.push({ range: colRng, options: this.getRangeDecorationOptions() });
+		newDecorations.push({
+			range: colRng,
+			options: this.getRangeDecorationOptions()
+		});
 
-		this.decorationIds = changeAccessor.deltaDecorations(this.decorationIds, newDecorations);
+		this.decorationIds = changeAccessor.deltaDecorations(
+			this.decorationIds,
+			newDecorations
+		);
 	}
 
-
-	public dispose(changeAccessor: editorCommon.IModelDecorationsChangeAccessor): void {
+	public dispose(
+		changeAccessor: editorCommon.IModelDecorationsChangeAccessor
+	): void {
 		this._lastRange = null;
-		this.decorationIds = changeAccessor.deltaDecorations(this.decorationIds, []);
+		this.decorationIds = changeAccessor.deltaDecorations(
+			this.decorationIds,
+			[]
+		);
 	}
 
 	public toString(): string {
 		let str = this.isCollapsed ? 'collapsed ' : 'expanded ';
 		if (this._lastRange) {
-			str += (this._lastRange.startLineNumber + '/' + this._lastRange.endLineNumber);
+			str +=
+				this._lastRange.startLineNumber + '/' + this._lastRange.endLineNumber;
 		} else {
 			str += 'no range';
 		}
@@ -141,32 +176,74 @@ export class CollapsibleRegion {
 	}
 }
 
-export function getCollapsibleRegionsToFoldAtLine(allRegions: CollapsibleRegion[], model: editorCommon.IModel, lineNumber: number, levels: number, up: boolean): CollapsibleRegion[] {
-	let surroundingRegion: CollapsibleRegion = getCollapsibleRegionAtLine(allRegions, model, lineNumber);
+export function getCollapsibleRegionsToFoldAtLine(
+	allRegions: CollapsibleRegion[],
+	model: editorCommon.IModel,
+	lineNumber: number,
+	levels: number,
+	up: boolean
+): CollapsibleRegion[] {
+	let surroundingRegion: CollapsibleRegion = getCollapsibleRegionAtLine(
+		allRegions,
+		model,
+		lineNumber
+	);
 	if (!surroundingRegion) {
 		return [];
 	}
 	if (levels === 1) {
 		return [surroundingRegion];
 	}
-	let result = getCollapsibleRegionsFor(surroundingRegion, allRegions, model, levels, up);
+	let result = getCollapsibleRegionsFor(
+		surroundingRegion,
+		allRegions,
+		model,
+		levels,
+		up
+	);
 	return result.filter(collapsibleRegion => !collapsibleRegion.isCollapsed);
 }
 
-export function getCollapsibleRegionsToUnfoldAtLine(allRegions: CollapsibleRegion[], model: editorCommon.IModel, lineNumber: number, levels: number): CollapsibleRegion[] {
-	let surroundingRegion: CollapsibleRegion = getCollapsibleRegionAtLine(allRegions, model, lineNumber);
+export function getCollapsibleRegionsToUnfoldAtLine(
+	allRegions: CollapsibleRegion[],
+	model: editorCommon.IModel,
+	lineNumber: number,
+	levels: number
+): CollapsibleRegion[] {
+	let surroundingRegion: CollapsibleRegion = getCollapsibleRegionAtLine(
+		allRegions,
+		model,
+		lineNumber
+	);
 	if (!surroundingRegion) {
 		return [];
 	}
 	if (levels === 1) {
-		let regionToUnfold = surroundingRegion.isCollapsed ? surroundingRegion : getFoldedCollapsibleRegionAfterLine(allRegions, model, surroundingRegion, lineNumber);
+		let regionToUnfold = surroundingRegion.isCollapsed
+			? surroundingRegion
+			: getFoldedCollapsibleRegionAfterLine(
+					allRegions,
+					model,
+					surroundingRegion,
+					lineNumber
+				);
 		return regionToUnfold ? [regionToUnfold] : [];
 	}
-	let result = getCollapsibleRegionsFor(surroundingRegion, allRegions, model, levels, false);
+	let result = getCollapsibleRegionsFor(
+		surroundingRegion,
+		allRegions,
+		model,
+		levels,
+		false
+	);
 	return result.filter(collapsibleRegion => collapsibleRegion.isCollapsed);
 }
 
-function getCollapsibleRegionAtLine(allRegions: CollapsibleRegion[], model: editorCommon.IModel, lineNumber: number): CollapsibleRegion {
+function getCollapsibleRegionAtLine(
+	allRegions: CollapsibleRegion[],
+	model: editorCommon.IModel,
+	lineNumber: number
+): CollapsibleRegion {
 	let collapsibleRegion: CollapsibleRegion = null;
 	for (let i = 0, len = allRegions.length; i < len; i++) {
 		let dec = allRegions[i];
@@ -183,14 +260,24 @@ function getCollapsibleRegionAtLine(allRegions: CollapsibleRegion[], model: edit
 	return collapsibleRegion;
 }
 
-function getFoldedCollapsibleRegionAfterLine(allRegions: CollapsibleRegion[], model: editorCommon.IModel, surroundingRegion: CollapsibleRegion, lineNumber: number): CollapsibleRegion {
+function getFoldedCollapsibleRegionAfterLine(
+	allRegions: CollapsibleRegion[],
+	model: editorCommon.IModel,
+	surroundingRegion: CollapsibleRegion,
+	lineNumber: number
+): CollapsibleRegion {
 	let index = allRegions.indexOf(surroundingRegion);
 	for (let i = index + 1; i < allRegions.length; i++) {
 		let dec = allRegions[i];
 		let decRange = dec.getDecorationRange(model);
 		if (decRange) {
 			if (doesCollapsibleRegionIsAfterLine(decRange, lineNumber)) {
-				if (!doesCollapsibleRegionContains(surroundingRegion.foldingRange, decRange)) {
+				if (
+					!doesCollapsibleRegionContains(
+						surroundingRegion.foldingRange,
+						decRange
+					)
+				) {
 					return null;
 				}
 				if (dec.isCollapsed) {
@@ -202,26 +289,59 @@ function getFoldedCollapsibleRegionAfterLine(allRegions: CollapsibleRegion[], mo
 	return null;
 }
 
-export function doesLineBelongsToCollapsibleRegion(range: IFoldingRange | Range, lineNumber: number): boolean {
-	return lineNumber >= range.startLineNumber && lineNumber <= range.endLineNumber;
+export function doesLineBelongsToCollapsibleRegion(
+	range: IFoldingRange | Range,
+	lineNumber: number
+): boolean {
+	return (
+		lineNumber >= range.startLineNumber && lineNumber <= range.endLineNumber
+	);
 }
 
-function doesCollapsibleRegionIsAfterLine(range: IFoldingRange | Range, lineNumber: number): boolean {
+function doesCollapsibleRegionIsAfterLine(
+	range: IFoldingRange | Range,
+	lineNumber: number
+): boolean {
 	return lineNumber < range.startLineNumber;
 }
-function doesCollapsibleRegionIsBeforeLine(range: IFoldingRange | Range, lineNumber: number): boolean {
+function doesCollapsibleRegionIsBeforeLine(
+	range: IFoldingRange | Range,
+	lineNumber: number
+): boolean {
 	return lineNumber > range.endLineNumber;
 }
 
-function doesCollapsibleRegionContains(range1: IFoldingRange | Range, range2: IFoldingRange | Range): boolean {
+function doesCollapsibleRegionContains(
+	range1: IFoldingRange | Range,
+	range2: IFoldingRange | Range
+): boolean {
 	if (range1 instanceof Range && range2 instanceof Range) {
 		return range1.containsRange(range2);
 	}
-	return range1.startLineNumber <= range2.startLineNumber && range1.endLineNumber >= range2.endLineNumber;
+	return (
+		range1.startLineNumber <= range2.startLineNumber &&
+		range1.endLineNumber >= range2.endLineNumber
+	);
 }
 
-function getCollapsibleRegionsFor(surroundingRegion: CollapsibleRegion, allRegions: CollapsibleRegion[], model: editorCommon.IModel, levels: number, up: boolean): CollapsibleRegion[] {
-	let collapsibleRegionsHierarchy: CollapsibleRegionsHierarchy = up ? new CollapsibleRegionsParentHierarchy(surroundingRegion, allRegions, model) : new CollapsibleRegionsChildrenHierarchy(surroundingRegion, allRegions, model);
+function getCollapsibleRegionsFor(
+	surroundingRegion: CollapsibleRegion,
+	allRegions: CollapsibleRegion[],
+	model: editorCommon.IModel,
+	levels: number,
+	up: boolean
+): CollapsibleRegion[] {
+	let collapsibleRegionsHierarchy: CollapsibleRegionsHierarchy = up
+		? new CollapsibleRegionsParentHierarchy(
+				surroundingRegion,
+				allRegions,
+				model
+			)
+		: new CollapsibleRegionsChildrenHierarchy(
+				surroundingRegion,
+				allRegions,
+				model
+			);
 	return collapsibleRegionsHierarchy.getRegionsTill(levels);
 }
 
@@ -229,28 +349,50 @@ interface CollapsibleRegionsHierarchy {
 	getRegionsTill(level: number): CollapsibleRegion[];
 }
 
-class CollapsibleRegionsChildrenHierarchy implements CollapsibleRegionsHierarchy {
-
+class CollapsibleRegionsChildrenHierarchy
+	implements CollapsibleRegionsHierarchy {
 	children: CollapsibleRegionsChildrenHierarchy[] = [];
 	lastChildIndex: number;
 
-	constructor(private region: CollapsibleRegion, allRegions: CollapsibleRegion[], model: editorCommon.IModel) {
-		for (let index = allRegions.indexOf(region) + 1; index < allRegions.length; index++) {
+	constructor(
+		private region: CollapsibleRegion,
+		allRegions: CollapsibleRegion[],
+		model: editorCommon.IModel
+	) {
+		for (
+			let index = allRegions.indexOf(region) + 1;
+			index < allRegions.length;
+			index++
+		) {
 			let dec = allRegions[index];
 			let decRange = dec.getDecorationRange(model);
 			if (decRange) {
 				if (doesCollapsibleRegionContains(region.foldingRange, decRange)) {
 					index = this.processChildRegion(dec, allRegions, model, index);
 				}
-				if (doesCollapsibleRegionIsAfterLine(decRange, region.foldingRange.endLineNumber)) {
+				if (
+					doesCollapsibleRegionIsAfterLine(
+						decRange,
+						region.foldingRange.endLineNumber
+					)
+				) {
 					break;
 				}
 			}
 		}
 	}
 
-	private processChildRegion(dec: CollapsibleRegion, allRegions: CollapsibleRegion[], model: editorCommon.IModel, index: number): number {
-		let childRegion = new CollapsibleRegionsChildrenHierarchy(dec, allRegions, model);
+	private processChildRegion(
+		dec: CollapsibleRegion,
+		allRegions: CollapsibleRegion[],
+		model: editorCommon.IModel,
+		index: number
+	): number {
+		let childRegion = new CollapsibleRegionsChildrenHierarchy(
+			dec,
+			allRegions,
+			model
+		);
 		this.children.push(childRegion);
 		this.lastChildIndex = index;
 		return childRegion.children.length > 0 ? childRegion.lastChildIndex : index;
@@ -259,26 +401,40 @@ class CollapsibleRegionsChildrenHierarchy implements CollapsibleRegionsHierarchy
 	public getRegionsTill(level: number): CollapsibleRegion[] {
 		let result = [this.region];
 		if (level > 1) {
-			this.children.forEach(region => result = result.concat(region.getRegionsTill(level - 1)));
+			this.children.forEach(
+				region => (result = result.concat(region.getRegionsTill(level - 1)))
+			);
 		}
 		return result;
 	}
 }
 class CollapsibleRegionsParentHierarchy implements CollapsibleRegionsHierarchy {
-
 	parent: CollapsibleRegionsParentHierarchy;
 	lastChildIndex: number;
 
-	constructor(private region: CollapsibleRegion, allRegions: CollapsibleRegion[], model: editorCommon.IModel) {
+	constructor(
+		private region: CollapsibleRegion,
+		allRegions: CollapsibleRegion[],
+		model: editorCommon.IModel
+	) {
 		for (let index = allRegions.indexOf(region) - 1; index >= 0; index--) {
 			let dec = allRegions[index];
 			let decRange = dec.getDecorationRange(model);
 			if (decRange) {
 				if (doesCollapsibleRegionContains(decRange, region.foldingRange)) {
-					this.parent = new CollapsibleRegionsParentHierarchy(dec, allRegions, model);
+					this.parent = new CollapsibleRegionsParentHierarchy(
+						dec,
+						allRegions,
+						model
+					);
 					break;
 				}
-				if (doesCollapsibleRegionIsBeforeLine(decRange, region.foldingRange.endLineNumber)) {
+				if (
+					doesCollapsibleRegionIsBeforeLine(
+						decRange,
+						region.foldingRange.endLineNumber
+					)
+				) {
 					break;
 				}
 			}

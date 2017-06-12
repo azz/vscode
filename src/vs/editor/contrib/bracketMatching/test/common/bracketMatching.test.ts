@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { withMockCodeEditor } from 'vs/editor/test/common/mocks/mockCodeEditor';
@@ -16,26 +16,29 @@ import { BracketMatchingController } from 'vs/editor/contrib/bracketMatching/com
 suite('bracket matching', () => {
 	test('issue #183: jump to matching bracket position', () => {
 		class BracketMode extends MockMode {
-
 			private static _id = new LanguageIdentifier('bracketMode', 3);
 
 			constructor() {
 				super(BracketMode._id);
-				this._register(LanguageConfigurationRegistry.register(this.getLanguageIdentifier(), {
-					brackets: [
-						['{', '}'],
-						['[', ']'],
-						['(', ')'],
-					]
-				}));
+				this._register(
+					LanguageConfigurationRegistry.register(this.getLanguageIdentifier(), {
+						brackets: [['{', '}'], ['[', ']'], ['(', ')']]
+					})
+				);
 			}
 		}
 
 		let mode = new BracketMode();
-		let model = Model.createFromString('var x = (3 + (5-7)) + ((5+3)+5);', undefined, mode.getLanguageIdentifier());
+		let model = Model.createFromString(
+			'var x = (3 + (5-7)) + ((5+3)+5);',
+			undefined,
+			mode.getLanguageIdentifier()
+		);
 
 		withMockCodeEditor(null, { model: model }, (editor, cursor) => {
-			let bracketMatchingController = editor.registerAndInstantiateContribution<BracketMatchingController>(BracketMatchingController);
+			let bracketMatchingController = editor.registerAndInstantiateContribution<
+				BracketMatchingController
+			>(BracketMatchingController);
 
 			editor.setPosition(new Position(1, 20));
 			bracketMatchingController.jumpToBracket();

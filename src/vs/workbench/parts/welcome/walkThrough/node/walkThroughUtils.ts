@@ -3,12 +3,20 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { ITheme } from 'vs/platform/theme/common/themeService';
-import { editorBackground, ColorDefaults, ColorValue } from 'vs/platform/theme/common/colorRegistry';
+import {
+	editorBackground,
+	ColorDefaults,
+	ColorValue
+} from 'vs/platform/theme/common/colorRegistry';
 
-export function getExtraColor(theme: ITheme, colorId: string, defaults: ColorDefaults & { extra_dark: string }): ColorValue {
+export function getExtraColor(
+	theme: ITheme,
+	colorId: string,
+	defaults: ColorDefaults & { extra_dark: string }
+): ColorValue {
 	const color = theme.getColor(colorId);
 	if (color) {
 		return color;

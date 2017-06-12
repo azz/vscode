@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { EventEmitter } from 'vs/base/common/eventEmitter';
 import { IDisposable } from 'vs/base/common/lifecycle';
@@ -37,7 +37,6 @@ export interface INewFindReplaceState {
 }
 
 export class FindReplaceState implements IDisposable {
-
 	private static _CHANGED_EVENT = 'changed';
 
 	private _searchString: string;
@@ -53,17 +52,39 @@ export class FindReplaceState implements IDisposable {
 	private _currentMatch: Range;
 	private _eventEmitter: EventEmitter;
 
-	public get searchString(): string { return this._searchString; }
-	public get replaceString(): string { return this._replaceString; }
-	public get isRevealed(): boolean { return this._isRevealed; }
-	public get isReplaceRevealed(): boolean { return this._isReplaceRevealed; }
-	public get isRegex(): boolean { return this._isRegex; }
-	public get wholeWord(): boolean { return this._wholeWord; }
-	public get matchCase(): boolean { return this._matchCase; }
-	public get searchScope(): Range { return this._searchScope; }
-	public get matchesPosition(): number { return this._matchesPosition; }
-	public get matchesCount(): number { return this._matchesCount; }
-	public get currentMatch(): Range { return this._currentMatch; }
+	public get searchString(): string {
+		return this._searchString;
+	}
+	public get replaceString(): string {
+		return this._replaceString;
+	}
+	public get isRevealed(): boolean {
+		return this._isRevealed;
+	}
+	public get isReplaceRevealed(): boolean {
+		return this._isReplaceRevealed;
+	}
+	public get isRegex(): boolean {
+		return this._isRegex;
+	}
+	public get wholeWord(): boolean {
+		return this._wholeWord;
+	}
+	public get matchCase(): boolean {
+		return this._matchCase;
+	}
+	public get searchScope(): Range {
+		return this._searchScope;
+	}
+	public get matchesPosition(): number {
+		return this._matchesPosition;
+	}
+	public get matchesCount(): number {
+		return this._matchesCount;
+	}
+	public get currentMatch(): Range {
+		return this._currentMatch;
+	}
 
 	constructor() {
 		this._searchString = '';
@@ -84,11 +105,20 @@ export class FindReplaceState implements IDisposable {
 		this._eventEmitter.dispose();
 	}
 
-	public addChangeListener(listener: (e: FindReplaceStateChangedEvent) => void): IDisposable {
-		return this._eventEmitter.addListener(FindReplaceState._CHANGED_EVENT, listener);
+	public addChangeListener(
+		listener: (e: FindReplaceStateChangedEvent) => void
+	): IDisposable {
+		return this._eventEmitter.addListener(
+			FindReplaceState._CHANGED_EVENT,
+			listener
+		);
 	}
 
-	public changeMatchInfo(matchesPosition: number, matchesCount: number, currentMatch: Range): void {
+	public changeMatchInfo(
+		matchesPosition: number,
+		matchesCount: number,
+		currentMatch: Range
+	): void {
 		let changeEvent: FindReplaceStateChangedEvent = {
 			moveCursor: false,
 			updateHistory: false,
@@ -137,7 +167,11 @@ export class FindReplaceState implements IDisposable {
 		}
 	}
 
-	public change(newState: INewFindReplaceState, moveCursor: boolean, updateHistory: boolean = true): void {
+	public change(
+		newState: INewFindReplaceState,
+		moveCursor: boolean,
+		updateHistory: boolean = true
+	): void {
 		let changeEvent: FindReplaceStateChangedEvent = {
 			moveCursor: moveCursor,
 			updateHistory: updateHistory,

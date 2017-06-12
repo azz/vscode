@@ -2,19 +2,31 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as nls from 'vs/nls';
 import { onUnexpectedError } from 'vs/base/common/errors';
 import { matchesFuzzy } from 'vs/base/common/filters';
 import { TPromise } from 'vs/base/common/winjs.base';
-import { IContext, IHighlight, QuickOpenEntryGroup, QuickOpenModel } from 'vs/base/parts/quickopen/browser/quickOpenModel';
+import {
+	IContext,
+	IHighlight,
+	QuickOpenEntryGroup,
+	QuickOpenModel
+} from 'vs/base/parts/quickopen/browser/quickOpenModel';
 import { IAutoFocus, Mode } from 'vs/base/parts/quickopen/common/quickOpen';
 import { IKeybindingService } from 'vs/platform/keybinding/common/keybinding';
-import { IEditorAction, ICommonCodeEditor, IEditor } from 'vs/editor/common/editorCommon';
+import {
+	IEditorAction,
+	ICommonCodeEditor,
+	IEditor
+} from 'vs/editor/common/editorCommon';
 import { EditorContextKeys } from 'vs/editor/common/editorContextKeys';
 import { BaseEditorQuickOpenAction } from './editorQuickOpen';
-import { editorAction, ServicesAccessor } from 'vs/editor/common/editorCommonExtensions';
+import {
+	editorAction,
+	ServicesAccessor
+} from 'vs/editor/common/editorCommonExtensions';
 import { KeyCode, KeyMod } from 'vs/base/common/keyCodes';
 import * as browser from 'vs/base/browser/browser';
 
@@ -23,7 +35,12 @@ export class EditorActionCommandEntry extends QuickOpenEntryGroup {
 	private action: IEditorAction;
 	private editor: IEditor;
 
-	constructor(key: string, highlights: IHighlight[], action: IEditorAction, editor: IEditor) {
+	constructor(
+		key: string,
+		highlights: IHighlight[],
+		action: IEditorAction,
+		editor: IEditor
+	) {
 		super();
 
 		this.key = key;
@@ -37,7 +54,7 @@ export class EditorActionCommandEntry extends QuickOpenEntryGroup {
 	}
 
 	public getAriaLabel(): string {
-		return nls.localize('ariaLabelEntry', "{0}, commands", this.getLabel());
+		return nls.localize('ariaLabelEntry', '{0}, commands', this.getLabel());
 	}
 
 	public getGroupLabel(): string {
@@ -46,10 +63,8 @@ export class EditorActionCommandEntry extends QuickOpenEntryGroup {
 
 	public run(mode: Mode, context: IContext): boolean {
 		if (mode === Mode.OPEN) {
-
 			// Use a timeout to give the quick open widget a chance to close itself first
 			TPromise.timeout(50).done(() => {
-
 				// Some actions are enabled only when editor has focus
 				this.editor.focus();
 
@@ -70,20 +85,24 @@ export class EditorActionCommandEntry extends QuickOpenEntryGroup {
 
 @editorAction
 export class QuickCommandAction extends BaseEditorQuickOpenAction {
-
 	constructor() {
-		super(nls.localize('quickCommandActionInput', "Type the name of an action you want to execute"), {
-			id: 'editor.action.quickCommand',
-			label: nls.localize('QuickCommandAction.label', "Command Palette"),
-			alias: 'Command Palette',
-			precondition: null,
-			kbOpts: {
-				kbExpr: EditorContextKeys.focus,
-				primary: (browser.isIE ? KeyMod.Alt | KeyCode.F1 : KeyCode.F1)
-			},
-			menuOpts: {
+		super(
+			nls.localize(
+				'quickCommandActionInput',
+				'Type the name of an action you want to execute'
+			),
+			{
+				id: 'editor.action.quickCommand',
+				label: nls.localize('QuickCommandAction.label', 'Command Palette'),
+				alias: 'Command Palette',
+				precondition: null,
+				kbOpts: {
+					kbExpr: EditorContextKeys.focus,
+					primary: browser.isIE ? KeyMod.Alt | KeyCode.F1 : KeyCode.F1
+				},
+				menuOpts: {}
 			}
-		});
+		);
 	}
 
 	public run(accessor: ServicesAccessor, editor: ICommonCodeEditor): void {
@@ -91,7 +110,9 @@ export class QuickCommandAction extends BaseEditorQuickOpenAction {
 
 		this._show(this.getController(editor), {
 			getModel: (value: string): QuickOpenModel => {
-				return new QuickOpenModel(this._editorActionsToEntries(keybindingService, editor, value));
+				return new QuickOpenModel(
+					this._editorActionsToEntries(keybindingService, editor, value)
+				);
 			},
 
 			getAutoFocus: (searchValue: string): IAutoFocus => {
@@ -103,14 +124,21 @@ export class QuickCommandAction extends BaseEditorQuickOpenAction {
 		});
 	}
 
-	private _sort(elementA: QuickOpenEntryGroup, elementB: QuickOpenEntryGroup): number {
+	private _sort(
+		elementA: QuickOpenEntryGroup,
+		elementB: QuickOpenEntryGroup
+	): number {
 		let elementAName = elementA.getLabel().toLowerCase();
 		let elementBName = elementB.getLabel().toLowerCase();
 
 		return elementAName.localeCompare(elementBName);
 	}
 
-	private _editorActionsToEntries(keybindingService: IKeybindingService, editor: ICommonCodeEditor, searchValue: string): EditorActionCommandEntry[] {
+	private _editorActionsToEntries(
+		keybindingService: IKeybindingService,
+		editor: ICommonCodeEditor,
+		searchValue: string
+	): EditorActionCommandEntry[] {
 		let actions: IEditorAction[] = editor.getSupportedActions();
 		let entries: EditorActionCommandEntry[] = [];
 
@@ -122,7 +150,14 @@ export class QuickCommandAction extends BaseEditorQuickOpenAction {
 			if (action.label) {
 				let highlights = matchesFuzzy(searchValue, action.label);
 				if (highlights) {
-					entries.push(new EditorActionCommandEntry(keybind ? keybind.getLabel() : '', highlights, action, editor));
+					entries.push(
+						new EditorActionCommandEntry(
+							keybind ? keybind.getLabel() : '',
+							highlights,
+							action,
+							editor
+						)
+					);
 				}
 			}
 		}

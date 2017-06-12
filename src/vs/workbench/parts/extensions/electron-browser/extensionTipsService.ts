@@ -10,35 +10,59 @@ import { forEach } from 'vs/base/common/collections';
 import { IDisposable, dispose } from 'vs/base/common/lifecycle';
 import { match } from 'vs/base/common/glob';
 import * as json from 'vs/base/common/json';
-import { IExtensionManagementService, IExtensionGalleryService, IExtensionTipsService, LocalExtensionType, EXTENSION_IDENTIFIER_PATTERN } from 'vs/platform/extensionManagement/common/extensionManagement';
+import {
+	IExtensionManagementService,
+	IExtensionGalleryService,
+	IExtensionTipsService,
+	LocalExtensionType,
+	EXTENSION_IDENTIFIER_PATTERN
+} from 'vs/platform/extensionManagement/common/extensionManagement';
 import { IModelService } from 'vs/editor/common/services/modelService';
 import { IModel } from 'vs/editor/common/editorCommon';
-import { IStorageService, StorageScope } from 'vs/platform/storage/common/storage';
+import {
+	IStorageService,
+	StorageScope
+} from 'vs/platform/storage/common/storage';
 import product from 'vs/platform/node/product';
-import { IChoiceService, IMessageService } from 'vs/platform/message/common/message';
+import {
+	IChoiceService,
+	IMessageService
+} from 'vs/platform/message/common/message';
 import { IInstantiationService } from 'vs/platform/instantiation/common/instantiation';
-import { ShowRecommendedExtensionsAction, ShowWorkspaceRecommendedExtensionsAction } from 'vs/workbench/parts/extensions/browser/extensionsActions';
+import {
+	ShowRecommendedExtensionsAction,
+	ShowWorkspaceRecommendedExtensionsAction
+} from 'vs/workbench/parts/extensions/browser/extensionsActions';
 import Severity from 'vs/base/common/severity';
 import { IWorkspaceContextService } from 'vs/platform/workspace/common/workspace';
 import { Schemas } from 'vs/base/common/network';
 import { IFileService } from 'vs/platform/files/common/files';
-import { IExtensionsConfiguration, ConfigurationKey } from 'vs/workbench/parts/extensions/common/extensions';
+import {
+	IExtensionsConfiguration,
+	ConfigurationKey
+} from 'vs/workbench/parts/extensions/common/extensions';
 import { IConfigurationService } from 'vs/platform/configuration/common/configuration';
-import { IConfigurationEditingService, ConfigurationTarget } from 'vs/workbench/services/configuration/common/configurationEditing';
+import {
+	IConfigurationEditingService,
+	ConfigurationTarget
+} from 'vs/workbench/services/configuration/common/configurationEditing';
 
 interface IExtensionsContent {
 	recommendations: string[];
 }
 
-const empty: { [key: string]: any; } = Object.create(null);
+const empty: { [key: string]: any } = Object.create(null);
 
 export class ExtensionTipsService implements IExtensionTipsService {
-
 	_serviceBrand: any;
 
-	private _recommendations: { [id: string]: boolean; } = Object.create(null);
-	private _availableRecommendations: { [pattern: string]: string[] } = Object.create(null);
-	private importantRecommendations: { [id: string]: { name: string; pattern: string; } };
+	private _recommendations: { [id: string]: boolean } = Object.create(null);
+	private _availableRecommendations: {
+		[pattern: string]: string[];
+	} = Object.create(null);
+	private importantRecommendations: {
+		[id: string]: { name: string; pattern: string };
+	};
 	private importantRecommendationsIgnoreList: string[];
 	private _allRecommendations: string[];
 	private _disposables: IDisposable[] = [];
@@ -48,12 +72,14 @@ export class ExtensionTipsService implements IExtensionTipsService {
 		@IModelService private _modelService: IModelService,
 		@IStorageService private storageService: IStorageService,
 		@IChoiceService private choiceService: IChoiceService,
-		@IExtensionManagementService private extensionsService: IExtensionManagementService,
+		@IExtensionManagementService
+		private extensionsService: IExtensionManagementService,
 		@IInstantiationService private instantiationService: IInstantiationService,
 		@IFileService private fileService: IFileService,
 		@IWorkspaceContextService private contextService: IWorkspaceContextService,
 		@IConfigurationService private configurationService: IConfigurationService,
-		@IConfigurationEditingService private configurationEditingService: IConfigurationEditingService,
+		@IConfigurationEditingService
+		private configurationEditingService: IConfigurationEditingService,
 		@IMessageService private messageService: IMessageService
 	) {
 		if (!this._galleryService.isEnabled()) {
@@ -68,22 +94,38 @@ export class ExtensionTipsService implements IExtensionTipsService {
 		if (!this.contextService.hasWorkspace()) {
 			return TPromise.as([]);
 		}
-		return this.fileService.resolveContent(this.contextService.toResource(paths.join('.vscode', 'extensions.json'))).then(content => {
-			const extensionsContent = <IExtensionsContent>json.parse(content.value, []);
-			if (extensionsContent.recommendations) {
-				const regEx = new RegExp(EXTENSION_IDENTIFIER_PATTERN);
-				return extensionsContent.recommendations.filter((element, position) => {
-					return extensionsContent.recommendations.indexOf(element) === position && regEx.test(element);
-				});
-			}
-			return [];
-		}, err => []);
+		return this.fileService
+			.resolveContent(
+				this.contextService.toResource(paths.join('.vscode', 'extensions.json'))
+			)
+			.then(
+				content => {
+					const extensionsContent = <IExtensionsContent>json.parse(
+						content.value,
+						[]
+					);
+					if (extensionsContent.recommendations) {
+						const regEx = new RegExp(EXTENSION_IDENTIFIER_PATTERN);
+						return extensionsContent.recommendations.filter(
+							(element, position) => {
+								return (
+									extensionsContent.recommendations.indexOf(element) ===
+										position && regEx.test(element)
+								);
+							}
+						);
+					}
+					return [];
+				},
+				err => []
+			);
 	}
 
 	getRecommendations(): string[] {
 		const allRecomendations = this._getAllRecommendationsInProduct();
-		return Object.keys(this._recommendations)
-			.filter(recommendation => allRecomendations.indexOf(recommendation) !== -1);
+		return Object.keys(this._recommendations).filter(
+			recommendation => allRecomendations.indexOf(recommendation) !== -1
+		);
 	}
 
 	getKeymapRecommendations(): string[] {
@@ -92,7 +134,9 @@ export class ExtensionTipsService implements IExtensionTipsService {
 
 	private _getAllRecommendationsInProduct(): string[] {
 		if (!this._allRecommendations) {
-			this._allRecommendations = [...Object.keys(this.importantRecommendations)];
+			this._allRecommendations = [
+				...Object.keys(this.importantRecommendations)
+			];
 			forEach(this._availableRecommendations, ({ value: ids }) => {
 				this._allRecommendations.push(...ids);
 			});
@@ -105,11 +149,24 @@ export class ExtensionTipsService implements IExtensionTipsService {
 		if (!extensionTips) {
 			return;
 		}
-		this.importantRecommendations = product.extensionImportantTips || Object.create(null);
-		this.importantRecommendationsIgnoreList = <string[]>JSON.parse(this.storageService.get('extensionsAssistant/importantRecommendationsIgnore', StorageScope.GLOBAL, '[]'));
+		this.importantRecommendations =
+			product.extensionImportantTips || Object.create(null);
+		this.importantRecommendationsIgnoreList = <string[]>JSON.parse(
+			this.storageService.get(
+				'extensionsAssistant/importantRecommendationsIgnore',
+				StorageScope.GLOBAL,
+				'[]'
+			)
+		);
 
 		// retrieve ids of previous recommendations
-		const storedRecommendations = <string[]>JSON.parse(this.storageService.get('extensionsAssistant/recommendations', StorageScope.GLOBAL, '[]'));
+		const storedRecommendations = <string[]>JSON.parse(
+			this.storageService.get(
+				'extensionsAssistant/recommendations',
+				StorageScope.GLOBAL,
+				'[]'
+			)
+		);
 		for (let id of storedRecommendations) {
 			this._recommendations[id] = true;
 		}
@@ -148,14 +205,17 @@ export class ExtensionTipsService implements IExtensionTipsService {
 			return;
 		}
 
-		if (uri.scheme === Schemas.inMemory || uri.scheme === Schemas.internal || uri.scheme === Schemas.vscode) {
+		if (
+			uri.scheme === Schemas.inMemory ||
+			uri.scheme === Schemas.internal ||
+			uri.scheme === Schemas.vscode
+		) {
 			return;
 		}
 
 		// re-schedule this bit of the operation to be off
 		// the critical path - in case glob-match is slow
 		setImmediate(() => {
-
 			forEach(this._availableRecommendations, entry => {
 				let { key: pattern, value: ids } = entry;
 				if (match(pattern, uri.fsPath)) {
@@ -171,56 +231,83 @@ export class ExtensionTipsService implements IExtensionTipsService {
 				StorageScope.GLOBAL
 			);
 
-			const config = this.configurationService.getConfiguration<IExtensionsConfiguration>(ConfigurationKey);
+			const config = this.configurationService.getConfiguration<
+				IExtensionsConfiguration
+			>(ConfigurationKey);
 
 			if (config.ignoreRecommendations) {
 				return;
 			}
 
-			this.extensionsService.getInstalled(LocalExtensionType.User).done(local => {
-				Object.keys(this.importantRecommendations)
-					.filter(id => this.importantRecommendationsIgnoreList.indexOf(id) === -1)
-					.filter(id => local.every(local => `${local.manifest.publisher}.${local.manifest.name}` !== id))
-					.forEach(id => {
-						const { pattern, name } = this.importantRecommendations[id];
+			this.extensionsService
+				.getInstalled(LocalExtensionType.User)
+				.done(local => {
+					Object.keys(this.importantRecommendations)
+						.filter(
+							id => this.importantRecommendationsIgnoreList.indexOf(id) === -1
+						)
+						.filter(id =>
+							local.every(
+								local =>
+									`${local.manifest.publisher}.${local.manifest.name}` !== id
+							)
+						)
+						.forEach(id => {
+							const { pattern, name } = this.importantRecommendations[id];
 
-						if (!match(pattern, uri.fsPath)) {
-							return;
-						}
-
-						const message = localize('reallyRecommended2', "The '{0}' extension is recommended for this file type.", name);
-						const recommendationsAction = this.instantiationService.createInstance(ShowRecommendedExtensionsAction, ShowRecommendedExtensionsAction.ID, localize('showRecommendations', "Show Recommendations"));
-						const options = [
-							recommendationsAction.label,
-							localize('neverShowAgain', "Don't show again"),
-							localize('close', "Close")
-						];
-
-						this.choiceService.choose(Severity.Info, message, options, 2).done(choice => {
-							switch (choice) {
-								case 0: return recommendationsAction.run();
-								case 1: this.importantRecommendationsIgnoreList.push(id);
-									this.storageService.store(
-										'extensionsAssistant/importantRecommendationsIgnore',
-										JSON.stringify(this.importantRecommendationsIgnoreList),
-										StorageScope.GLOBAL
-									);
-									return this.ignoreExtensionRecommendations();
+							if (!match(pattern, uri.fsPath)) {
+								return;
 							}
+
+							const message = localize(
+								'reallyRecommended2',
+								"The '{0}' extension is recommended for this file type.",
+								name
+							);
+							const recommendationsAction = this.instantiationService.createInstance(
+								ShowRecommendedExtensionsAction,
+								ShowRecommendedExtensionsAction.ID,
+								localize('showRecommendations', 'Show Recommendations')
+							);
+							const options = [
+								recommendationsAction.label,
+								localize('neverShowAgain', "Don't show again"),
+								localize('close', 'Close')
+							];
+
+							this.choiceService
+								.choose(Severity.Info, message, options, 2)
+								.done(choice => {
+									switch (choice) {
+										case 0:
+											return recommendationsAction.run();
+										case 1:
+											this.importantRecommendationsIgnoreList.push(id);
+											this.storageService.store(
+												'extensionsAssistant/importantRecommendationsIgnore',
+												JSON.stringify(this.importantRecommendationsIgnoreList),
+												StorageScope.GLOBAL
+											);
+											return this.ignoreExtensionRecommendations();
+									}
+								});
 						});
-					});
-			});
+				});
 		});
 	}
 
 	private _suggestWorkspaceRecommendations() {
 		const storageKey = 'extensionsAssistant/workspaceRecommendationsIgnore';
 
-		if (this.storageService.getBoolean(storageKey, StorageScope.WORKSPACE, false)) {
+		if (
+			this.storageService.getBoolean(storageKey, StorageScope.WORKSPACE, false)
+		) {
 			return;
 		}
 
-		const config = this.configurationService.getConfiguration<IExtensionsConfiguration>(ConfigurationKey);
+		const config = this.configurationService.getConfiguration<
+			IExtensionsConfiguration
+		>(ConfigurationKey);
 
 		if (config.ignoreRecommendations) {
 			return;
@@ -230,59 +317,94 @@ export class ExtensionTipsService implements IExtensionTipsService {
 				return;
 			}
 
-			this.extensionsService.getInstalled(LocalExtensionType.User).done(local => {
-				const recommendations = allRecommendations
-					.filter(id => local.every(local => `${local.manifest.publisher}.${local.manifest.name}` !== id));
+			this.extensionsService
+				.getInstalled(LocalExtensionType.User)
+				.done(local => {
+					const recommendations = allRecommendations.filter(id =>
+						local.every(
+							local =>
+								`${local.manifest.publisher}.${local.manifest.name}` !== id
+						)
+					);
 
-				if (!recommendations.length) {
-					return;
-				}
-
-				const message = localize('workspaceRecommended', "This workspace has extension recommendations.");
-				const action = this.instantiationService.createInstance(ShowWorkspaceRecommendedExtensionsAction, ShowWorkspaceRecommendedExtensionsAction.ID, localize('showRecommendations', "Show Recommendations"));
-
-				const options = [
-					action.label,
-					localize('neverShowAgain', "Don't show again"),
-					localize('close', "Close")
-				];
-
-				this.choiceService.choose(Severity.Info, message, options, 2).done(choice => {
-					switch (choice) {
-						case 0: return action.run();
-						case 1: return this.storageService.store(storageKey, true, StorageScope.WORKSPACE);
+					if (!recommendations.length) {
+						return;
 					}
+
+					const message = localize(
+						'workspaceRecommended',
+						'This workspace has extension recommendations.'
+					);
+					const action = this.instantiationService.createInstance(
+						ShowWorkspaceRecommendedExtensionsAction,
+						ShowWorkspaceRecommendedExtensionsAction.ID,
+						localize('showRecommendations', 'Show Recommendations')
+					);
+
+					const options = [
+						action.label,
+						localize('neverShowAgain', "Don't show again"),
+						localize('close', 'Close')
+					];
+
+					this.choiceService
+						.choose(Severity.Info, message, options, 2)
+						.done(choice => {
+							switch (choice) {
+								case 0:
+									return action.run();
+								case 1:
+									return this.storageService.store(
+										storageKey,
+										true,
+										StorageScope.WORKSPACE
+									);
+							}
+						});
 				});
-			});
 		});
 	}
 
 	private ignoreExtensionRecommendations() {
-		const message = localize('ignoreExtensionRecommendations', "Do you want to ignore all extension recommendations ?");
+		const message = localize(
+			'ignoreExtensionRecommendations',
+			'Do you want to ignore all extension recommendations ?'
+		);
 		const options = [
-			localize('ignoreAll', "Yes, Ignore All"),
-			localize('no', "No"),
-			localize('cancel', "Cancel")
+			localize('ignoreAll', 'Yes, Ignore All'),
+			localize('no', 'No'),
+			localize('cancel', 'Cancel')
 		];
 
-		this.choiceService.choose(Severity.Info, message, options, 2).done(choice => {
-			switch (choice) {
-				case 0:	// If the user ignores the current message and selects different file type
-					// we should hide all the stacked up messages as he has selected Yes, Ignore All
-					this.messageService.hideAll();
-					return this.setIgnoreRecommendationsConfig(true);
-				case 1: return this.setIgnoreRecommendationsConfig(false);
-			}
-		});
+		this.choiceService
+			.choose(Severity.Info, message, options, 2)
+			.done(choice => {
+				switch (choice) {
+					case 0: // If the user ignores the current message and selects different file type
+						// we should hide all the stacked up messages as he has selected Yes, Ignore All
+						this.messageService.hideAll();
+						return this.setIgnoreRecommendationsConfig(true);
+					case 1:
+						return this.setIgnoreRecommendationsConfig(false);
+				}
+			});
 	}
 
 	private setIgnoreRecommendationsConfig(configVal: boolean) {
 		let target = ConfigurationTarget.USER;
 		const configKey = 'extensions.ignoreRecommendations';
-		this.configurationEditingService.writeConfiguration(target, { key: configKey, value: configVal });
+		this.configurationEditingService.writeConfiguration(target, {
+			key: configKey,
+			value: configVal
+		});
 		if (configVal) {
-			const ignoreWorkspaceRecommendationsStorageKey = 'extensionsAssistant/workspaceRecommendationsIgnore';
-			this.storageService.store(ignoreWorkspaceRecommendationsStorageKey, true, StorageScope.WORKSPACE);
+			const ignoreWorkspaceRecommendationsStorageKey =
+				'extensionsAssistant/workspaceRecommendationsIgnore';
+			this.storageService.store(
+				ignoreWorkspaceRecommendationsStorageKey,
+				true,
+				StorageScope.WORKSPACE
+			);
 		}
 	}
 

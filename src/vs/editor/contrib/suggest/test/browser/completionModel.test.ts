@@ -2,21 +2,32 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
-import { ISuggestion, ISuggestResult, ISuggestSupport, SuggestionType } from 'vs/editor/common/modes';
-import { ISuggestionItem, getSuggestionComparator } from 'vs/editor/contrib/suggest/browser/suggest';
+import {
+	ISuggestion,
+	ISuggestResult,
+	ISuggestSupport,
+	SuggestionType
+} from 'vs/editor/common/modes';
+import {
+	ISuggestionItem,
+	getSuggestionComparator
+} from 'vs/editor/contrib/suggest/browser/suggest';
 import { CompletionModel } from 'vs/editor/contrib/suggest/browser/completionModel';
 import { IPosition } from 'vs/editor/common/core/position';
-import { TPromise } from "vs/base/common/winjs.base";
+import { TPromise } from 'vs/base/common/winjs.base';
 
-suite('CompletionModel', function () {
-
-	function createSuggestItem(label: string, overwriteBefore: number, type: SuggestionType = 'property', incomplete: boolean = false, position: IPosition = { lineNumber: 1, column: 1 }): ISuggestionItem {
-
+suite('CompletionModel', function() {
+	function createSuggestItem(
+		label: string,
+		overwriteBefore: number,
+		type: SuggestionType = 'property',
+		incomplete: boolean = false,
+		position: IPosition = { lineNumber: 1, column: 1 }
+	): ISuggestionItem {
 		return new class implements ISuggestionItem {
-
 			position = position;
 
 			suggestion: ISuggestion = {
@@ -40,25 +51,27 @@ suite('CompletionModel', function () {
 			resolve(): TPromise<void> {
 				return null;
 			}
-		};
+		}();
 	}
 
 	let model: CompletionModel;
 
-	setup(function () {
-
-		model = new CompletionModel([
-			createSuggestItem('foo', 3),
-			createSuggestItem('Foo', 3),
-			createSuggestItem('foo', 2),
-		], 1, {
+	setup(function() {
+		model = new CompletionModel(
+			[
+				createSuggestItem('foo', 3),
+				createSuggestItem('Foo', 3),
+				createSuggestItem('foo', 2)
+			],
+			1,
+			{
 				leadingLineContent: 'foo',
 				characterCountDelta: 0
-			});
+			}
+		);
 	});
 
-	test('filtering - cached', function () {
-
+	test('filtering - cached', function() {
 		const itemsNow = model.items;
 		let itemsThen = model.items;
 		assert.ok(itemsNow === itemsThen);
@@ -74,27 +87,37 @@ suite('CompletionModel', function () {
 		assert.ok(itemsNow !== itemsThen);
 	});
 
-
-	test('complete/incomplete', function () {
-
+	test('complete/incomplete', function() {
 		assert.equal(model.incomplete, false);
 
-		let incompleteModel = new CompletionModel([
-			createSuggestItem('foo', 3, undefined, true),
-			createSuggestItem('foo', 2),
-		], 1, {
+		let incompleteModel = new CompletionModel(
+			[
+				createSuggestItem('foo', 3, undefined, true),
+				createSuggestItem('foo', 2)
+			],
+			1,
+			{
 				leadingLineContent: 'foo',
 				characterCountDelta: 0
-			});
+			}
+		);
 		assert.equal(incompleteModel.incomplete, true);
 	});
 
-	test('replaceIncomplete', function () {
+	test('replaceIncomplete', function() {
+		const completeItem = createSuggestItem('foobar', 1, undefined, false, {
+			lineNumber: 1,
+			column: 2
+		});
+		const incompleteItem = createSuggestItem('foofoo', 1, undefined, true, {
+			lineNumber: 1,
+			column: 2
+		});
 
-		const completeItem = createSuggestItem('foobar', 1, undefined, false, { lineNumber: 1, column: 2 });
-		const incompleteItem = createSuggestItem('foofoo', 1, undefined, true, { lineNumber: 1, column: 2 });
-
-		const model = new CompletionModel([completeItem, incompleteItem], 2, { leadingLineContent: '', characterCountDelta: 0 });
+		const model = new CompletionModel([completeItem, incompleteItem], 2, {
+			leadingLineContent: '',
+			characterCountDelta: 0
+		});
 		assert.equal(model.incomplete, true);
 		assert.equal(model.items.length, 2);
 
@@ -106,18 +129,21 @@ suite('CompletionModel', function () {
 		assert.ok(complete[0] === completeItem);
 	});
 
-	test('proper current word when length=0, #16380', function () {
-
-		model = new CompletionModel([
-			createSuggestItem('    </div', 4),
-			createSuggestItem('a', 0),
-			createSuggestItem('p', 0),
-			createSuggestItem('    </tag', 4),
-			createSuggestItem('    XYZ', 4),
-		], 1, {
+	test('proper current word when length=0, #16380', function() {
+		model = new CompletionModel(
+			[
+				createSuggestItem('    </div', 4),
+				createSuggestItem('a', 0),
+				createSuggestItem('p', 0),
+				createSuggestItem('    </tag', 4),
+				createSuggestItem('    XYZ', 4)
+			],
+			1,
+			{
 				leadingLineContent: '   <',
 				characterCountDelta: 0
-			});
+			}
+		);
 
 		assert.equal(model.items.length, 4);
 
@@ -128,35 +154,42 @@ suite('CompletionModel', function () {
 		assert.equal(d.suggestion.label, 'p');
 	});
 
-	test('keep snippet sorting with prefix: top, #25495', function () {
-
-		model = new CompletionModel([
-			createSuggestItem('Snippet1', 1, 'snippet'),
-			createSuggestItem('tnippet2', 1, 'snippet'),
-			createSuggestItem('semver', 1, 'property'),
-		], 1, {
+	test('keep snippet sorting with prefix: top, #25495', function() {
+		model = new CompletionModel(
+			[
+				createSuggestItem('Snippet1', 1, 'snippet'),
+				createSuggestItem('tnippet2', 1, 'snippet'),
+				createSuggestItem('semver', 1, 'property')
+			],
+			1,
+			{
 				leadingLineContent: 's',
 				characterCountDelta: 0
-			}, 'top');
+			},
+			'top'
+		);
 
 		assert.equal(model.items.length, 2);
 		const [a, b] = model.items;
 		assert.equal(a.suggestion.label, 'Snippet1');
 		assert.equal(b.suggestion.label, 'semver');
 		assert.ok(a.score < b.score); // snippet really promoted
-
 	});
 
-	test('keep snippet sorting with prefix: bottom, #25495', function () {
-
-		model = new CompletionModel([
-			createSuggestItem('snippet1', 1, 'snippet'),
-			createSuggestItem('tnippet2', 1, 'snippet'),
-			createSuggestItem('Semver', 1, 'property'),
-		], 1, {
+	test('keep snippet sorting with prefix: bottom, #25495', function() {
+		model = new CompletionModel(
+			[
+				createSuggestItem('snippet1', 1, 'snippet'),
+				createSuggestItem('tnippet2', 1, 'snippet'),
+				createSuggestItem('Semver', 1, 'property')
+			],
+			1,
+			{
 				leadingLineContent: 's',
 				characterCountDelta: 0
-			}, 'bottom');
+			},
+			'bottom'
+		);
 
 		assert.equal(model.items.length, 2);
 		const [a, b] = model.items;
@@ -165,16 +198,20 @@ suite('CompletionModel', function () {
 		assert.ok(a.score < b.score); // snippet really demoted
 	});
 
-	test('keep snippet sorting with prefix: inline, #25495', function () {
-
-		model = new CompletionModel([
-			createSuggestItem('snippet1', 1, 'snippet'),
-			createSuggestItem('tnippet2', 1, 'snippet'),
-			createSuggestItem('Semver', 1, 'property'),
-		], 1, {
+	test('keep snippet sorting with prefix: inline, #25495', function() {
+		model = new CompletionModel(
+			[
+				createSuggestItem('snippet1', 1, 'snippet'),
+				createSuggestItem('tnippet2', 1, 'snippet'),
+				createSuggestItem('Semver', 1, 'property')
+			],
+			1,
+			{
 				leadingLineContent: 's',
 				characterCountDelta: 0
-			}, 'inline');
+			},
+			'inline'
+		);
 
 		assert.equal(model.items.length, 2);
 		const [a, b] = model.items;
@@ -183,8 +220,7 @@ suite('CompletionModel', function () {
 		assert.ok(a.score > b.score); // snippet really demoted
 	});
 
-	test('filterText seems ignored in autocompletion, #26874', function () {
-
+	test('filterText seems ignored in autocompletion, #26874', function() {
 		const item1 = createSuggestItem('Map - java.util', 1, 'property');
 		item1.suggestion.filterText = 'Map';
 		const item2 = createSuggestItem('Map - java.util', 1, 'property');
@@ -203,13 +239,18 @@ suite('CompletionModel', function () {
 		assert.equal(model.items.length, 1);
 	});
 
-	test('Vscode 1.12 no longer obeys \'sortText\' in completion items (from language server), #26096', function () {
-
-		const item1 = createSuggestItem('<- groups', 2, 'property', false, { lineNumber: 1, column: 3 });
+	test("Vscode 1.12 no longer obeys 'sortText' in completion items (from language server), #26096", function() {
+		const item1 = createSuggestItem('<- groups', 2, 'property', false, {
+			lineNumber: 1,
+			column: 3
+		});
 		item1.suggestion.filterText = '  groups';
 		item1.suggestion.sortText = '00002';
 
-		const item2 = createSuggestItem('source', 0, 'property', false, { lineNumber: 1, column: 3 });
+		const item2 = createSuggestItem('source', 0, 'property', false, {
+			lineNumber: 1,
+			column: 3
+		});
 		item2.suggestion.filterText = 'source';
 		item2.suggestion.sortText = '00001';
 
@@ -225,7 +266,5 @@ suite('CompletionModel', function () {
 		const [first, second] = model.items;
 		assert.equal(first.suggestion.label, 'source');
 		assert.equal(second.suggestion.label, '<- groups');
-
 	});
-
 });

@@ -21,13 +21,34 @@ export const ToggleWholeWordActionId = 'toggleSearchWholeWord';
 export const ToggleRegexActionId = 'toggleSearchRegex';
 export const CloseReplaceWidgetActionId = 'closeReplaceInFilesWidget';
 
-export const SearchViewletVisibleKey = new RawContextKey<boolean>('searchViewletVisible', true);
-export const InputBoxFocussedKey = new RawContextKey<boolean>('inputBoxFocus', false);
-export const SearchInputBoxFocussedKey = new RawContextKey<boolean>('searchInputBoxFocus', false);
-export const ReplaceInputBoxFocussedKey = new RawContextKey<boolean>('replaceInputBoxFocus', false);
-export const ReplaceActiveKey = new RawContextKey<boolean>('replaceActive', false);
+export const SearchViewletVisibleKey = new RawContextKey<boolean>(
+	'searchViewletVisible',
+	true
+);
+export const InputBoxFocussedKey = new RawContextKey<boolean>(
+	'inputBoxFocus',
+	false
+);
+export const SearchInputBoxFocussedKey = new RawContextKey<boolean>(
+	'searchInputBoxFocus',
+	false
+);
+export const ReplaceInputBoxFocussedKey = new RawContextKey<boolean>(
+	'replaceInputBoxFocus',
+	false
+);
+export const ReplaceActiveKey = new RawContextKey<boolean>(
+	'replaceActive',
+	false
+);
 
-export const FirstMatchFocusKey = new RawContextKey<boolean>('firstMatchFocus', false);
-export const FileMatchOrMatchFocusKey = new RawContextKey<boolean>('fileMatchOrMatchFocus', false);
+export const FirstMatchFocusKey = new RawContextKey<boolean>(
+	'firstMatchFocus',
+	false
+);
+export const FileMatchOrMatchFocusKey = new RawContextKey<boolean>(
+	'fileMatchOrMatchFocus',
+	false
+);
 export const FileFocusKey = new RawContextKey<boolean>('fileMatchFocus', false);
 export const MatchFocusKey = new RawContextKey<boolean>('matchFocus', false);

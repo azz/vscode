@@ -28,7 +28,6 @@ export interface ITask<T> {
  * 		}
  */
 export class Throttler<T> {
-
 	private activePromise: Promise<T>;
 	private queuedPromise: Promise<T>;
 	private queuedPromiseFactory: ITask<Promise<T>>;
@@ -66,13 +65,16 @@ export class Throttler<T> {
 		this.activePromise = promiseFactory();
 
 		return new Promise<T>((resolve, reject) => {
-			this.activePromise.then((result: T) => {
-				this.activePromise = null;
-				resolve(result);
-			}, (err: any) => {
-				this.activePromise = null;
-				reject(err);
-			});
+			this.activePromise.then(
+				(result: T) => {
+					this.activePromise = null;
+					resolve(result);
+				},
+				(err: any) => {
+					this.activePromise = null;
+					reject(err);
+				}
+			);
 		});
 	}
 }
@@ -101,7 +103,6 @@ export class Throttler<T> {
  * 		}
  */
 export class Delayer<T> {
-
 	public defaultDelay: number;
 	private timeout: NodeJS.Timer;
 	private completionPromise: Promise<T>;
@@ -116,7 +117,10 @@ export class Delayer<T> {
 		this.task = null;
 	}
 
-	public trigger(task: ITask<T>, delay: number = this.defaultDelay): Promise<T> {
+	public trigger(
+		task: ITask<T>,
+		delay: number = this.defaultDelay
+	): Promise<T> {
 		this.task = task;
 		this.cancelTimeout();
 
@@ -170,7 +174,6 @@ export class Delayer<T> {
  * helpers, for an analogy.
  */
 export class ThrottledDelayer<T> extends Delayer<Promise<T>> {
-
 	private throttler: Throttler<T>;
 
 	constructor(defaultDelay: number) {
@@ -179,7 +182,10 @@ export class ThrottledDelayer<T> extends Delayer<Promise<T>> {
 		this.throttler = new Throttler<T>();
 	}
 
-	public trigger(promiseFactory: ITask<Promise<T>>, delay?: number): Promise<Promise<T>> {
+	public trigger(
+		promiseFactory: ITask<Promise<T>>,
+		delay?: number
+	): Promise<Promise<T>> {
 		return super.trigger(() => this.throttler.queue(promiseFactory), delay);
 	}
 }

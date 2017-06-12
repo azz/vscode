@@ -8,9 +8,27 @@ import errors = require('vs/base/common/errors');
 import { TPromise } from 'vs/base/common/winjs.base';
 import { IAction } from 'vs/base/common/actions';
 import { EditorLabel } from 'vs/workbench/browser/labels';
-import { DefaultController, ClickBehavior, DefaultDragAndDrop } from 'vs/base/parts/tree/browser/treeDefaults';
-import { IDataSource, ITree, IAccessibilityProvider, IDragAndDropData, IDragOverReaction, DRAG_OVER_ACCEPT, DRAG_OVER_REJECT, ContextMenuEvent, IRenderer } from 'vs/base/parts/tree/browser/tree';
-import { ExternalElementsDragAndDropData, ElementsDragAndDropData, DesktopDragAndDropData } from 'vs/base/parts/tree/browser/treeDnd';
+import {
+	DefaultController,
+	ClickBehavior,
+	DefaultDragAndDrop
+} from 'vs/base/parts/tree/browser/treeDefaults';
+import {
+	IDataSource,
+	ITree,
+	IAccessibilityProvider,
+	IDragAndDropData,
+	IDragOverReaction,
+	DRAG_OVER_ACCEPT,
+	DRAG_OVER_REJECT,
+	ContextMenuEvent,
+	IRenderer
+} from 'vs/base/parts/tree/browser/tree';
+import {
+	ExternalElementsDragAndDropData,
+	ElementsDragAndDropData,
+	DesktopDragAndDropData
+} from 'vs/base/parts/tree/browser/treeDnd';
 import { ActionBar, Separator } from 'vs/base/browser/ui/actionbar/actionbar';
 import { IKeyboardEvent } from 'vs/base/browser/keyboardEvent';
 import dom = require('vs/base/browser/dom');
@@ -25,17 +43,34 @@ import { IEditorGroup, IEditorStacksModel } from 'vs/workbench/common/editor';
 import { OpenEditor } from 'vs/workbench/parts/files/common/explorerViewModel';
 import { ContributableActionProvider } from 'vs/workbench/browser/actions';
 import { explorerItemToFileResource } from 'vs/workbench/parts/files/common/files';
-import { ITextFileService, AutoSaveMode } from 'vs/workbench/services/textfile/common/textfiles';
+import {
+	ITextFileService,
+	AutoSaveMode
+} from 'vs/workbench/services/textfile/common/textfiles';
 import { IWorkbenchEditorService } from 'vs/workbench/services/editor/common/editorService';
-import { EditorStacksModel, EditorGroup } from 'vs/workbench/common/editor/editorStacksModel';
-import { SaveFileAction, RevertFileAction, SaveFileAsAction, OpenToSideAction, SelectResourceForCompareAction, CompareResourcesAction, SaveAllInGroupAction } from 'vs/workbench/parts/files/browser/fileActions';
+import {
+	EditorStacksModel,
+	EditorGroup
+} from 'vs/workbench/common/editor/editorStacksModel';
+import {
+	SaveFileAction,
+	RevertFileAction,
+	SaveFileAsAction,
+	OpenToSideAction,
+	SelectResourceForCompareAction,
+	CompareResourcesAction,
+	SaveAllInGroupAction
+} from 'vs/workbench/parts/files/browser/fileActions';
 import { IUntitledEditorService } from 'vs/workbench/services/untitled/common/untitledEditorService';
-import { CloseOtherEditorsInGroupAction, CloseEditorAction, CloseEditorsInGroupAction } from 'vs/workbench/browser/parts/editor/editorActions';
+import {
+	CloseOtherEditorsInGroupAction,
+	CloseEditorAction,
+	CloseEditorsInGroupAction
+} from 'vs/workbench/browser/parts/editor/editorActions';
 
 const $ = dom.$;
 
 export class DataSource implements IDataSource {
-
 	public getId(tree: ITree, element: any): string {
 		if (element instanceof EditorStacksModel) {
 			return 'root';
@@ -48,7 +83,9 @@ export class DataSource implements IDataSource {
 	}
 
 	public hasChildren(tree: ITree, element: any): boolean {
-		return element instanceof EditorStacksModel || element instanceof EditorGroup;
+		return (
+			element instanceof EditorStacksModel || element instanceof EditorGroup
+		);
 	}
 
 	public getChildren(tree: ITree, element: any): TPromise<any> {
@@ -57,7 +94,9 @@ export class DataSource implements IDataSource {
 		}
 
 		const editorGroup = <IEditorGroup>element;
-		return TPromise.as(editorGroup.getEditors().map(ei => new OpenEditor(ei, editorGroup)));
+		return TPromise.as(
+			editorGroup.getEditors().map(ei => new OpenEditor(ei, editorGroup))
+		);
 	}
 
 	public getParent(tree: ITree, element: any): TPromise<any> {
@@ -78,7 +117,6 @@ interface IEditorGroupTemplateData {
 }
 
 export class Renderer implements IRenderer {
-
 	public static ITEM_HEIGHT = 22;
 	private static EDITOR_GROUP_TEMPLATE_ID = 'editorgroup';
 	private static OPEN_EDITOR_TEMPLATE_ID = 'openeditor';
@@ -103,17 +141,28 @@ export class Renderer implements IRenderer {
 		return Renderer.OPEN_EDITOR_TEMPLATE_ID;
 	}
 
-	public renderTemplate(tree: ITree, templateId: string, container: HTMLElement): any {
+	public renderTemplate(
+		tree: ITree,
+		templateId: string,
+		container: HTMLElement
+	): any {
 		if (templateId === Renderer.EDITOR_GROUP_TEMPLATE_ID) {
 			const editorGroupTemplate: IEditorGroupTemplateData = Object.create(null);
 			editorGroupTemplate.root = dom.append(container, $('.editor-group'));
-			editorGroupTemplate.name = dom.append(editorGroupTemplate.root, $('span.name'));
+			editorGroupTemplate.name = dom.append(
+				editorGroupTemplate.root,
+				$('span.name')
+			);
 			editorGroupTemplate.actionBar = new ActionBar(container);
 
 			const editorGroupActions = this.actionProvider.getEditorGroupActions();
 			editorGroupActions.forEach(a => {
 				const key = this.keybindingService.lookupKeybinding(a.id);
-				editorGroupTemplate.actionBar.push(a, { icon: true, label: false, keybinding: key ? key.getLabel() : void 0 });
+				editorGroupTemplate.actionBar.push(a, {
+					icon: true,
+					label: false,
+					keybinding: key ? key.getLabel() : void 0
+				});
 			});
 
 			return editorGroupTemplate;
@@ -126,15 +175,28 @@ export class Renderer implements IRenderer {
 		const openEditorActions = this.actionProvider.getOpenEditorActions();
 		openEditorActions.forEach(a => {
 			const key = this.keybindingService.lookupKeybinding(a.id);
-			editorTemplate.actionBar.push(a, { icon: true, label: false, keybinding: key ? key.getLabel() : void 0 });
+			editorTemplate.actionBar.push(a, {
+				icon: true,
+				label: false,
+				keybinding: key ? key.getLabel() : void 0
+			});
 		});
 
-		editorTemplate.root = this.instantiationService.createInstance(EditorLabel, container, void 0);
+		editorTemplate.root = this.instantiationService.createInstance(
+			EditorLabel,
+			container,
+			void 0
+		);
 
 		return editorTemplate;
 	}
 
-	public renderElement(tree: ITree, element: any, templateId: string, templateData: any): void {
+	public renderElement(
+		tree: ITree,
+		element: any,
+		templateId: string,
+		templateData: any
+	): void {
 		if (templateId === Renderer.EDITOR_GROUP_TEMPLATE_ID) {
 			this.renderEditorGroup(tree, element, templateData);
 		} else {
@@ -142,18 +204,38 @@ export class Renderer implements IRenderer {
 		}
 	}
 
-	private renderEditorGroup(tree: ITree, editorGroup: IEditorGroup, templateData: IEditorGroupTemplateData): void {
+	private renderEditorGroup(
+		tree: ITree,
+		editorGroup: IEditorGroup,
+		templateData: IEditorGroupTemplateData
+	): void {
 		templateData.name.textContent = editorGroup.label;
 		templateData.actionBar.context = { group: editorGroup };
 	}
 
-	private renderOpenEditor(tree: ITree, editor: OpenEditor, templateData: IOpenEditorTemplateData): void {
-		editor.isDirty() ? dom.addClass(templateData.container, 'dirty') : dom.removeClass(templateData.container, 'dirty');
-		templateData.root.setEditor(editor.editorInput, { italic: editor.isPreview(), extraClasses: ['open-editor'] });
-		templateData.actionBar.context = { group: editor.editorGroup, editor: editor.editorInput };
+	private renderOpenEditor(
+		tree: ITree,
+		editor: OpenEditor,
+		templateData: IOpenEditorTemplateData
+	): void {
+		editor.isDirty()
+			? dom.addClass(templateData.container, 'dirty')
+			: dom.removeClass(templateData.container, 'dirty');
+		templateData.root.setEditor(editor.editorInput, {
+			italic: editor.isPreview(),
+			extraClasses: ['open-editor']
+		});
+		templateData.actionBar.context = {
+			group: editor.editorGroup,
+			editor: editor.editorInput
+		};
 	}
 
-	public disposeTemplate(tree: ITree, templateId: string, templateData: any): void {
+	public disposeTemplate(
+		tree: ITree,
+		templateId: string,
+		templateData: any
+	): void {
 		if (templateId === Renderer.OPEN_EDITOR_TEMPLATE_ID) {
 			(<IOpenEditorTemplateData>templateData).actionBar.dispose();
 			(<IOpenEditorTemplateData>templateData).root.dispose();
@@ -165,23 +247,32 @@ export class Renderer implements IRenderer {
 }
 
 export class Controller extends DefaultController {
-
-	constructor(private actionProvider: ActionProvider, private model: IEditorStacksModel,
+	constructor(
+		private actionProvider: ActionProvider,
+		private model: IEditorStacksModel,
 		@IWorkbenchEditorService private editorService: IWorkbenchEditorService,
 		@IEditorGroupService private editorGroupService: IEditorGroupService,
 		@IContextMenuService private contextMenuService: IContextMenuService,
 		@ITelemetryService private telemetryService: ITelemetryService
 	) {
-		super({ clickBehavior: ClickBehavior.ON_MOUSE_DOWN, keyboardSupport: false });
+		super({
+			clickBehavior: ClickBehavior.ON_MOUSE_DOWN,
+			keyboardSupport: false
+		});
 	}
 
 	public onClick(tree: ITree, element: any, event: IMouseEvent): boolean {
-
 		// Close opened editor on middle mouse click
-		if (element instanceof OpenEditor && event.browserEvent && event.browserEvent.button === 1 /* Middle Button */) {
+		if (
+			element instanceof OpenEditor &&
+			event.browserEvent &&
+			event.browserEvent.button === 1 /* Middle Button */
+		) {
 			const position = this.model.positionOfGroup(element.editorGroup);
 
-			this.editorService.closeEditor(position, element.editorInput).done(null, errors.onUnexpectedError);
+			this.editorService
+				.closeEditor(position, element.editorInput)
+				.done(null, errors.onUnexpectedError);
 
 			return true;
 		}
@@ -189,12 +280,18 @@ export class Controller extends DefaultController {
 		return super.onClick(tree, element, event);
 	}
 
-	protected onLeftClick(tree: ITree, element: any, event: IMouseEvent, origin: string = 'mouse'): boolean {
+	protected onLeftClick(
+		tree: ITree,
+		element: any,
+		event: IMouseEvent,
+		origin: string = 'mouse'
+	): boolean {
 		const payload = { origin: origin };
-		const isDoubleClick = (origin === 'mouse' && event.detail === 2);
+		const isDoubleClick = origin === 'mouse' && event.detail === 2;
 
 		// Cancel Event
-		const isMouseDown = event && event.browserEvent && event.browserEvent.type === 'mousedown';
+		const isMouseDown =
+			event && event.browserEvent && event.browserEvent.type === 'mousedown';
 		if (!isMouseDown) {
 			event.preventDefault(); // we cannot preventDefault onMouseDown because this would break DND otherwise
 		}
@@ -214,10 +311,8 @@ export class Controller extends DefaultController {
 			if (selection && selection.length > 0 && selection[0] === element) {
 				tree.clearSelection(payload);
 			}
-		}
-
-		// Select, Focus and open files
-		else {
+		} else {
+			// Select, Focus and open files
 			tree.setFocus(element, payload);
 
 			if (isDoubleClick) {
@@ -225,7 +320,11 @@ export class Controller extends DefaultController {
 			}
 
 			tree.setSelection([element], payload);
-			this.openEditor(element, { preserveFocus: !isDoubleClick, pinned: isDoubleClick, sideBySide: event.ctrlKey || event.metaKey });
+			this.openEditor(element, {
+				preserveFocus: !isDoubleClick,
+				pinned: isDoubleClick,
+				sideBySide: event.ctrlKey || event.metaKey
+			});
 		}
 
 		return true;
@@ -240,8 +339,16 @@ export class Controller extends DefaultController {
 		return true;
 	}
 
-	public onContextMenu(tree: ITree, element: any, event: ContextMenuEvent): boolean {
-		if (event.target && event.target.tagName && event.target.tagName.toLowerCase() === 'input') {
+	public onContextMenu(
+		tree: ITree,
+		element: any,
+		event: ContextMenuEvent
+	): boolean {
+		if (
+			event.target &&
+			event.target.tagName &&
+			event.target.tagName.toLowerCase() === 'input'
+		) {
 			return false;
 		}
 		// Check if clicked on some element
@@ -253,8 +360,12 @@ export class Controller extends DefaultController {
 		event.stopPropagation();
 
 		tree.setFocus(element);
-		const group = element instanceof EditorGroup ? element : (<OpenEditor>element).editorGroup;
-		const editor = element instanceof OpenEditor ? (<OpenEditor>element).editorInput : undefined;
+		const group = element instanceof EditorGroup
+			? element
+			: (<OpenEditor>element).editorGroup;
+		const editor = element instanceof OpenEditor
+			? (<OpenEditor>element).editorInput
+			: undefined;
 
 		let anchor = { x: event.posx + 1, y: event.posy };
 		this.contextMenuService.showContextMenu({
@@ -271,45 +382,66 @@ export class Controller extends DefaultController {
 		return true;
 	}
 
-	public openEditor(element: OpenEditor, options: { preserveFocus: boolean; pinned: boolean; sideBySide: boolean; }): void {
+	public openEditor(
+		element: OpenEditor,
+		options: { preserveFocus: boolean; pinned: boolean; sideBySide: boolean }
+	): void {
 		if (element) {
-			this.telemetryService.publicLog('workbenchActionExecuted', { id: 'workbench.files.openFile', from: 'openEditors' });
+			this.telemetryService.publicLog('workbenchActionExecuted', {
+				id: 'workbench.files.openFile',
+				from: 'openEditors'
+			});
 			let position = this.model.positionOfGroup(element.editorGroup);
 			if (options.sideBySide && position !== Position.THREE) {
 				position++;
 			}
 			this.editorGroupService.activateGroup(this.model.groupAt(position));
-			this.editorService.openEditor(element.editorInput, options, position)
-				.done(() => this.editorGroupService.activateGroup(this.model.groupAt(position)), errors.onUnexpectedError);
+			this.editorService
+				.openEditor(element.editorInput, options, position)
+				.done(
+					() =>
+						this.editorGroupService.activateGroup(this.model.groupAt(position)),
+					errors.onUnexpectedError
+				);
 		}
 	}
 }
 
 export class AccessibilityProvider implements IAccessibilityProvider {
-
 	getAriaLabel(tree: ITree, element: any): string {
 		if (element instanceof EditorGroup) {
-			return nls.localize('editorGroupAriaLabel', "{0}, Editor Group", (<EditorGroup>element).label);
+			return nls.localize(
+				'editorGroupAriaLabel',
+				'{0}, Editor Group',
+				(<EditorGroup>element).label
+			);
 		}
 
-		return nls.localize('openEditorAriaLabel', "{0}, Open Editor", (<OpenEditor>element).editorInput.getName());
+		return nls.localize(
+			'openEditorAriaLabel',
+			'{0}, Open Editor',
+			(<OpenEditor>element).editorInput.getName()
+		);
 	}
 }
 
 export class ActionProvider extends ContributableActionProvider {
-
 	constructor(
 		private model: IEditorStacksModel,
 		@IInstantiationService private instantiationService: IInstantiationService,
 		@ITextFileService private textFileService: ITextFileService,
-		@IUntitledEditorService private untitledEditorService: IUntitledEditorService
+		@IUntitledEditorService
+		private untitledEditorService: IUntitledEditorService
 	) {
 		super();
 	}
 
 	public hasActions(tree: ITree, element: any): boolean {
 		const multipleGroups = this.model.groups.length > 1;
-		return element instanceof OpenEditor || (element instanceof EditorGroup && multipleGroups);
+		return (
+			element instanceof OpenEditor ||
+			(element instanceof EditorGroup && multipleGroups)
+		);
 	}
 
 	public getActions(tree: ITree, element: any): TPromise<IAction[]> {
@@ -324,15 +456,29 @@ export class ActionProvider extends ContributableActionProvider {
 	}
 
 	public getOpenEditorActions(): IAction[] {
-		return [this.instantiationService.createInstance(CloseEditorAction, CloseEditorAction.ID, CloseEditorAction.LABEL)];
+		return [
+			this.instantiationService.createInstance(
+				CloseEditorAction,
+				CloseEditorAction.ID,
+				CloseEditorAction.LABEL
+			)
+		];
 	}
 
 	public getEditorGroupActions(): IAction[] {
-		const saveAllAction = this.instantiationService.createInstance(SaveAllInGroupAction, SaveAllInGroupAction.ID, SaveAllInGroupAction.LABEL);
+		const saveAllAction = this.instantiationService.createInstance(
+			SaveAllInGroupAction,
+			SaveAllInGroupAction.ID,
+			SaveAllInGroupAction.LABEL
+		);
 
 		return [
 			saveAllAction,
-			this.instantiationService.createInstance(CloseEditorsInGroupAction, CloseEditorsInGroupAction.ID, CloseEditorsInGroupAction.LABEL)
+			this.instantiationService.createInstance(
+				CloseEditorsInGroupAction,
+				CloseEditorsInGroupAction.ID,
+				CloseEditorsInGroupAction.LABEL
+			)
 		];
 	}
 
@@ -342,34 +488,62 @@ export class ActionProvider extends ContributableActionProvider {
 
 	public getSecondaryActions(tree: ITree, element: any): TPromise<IAction[]> {
 		return super.getSecondaryActions(tree, element).then(result => {
-			const autoSaveEnabled = this.textFileService.getAutoSaveMode() === AutoSaveMode.AFTER_SHORT_DELAY;
+			const autoSaveEnabled =
+				this.textFileService.getAutoSaveMode() ===
+				AutoSaveMode.AFTER_SHORT_DELAY;
 
 			if (element instanceof EditorGroup) {
 				if (!autoSaveEnabled) {
-					result.push(this.instantiationService.createInstance(SaveAllInGroupAction, SaveAllInGroupAction.ID, nls.localize('saveAll', "Save All")));
+					result.push(
+						this.instantiationService.createInstance(
+							SaveAllInGroupAction,
+							SaveAllInGroupAction.ID,
+							nls.localize('saveAll', 'Save All')
+						)
+					);
 					result.push(new Separator());
 				}
 
-				result.push(this.instantiationService.createInstance(CloseEditorsInGroupAction, CloseEditorsInGroupAction.ID, nls.localize('closeAll', "Close All")));
+				result.push(
+					this.instantiationService.createInstance(
+						CloseEditorsInGroupAction,
+						CloseEditorsInGroupAction.ID,
+						nls.localize('closeAll', 'Close All')
+					)
+				);
 			} else {
 				const openEditor = <OpenEditor>element;
 				const resource = openEditor.getResource();
 				if (resource) {
 					// Open to side
-					result.unshift(this.instantiationService.createInstance(OpenToSideAction, tree, resource, false));
+					result.unshift(
+						this.instantiationService.createInstance(
+							OpenToSideAction,
+							tree,
+							resource,
+							false
+						)
+					);
 
 					if (!openEditor.isUntitled()) {
-
 						// Files: Save / Revert
 						if (!autoSaveEnabled) {
 							result.push(new Separator());
 
-							const saveAction = this.instantiationService.createInstance(SaveFileAction, SaveFileAction.ID, SaveFileAction.LABEL);
+							const saveAction = this.instantiationService.createInstance(
+								SaveFileAction,
+								SaveFileAction.ID,
+								SaveFileAction.LABEL
+							);
 							saveAction.setResource(resource);
 							saveAction.enabled = openEditor.isDirty();
 							result.push(saveAction);
 
-							const revertAction = this.instantiationService.createInstance(RevertFileAction, RevertFileAction.ID, RevertFileAction.LABEL);
+							const revertAction = this.instantiationService.createInstance(
+								RevertFileAction,
+								RevertFileAction.ID,
+								RevertFileAction.LABEL
+							);
 							revertAction.setResource(resource);
 							revertAction.enabled = openEditor.isDirty();
 							result.push(revertAction);
@@ -381,32 +555,67 @@ export class ActionProvider extends ContributableActionProvider {
 						result.push(new Separator());
 
 						if (this.untitledEditorService.hasAssociatedFilePath(resource)) {
-							let saveUntitledAction = this.instantiationService.createInstance(SaveFileAction, SaveFileAction.ID, SaveFileAction.LABEL);
+							let saveUntitledAction = this.instantiationService.createInstance(
+								SaveFileAction,
+								SaveFileAction.ID,
+								SaveFileAction.LABEL
+							);
 							saveUntitledAction.setResource(resource);
 							result.push(saveUntitledAction);
 						}
 
-						let saveAsAction = this.instantiationService.createInstance(SaveFileAsAction, SaveFileAsAction.ID, SaveFileAsAction.LABEL);
+						let saveAsAction = this.instantiationService.createInstance(
+							SaveFileAsAction,
+							SaveFileAsAction.ID,
+							SaveFileAsAction.LABEL
+						);
 						saveAsAction.setResource(resource);
 						result.push(saveAsAction);
 					}
 
 					// Compare Actions
 					result.push(new Separator());
-					const runCompareAction = this.instantiationService.createInstance(CompareResourcesAction, resource, tree);
+					const runCompareAction = this.instantiationService.createInstance(
+						CompareResourcesAction,
+						resource,
+						tree
+					);
 					if (runCompareAction._isEnabled()) {
 						result.push(runCompareAction);
 					}
-					result.push(this.instantiationService.createInstance(SelectResourceForCompareAction, resource, tree));
+					result.push(
+						this.instantiationService.createInstance(
+							SelectResourceForCompareAction,
+							resource,
+							tree
+						)
+					);
 
 					result.push(new Separator());
 				}
 
-				result.push(this.instantiationService.createInstance(CloseEditorAction, CloseEditorAction.ID, nls.localize('close', "Close")));
-				const closeOtherEditorsInGroupAction = this.instantiationService.createInstance(CloseOtherEditorsInGroupAction, CloseOtherEditorsInGroupAction.ID, nls.localize('closeOthers', "Close Others"));
-				closeOtherEditorsInGroupAction.enabled = openEditor.editorGroup.count > 1;
+				result.push(
+					this.instantiationService.createInstance(
+						CloseEditorAction,
+						CloseEditorAction.ID,
+						nls.localize('close', 'Close')
+					)
+				);
+				const closeOtherEditorsInGroupAction = this.instantiationService.createInstance(
+					CloseOtherEditorsInGroupAction,
+					CloseOtherEditorsInGroupAction.ID,
+					nls.localize('closeOthers', 'Close Others')
+				);
+				closeOtherEditorsInGroupAction.enabled =
+					openEditor.editorGroup.count > 1;
 				result.push(closeOtherEditorsInGroupAction);
-				result.push(this.instantiationService.createInstance(CloseEditorsInGroupAction, CloseEditorsInGroupAction.ID, nls.localize('closeAll', "Close All")));
+				result.push(
+					this.instantiationService.createInstance(
+						CloseEditorsInGroupAction,
+						CloseEditorsInGroupAction.ID,
+						nls.localize('closeAll', 'Close All')
+					)
+				);
 			}
 
 			return result;
@@ -415,7 +624,6 @@ export class ActionProvider extends ContributableActionProvider {
 }
 
 export class DragAndDrop extends DefaultDragAndDrop {
-
 	constructor(
 		@IWorkbenchEditorService private editorService: IWorkbenchEditorService,
 		@IEditorGroupService private editorGroupService: IEditorGroupService
@@ -441,7 +649,12 @@ export class DragAndDrop extends DefaultDragAndDrop {
 		return elements[0].editorInput.getName();
 	}
 
-	public onDragOver(tree: ITree, data: IDragAndDropData, target: OpenEditor | EditorGroup, originalEvent: DragMouseEvent): IDragOverReaction {
+	public onDragOver(
+		tree: ITree,
+		data: IDragAndDropData,
+		target: OpenEditor | EditorGroup,
+		originalEvent: DragMouseEvent
+	): IDragOverReaction {
 		if (!(target instanceof OpenEditor) && !(target instanceof EditorGroup)) {
 			return DRAG_OVER_REJECT;
 		}
@@ -467,20 +680,29 @@ export class DragAndDrop extends DefaultDragAndDrop {
 		return DRAG_OVER_ACCEPT;
 	}
 
-	public drop(tree: ITree, data: IDragAndDropData, target: OpenEditor | EditorGroup, originalEvent: DragMouseEvent): void {
+	public drop(
+		tree: ITree,
+		data: IDragAndDropData,
+		target: OpenEditor | EditorGroup,
+		originalEvent: DragMouseEvent
+	): void {
 		let draggedElement: OpenEditor | EditorGroup;
 		const model = this.editorGroupService.getStacksModel();
-		const positionOfTargetGroup = model.positionOfGroup(target instanceof EditorGroup ? target : target.editorGroup);
-		const index = target instanceof OpenEditor ? target.editorGroup.indexOf(target.editorInput) : undefined;
+		const positionOfTargetGroup = model.positionOfGroup(
+			target instanceof EditorGroup ? target : target.editorGroup
+		);
+		const index = target instanceof OpenEditor
+			? target.editorGroup.indexOf(target.editorInput)
+			: undefined;
 		// Support drop from explorer viewer
 		if (data instanceof ExternalElementsDragAndDropData) {
 			let resource = explorerItemToFileResource(data.getData()[0]);
 			(resource as IResourceInput).options = { index, pinned: true };
-			this.editorService.openEditor(resource, positionOfTargetGroup).done(null, errors.onUnexpectedError);
-		}
-
-		// Drop within viewer
-		else {
+			this.editorService
+				.openEditor(resource, positionOfTargetGroup)
+				.done(null, errors.onUnexpectedError);
+		} else {
+			// Drop within viewer
 			let source: OpenEditor | EditorGroup[] = data.getData();
 			if (Array.isArray(source)) {
 				draggedElement = source[0];
@@ -489,9 +711,17 @@ export class DragAndDrop extends DefaultDragAndDrop {
 
 		if (draggedElement) {
 			if (draggedElement instanceof OpenEditor) {
-				this.editorGroupService.moveEditor(draggedElement.editorInput, model.positionOfGroup(draggedElement.editorGroup), positionOfTargetGroup, { index });
+				this.editorGroupService.moveEditor(
+					draggedElement.editorInput,
+					model.positionOfGroup(draggedElement.editorGroup),
+					positionOfTargetGroup,
+					{ index }
+				);
 			} else {
-				this.editorGroupService.moveGroup(model.positionOfGroup(draggedElement), positionOfTargetGroup);
+				this.editorGroupService.moveGroup(
+					model.positionOfGroup(draggedElement),
+					positionOfTargetGroup
+				);
 			}
 		}
 	}

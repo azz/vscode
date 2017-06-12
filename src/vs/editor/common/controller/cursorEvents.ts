@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { Position } from 'vs/editor/common/core/position';
 import { Selection } from 'vs/editor/common/core/selection';
@@ -39,7 +39,7 @@ export enum CursorChangeReason {
 	/**
 	 * There was a Redo.
 	 */
-	Redo = 6,
+	Redo = 6
 }
 /**
  * An event describing that the cursor position has changed.

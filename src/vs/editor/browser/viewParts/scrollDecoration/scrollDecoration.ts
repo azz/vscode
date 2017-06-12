@@ -3,19 +3,21 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./scrollDecoration';
 import { FastDomNode, createFastDomNode } from 'vs/base/browser/fastDomNode';
 import { ViewPart } from 'vs/editor/browser/view/viewPart';
 import { ViewContext } from 'vs/editor/common/view/viewContext';
-import { RenderingContext, RestrictedRenderingContext } from 'vs/editor/common/view/renderingContext';
+import {
+	RenderingContext,
+	RestrictedRenderingContext
+} from 'vs/editor/common/view/renderingContext';
 import * as viewEvents from 'vs/editor/common/view/viewEvents';
 import { registerThemingParticipant } from 'vs/platform/theme/common/themeService';
 import { scrollbarShadow } from 'vs/platform/theme/common/colorRegistry';
 
 export class ScrollDecorationViewPart extends ViewPart {
-
 	private _domNode: FastDomNode<HTMLElement>;
 	private _scrollTop: number;
 	private _width: number;
@@ -40,7 +42,7 @@ export class ScrollDecorationViewPart extends ViewPart {
 	}
 
 	private _updateShouldShow(): boolean {
-		let newShouldShow = (this._useShadows && this._scrollTop > 0);
+		let newShouldShow = this._useShadows && this._scrollTop > 0;
 		if (this._shouldShow !== newShouldShow) {
 			this._shouldShow = newShouldShow;
 			return true;
@@ -64,7 +66,9 @@ export class ScrollDecorationViewPart extends ViewPart {
 
 	// --- begin event handlers
 
-	public onConfigurationChanged(e: viewEvents.ViewConfigurationChangedEvent): boolean {
+	public onConfigurationChanged(
+		e: viewEvents.ViewConfigurationChangedEvent
+	): boolean {
 		let shouldRender = false;
 		if (e.viewInfo) {
 			this._useShadows = this._context.configuration.editor.viewInfo.scrollbar.useShadows;
@@ -94,6 +98,8 @@ export class ScrollDecorationViewPart extends ViewPart {
 registerThemingParticipant((theme, collector) => {
 	let shadow = theme.getColor(scrollbarShadow);
 	if (shadow) {
-		collector.addRule(`.monaco-editor .scroll-decoration { box-shadow: ${shadow} 0 6px 6px -6px inset; }`);
+		collector.addRule(
+			`.monaco-editor .scroll-decoration { box-shadow: ${shadow} 0 6px 6px -6px inset; }`
+		);
 	}
 });

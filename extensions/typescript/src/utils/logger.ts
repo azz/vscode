@@ -14,7 +14,9 @@ export default class Logger {
 
 	private get output(): OutputChannel {
 		if (!this._output) {
-			this._output = window.createOutputChannel(localize('channelName', 'TypeScript'));
+			this._output = window.createOutputChannel(
+				localize('channelName', 'TypeScript')
+			);
 		}
 		return this._output;
 	}
@@ -52,7 +54,9 @@ export default class Logger {
 	}
 
 	public logLevel(level: string, message: string, data?: any): void {
-		this.output.appendLine(`[${level}  - ${(new Date().toLocaleTimeString())}] ${message}`);
+		this.output.appendLine(
+			`[${level}  - ${new Date().toLocaleTimeString()}] ${message}`
+		);
 		if (data) {
 			this.output.appendLine(this.data2String(data));
 		}

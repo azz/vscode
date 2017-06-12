@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as nls from 'vs/nls';
 import { Disposable } from 'vs/base/common/lifecycle';
@@ -11,7 +11,10 @@ import { IEditorContribution } from 'vs/editor/common/editorCommon';
 import { ICodeEditor } from 'vs/editor/browser/editorBrowser';
 import { editorContribution } from 'vs/editor/browser/editorBrowserExtensions';
 import { IConfigurationService } from 'vs/platform/configuration/common/configuration';
-import { IStorageService, StorageScope } from 'vs/platform/storage/common/storage';
+import {
+	IStorageService,
+	StorageScope
+} from 'vs/platform/storage/common/storage';
 import { IMessageService } from 'vs/platform/message/common/message';
 import { IPreferencesService } from 'vs/workbench/parts/preferences/common/preferences';
 import { Action } from 'vs/base/common/actions';
@@ -33,7 +36,10 @@ class WordWrapMigrationStorage {
 	}
 
 	private _read(): IStorageData {
-		let jsonValue = this._storageService.get(WordWrapMigrationStorage.KEY, StorageScope.GLOBAL);
+		let jsonValue = this._storageService.get(
+			WordWrapMigrationStorage.KEY,
+			StorageScope.GLOBAL
+		);
 		if (!jsonValue) {
 			return null;
 		}
@@ -50,13 +56,17 @@ class WordWrapMigrationStorage {
 
 	public set(data: IStorageData): void {
 		this._value = data;
-		this._storageService.store(WordWrapMigrationStorage.KEY, JSON.stringify(this._value), StorageScope.GLOBAL);
+		this._storageService.store(
+			WordWrapMigrationStorage.KEY,
+			JSON.stringify(this._value),
+			StorageScope.GLOBAL
+		);
 	}
 }
 
 @editorContribution
-class WordWrapMigrationController extends Disposable implements IEditorContribution {
-
+class WordWrapMigrationController extends Disposable
+	implements IEditorContribution {
 	private static ID = 'editor.contrib.wordWrapMigrationController';
 	private static _checked = false;
 
@@ -96,14 +106,17 @@ class WordWrapMigrationController extends Disposable implements IEditorContribut
 			return;
 		}
 
-		let isUserSetting = (typeof result.user !== 'undefined');
+		let isUserSetting = typeof result.user !== 'undefined';
 		this._prompt(storage, isUserSetting);
 	}
 
-	private _prompt(storage: WordWrapMigrationStorage, userSettings: boolean): void {
+	private _prompt(
+		storage: WordWrapMigrationStorage,
+		userSettings: boolean
+	): void {
 		const okAction = new Action(
 			'wordWrapMigration.ok',
-			nls.localize('wordWrapMigration.ok', "OK"),
+			nls.localize('wordWrapMigration.ok', 'OK'),
 			null,
 			true,
 			() => TPromise.as(true)
@@ -122,7 +135,7 @@ class WordWrapMigrationController extends Disposable implements IEditorContribut
 		);
 		const openSettings = new Action(
 			'wordWrapMigration.openSettings',
-			nls.localize('wordWrapMigration.openSettings', "Open Settings"),
+			nls.localize('wordWrapMigration.openSettings', 'Open Settings'),
 			null,
 			true,
 			() => {
@@ -135,7 +148,10 @@ class WordWrapMigrationController extends Disposable implements IEditorContribut
 			}
 		);
 		this.messageService.show(Severity.Info, {
-			message: nls.localize('wordWrapMigration.prompt', "The setting `editor.wrappingColumn` has been deprecated in favor of `editor.wordWrap`."),
+			message: nls.localize(
+				'wordWrapMigration.prompt',
+				'The setting `editor.wrappingColumn` has been deprecated in favor of `editor.wordWrap`.'
+			),
 			actions: [okAction, openSettings, dontShowAgainAction]
 		});
 	}

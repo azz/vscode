@@ -2,19 +2,28 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
-import Event, { Emitter, fromEventEmitter, debounceEvent, EventBufferer, once, fromPromise, stopwatch, buffer, echo, EventMultiplexer } from 'vs/base/common/event';
+import Event, {
+	Emitter,
+	fromEventEmitter,
+	debounceEvent,
+	EventBufferer,
+	once,
+	fromPromise,
+	stopwatch,
+	buffer,
+	echo,
+	EventMultiplexer
+} from 'vs/base/common/event';
 import { IDisposable } from 'vs/base/common/lifecycle';
 import { EventEmitter } from 'vs/base/common/eventEmitter';
 import Errors = require('vs/base/common/errors');
 import { TPromise } from 'vs/base/common/winjs.base';
 
 namespace Samples {
-
 	export class EventCounter {
-
 		count = 0;
 
 		reset() {
@@ -27,7 +36,6 @@ namespace Samples {
 	}
 
 	export class Document3 {
-
 		private _onDidChange = new Emitter<string>();
 
 		onDidChange: Event<string> = this._onDidChange.event;
@@ -36,17 +44,18 @@ namespace Samples {
 			//...
 			this._onDidChange.fire(value);
 		}
-
 	}
 
 	// what: like before but expose an existing event emitter as typed events
 	export class Document3b /*extends EventEmitter*/ {
-
 		private static _didChange = 'this_is_hidden_from_consumers';
 
 		private _eventBus = new EventEmitter();
 
-		onDidChange = fromEventEmitter<string>(this._eventBus, Document3b._didChange);
+		onDidChange = fromEventEmitter<string>(
+			this._eventBus,
+			Document3b._didChange
+		);
 
 		setText(value: string) {
 			//...
@@ -55,17 +64,15 @@ namespace Samples {
 	}
 }
 
-suite('Event', function () {
-
+suite('Event', function() {
 	const counter = new Samples.EventCounter();
 
 	setup(() => counter.reset());
 
-	test('Emitter plain', function () {
-
+	test('Emitter plain', function() {
 		let doc = new Samples.Document3();
 
-		document.createElement('div').onclick = function () { };
+		document.createElement('div').onclick = function() {};
 		let subscription = doc.onDidChange(counter.onEvent, counter);
 
 		doc.setText('far');
@@ -77,9 +84,7 @@ suite('Event', function () {
 		assert.equal(counter.count, 2);
 	});
 
-
-	test('wrap legacy EventEmitter', function () {
-
+	test('wrap legacy EventEmitter', function() {
 		let doc = new Samples.Document3b();
 		let subscription = doc.onDidChange(counter.onEvent, counter);
 		doc.setText('far');
@@ -91,8 +96,7 @@ suite('Event', function () {
 		assert.equal(counter.count, 2);
 	});
 
-	test('Emitter, bucket', function () {
-
+	test('Emitter, bucket', function() {
 		let bucket: IDisposable[] = [];
 		let doc = new Samples.Document3();
 		let subscription = doc.onDidChange(counter.onEvent, counter, bucket);
@@ -112,8 +116,7 @@ suite('Event', function () {
 		assert.equal(counter.count, 2);
 	});
 
-	test('wrapEventEmitter, bucket', function () {
-
+	test('wrapEventEmitter, bucket', function() {
 		let bucket: IDisposable[] = [];
 		let doc = new Samples.Document3b();
 		let subscription = doc.onDidChange(counter.onEvent, counter, bucket);
@@ -133,19 +136,22 @@ suite('Event', function () {
 		assert.equal(counter.count, 2);
 	});
 
-	test('onFirstAdd|onLastRemove', function () {
-
+	test('onFirstAdd|onLastRemove', function() {
 		let firstCount = 0;
 		let lastCount = 0;
 		let a = new Emitter({
-			onFirstListenerAdd() { firstCount += 1; },
-			onLastListenerRemove() { lastCount += 1; }
+			onFirstListenerAdd() {
+				firstCount += 1;
+			},
+			onLastListenerRemove() {
+				lastCount += 1;
+			}
 		});
 
 		assert.equal(firstCount, 0);
 		assert.equal(lastCount, 0);
 
-		let subscription = a.event(function () { });
+		let subscription = a.event(function() {});
 		assert.equal(firstCount, 1);
 		assert.equal(lastCount, 0);
 
@@ -153,43 +159,46 @@ suite('Event', function () {
 		assert.equal(firstCount, 1);
 		assert.equal(lastCount, 1);
 
-		subscription = a.event(function () { });
+		subscription = a.event(function() {});
 		assert.equal(firstCount, 2);
 		assert.equal(lastCount, 1);
 	});
 
-	test('throwingListener', function () {
+	test('throwingListener', function() {
 		const origErrorHandler = Errors.errorHandler.getUnexpectedErrorHandler();
 		Errors.setUnexpectedErrorHandler(() => null);
 
 		try {
 			let a = new Emitter();
 			let hit = false;
-			a.event(function () {
+			a.event(function() {
 				throw 9;
 			});
-			a.event(function () {
+			a.event(function() {
 				hit = true;
 			});
 			a.fire(undefined);
 			assert.equal(hit, true);
-
 		} finally {
 			Errors.setUnexpectedErrorHandler(origErrorHandler);
 		}
 	});
 
-	test('Debounce Event', function (done: () => void) {
+	test('Debounce Event', function(done: () => void) {
 		let doc = new Samples.Document3();
 
-		let onDocDidChange = debounceEvent(doc.onDidChange, (prev: string[], cur) => {
-			if (!prev) {
-				prev = [cur];
-			} else if (prev.indexOf(cur) < 0) {
-				prev.push(cur);
-			}
-			return prev;
-		}, 10);
+		let onDocDidChange = debounceEvent(
+			doc.onDidChange,
+			(prev: string[], cur) => {
+				if (!prev) {
+					prev = [cur];
+				} else if (prev.indexOf(cur) < 0) {
+					prev.push(cur);
+				}
+				return prev;
+			},
+			10
+		);
 
 		let count = 0;
 
@@ -212,9 +221,7 @@ suite('Event', function () {
 });
 
 suite('Event utils', () => {
-
 	suite('EventBufferer', () => {
-
 		test('should not buffer when not wrapped', () => {
 			const bufferer = new EventBufferer();
 			const counter = new Samples.EventCounter();
@@ -261,7 +268,9 @@ suite('Event utils', () => {
 		test('once', () => {
 			const emitter = new Emitter<void>();
 
-			let counter1 = 0, counter2 = 0, counter3 = 0;
+			let counter1 = 0,
+				counter2 = 0,
+				counter3 = 0;
 
 			const listener1 = emitter.event(() => counter1++);
 			const listener2 = once(emitter.event)(() => counter2++);
@@ -288,7 +297,6 @@ suite('Event utils', () => {
 	});
 
 	suite('fromPromise', () => {
-
 		test('should emit when done', () => {
 			let count = 0;
 
@@ -334,7 +342,6 @@ suite('Event utils', () => {
 	});
 
 	suite('stopwatch', () => {
-
 		test('should emit', () => {
 			const emitter = new Emitter<void>();
 			const event = stopwatch(emitter.event);
@@ -356,7 +363,6 @@ suite('Event utils', () => {
 	});
 
 	suite('buffer', () => {
-
 		test('should buffer events', () => {
 			const result = [];
 			const emitter = new Emitter<number>();
@@ -420,7 +426,6 @@ suite('Event utils', () => {
 	});
 
 	suite('echo', () => {
-
 		test('should echo events', () => {
 			const result = [];
 			const emitter = new Emitter<number>();
@@ -481,7 +486,6 @@ suite('Event utils', () => {
 	});
 
 	suite('EventMultiplexer', () => {
-
 		test('works', () => {
 			const result = [];
 			const m = new EventMultiplexer<number>();

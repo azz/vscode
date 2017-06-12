@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/editor/browser/editor.all';
 import 'vs/editor/contrib/quickOpen/browser/quickOutline';
@@ -14,7 +14,10 @@ import 'vs/editor/contrib/inspectTokens/browser/inspectTokens';
 import { createMonacoBaseAPI } from 'vs/editor/common/standalone/standaloneBase';
 import { createMonacoEditorAPI } from 'vs/editor/browser/standalone/standaloneEditor';
 import { createMonacoLanguagesAPI } from 'vs/editor/browser/standalone/standaloneLanguages';
-import { EDITOR_DEFAULTS, WrappingIndent } from 'vs/editor/common/config/editorOptions';
+import {
+	EDITOR_DEFAULTS,
+	WrappingIndent
+} from 'vs/editor/common/config/editorOptions';
 
 // Set defaults for standalone editor
 (<any>EDITOR_DEFAULTS).wrappingIndent = WrappingIndent.None;
@@ -33,11 +36,14 @@ exports.languages = createMonacoLanguagesAPI();
 var global: any = self;
 global.monaco = exports;
 
-if (typeof global.require !== 'undefined' && typeof global.require.config === 'function') {
+if (
+	typeof global.require !== 'undefined' &&
+	typeof global.require.config === 'function'
+) {
 	global.require.config({
 		ignoreDuplicateModules: [
 			'vscode-languageserver-types',
-			'vscode-languageserver-types/main',
+			'vscode-languageserver-types/main'
 		]
 	});
 }

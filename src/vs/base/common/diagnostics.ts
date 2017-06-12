@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as Platform from 'vs/base/common/platform';
 
@@ -28,7 +28,6 @@ function fifo(array: any[], size: number) {
 }
 
 export function register(what: string, fn: Function): (...args: any[]) => void {
-
 	let disable = true; // Otherwise we have unreachable code.
 	if (disable) {
 		return () => {
@@ -45,8 +44,7 @@ export function register(what: string, fn: Function): (...args: any[]) => void {
 	tracers.push(fn);
 	map.set(what, tracers);
 
-	var result = function (...args: any[]) {
-
+	var result = function(...args: any[]) {
 		var idx: number;
 
 		if (switches[what] === true) {
@@ -58,7 +56,7 @@ export function register(what: string, fn: Function): (...args: any[]) => void {
 				data[idx + 1] = [];
 			}
 
-			var doIt: () => void = function () {
+			var doIt: () => void = function() {
 				var thisArguments = allArgs.shift();
 				fn.apply(fn, thisArguments);
 				if (allArgs.length > 0) {
@@ -66,7 +64,6 @@ export function register(what: string, fn: Function): (...args: any[]) => void {
 				}
 			};
 			doIt();
-
 		} else {
 			// know where to store
 			idx = data.indexOf(fn);

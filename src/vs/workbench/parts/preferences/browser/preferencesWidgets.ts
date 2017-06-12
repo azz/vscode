@@ -12,25 +12,48 @@ import { Widget } from 'vs/base/browser/ui/widget';
 import Event, { Emitter } from 'vs/base/common/event';
 import { IKeyboardEvent } from 'vs/base/browser/keyboardEvent';
 import { KeyCode } from 'vs/base/common/keyCodes';
-import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition, OverlayWidgetPositionPreference, IViewZone, IEditorMouseEvent, MouseTargetType } from 'vs/editor/browser/editorBrowser';
+import {
+	ICodeEditor,
+	IOverlayWidget,
+	IOverlayWidgetPosition,
+	OverlayWidgetPositionPreference,
+	IViewZone,
+	IEditorMouseEvent,
+	MouseTargetType
+} from 'vs/editor/browser/editorBrowser';
 import * as editorCommon from 'vs/editor/common/editorCommon';
 import { InputBox, IInputOptions } from 'vs/base/browser/ui/inputbox/inputBox';
 import { IInstantiationService } from 'vs/platform/instantiation/common/instantiation';
-import { IContextViewService, IContextMenuService } from 'vs/platform/contextview/browser/contextView';
+import {
+	IContextViewService,
+	IContextMenuService
+} from 'vs/platform/contextview/browser/contextView';
 import { ISettingsGroup } from 'vs/workbench/parts/preferences/common/preferences';
 import { IKeybindingService } from 'vs/platform/keybinding/common/keybinding';
 import { IWorkspaceContextService } from 'vs/platform/workspace/common/workspace';
 import { ConfigurationTarget } from 'vs/workbench/services/configuration/common/configurationEditing';
-import { ActionsOrientation, ActionBar } from 'vs/base/browser/ui/actionbar/actionbar';
+import {
+	ActionsOrientation,
+	ActionBar
+} from 'vs/base/browser/ui/actionbar/actionbar';
 import { Action } from 'vs/base/common/actions';
-import { attachInputBoxStyler, attachStylerCallback } from 'vs/platform/theme/common/styler';
+import {
+	attachInputBoxStyler,
+	attachStylerCallback
+} from 'vs/platform/theme/common/styler';
 import { IThemeService } from 'vs/platform/theme/common/themeService';
 import { Position } from 'vs/editor/common/core/position';
 import { ICursorPositionChangedEvent } from 'vs/editor/common/controller/cursorEvents';
-import { buttonBackground, buttonForeground, badgeForeground, badgeBackground, contrastBorder, errorForeground } from 'vs/platform/theme/common/colorRegistry';
+import {
+	buttonBackground,
+	buttonForeground,
+	badgeForeground,
+	badgeBackground,
+	contrastBorder,
+	errorForeground
+} from 'vs/platform/theme/common/colorRegistry';
 
 export class SettingsGroupTitleWidget extends Widget implements IViewZone {
-
 	private id: number;
 	private _afterLineNumber: number;
 	private _domNode: HTMLElement;
@@ -44,12 +67,17 @@ export class SettingsGroupTitleWidget extends Widget implements IViewZone {
 
 	private previousPosition: Position;
 
-	constructor(private editor: ICodeEditor, public settingsGroup: ISettingsGroup) {
+	constructor(
+		private editor: ICodeEditor,
+		public settingsGroup: ISettingsGroup
+	) {
 		super();
 		this.create();
 		this._register(this.editor.onDidChangeConfiguration(() => this.layout()));
 		this._register(this.editor.onDidLayoutChange(() => this.layout()));
-		this._register(this.editor.onDidChangeCursorPosition((e) => this.onCursorChange(e)));
+		this._register(
+			this.editor.onDidChangeCursorPosition(e => this.onCursorChange(e))
+		);
 	}
 
 	get domNode(): HTMLElement {
@@ -70,14 +98,19 @@ export class SettingsGroupTitleWidget extends Widget implements IViewZone {
 		this.titleContainer = DOM.append(this._domNode, DOM.$('.title-container'));
 		this.titleContainer.tabIndex = 0;
 		this.onclick(this.titleContainer, () => this.toggle());
-		this.onkeydown(this.titleContainer, (e) => this.onKeyDown(e));
+		this.onkeydown(this.titleContainer, e => this.onKeyDown(e));
 		const focusTracker = this._register(DOM.trackFocus(this.titleContainer));
 		focusTracker.addFocusListener(() => this.toggleFocus(true));
 		focusTracker.addBlurListener(() => this.toggleFocus(false));
 
 		this.icon = DOM.append(this.titleContainer, DOM.$('.expand-collapse-icon'));
 		this.title = DOM.append(this.titleContainer, DOM.$('.title'));
-		this.title.textContent = this.settingsGroup.title + ` (${this.settingsGroup.sections.reduce((count, section) => count + section.settings.length, 0)})`;
+		this.title.textContent =
+			this.settingsGroup.title +
+			` (${this.settingsGroup.sections.reduce(
+				(count, section) => count + section.settings.length,
+				0
+			)})`;
 
 		this.layout();
 	}
@@ -105,7 +138,8 @@ export class SettingsGroupTitleWidget extends Widget implements IViewZone {
 	private layout(): void {
 		const configuration = this.editor.getConfiguration();
 		const layoutInfo = this.editor.getLayoutInfo();
-		this._domNode.style.width = layoutInfo.contentWidth - layoutInfo.verticalScrollbarWidth + 'px';
+		this._domNode.style.width =
+			layoutInfo.contentWidth - layoutInfo.verticalScrollbarWidth + 'px';
 		this.titleContainer.style.lineHeight = configuration.lineHeight + 3 + 'px';
 		this.titleContainer.style.fontSize = configuration.fontInfo.fontSize + 'px';
 		const iconSize = this.getIconSize();
@@ -134,13 +168,21 @@ export class SettingsGroupTitleWidget extends Widget implements IViewZone {
 				if (this.settingsGroup.range.startLineNumber - 3 !== 1) {
 					this.editor.focus();
 					const lineNumber = this.settingsGroup.range.startLineNumber - 2;
-					this.editor.setPosition({ lineNumber, column: this.editor.getModel().getLineMinColumn(lineNumber) });
+					this.editor.setPosition({
+						lineNumber,
+						column: this.editor.getModel().getLineMinColumn(lineNumber)
+					});
 				}
 				break;
 			case KeyCode.DownArrow:
-				const lineNumber = this.isCollapsed() ? this.settingsGroup.range.startLineNumber : this.settingsGroup.range.startLineNumber - 1;
+				const lineNumber = this.isCollapsed()
+					? this.settingsGroup.range.startLineNumber
+					: this.settingsGroup.range.startLineNumber - 1;
 				this.editor.focus();
-				this.editor.setPosition({ lineNumber, column: this.editor.getModel().getLineMinColumn(lineNumber) });
+				this.editor.setPosition({
+					lineNumber,
+					column: this.editor.getModel().getLineMinColumn(lineNumber)
+				});
 				break;
 		}
 	}
@@ -171,10 +213,18 @@ export class SettingsGroupTitleWidget extends Widget implements IViewZone {
 		if (previousPosition.lineNumber === currentPosition.lineNumber) {
 			return false;
 		}
-		if (currentPosition.lineNumber === this.settingsGroup.range.startLineNumber - 1 || currentPosition.lineNumber === this.settingsGroup.range.startLineNumber - 2) {
+		if (
+			currentPosition.lineNumber ===
+				this.settingsGroup.range.startLineNumber - 1 ||
+			currentPosition.lineNumber ===
+				this.settingsGroup.range.startLineNumber - 2
+		) {
 			return true;
 		}
-		if (this.isCollapsed() && currentPosition.lineNumber === this.settingsGroup.range.endLineNumber) {
+		if (
+			this.isCollapsed() &&
+			currentPosition.lineNumber === this.settingsGroup.range.endLineNumber
+		) {
 			return true;
 		}
 		return false;
@@ -189,7 +239,6 @@ export class SettingsGroupTitleWidget extends Widget implements IViewZone {
 }
 
 export class SettingsTabsWidget extends Widget {
-
 	private settingsSwitcherBar: ActionBar;
 	private userSettings: Action;
 	private workspaceSettings: Action;
@@ -197,29 +246,54 @@ export class SettingsTabsWidget extends Widget {
 	private _onSwitch: Emitter<void> = new Emitter<void>();
 	public readonly onSwitch: Event<void> = this._onSwitch.event;
 
-	constructor(parent: HTMLElement, @IWorkspaceContextService private contextService: IWorkspaceContextService, ) {
+	constructor(
+		parent: HTMLElement,
+		@IWorkspaceContextService private contextService: IWorkspaceContextService
+	) {
 		super();
 		this.create(parent);
 	}
 
 	private create(parent: HTMLElement): void {
-		const settingsTabsWidget = DOM.append(parent, DOM.$('.settings-tabs-widget'));
-		this.settingsSwitcherBar = this._register(new ActionBar(settingsTabsWidget, {
-			orientation: ActionsOrientation.HORIZONTAL,
-			ariaLabel: localize('settingsSwitcherBarAriaLabel', "Settings Switcher"),
-			animated: false
-		}));
-		this.userSettings = new Action('userSettings', localize('userSettings', "User Settings"), '.settings-tab', true, () => this.onClick(this.userSettings));
+		const settingsTabsWidget = DOM.append(
+			parent,
+			DOM.$('.settings-tabs-widget')
+		);
+		this.settingsSwitcherBar = this._register(
+			new ActionBar(settingsTabsWidget, {
+				orientation: ActionsOrientation.HORIZONTAL,
+				ariaLabel: localize(
+					'settingsSwitcherBarAriaLabel',
+					'Settings Switcher'
+				),
+				animated: false
+			})
+		);
+		this.userSettings = new Action(
+			'userSettings',
+			localize('userSettings', 'User Settings'),
+			'.settings-tab',
+			true,
+			() => this.onClick(this.userSettings)
+		);
 		this.userSettings.tooltip = this.userSettings.label;
-		this.workspaceSettings = new Action('workspaceSettings', localize('workspaceSettings', "Workspace Settings"), '.settings-tab', this.contextService.hasWorkspace(), () => this.onClick(this.workspaceSettings));
+		this.workspaceSettings = new Action(
+			'workspaceSettings',
+			localize('workspaceSettings', 'Workspace Settings'),
+			'.settings-tab',
+			this.contextService.hasWorkspace(),
+			() => this.onClick(this.workspaceSettings)
+		);
 		this.workspaceSettings.tooltip = this.workspaceSettings.label;
 
 		this.settingsSwitcherBar.push([this.userSettings, this.workspaceSettings]);
 	}
 
 	public show(configurationTarget: ConfigurationTarget): void {
-		this.userSettings.checked = ConfigurationTarget.USER === configurationTarget;
-		this.workspaceSettings.checked = ConfigurationTarget.WORKSPACE === configurationTarget;
+		this.userSettings.checked =
+			ConfigurationTarget.USER === configurationTarget;
+		this.workspaceSettings.checked =
+			ConfigurationTarget.WORKSPACE === configurationTarget;
 	}
 
 	private onClick(action: Action): TPromise<any> {
@@ -236,7 +310,6 @@ export interface SearchOptions extends IInputOptions {
 }
 
 export class SearchWidget extends Widget {
-
 	public domNode: HTMLElement;
 
 	private countElement: HTMLElement;
@@ -249,10 +322,13 @@ export class SearchWidget extends Widget {
 	private _onNavigate = this._register(new Emitter<boolean>());
 	public readonly onNavigate: Event<boolean> = this._onNavigate.event;
 
-	constructor(parent: HTMLElement, protected options: SearchOptions,
+	constructor(
+		parent: HTMLElement,
+		protected options: SearchOptions,
 		@IContextViewService private contextViewService: IContextViewService,
 		@IContextMenuService private contextMenuService: IContextMenuService,
-		@IInstantiationService protected instantiationService: IInstantiationService,
+		@IInstantiationService
+		protected instantiationService: IInstantiationService,
 		@IThemeService private themeService: IThemeService
 	) {
 		super();
@@ -261,33 +337,53 @@ export class SearchWidget extends Widget {
 
 	private create(parent: HTMLElement) {
 		this.domNode = DOM.append(parent, DOM.$('div.settings-header-widget'));
-		this.createSearchContainer(DOM.append(this.domNode, DOM.$('div.settings-search-container')));
-		this.countElement = DOM.append(this.domNode, DOM.$('.settings-count-widget'));
-		this._register(attachStylerCallback(this.themeService, { badgeBackground, contrastBorder }, colors => {
-			const background = colors.badgeBackground ? colors.badgeBackground.toString() : null;
-			const border = colors.contrastBorder ? colors.contrastBorder.toString() : null;
+		this.createSearchContainer(
+			DOM.append(this.domNode, DOM.$('div.settings-search-container'))
+		);
+		this.countElement = DOM.append(
+			this.domNode,
+			DOM.$('.settings-count-widget')
+		);
+		this._register(
+			attachStylerCallback(
+				this.themeService,
+				{ badgeBackground, contrastBorder },
+				colors => {
+					const background = colors.badgeBackground
+						? colors.badgeBackground.toString()
+						: null;
+					const border = colors.contrastBorder
+						? colors.contrastBorder.toString()
+						: null;
 
-			this.countElement.style.backgroundColor = background;
+					this.countElement.style.backgroundColor = background;
 
-			this.countElement.style.borderWidth = border ? '1px' : null;
-			this.countElement.style.borderStyle = border ? 'solid' : null;
-			this.countElement.style.borderColor = border;
+					this.countElement.style.borderWidth = border ? '1px' : null;
+					this.countElement.style.borderStyle = border ? 'solid' : null;
+					this.countElement.style.borderColor = border;
 
-			this.styleCountElementForeground();
-		}));
+					this.styleCountElementForeground();
+				}
+			)
+		);
 		this.inputBox.inputElement.setAttribute('aria-live', 'assertive');
 	}
 
 	private createSearchContainer(searchContainer: HTMLElement) {
 		this.searchContainer = searchContainer;
-		const searchInput = DOM.append(this.searchContainer, DOM.$('div.settings-search-input'));
+		const searchInput = DOM.append(
+			this.searchContainer,
+			DOM.$('div.settings-search-input')
+		);
 		this.inputBox = this.createInputBox(searchInput);
 		this.inputBox.onDidChange(value => this._onDidChange.fire(value));
-		this.onkeydown(this.inputBox.inputElement, (e) => this._onKeyDown(e));
+		this.onkeydown(this.inputBox.inputElement, e => this._onKeyDown(e));
 	}
 
 	protected createInputBox(parent: HTMLElement): InputBox {
-		const box = this._register(new InputBox(parent, this.contextViewService, this.options));
+		const box = this._register(
+			new InputBox(parent, this.contextViewService, this.options)
+		);
 		this._register(attachInputBoxStyler(box, this.themeService));
 
 		return box;
@@ -297,12 +393,15 @@ export class SearchWidget extends Widget {
 		this.countElement.textContent = message;
 		this.inputBox.inputElement.setAttribute('aria-label', message);
 		DOM.toggleClass(this.countElement, 'no-results', count === 0);
-		this.inputBox.inputElement.style.paddingRight = DOM.getTotalWidth(this.countElement) + 20 + 'px';
+		this.inputBox.inputElement.style.paddingRight =
+			DOM.getTotalWidth(this.countElement) + 20 + 'px';
 		this.styleCountElementForeground();
 	}
 
 	private styleCountElementForeground() {
-		const colorId = DOM.hasClass(this.countElement, 'no-results') ? errorForeground : badgeForeground;
+		const colorId = DOM.hasClass(this.countElement, 'no-results')
+			? errorForeground
+			: badgeForeground;
 		const color = this.themeService.getTheme().getColor(colorId);
 		this.countElement.style.color = color ? color.toString() : null;
 	}
@@ -313,7 +412,8 @@ export class SearchWidget extends Widget {
 			this.inputBox.inputElement.style.paddingRight = '0px';
 		} else {
 			DOM.removeClass(this.countElement, 'hide');
-			this.inputBox.inputElement.style.paddingRight = DOM.getTotalWidth(this.countElement) + 20 + 'px';
+			this.inputBox.inputElement.style.paddingRight =
+				DOM.getTotalWidth(this.countElement) + 20 + 'px';
 		}
 	}
 
@@ -337,7 +437,7 @@ export class SearchWidget extends Widget {
 	}
 
 	public setValue(value: string): string {
-		return this.inputBox.value = value;
+		return (this.inputBox.value = value);
 	}
 
 	private _onKeyDown(keyboardEvent: IKeyboardEvent): void {
@@ -374,7 +474,6 @@ export class SearchWidget extends Widget {
 }
 
 export class FloatingClickWidget extends Widget implements IOverlayWidget {
-
 	private _domNode: HTMLElement;
 
 	private _onClick: Emitter<void> = this._register(new Emitter<void>());
@@ -399,10 +498,16 @@ export class FloatingClickWidget extends Widget implements IOverlayWidget {
 
 	public render() {
 		this._domNode = DOM.$('.floating-click-widget');
-		this._register(attachStylerCallback(this.themeService, { buttonBackground, buttonForeground }, colors => {
-			this._domNode.style.backgroundColor = colors.buttonBackground;
-			this._domNode.style.color = colors.buttonForeground;
-		}));
+		this._register(
+			attachStylerCallback(
+				this.themeService,
+				{ buttonBackground, buttonForeground },
+				colors => {
+					this._domNode.style.backgroundColor = colors.buttonBackground;
+					this._domNode.style.color = colors.buttonForeground;
+				}
+			)
+		);
 
 		DOM.append(this._domNode, DOM.$('')).textContent = this.label;
 		this.onclick(this._domNode, e => this._onClick.fire());
@@ -430,7 +535,6 @@ export class FloatingClickWidget extends Widget implements IOverlayWidget {
 }
 
 export class EditPreferenceWidget<T> extends Disposable {
-
 	public static GLYPH_MARGIN_CLASS_NAME = 'edit-preferences-widget';
 
 	private _line: number;
@@ -438,19 +542,28 @@ export class EditPreferenceWidget<T> extends Disposable {
 
 	private _editPreferenceDecoration: string[];
 
-	private _onClick: Emitter<IEditorMouseEvent> = new Emitter<IEditorMouseEvent>();
-	public get onClick(): Event<IEditorMouseEvent> { return this._onClick.event; }
+	private _onClick: Emitter<IEditorMouseEvent> = new Emitter<
+		IEditorMouseEvent
+	>();
+	public get onClick(): Event<IEditorMouseEvent> {
+		return this._onClick.event;
+	}
 
-	constructor(private editor: ICodeEditor
-	) {
+	constructor(private editor: ICodeEditor) {
 		super();
 		this._editPreferenceDecoration = [];
-		this._register(this.editor.onMouseDown((e: IEditorMouseEvent) => {
-			if (e.target.type !== MouseTargetType.GUTTER_GLYPH_MARGIN || /* after last line */ e.target.detail || !this.isVisible()) {
-				return;
-			}
-			this._onClick.fire(e);
-		}));
+		this._register(
+			this.editor.onMouseDown((e: IEditorMouseEvent) => {
+				if (
+					e.target.type !== MouseTargetType.GUTTER_GLYPH_MARGIN ||
+					/* after last line */ e.target.detail ||
+					!this.isVisible()
+				) {
+					return;
+				}
+				this._onClick.fire(e);
+			})
+		);
 	}
 
 	get preferences(): T[] {
@@ -469,7 +582,8 @@ export class EditPreferenceWidget<T> extends Disposable {
 			options: {
 				glyphMarginClassName: EditPreferenceWidget.GLYPH_MARGIN_CLASS_NAME,
 				glyphMarginHoverMessage: hoverMessage,
-				stickiness: editorCommon.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges,
+				stickiness:
+					editorCommon.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges
 			},
 			range: {
 				startLineNumber: line,
@@ -478,11 +592,17 @@ export class EditPreferenceWidget<T> extends Disposable {
 				endColumn: 1
 			}
 		});
-		this._editPreferenceDecoration = this.editor.deltaDecorations(this._editPreferenceDecoration, newDecoration);
+		this._editPreferenceDecoration = this.editor.deltaDecorations(
+			this._editPreferenceDecoration,
+			newDecoration
+		);
 	}
 
 	hide(): void {
-		this._editPreferenceDecoration = this.editor.deltaDecorations(this._editPreferenceDecoration, []);
+		this._editPreferenceDecoration = this.editor.deltaDecorations(
+			this._editPreferenceDecoration,
+			[]
+		);
 	}
 
 	isVisible(): boolean {

@@ -2,14 +2,20 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import URI from 'vs/base/common/uri';
 import { IEditorOptions } from 'vs/editor/common/config/editorOptions';
 import { IWorkbenchEditorConfiguration } from 'vs/workbench/common/editor';
 import { IFilesConfiguration } from 'vs/platform/files/common/files';
-import { FileStat, OpenEditor } from 'vs/workbench/parts/files/common/explorerViewModel';
-import { ContextKeyExpr, RawContextKey } from 'vs/platform/contextkey/common/contextkey';
+import {
+	FileStat,
+	OpenEditor
+} from 'vs/workbench/parts/files/common/explorerViewModel';
+import {
+	ContextKeyExpr,
+	RawContextKey
+} from 'vs/platform/contextkey/common/contextkey';
 
 /**
  * Explorer viewlet id.
@@ -25,14 +31,35 @@ const openEditorsFocusId = 'openEditorsFocus';
 const explorerViewletFocusId = 'explorerViewletFocus';
 const explorerResourceIsFolderId = 'explorerResourceIsFolder';
 
-export const ExplorerViewletVisibleContext = new RawContextKey<boolean>(explorerViewletVisibleId, true);
-export const ExplorerFolderContext = new RawContextKey<boolean>(explorerResourceIsFolderId, false);
-export const FilesExplorerFocussedContext = new RawContextKey<boolean>(filesExplorerFocusId, false);
-export const OpenEditorsFocussedContext = new RawContextKey<boolean>(openEditorsFocusId, false);
-export const ExplorerFocussedContext = new RawContextKey<boolean>(explorerViewletFocusId, false);
+export const ExplorerViewletVisibleContext = new RawContextKey<boolean>(
+	explorerViewletVisibleId,
+	true
+);
+export const ExplorerFolderContext = new RawContextKey<boolean>(
+	explorerResourceIsFolderId,
+	false
+);
+export const FilesExplorerFocussedContext = new RawContextKey<boolean>(
+	filesExplorerFocusId,
+	false
+);
+export const OpenEditorsFocussedContext = new RawContextKey<boolean>(
+	openEditorsFocusId,
+	false
+);
+export const ExplorerFocussedContext = new RawContextKey<boolean>(
+	explorerViewletFocusId,
+	false
+);
 
-export const FilesExplorerFocusCondition = ContextKeyExpr.and(ContextKeyExpr.has(explorerViewletVisibleId), ContextKeyExpr.has(filesExplorerFocusId));
-export const ExplorerFocusCondition = ContextKeyExpr.and(ContextKeyExpr.has(explorerViewletVisibleId), ContextKeyExpr.has(explorerViewletFocusId));
+export const FilesExplorerFocusCondition = ContextKeyExpr.and(
+	ContextKeyExpr.has(explorerViewletVisibleId),
+	ContextKeyExpr.has(filesExplorerFocusId)
+);
+export const ExplorerFocusCondition = ContextKeyExpr.and(
+	ContextKeyExpr.has(explorerViewletVisibleId),
+	ContextKeyExpr.has(explorerViewletFocusId)
+);
 
 /**
  * File editor input id.
@@ -49,7 +76,9 @@ export const TEXT_FILE_EDITOR_ID = 'workbench.editors.files.textFileEditor';
  */
 export const BINARY_FILE_EDITOR_ID = 'workbench.editors.files.binaryFileEditor';
 
-export interface IFilesConfiguration extends IFilesConfiguration, IWorkbenchEditorConfiguration {
+export interface IFilesConfiguration
+	extends IFilesConfiguration,
+		IWorkbenchEditorConfiguration {
 	explorer: {
 		openEditors: {
 			visible: number;

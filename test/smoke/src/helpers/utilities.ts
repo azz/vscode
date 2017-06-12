@@ -26,7 +26,7 @@ export class Util {
 
 	public rimraf(directory: string): Promise<any> {
 		return new Promise((res, rej) => {
-			rimraf(directory, (err) => {
+			rimraf(directory, err => {
 				if (err) {
 					rej(err);
 				}

@@ -2,13 +2,16 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import Severity from 'vs/base/common/severity';
 import * as modes from 'vs/editor/common/modes';
 import * as types from './extHostTypes';
 import { Position as EditorPosition } from 'vs/platform/editor/common/editor';
-import { IDecorationOptions, EndOfLineSequence } from 'vs/editor/common/editorCommon';
+import {
+	IDecorationOptions,
+	EndOfLineSequence
+} from 'vs/editor/common/editorCommon';
 import * as vscode from 'vscode';
 import URI from 'vs/base/common/uri';
 import { ProgressLocation as MainProgressLocation } from 'vs/platform/progress/common/progress';
@@ -33,8 +36,16 @@ export interface SelectionLike extends RangeLike {
 }
 
 export function toSelection(selection: ISelection): types.Selection {
-	let { selectionStartLineNumber, selectionStartColumn, positionLineNumber, positionColumn } = selection;
-	let start = new types.Position(selectionStartLineNumber - 1, selectionStartColumn - 1);
+	let {
+		selectionStartLineNumber,
+		selectionStartColumn,
+		positionLineNumber,
+		positionColumn
+	} = selection;
+	let start = new types.Position(
+		selectionStartLineNumber - 1,
+		selectionStartColumn - 1
+	);
 	let end = new types.Position(positionLineNumber - 1, positionColumn - 1);
 	return new types.Selection(start, end);
 }
@@ -67,7 +78,12 @@ export function toRange(range: IRange): types.Range {
 		return undefined;
 	}
 	let { startLineNumber, startColumn, endLineNumber, endColumn } = range;
-	return new types.Range(startLineNumber - 1, startColumn - 1, endLineNumber - 1, endColumn - 1);
+	return new types.Range(
+		startLineNumber - 1,
+		startColumn - 1,
+		endLineNumber - 1,
+		endColumn - 1
+	);
 }
 
 export function toPosition(position: IPosition): types.Position {
@@ -110,9 +126,9 @@ export function fromViewColumn(column?: vscode.ViewColumn): EditorPosition {
 	let editorColumn = EditorPosition.ONE;
 	if (typeof column !== 'number') {
 		// stick with ONE
-	} else if (column === <number>types.ViewColumn.Two) {
+	} else if (column === (<number>types.ViewColumn.Two)) {
 		editorColumn = EditorPosition.TWO;
-	} else if (column === <number>types.ViewColumn.Three) {
+	} else if (column === (<number>types.ViewColumn.Three)) {
 		editorColumn = EditorPosition.THREE;
 	}
 	return editorColumn;
@@ -132,24 +148,30 @@ export function toViewColumn(position?: EditorPosition): vscode.ViewColumn {
 	return undefined;
 }
 
-function isDecorationOptions(something: any): something is vscode.DecorationOptions {
-	return (typeof something.range !== 'undefined');
+function isDecorationOptions(
+	something: any
+): something is vscode.DecorationOptions {
+	return typeof something.range !== 'undefined';
 }
 
-function isDecorationOptionsArr(something: vscode.Range[] | vscode.DecorationOptions[]): something is vscode.DecorationOptions[] {
+function isDecorationOptionsArr(
+	something: vscode.Range[] | vscode.DecorationOptions[]
+): something is vscode.DecorationOptions[] {
 	if (something.length === 0) {
 		return true;
 	}
 	return isDecorationOptions(something[0]) ? true : false;
 }
 
-export function fromRangeOrRangeWithMessage(ranges: vscode.Range[] | vscode.DecorationOptions[]): IDecorationOptions[] {
+export function fromRangeOrRangeWithMessage(
+	ranges: vscode.Range[] | vscode.DecorationOptions[]
+): IDecorationOptions[] {
 	if (isDecorationOptionsArr(ranges)) {
 		return ranges.map((r): IDecorationOptions => {
 			return {
 				range: fromRange(r.range),
 				hoverMessage: r.hoverMessage,
-				renderOptions: <any> /* URI vs Uri */r.renderOptions
+				renderOptions: <any>/* URI vs Uri */ r.renderOptions
 			};
 		});
 	} else {
@@ -162,7 +184,6 @@ export function fromRangeOrRangeWithMessage(ranges: vscode.Range[] | vscode.Deco
 }
 
 export const TextEdit = {
-
 	from(edit: vscode.TextEdit): modes.TextEdit {
 		return <modes.TextEdit>{
 			text: edit.newText,
@@ -177,10 +198,10 @@ export const TextEdit = {
 	}
 };
 
-
 export namespace SymbolKind {
-
-	const _fromMapping: { [kind: number]: modes.SymbolKind } = Object.create(null);
+	const _fromMapping: { [kind: number]: modes.SymbolKind } = Object.create(
+		null
+	);
 	_fromMapping[types.SymbolKind.File] = modes.SymbolKind.File;
 	_fromMapping[types.SymbolKind.Module] = modes.SymbolKind.Module;
 	_fromMapping[types.SymbolKind.Namespace] = modes.SymbolKind.Namespace;
@@ -222,7 +243,9 @@ export namespace SymbolKind {
 	}
 }
 
-export function fromSymbolInformation(info: vscode.SymbolInformation): modes.SymbolInformation {
+export function fromSymbolInformation(
+	info: vscode.SymbolInformation
+): modes.SymbolInformation {
 	return <modes.SymbolInformation>{
 		name: info.name,
 		kind: SymbolKind.from(info.kind),
@@ -231,7 +254,9 @@ export function fromSymbolInformation(info: vscode.SymbolInformation): modes.Sym
 	};
 }
 
-export function toSymbolInformation(bearing: modes.SymbolInformation): types.SymbolInformation {
+export function toSymbolInformation(
+	bearing: modes.SymbolInformation
+): types.SymbolInformation {
 	return new types.SymbolInformation(
 		bearing.name,
 		SymbolKind.to(bearing.kind),
@@ -239,7 +264,6 @@ export function toSymbolInformation(bearing: modes.SymbolInformation): types.Sym
 		location.to(bearing.location)
 	);
 }
-
 
 export const location = {
 	from(value: vscode.Location): modes.Location {
@@ -264,39 +288,68 @@ export function toHover(info: modes.Hover): types.Hover {
 	return new types.Hover(info.contents, toRange(info.range));
 }
 
-export function toDocumentHighlight(occurrence: modes.DocumentHighlight): types.DocumentHighlight {
-	return new types.DocumentHighlight(toRange(occurrence.range), occurrence.kind);
+export function toDocumentHighlight(
+	occurrence: modes.DocumentHighlight
+): types.DocumentHighlight {
+	return new types.DocumentHighlight(
+		toRange(occurrence.range),
+		occurrence.kind
+	);
 }
 
 export const CompletionItemKind = {
-
 	from(kind: types.CompletionItemKind): modes.SuggestionType {
 		switch (kind) {
-			case types.CompletionItemKind.Method: return 'method';
-			case types.CompletionItemKind.Function: return 'function';
-			case types.CompletionItemKind.Constructor: return 'constructor';
-			case types.CompletionItemKind.Field: return 'field';
-			case types.CompletionItemKind.Variable: return 'variable';
-			case types.CompletionItemKind.Class: return 'class';
-			case types.CompletionItemKind.Interface: return 'interface';
-			case types.CompletionItemKind.Struct: return 'struct';
-			case types.CompletionItemKind.Module: return 'module';
-			case types.CompletionItemKind.Property: return 'property';
-			case types.CompletionItemKind.Unit: return 'unit';
-			case types.CompletionItemKind.Value: return 'value';
-			case types.CompletionItemKind.Constant: return 'constant';
-			case types.CompletionItemKind.Enum: return 'enum';
-			case types.CompletionItemKind.EnumMember: return 'enum-member';
-			case types.CompletionItemKind.Keyword: return 'keyword';
-			case types.CompletionItemKind.Snippet: return 'snippet';
-			case types.CompletionItemKind.Text: return 'text';
-			case types.CompletionItemKind.Color: return 'color';
-			case types.CompletionItemKind.File: return 'file';
-			case types.CompletionItemKind.Reference: return 'reference';
-			case types.CompletionItemKind.Folder: return 'folder';
-			case types.CompletionItemKind.Event: return 'event';
-			case types.CompletionItemKind.Operator: return 'operator';
-			case types.CompletionItemKind.TypeParameter: return 'type-parameter';
+			case types.CompletionItemKind.Method:
+				return 'method';
+			case types.CompletionItemKind.Function:
+				return 'function';
+			case types.CompletionItemKind.Constructor:
+				return 'constructor';
+			case types.CompletionItemKind.Field:
+				return 'field';
+			case types.CompletionItemKind.Variable:
+				return 'variable';
+			case types.CompletionItemKind.Class:
+				return 'class';
+			case types.CompletionItemKind.Interface:
+				return 'interface';
+			case types.CompletionItemKind.Struct:
+				return 'struct';
+			case types.CompletionItemKind.Module:
+				return 'module';
+			case types.CompletionItemKind.Property:
+				return 'property';
+			case types.CompletionItemKind.Unit:
+				return 'unit';
+			case types.CompletionItemKind.Value:
+				return 'value';
+			case types.CompletionItemKind.Constant:
+				return 'constant';
+			case types.CompletionItemKind.Enum:
+				return 'enum';
+			case types.CompletionItemKind.EnumMember:
+				return 'enum-member';
+			case types.CompletionItemKind.Keyword:
+				return 'keyword';
+			case types.CompletionItemKind.Snippet:
+				return 'snippet';
+			case types.CompletionItemKind.Text:
+				return 'text';
+			case types.CompletionItemKind.Color:
+				return 'color';
+			case types.CompletionItemKind.File:
+				return 'file';
+			case types.CompletionItemKind.Reference:
+				return 'reference';
+			case types.CompletionItemKind.Folder:
+				return 'folder';
+			case types.CompletionItemKind.Event:
+				return 'event';
+			case types.CompletionItemKind.Operator:
+				return 'operator';
+			case types.CompletionItemKind.TypeParameter:
+				return 'type-parameter';
 		}
 		return 'property';
 	},
@@ -305,14 +358,18 @@ export const CompletionItemKind = {
 		if (!type) {
 			return types.CompletionItemKind.Property;
 		} else {
-			return types.CompletionItemKind[type.charAt(0).toUpperCase() + type.substr(1)];
+			return types.CompletionItemKind[
+				type.charAt(0).toUpperCase() + type.substr(1)
+			];
 		}
 	}
 };
 
 export namespace Suggest {
-
-	export function to(position: types.Position, suggestion: modes.ISuggestion): types.CompletionItem {
+	export function to(
+		position: types.Position,
+		suggestion: modes.ISuggestion
+	): types.CompletionItem {
 		const result = new types.CompletionItem(suggestion.label);
 		result.insertText = suggestion.insertText;
 		result.kind = CompletionItemKind.to(suggestion.type);
@@ -322,11 +379,19 @@ export namespace Suggest {
 		result.filterText = suggestion.filterText;
 
 		// 'overwrite[Before|After]'-logic
-		let overwriteBefore = (typeof suggestion.overwriteBefore === 'number') ? suggestion.overwriteBefore : 0;
-		let startPosition = new types.Position(position.line, Math.max(0, position.character - overwriteBefore));
+		let overwriteBefore = typeof suggestion.overwriteBefore === 'number'
+			? suggestion.overwriteBefore
+			: 0;
+		let startPosition = new types.Position(
+			position.line,
+			Math.max(0, position.character - overwriteBefore)
+		);
 		let endPosition = position;
 		if (typeof suggestion.overwriteAfter === 'number') {
-			endPosition = new types.Position(position.line, position.character + suggestion.overwriteAfter);
+			endPosition = new types.Position(
+				position.line,
+				position.character + suggestion.overwriteAfter
+			);
 		}
 		result.range = new types.Range(startPosition, endPosition);
 
@@ -342,11 +407,12 @@ export namespace Suggest {
 
 		return result;
 	}
-};
+}
 
 export namespace SignatureHelp {
-
-	export function from(signatureHelp: types.SignatureHelp): modes.SignatureHelp {
+	export function from(
+		signatureHelp: types.SignatureHelp
+	): modes.SignatureHelp {
 		return signatureHelp;
 	}
 
@@ -356,7 +422,6 @@ export namespace SignatureHelp {
 }
 
 export namespace DocumentLink {
-
 	export function from(link: vscode.DocumentLink): modes.ILink {
 		return {
 			range: fromRange(link.range),
@@ -365,12 +430,14 @@ export namespace DocumentLink {
 	}
 
 	export function to(link: modes.ILink): vscode.DocumentLink {
-		return new types.DocumentLink(toRange(link.range), link.url && URI.parse(link.url));
+		return new types.DocumentLink(
+			toRange(link.range),
+			link.url && URI.parse(link.url)
+		);
 	}
 }
 
 export namespace TextDocumentSaveReason {
-
 	export function to(reason: SaveReason): vscode.TextDocumentSaveReason {
 		switch (reason) {
 			case SaveReason.AUTO:
@@ -384,9 +451,7 @@ export namespace TextDocumentSaveReason {
 	}
 }
 
-
 export namespace EndOfLine {
-
 	export function from(eol: vscode.EndOfLine): EndOfLineSequence {
 		if (eol === types.EndOfLine.CRLF) {
 			return EndOfLineSequence.CRLF;
@@ -409,8 +474,10 @@ export namespace EndOfLine {
 export namespace ProgressLocation {
 	export function from(loc: vscode.ProgressLocation): MainProgressLocation {
 		switch (loc) {
-			case types.ProgressLocation.SourceControl: return MainProgressLocation.Scm;
-			case types.ProgressLocation.Window: return MainProgressLocation.Window;
+			case types.ProgressLocation.SourceControl:
+				return MainProgressLocation.Scm;
+			case types.ProgressLocation.Window:
+				return MainProgressLocation.Window;
 		}
 		return undefined;
 	}

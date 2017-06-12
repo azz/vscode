@@ -2,13 +2,12 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import Errors = require('vs/base/common/errors');
 import { IDisposable } from 'vs/base/common/lifecycle';
 
 export class EmitterEvent {
-
 	public readonly type: string;
 	public readonly data: any;
 
@@ -32,7 +31,10 @@ export interface IBaseEventEmitter {
 
 export interface IEventEmitter extends IBaseEventEmitter, IDisposable {
 	addListener(eventType: string, listener: ListenerCallback): IDisposable;
-	addOneTimeListener(eventType: string, listener: ListenerCallback): IDisposable;
+	addOneTimeListener(
+		eventType: string,
+		listener: ListenerCallback
+	): IDisposable;
 	addEmitter(eventEmitter: IEventEmitter): IDisposable;
 }
 
@@ -41,12 +43,11 @@ export interface IListenersMap {
 }
 
 export class EventEmitter implements IEventEmitter {
-
 	protected _listeners: IListenersMap;
 	protected _bulkListeners: ListenerCallback[];
 	private _collectedEvents: EmitterEvent[];
 	private _deferredCnt: number;
-	private _allowedEventTypes: { [eventType: string]: boolean; };
+	private _allowedEventTypes: { [eventType: string]: boolean };
 
 	constructor(allowedEventTypes: string[] = null) {
 		this._listeners = {};
@@ -71,12 +72,20 @@ export class EventEmitter implements IEventEmitter {
 		this._allowedEventTypes = null;
 	}
 
-	public addListener(eventType: string, listener: ListenerCallback): IDisposable {
+	public addListener(
+		eventType: string,
+		listener: ListenerCallback
+	): IDisposable {
 		if (eventType === '*') {
-			throw new Error('Use addBulkListener(listener) to register your listener!');
+			throw new Error(
+				'Use addBulkListener(listener) to register your listener!'
+			);
 		}
 
-		if (this._allowedEventTypes && !this._allowedEventTypes.hasOwnProperty(eventType)) {
+		if (
+			this._allowedEventTypes &&
+			!this._allowedEventTypes.hasOwnProperty(eventType)
+		) {
 			throw new Error('This object will never emit this event type!');
 		}
 
@@ -103,7 +112,10 @@ export class EventEmitter implements IEventEmitter {
 		};
 	}
 
-	public addOneTimeListener(eventType: string, listener: ListenerCallback): IDisposable {
+	public addOneTimeListener(
+		eventType: string,
+		listener: ListenerCallback
+	): IDisposable {
 		const disposable = this.addListener(eventType, value => {
 			disposable.dispose();
 			listener(value);
@@ -113,7 +125,6 @@ export class EventEmitter implements IEventEmitter {
 	}
 
 	public addBulkListener(listener: BulkListenerCallback): IDisposable {
-
 		this._bulkListeners.push(listener);
 
 		return {
@@ -183,11 +194,17 @@ export class EventEmitter implements IEventEmitter {
 	}
 
 	public emit(eventType: string, data: any = {}): void {
-		if (this._allowedEventTypes && !this._allowedEventTypes.hasOwnProperty(eventType)) {
-			throw new Error('Cannot emit this event type because it wasn\'t listed!');
+		if (
+			this._allowedEventTypes &&
+			!this._allowedEventTypes.hasOwnProperty(eventType)
+		) {
+			throw new Error("Cannot emit this event type because it wasn't listed!");
 		}
 		// Early return if no listeners would get this
-		if (!this._listeners.hasOwnProperty(eventType) && this._bulkListeners.length === 0) {
+		if (
+			!this._listeners.hasOwnProperty(eventType) &&
+			this._bulkListeners.length === 0
+		) {
 			return;
 		}
 		const emitterEvent = new EmitterEvent(eventType, data);
@@ -247,7 +264,6 @@ class EmitQueueElement {
  * Same as EventEmitter, but guarantees events are delivered in order to each listener
  */
 export class OrderGuaranteeEventEmitter extends EventEmitter {
-
 	private _emitQueue: EmitQueueElement[];
 
 	constructor() {

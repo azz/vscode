@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import NLS = require('vs/nls');
 
@@ -11,7 +11,11 @@ import * as Platform from 'vs/base/common/platform';
 import { IStringDictionary } from 'vs/base/common/collections';
 import * as Types from 'vs/base/common/types';
 
-import { ValidationState, IProblemReporter, Parser } from 'vs/base/common/parsers';
+import {
+	ValidationState,
+	IProblemReporter,
+	Parser
+} from 'vs/base/common/parsers';
 
 /**
  * Options to be passed to the external program or shell.
@@ -27,7 +31,7 @@ export interface CommandOptions {
 	 * The environment of the executed program or shell. If omitted
 	 * the parent process' environment is used.
 	 */
-	env?: { [key: string]: string; };
+	env?: { [key: string]: string };
 }
 
 export interface Executable {
@@ -92,7 +96,7 @@ export enum TerminateResponseCode {
 	Success = 0,
 	Unknown = 1,
 	AccessDenied = 2,
-	ProcessNotFound = 3,
+	ProcessNotFound = 3
 }
 
 export namespace Config {
@@ -145,7 +149,6 @@ export namespace Config {
 	}
 
 	export interface Executable extends BaseExecutable {
-
 		/**
 		 * Windows specific executable configuration
 		 */
@@ -160,7 +163,6 @@ export namespace Config {
 		 * Linux specific executable configuration
 		 */
 		linux?: BaseExecutable;
-
 	}
 }
 
@@ -171,12 +173,18 @@ export interface ParserOptions {
 }
 
 export class ExecutableParser extends Parser {
-
 	constructor(logger: IProblemReporter) {
 		super(logger);
 	}
 
-	public parse(json: Config.Executable, parserOptions: ParserOptions = { globals: null, emptyCommand: false, noDefaults: false }): Executable {
+	public parse(
+		json: Config.Executable,
+		parserOptions: ParserOptions = {
+			globals: null,
+			emptyCommand: false,
+			noDefaults: false
+		}
+	): Executable {
 		let result = this.parseExecutable(json, parserOptions.globals);
 		if (this.problemReporter.status.isFatal()) {
 			return result;
@@ -193,21 +201,33 @@ export class ExecutableParser extends Parser {
 			result = ExecutableParser.mergeExecutable(result, osExecutable);
 		}
 		if ((!result || !result.command) && !parserOptions.emptyCommand) {
-			this.fatal(NLS.localize('ExecutableParser.commandMissing', 'Error: executable info must define a command of type string.'));
+			this.fatal(
+				NLS.localize(
+					'ExecutableParser.commandMissing',
+					'Error: executable info must define a command of type string.'
+				)
+			);
 			return null;
 		}
 		if (!parserOptions.noDefaults) {
-			Parser.merge(result, {
-				command: undefined,
-				isShellCommand: false,
-				args: [],
-				options: {}
-			}, false);
+			Parser.merge(
+				result,
+				{
+					command: undefined,
+					isShellCommand: false,
+					args: [],
+					options: {}
+				},
+				false
+			);
 		}
 		return result;
 	}
 
-	public parseExecutable(json: Config.BaseExecutable, globals?: Executable): Executable {
+	public parseExecutable(
+		json: Config.BaseExecutable,
+		globals?: Executable
+	): Executable {
 		let command: string = undefined;
 		let isShellCommand: boolean = undefined;
 		let args: string[] = undefined;
@@ -216,10 +236,32 @@ export class ExecutableParser extends Parser {
 		if (this.is(json.command, Types.isString)) {
 			command = json.command;
 		}
-		if (this.is(json.isShellCommand, Types.isBoolean, ValidationState.Warning, NLS.localize('ExecutableParser.isShellCommand', 'Warning: isShellCommand must be of type boolean. Ignoring value {0}.', json.isShellCommand))) {
+		if (
+			this.is(
+				json.isShellCommand,
+				Types.isBoolean,
+				ValidationState.Warning,
+				NLS.localize(
+					'ExecutableParser.isShellCommand',
+					'Warning: isShellCommand must be of type boolean. Ignoring value {0}.',
+					json.isShellCommand
+				)
+			)
+		) {
 			isShellCommand = json.isShellCommand;
 		}
-		if (this.is(json.args, Types.isStringArray, ValidationState.Warning, NLS.localize('ExecutableParser.args', 'Warning: args must be of type string[]. Ignoring value {0}.', json.isShellCommand))) {
+		if (
+			this.is(
+				json.args,
+				Types.isStringArray,
+				ValidationState.Warning,
+				NLS.localize(
+					'ExecutableParser.args',
+					'Warning: args must be of type string[]. Ignoring value {0}.',
+					json.isShellCommand
+				)
+			)
+		) {
 			args = json.args.slice(0);
 		}
 		if (this.is(json.options, Types.isObject)) {
@@ -233,7 +275,18 @@ export class ExecutableParser extends Parser {
 		if (!json) {
 			return result;
 		}
-		if (this.is(json.cwd, Types.isString, ValidationState.Warning, NLS.localize('ExecutableParser.invalidCWD', 'Warning: options.cwd must be of type string. Ignoring value {0}.', json.cwd))) {
+		if (
+			this.is(
+				json.cwd,
+				Types.isString,
+				ValidationState.Warning,
+				NLS.localize(
+					'ExecutableParser.invalidCWD',
+					'Warning: options.cwd must be of type string. Ignoring value {0}.',
+					json.cwd
+				)
+			)
+		) {
 			result.cwd = json.cwd;
 		}
 		if (!Types.isUndefined(json.env)) {
@@ -242,7 +295,10 @@ export class ExecutableParser extends Parser {
 		return result;
 	}
 
-	public static mergeExecutable(executable: Executable, other: Executable): Executable {
+	public static mergeExecutable(
+		executable: Executable,
+		other: Executable
+	): Executable {
 		if (!executable) {
 			return other;
 		}

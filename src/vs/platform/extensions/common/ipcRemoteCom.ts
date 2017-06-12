@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import winjs = require('vs/base/common/winjs.base');
 import marshalling = require('vs/base/common/marshalling');
@@ -14,15 +14,22 @@ interface IRPCFunc {
 }
 
 let lastMessageId = 0;
-const pendingRPCReplies: { [msgId: string]: LazyPromise; } = {};
+const pendingRPCReplies: { [msgId: string]: LazyPromise } = {};
 
 class MessageFactory {
 	public static cancel(req: string): string {
 		return `{"cancel":"${req}"}`;
 	}
 
-	public static request(req: string, rpcId: string, method: string, args: any[]): string {
-		return `{"req":"${req}","rpcId":"${rpcId}","method":"${method}","args":${marshalling.stringify(args)}}`;
+	public static request(
+		req: string,
+		rpcId: string,
+		method: string,
+		args: any[]
+	): string {
+		return `{"req":"${req}","rpcId":"${rpcId}","method":"${method}","args":${marshalling.stringify(
+			args
+		)}}`;
 	}
 
 	public static replyOK(req: string, res: any): string {
@@ -36,12 +43,13 @@ class MessageFactory {
 		if (typeof err === 'undefined') {
 			return `{"seq":"${req}","err":null}`;
 		}
-		return `{"seq":"${req}","err":${marshalling.stringify(errors.transformErrorForSerialization(err))}}`;
+		return `{"seq":"${req}","err":${marshalling.stringify(
+			errors.transformErrorForSerialization(err)
+		)}}`;
 	}
 }
 
 class LazyPromise {
-
 	private _onCancel: () => void;
 
 	private _actual: winjs.TPromise<any>;
@@ -144,8 +152,11 @@ class LazyPromise {
 }
 
 function createRPC(serializeAndSend: (value: string) => void): IRPCFunc {
-
-	return function rpc(rpcId: string, method: string, args: any[]): winjs.TPromise<any> {
+	return function rpc(
+		rpcId: string,
+		method: string,
+		args: any[]
+	): winjs.TPromise<any> {
 		let req = String(++lastMessageId);
 		let result = new LazyPromise(() => {
 			serializeAndSend(MessageFactory.cancel(req));
@@ -168,10 +179,14 @@ export interface IRemoteCom {
 	setManyHandler(handler: IManyHandler): void;
 }
 
-export function createProxyProtocol(protocol: IMessagePassingProtocol): IRemoteCom {
+export function createProxyProtocol(
+	protocol: IMessagePassingProtocol
+): IRemoteCom {
 	let rpc = createRPC(sendDelayed);
 	let bigHandler: IManyHandler = null;
-	let invokedHandlers: { [req: string]: winjs.TPromise<any>; } = Object.create(null);
+	let invokedHandlers: { [req: string]: winjs.TPromise<any> } = Object.create(
+		null
+	);
 	let messagesToSend: string[] = [];
 
 	let messagesToReceive: string[] = [];
@@ -230,13 +245,16 @@ export function createProxyProtocol(protocol: IMessagePassingProtocol): IRemoteC
 
 		invokedHandlers[req] = invokeHandler(rpcId, msg.method, msg.args);
 
-		invokedHandlers[req].then((r) => {
-			delete invokedHandlers[req];
-			sendDelayed(MessageFactory.replyOK(req, r));
-		}, (err) => {
-			delete invokedHandlers[req];
-			sendDelayed(MessageFactory.replyErr(req, err));
-		});
+		invokedHandlers[req].then(
+			r => {
+				delete invokedHandlers[req];
+				sendDelayed(MessageFactory.replyOK(req, r));
+			},
+			err => {
+				delete invokedHandlers[req];
+				sendDelayed(MessageFactory.replyErr(req, err));
+			}
+		);
 	};
 
 	protocol.onMessage(data => {
@@ -270,7 +288,11 @@ export function createProxyProtocol(protocol: IMessagePassingProtocol): IRemoteC
 		messagesToSend.push(value);
 	}
 
-	function invokeHandler(rpcId: string, method: string, args: any[]): winjs.TPromise<any> {
+	function invokeHandler(
+		rpcId: string,
+		method: string,
+		args: any[]
+	): winjs.TPromise<any> {
 		try {
 			return winjs.TPromise.as(bigHandler.handle(rpcId, method, args));
 		} catch (err) {
@@ -280,4 +302,3 @@ export function createProxyProtocol(protocol: IMessagePassingProtocol): IRemoteC
 
 	return r;
 }
-

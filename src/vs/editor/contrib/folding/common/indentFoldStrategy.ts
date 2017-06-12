@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { IModel } from 'vs/editor/common/editorCommon';
 import { IFoldingRange } from 'vs/editor/contrib/folding/common/foldingModel';
@@ -16,7 +16,10 @@ export function computeRanges(model: IModel): IFoldingRange[] {
 /**
  * Limits the number of folding ranges by removing ranges with larger indent levels
  */
-export function limitByIndent(ranges: IFoldingRange[], maxEntries: number): IFoldingRange[] {
+export function limitByIndent(
+	ranges: IFoldingRange[],
+	maxEntries: number
+): IFoldingRange[] {
 	if (ranges.length <= maxEntries) {
 		return ranges;
 	}
@@ -36,7 +39,6 @@ export function limitByIndent(ranges: IFoldingRange[], maxEntries: number): IFol
 				break;
 			}
 		}
-
 	}
 	return ranges.filter(r => r.indent < maxIndent);
 }

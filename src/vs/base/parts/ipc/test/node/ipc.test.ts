@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { TPromise } from 'vs/base/common/winjs.base';
@@ -16,13 +16,15 @@ import { ITestChannel, TestServiceClient } from './testService';
 function createClient(): Client {
 	return new Client(uri.parse(require.toUrl('bootstrap')).fsPath, {
 		serverName: 'TestServer',
-		env: { AMD_ENTRYPOINT: 'vs/base/parts/ipc/test/node/testApp', verbose: true }
+		env: {
+			AMD_ENTRYPOINT: 'vs/base/parts/ipc/test/node/testApp',
+			verbose: true
+		}
 	});
 }
 
 suite('IPC', () => {
 	suite('child process', () => {
-
 		test('createChannel', () => {
 			if (process.env['VSCODE_PID']) {
 				return undefined; // this test fails when run from within VS Code

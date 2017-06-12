@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./media/part';
 import { Dimension, Builder } from 'vs/base/browser/builder';
@@ -34,7 +34,6 @@ export abstract class Part extends Component {
 	}
 
 	protected onThemeChange(theme: ITheme): void {
-
 		// only call if our create() method has been called
 		if (this.parent) {
 			super.onThemeChange(theme);
@@ -52,7 +51,12 @@ export abstract class Part extends Component {
 		this.titleArea = this.createTitleArea(parent);
 		this.contentArea = this.createContentArea(parent);
 
-		this.partLayout = new PartLayout(this.parent, this.options, this.titleArea, this.contentArea);
+		this.partLayout = new PartLayout(
+			this.parent,
+			this.options,
+			this.titleArea,
+			this.contentArea
+		);
 
 		this.updateStyles();
 	}
@@ -110,9 +114,12 @@ export abstract class Part extends Component {
 const TITLE_HEIGHT = 35;
 
 export class PartLayout {
-
-	constructor(private container: Builder, private options: IPartOptions, private titleArea: Builder, private contentArea: Builder) {
-	}
+	constructor(
+		private container: Builder,
+		private options: IPartOptions,
+		private titleArea: Builder,
+		private contentArea: Builder
+	) {}
 
 	public layout(dimension: Dimension): Dimension[] {
 		const { width, height } = dimension;

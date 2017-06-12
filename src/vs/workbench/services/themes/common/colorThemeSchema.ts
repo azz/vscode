@@ -5,12 +5,20 @@
 import nls = require('vs/nls');
 
 import { Registry } from 'vs/platform/platform';
-import { Extensions as JSONExtensions, IJSONContributionRegistry } from 'vs/platform/jsonschemas/common/jsonContributionRegistry';
+import {
+	Extensions as JSONExtensions,
+	IJSONContributionRegistry
+} from 'vs/platform/jsonschemas/common/jsonContributionRegistry';
 import { IJSONSchema } from 'vs/base/common/jsonSchema';
 
-import { Extensions as ThemeingExtensions, IColorRegistry } from 'vs/platform/theme/common/colorRegistry';
+import {
+	Extensions as ThemeingExtensions,
+	IColorRegistry
+} from 'vs/platform/theme/common/colorRegistry';
 
-let themingRegistry = <IColorRegistry>Registry.as(ThemeingExtensions.ColorContribution);
+let themingRegistry = <IColorRegistry>Registry.as(
+	ThemeingExtensions.ColorContribution
+);
 let textMateScopes = [
 	'comment',
 	'comment.block',
@@ -123,7 +131,10 @@ export const tokenColorsSchema = {
 		properties: {
 			name: {
 				type: 'string',
-				description: nls.localize('schema.properties.name', 'Description of the rule')
+				description: nls.localize(
+					'schema.properties.name',
+					'Description of the rule'
+				)
 			},
 			scope: {
 				anyOf: [
@@ -160,7 +171,10 @@ export const tokenColorsSchema = {
 					},
 					fontStyle: {
 						type: 'string',
-						description: nls.localize('schema.fontStyle', 'Font style of the rule: One or a combination of \'italic\', \'bold\' and \'underline\'')
+						description: nls.localize(
+							'schema.fontStyle',
+							"Font style of the rule: One or a combination of 'italic', 'bold' and 'underline'"
+						)
 					}
 				}
 			}
@@ -174,10 +188,14 @@ const schema: IJSONSchema = {
 	properties: {
 		colors: colorsSchema,
 		tokenColors: {
-			anyOf: [{
-				type: 'string',
-				description: nls.localize('schema.tokenColors.path', 'Path to a tmTheme file (relative to the current file)')
-			},
+			anyOf: [
+				{
+					type: 'string',
+					description: nls.localize(
+						'schema.tokenColors.path',
+						'Path to a tmTheme file (relative to the current file)'
+					)
+				},
 				tokenColorsSchema
 			]
 		}
@@ -185,7 +203,8 @@ const schema: IJSONSchema = {
 };
 
 export function register() {
-	let schemaRegistry = <IJSONContributionRegistry>Registry.as(JSONExtensions.JSONContribution);
+	let schemaRegistry = <IJSONContributionRegistry>Registry.as(
+		JSONExtensions.JSONContribution
+	);
 	schemaRegistry.registerSchema(schemaId, schema);
 }
-

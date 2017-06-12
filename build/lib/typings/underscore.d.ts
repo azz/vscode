@@ -3,12 +3,11 @@
 // Definitions by: Boris Yankov <https://github.com/borisyankov/>, Josh Baldwin <https://github.com/jbaldwin/>, Christopher Currens <https://github.com/ccurrens/>
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 
-declare module _ {
+declare namespace _ {
 	/**
 	* underscore.js _.throttle options.
 	**/
 	interface ThrottleSettings {
-
 		/**
 		* If you'd like to disable the leading-edge call, pass this as false.
 		**/
@@ -47,7 +46,7 @@ declare module _ {
 		variable?: string;
 	}
 
-	interface Collection<T> { }
+	interface Collection<T> {}
 
 	// Common interface between Arrays and jQuery objects
 	interface List<T> extends Collection<T> {
@@ -76,7 +75,7 @@ declare module _ {
 	}
 
 	interface Cancelable {
-		cancel() : void;
+		cancel(): void;
 	}
 }
 
@@ -106,7 +105,8 @@ interface UnderscoreStatic {
 	each<T>(
 		list: _.List<T>,
 		iterator: _.ListIterator<T, void>,
-		context?: any): _.List<T>;
+		context?: any
+	): _.List<T>;
 
 	/**
 	* @see _.each
@@ -117,7 +117,8 @@ interface UnderscoreStatic {
 	each<T>(
 		object: _.Dictionary<T>,
 		iterator: _.ObjectIterator<T, void>,
-		context?: any): _.Dictionary<T>;
+		context?: any
+	): _.Dictionary<T>;
 
 	/**
 	* @see _.each
@@ -125,7 +126,8 @@ interface UnderscoreStatic {
 	forEach<T>(
 		list: _.List<T>,
 		iterator: _.ListIterator<T, void>,
-		context?: any): _.List<T>;
+		context?: any
+	): _.List<T>;
 
 	/**
 	* @see _.each
@@ -133,7 +135,8 @@ interface UnderscoreStatic {
 	forEach<T>(
 		object: _.Dictionary<T>,
 		iterator: _.ObjectIterator<T, void>,
-		context?: any): _.Dictionary<T>;
+		context?: any
+	): _.Dictionary<T>;
 
 	/**
 	* Produces a new array of values by mapping each value in list through a transformation function
@@ -147,7 +150,8 @@ interface UnderscoreStatic {
 	map<T, TResult>(
 		list: _.List<T>,
 		iterator: _.ListIterator<T, TResult>,
-		context?: any): TResult[];
+		context?: any
+	): TResult[];
 
 	/**
 	* @see _.map
@@ -159,7 +163,8 @@ interface UnderscoreStatic {
 	map<T, TResult>(
 		object: _.Dictionary<T>,
 		iterator: _.ObjectIterator<T, TResult>,
-		context?: any): TResult[];
+		context?: any
+	): TResult[];
 
 	/**
 	* @see _.map
@@ -167,7 +172,8 @@ interface UnderscoreStatic {
 	collect<T, TResult>(
 		list: _.List<T>,
 		iterator: _.ListIterator<T, TResult>,
-		context?: any): TResult[];
+		context?: any
+	): TResult[];
 
 	/**
 	* @see _.map
@@ -175,7 +181,8 @@ interface UnderscoreStatic {
 	collect<T, TResult>(
 		object: _.Dictionary<T>,
 		iterator: _.ObjectIterator<T, TResult>,
-		context?: any): TResult[];
+		context?: any
+	): TResult[];
 
 	/**
 	* Also known as inject and foldl, reduce boils down a list of values into a single value.
@@ -192,13 +199,15 @@ interface UnderscoreStatic {
 		list: _.Collection<T>,
 		iterator: _.MemoIterator<T, TResult>,
 		memo?: TResult,
-		context?: any): TResult;
+		context?: any
+	): TResult;
 
 	reduce<T, TResult>(
 		list: _.Dictionary<T>,
 		iterator: _.MemoObjectIterator<T, TResult>,
 		memo?: TResult,
-		context?: any): TResult;
+		context?: any
+	): TResult;
 
 	/**
 	* @see _.reduce
@@ -207,7 +216,8 @@ interface UnderscoreStatic {
 		list: _.Collection<T>,
 		iterator: _.MemoIterator<T, TResult>,
 		memo?: TResult,
-		context?: any): TResult;
+		context?: any
+	): TResult;
 
 	/**
 	* @see _.reduce
@@ -216,7 +226,8 @@ interface UnderscoreStatic {
 		list: _.Collection<T>,
 		iterator: _.MemoIterator<T, TResult>,
 		memo?: TResult,
-		context?: any): TResult;
+		context?: any
+	): TResult;
 
 	/**
 	* The right-associative version of reduce. Delegates to the JavaScript 1.8 version of
@@ -232,7 +243,8 @@ interface UnderscoreStatic {
 		list: _.Collection<T>,
 		iterator: _.MemoIterator<T, TResult>,
 		memo?: TResult,
-		context?: any): TResult;
+		context?: any
+	): TResult;
 
 	/**
 	* @see _.reduceRight
@@ -241,7 +253,8 @@ interface UnderscoreStatic {
 		list: _.Collection<T>,
 		iterator: _.MemoIterator<T, TResult>,
 		memo?: TResult,
-		context?: any): TResult;
+		context?: any
+	): TResult;
 
 	/**
 	* Looks through each value in the list, returning the first one that passes a truth
@@ -255,7 +268,8 @@ interface UnderscoreStatic {
 	find<T>(
 		list: _.List<T>,
 		iterator: _.ListIterator<T, boolean>,
-		context?: any): T;
+		context?: any
+	): T;
 
 	/**
 	* @see _.find
@@ -263,21 +277,18 @@ interface UnderscoreStatic {
 	find<T>(
 		object: _.Dictionary<T>,
 		iterator: _.ObjectIterator<T, boolean>,
-		context?: any): T;
+		context?: any
+	): T;
 
 	/**
 	* @see _.find
 	**/
-	find<T, U extends {}>(
-		object: _.List<T>|_.Dictionary<T>,
-		iterator: U): T;
+	find<T, U extends {}>(object: _.List<T> | _.Dictionary<T>, iterator: U): T;
 
 	/**
 	* @see _.find
 	**/
-	find<T>(
-		object: _.List<T>|_.Dictionary<T>,
-		iterator: string): T;
+	find<T>(object: _.List<T> | _.Dictionary<T>, iterator: string): T;
 
 	/**
 	* @see _.find
@@ -285,7 +296,8 @@ interface UnderscoreStatic {
 	detect<T>(
 		list: _.List<T>,
 		iterator: _.ListIterator<T, boolean>,
-		context?: any): T;
+		context?: any
+	): T;
 
 	/**
 	* @see _.find
@@ -293,21 +305,18 @@ interface UnderscoreStatic {
 	detect<T>(
 		object: _.Dictionary<T>,
 		iterator: _.ObjectIterator<T, boolean>,
-		context?: any): T;
+		context?: any
+	): T;
 
 	/**
 	* @see _.find
 	**/
-	detect<T, U extends {}>(
-		object: _.List<T>|_.Dictionary<T>,
-		iterator: U): T;
+	detect<T, U extends {}>(object: _.List<T> | _.Dictionary<T>, iterator: U): T;
 
 	/**
 	* @see _.find
 	**/
-	detect<T>(
-		object: _.List<T>|_.Dictionary<T>,
-		iterator: string): T;
+	detect<T>(object: _.List<T> | _.Dictionary<T>, iterator: string): T;
 
 	/**
 	* Looks through each value in the list, returning an array of all the values that pass a truth
@@ -320,7 +329,8 @@ interface UnderscoreStatic {
 	filter<T>(
 		list: _.List<T>,
 		iterator: _.ListIterator<T, boolean>,
-		context?: any): T[];
+		context?: any
+	): T[];
 
 	/**
 	* @see _.filter
@@ -328,7 +338,8 @@ interface UnderscoreStatic {
 	filter<T>(
 		object: _.Dictionary<T>,
 		iterator: _.ObjectIterator<T, boolean>,
-		context?: any): T[];
+		context?: any
+	): T[];
 
 	/**
 	* @see _.filter
@@ -336,7 +347,8 @@ interface UnderscoreStatic {
 	select<T>(
 		list: _.List<T>,
 		iterator: _.ListIterator<T, boolean>,
-		context?: any): T[];
+		context?: any
+	): T[];
 
 	/**
 	* @see _.filter
@@ -344,7 +356,8 @@ interface UnderscoreStatic {
 	select<T>(
 		object: _.Dictionary<T>,
 		iterator: _.ObjectIterator<T, boolean>,
-		context?: any): T[];
+		context?: any
+	): T[];
 
 	/**
 	* Looks through each value in the list, returning an array of all the values that contain all
@@ -353,9 +366,7 @@ interface UnderscoreStatic {
 	* @param properties The properties to check for on each element within `list`.
 	* @return The elements within `list` that contain the required `properties`.
 	**/
-	where<T, U extends {}>(
-		list: _.List<T>,
-		properties: U): T[];
+	where<T, U extends {}>(list: _.List<T>, properties: U): T[];
 
 	/**
 	* Looks through the list and returns the first value that matches all of the key-value pairs listed in properties.
@@ -363,9 +374,7 @@ interface UnderscoreStatic {
 	* @param properties Properties to look for on the elements within `list`.
 	* @return The first element in `list` that has all `properties`.
 	**/
-	findWhere<T, U extends {}>(
-		list: _.List<T>,
-		properties: U): T;
+	findWhere<T, U extends {}>(list: _.List<T>, properties: U): T;
 
 	/**
 	* Returns the values in list without the elements that the truth test (iterator) passes.
@@ -379,7 +388,8 @@ interface UnderscoreStatic {
 	reject<T>(
 		list: _.List<T>,
 		iterator: _.ListIterator<T, boolean>,
-		context?: any): T[];
+		context?: any
+	): T[];
 
 	/**
 	* @see _.reject
@@ -387,7 +397,8 @@ interface UnderscoreStatic {
 	reject<T>(
 		object: _.Dictionary<T>,
 		iterator: _.ObjectIterator<T, boolean>,
-		context?: any): T[];
+		context?: any
+	): T[];
 
 	/**
 	* Returns true if all of the values in the list pass the iterator truth test. Delegates to the
@@ -400,7 +411,8 @@ interface UnderscoreStatic {
 	every<T>(
 		list: _.List<T>,
 		iterator?: _.ListIterator<T, boolean>,
-		context?: any): boolean;
+		context?: any
+	): boolean;
 
 	/**
 	* @see _.every
@@ -408,7 +420,8 @@ interface UnderscoreStatic {
 	every<T>(
 		list: _.Dictionary<T>,
 		iterator?: _.ObjectIterator<T, boolean>,
-		context?: any): boolean;
+		context?: any
+	): boolean;
 
 	/**
 	* @see _.every
@@ -416,7 +429,8 @@ interface UnderscoreStatic {
 	all<T>(
 		list: _.List<T>,
 		iterator?: _.ListIterator<T, boolean>,
-		context?: any): boolean;
+		context?: any
+	): boolean;
 
 	/**
 	* @see _.every
@@ -424,7 +438,8 @@ interface UnderscoreStatic {
 	all<T>(
 		list: _.Dictionary<T>,
 		iterator?: _.ObjectIterator<T, boolean>,
-		context?: any): boolean;
+		context?: any
+	): boolean;
 
 	/**
 	* Returns true if any of the values in the list pass the iterator truth test. Short-circuits and
@@ -437,7 +452,8 @@ interface UnderscoreStatic {
 	some<T>(
 		list: _.List<T>,
 		iterator?: _.ListIterator<T, boolean>,
-		context?: any): boolean;
+		context?: any
+	): boolean;
 
 	/**
 	* @see _.some
@@ -445,7 +461,8 @@ interface UnderscoreStatic {
 	some<T>(
 		object: _.Dictionary<T>,
 		iterator?: _.ObjectIterator<T, boolean>,
-		context?: any): boolean;
+		context?: any
+	): boolean;
 
 	/**
 	* @see _.some
@@ -453,7 +470,8 @@ interface UnderscoreStatic {
 	any<T>(
 		list: _.List<T>,
 		iterator?: _.ListIterator<T, boolean>,
-		context?: any): boolean;
+		context?: any
+	): boolean;
 
 	/**
 	* @see _.some
@@ -461,11 +479,10 @@ interface UnderscoreStatic {
 	any<T>(
 		object: _.Dictionary<T>,
 		iterator?: _.ObjectIterator<T, boolean>,
-		context?: any): boolean;
+		context?: any
+	): boolean;
 
-	any<T>(
-		list: _.List<T>,
-		value: T): boolean;
+	any<T>(list: _.List<T>, value: T): boolean;
 
 	/**
 	* Returns true if the value is present in the list. Uses indexOf internally,
@@ -474,47 +491,32 @@ interface UnderscoreStatic {
 	* @param value The value to check for within `list`.
 	* @return True if `value` is present in `list`, otherwise false.
 	**/
-	contains<T>(
-		list: _.List<T>,
-		value: T,
-		fromIndex?: number): boolean;
+	contains<T>(list: _.List<T>, value: T, fromIndex?: number): boolean;
 
 	/**
 	* @see _.contains
 	**/
-	contains<T>(
-		object: _.Dictionary<T>,
-		value: T): boolean;
+	contains<T>(object: _.Dictionary<T>, value: T): boolean;
 
 	/**
 	* @see _.contains
 	**/
-	include<T>(
-		list: _.Collection<T>,
-		value: T,
-		fromIndex?: number): boolean;
+	include<T>(list: _.Collection<T>, value: T, fromIndex?: number): boolean;
 
 	/**
 	* @see _.contains
 	**/
-	include<T>(
-		object: _.Dictionary<T>,
-		value: T): boolean;
+	include<T>(object: _.Dictionary<T>, value: T): boolean;
 
 	/**
 	* @see _.contains
 	**/
-	includes<T>(
-		list: _.Collection<T>,
-		value: T,
-		fromIndex?: number): boolean;
+	includes<T>(list: _.Collection<T>, value: T, fromIndex?: number): boolean;
 
 	/**
 	* @see _.contains
 	**/
-	includes<T>(
-		object: _.Dictionary<T>,
-		value: T): boolean;
+	includes<T>(object: _.Dictionary<T>, value: T): boolean;
 
 	/**
 	* Calls the method named by methodName on each value in the list. Any extra arguments passed to
@@ -526,7 +528,8 @@ interface UnderscoreStatic {
 	invoke<T extends {}>(
 		list: _.List<T>,
 		methodName: string,
-		...arguments: any[]): any;
+		...arguments: any[]
+	): any;
 
 	/**
 	* A convenient version of what is perhaps the most common use-case for map: extracting a list of
@@ -535,9 +538,7 @@ interface UnderscoreStatic {
 	* @param propertyName The property to look for on each element within `list`.
 	* @return The list of elements within `list` that have the property `propertyName`.
 	**/
-	pluck<T extends {}>(
-		list: _.List<T>,
-		propertyName: string): any[];
+	pluck<T extends {}>(list: _.List<T>, propertyName: string): any[];
 
 	/**
 	* Returns the maximum value in list.
@@ -559,10 +560,7 @@ interface UnderscoreStatic {
 	* @param context `this` object in `iterator`, optional.
 	* @return The maximum element within `list`.
 	**/
-	max<T>(
-		list: _.List<T>,
-		iterator?: _.ListIterator<T, any>,
-		context?: any): T;
+	max<T>(list: _.List<T>, iterator?: _.ListIterator<T, any>, context?: any): T;
 
 	/**
 	* @see _.max
@@ -570,7 +568,8 @@ interface UnderscoreStatic {
 	max<T>(
 		list: _.Dictionary<T>,
 		iterator?: _.ObjectIterator<T, any>,
-		context?: any): T;
+		context?: any
+	): T;
 
 	/**
 	* Returns the minimum value in list.
@@ -592,10 +591,7 @@ interface UnderscoreStatic {
 	* @param context `this` object in `iterator`, optional.
 	* @return The minimum element within `list`.
 	**/
-	min<T>(
-		list: _.List<T>,
-		iterator?: _.ListIterator<T, any>,
-		context?: any): T;
+	min<T>(list: _.List<T>, iterator?: _.ListIterator<T, any>, context?: any): T;
 
 	/**
 	* @see _.min
@@ -603,7 +599,8 @@ interface UnderscoreStatic {
 	min<T>(
 		list: _.Dictionary<T>,
 		iterator?: _.ObjectIterator<T, any>,
-		context?: any): T;
+		context?: any
+	): T;
 
 	/**
 	* Returns a sorted copy of list, ranked in ascending order by the results of running each value
@@ -616,16 +613,14 @@ interface UnderscoreStatic {
 	sortBy<T, TSort>(
 		list: _.List<T>,
 		iterator?: _.ListIterator<T, TSort>,
-		context?: any): T[];
+		context?: any
+	): T[];
 
 	/**
 	* @see _.sortBy
 	* @param iterator Sort iterator for each element within `list`.
 	**/
-	sortBy<T>(
-		list: _.List<T>,
-		iterator: string,
-		context?: any): T[];
+	sortBy<T>(list: _.List<T>, iterator: string, context?: any): T[];
 
 	/**
 	* Splits a collection into sets, grouped by the result of running each value through iterator.
@@ -639,7 +634,8 @@ interface UnderscoreStatic {
 	groupBy<T>(
 		list: _.List<T>,
 		iterator?: _.ListIterator<T, any>,
-		context?: any): _.Dictionary<T[]>;
+		context?: any
+	): _.Dictionary<T[]>;
 
 	/**
 	* @see _.groupBy
@@ -648,7 +644,8 @@ interface UnderscoreStatic {
 	groupBy<T>(
 		list: _.List<T>,
 		iterator: string,
-		context?: any): _.Dictionary<T[]>;
+		context?: any
+	): _.Dictionary<T[]>;
 
 	/**
 	* Given a `list`, and an `iterator` function that returns a key for each element in the list (or a property name),
@@ -657,16 +654,14 @@ interface UnderscoreStatic {
 	indexBy<T>(
 		list: _.List<T>,
 		iterator: _.ListIterator<T, any>,
-		context?: any): _.Dictionary<T>;
+		context?: any
+	): _.Dictionary<T>;
 
 	/**
 	* @see _.indexBy
 	* @param iterator Property on each object to index them by.
 	**/
-	indexBy<T>(
-		list: _.List<T>,
-		iterator: string,
-		context?: any): _.Dictionary<T>;
+	indexBy<T>(list: _.List<T>, iterator: string, context?: any): _.Dictionary<T>;
 
 	/**
 	* Sorts a list into groups and returns a count for the number of objects in each group. Similar
@@ -680,7 +675,8 @@ interface UnderscoreStatic {
 	countBy<T>(
 		list: _.List<T>,
 		iterator?: _.ListIterator<T, any>,
-		context?: any): _.Dictionary<number>;
+		context?: any
+	): _.Dictionary<number>;
 
 	/**
 	* @see _.countBy
@@ -689,7 +685,8 @@ interface UnderscoreStatic {
 	countBy<T>(
 		list: _.List<T>,
 		iterator: string,
-		context?: any): _.Dictionary<number>;
+		context?: any
+	): _.Dictionary<number>;
 
 	/**
 	* Returns a shuffled copy of the list, using a version of the Fisher-Yates shuffle.
@@ -736,7 +733,8 @@ interface UnderscoreStatic {
 	partition<T>(
 		array: Array<T>,
 		iterator: _.ListIterator<T, boolean>,
-		context?: any): T[][];
+		context?: any
+	): T[][];
 
 	/*********
 	* Arrays *
@@ -753,9 +751,7 @@ interface UnderscoreStatic {
 	* @see _.first
 	* @param n Return more than one element from `array`.
 	**/
-	first<T>(
-		array: _.List<T>,
-		n: number): T[];
+	first<T>(array: _.List<T>, n: number): T[];
 
 	/**
 	* @see _.first
@@ -765,9 +761,7 @@ interface UnderscoreStatic {
 	/**
 	* @see _.first
 	**/
-	head<T>(
-		array: _.List<T>,
-		n: number): T[];
+	head<T>(array: _.List<T>, n: number): T[];
 
 	/**
 	* @see _.first
@@ -777,9 +771,7 @@ interface UnderscoreStatic {
 	/**
 	* @see _.first
 	**/
-	take<T>(
-		array: _.List<T>,
-		n: number): T[];
+	take<T>(array: _.List<T>, n: number): T[];
 
 	/**
 	* Returns everything but the last entry of the array. Especially useful on the arguments object.
@@ -788,9 +780,7 @@ interface UnderscoreStatic {
 	* @param n Leaves this many elements behind, optional.
 	* @return Returns everything but the last `n` elements of `array`.
 	**/
-	initial<T>(
-		array: _.List<T>,
-		n?: number): T[];
+	initial<T>(array: _.List<T>, n?: number): T[];
 
 	/**
 	* Returns the last element of an array. Passing n will return the last n elements of the array.
@@ -803,9 +793,7 @@ interface UnderscoreStatic {
 	* @see _.last
 	* @param n Return more than one element from `array`.
 	**/
-	last<T>(
-		array: _.List<T>,
-		n: number): T[];
+	last<T>(array: _.List<T>, n: number): T[];
 
 	/**
 	* Returns the rest of the elements in an array. Pass an index to return the values of the array
@@ -814,23 +802,17 @@ interface UnderscoreStatic {
 	* @param n The index to start retrieving elements forward from, optional, default = 1.
 	* @return Returns the elements of `array` from `index` to the end of `array`.
 	**/
-	rest<T>(
-		array: _.List<T>,
-		n?: number): T[];
+	rest<T>(array: _.List<T>, n?: number): T[];
 
 	/**
 	* @see _.rest
 	**/
-	tail<T>(
-		array: _.List<T>,
-		n?: number): T[];
+	tail<T>(array: _.List<T>, n?: number): T[];
 
 	/**
 	* @see _.rest
 	**/
-	drop<T>(
-		array: _.List<T>,
-		n?: number): T[];
+	drop<T>(array: _.List<T>, n?: number): T[];
 
 	/**
 	* Returns a copy of the array with all falsy values removed. In JavaScript, false, null, 0, "",
@@ -847,9 +829,7 @@ interface UnderscoreStatic {
 	* @param shallow If true then only flatten one level, optional, default = false.
 	* @return `array` flattened.
 	**/
-	flatten(
-		array: _.List<any>,
-		shallow?: boolean): any[];
+	flatten(array: _.List<any>, shallow?: boolean): any[];
 
 	/**
 	* Returns a copy of the array with all instances of the values removed.
@@ -857,9 +837,7 @@ interface UnderscoreStatic {
 	* @param values The values to remove from `array`.
 	* @return Copy of `array` without `values`.
 	**/
-	without<T>(
-		array: _.List<T>,
-		...values: T[]): T[];
+	without<T>(array: _.List<T>, ...values: T[]): T[];
 
 	/**
 	* Computes the union of the passed-in arrays: the list of unique items, in order, that are
@@ -883,9 +861,7 @@ interface UnderscoreStatic {
 	* @param others The values to keep within `array`.
 	* @return Copy of `array` with only `others` values.
 	**/
-	difference<T>(
-		array: _.List<T>,
-		...others: _.List<T>[]): T[];
+	difference<T>(array: _.List<T>, ...others: _.List<T>[]): T[];
 
 	/**
 	* Produces a duplicate-free version of the array, using === to test object equality. If you know in
@@ -901,7 +877,8 @@ interface UnderscoreStatic {
 		array: _.List<T>,
 		isSorted?: boolean,
 		iterator?: _.ListIterator<T, TSort>,
-		context?: any): T[];
+		context?: any
+	): T[];
 
 	/**
 	* @see _.uniq
@@ -909,7 +886,8 @@ interface UnderscoreStatic {
 	uniq<T, TSort>(
 		array: _.List<T>,
 		iterator?: _.ListIterator<T, TSort>,
-		context?: any): T[];
+		context?: any
+	): T[];
 
 	/**
 	* @see _.uniq
@@ -917,7 +895,8 @@ interface UnderscoreStatic {
 	unique<T, TSort>(
 		array: _.List<T>,
 		iterator?: _.ListIterator<T, TSort>,
-		context?: any): T[];
+		context?: any
+	): T[];
 
 	/**
 	* @see _.uniq
@@ -926,8 +905,8 @@ interface UnderscoreStatic {
 		array: _.List<T>,
 		isSorted?: boolean,
 		iterator?: _.ListIterator<T, TSort>,
-		context?: any): T[];
-
+		context?: any
+	): T[];
 
 	/**
 	* Merges together the values of each of the arrays with the values at the corresponding position.
@@ -962,7 +941,8 @@ interface UnderscoreStatic {
 	**/
 	object<TResult extends {}>(
 		keys: _.List<string>,
-		values: _.List<any>): TResult;
+		values: _.List<any>
+	): TResult;
 
 	/**
 	* Converts arrays into objects. Pass either a single list of [key, value] pairs, or a
@@ -975,9 +955,7 @@ interface UnderscoreStatic {
 	/**
 	* @see _.object
 	**/
-	object<TResult extends {}>(
-		list: _.List<any>,
-		values?: any): TResult;
+	object<TResult extends {}>(list: _.List<any>, values?: any): TResult;
 
 	/**
 	* Returns the index at which value can be found in the array, or -1 if value is not present in the array.
@@ -989,18 +967,12 @@ interface UnderscoreStatic {
 	* @param isSorted True if the array is already sorted, optional, default = false.
 	* @return The index of `value` within `array`.
 	**/
-	indexOf<T>(
-		array: _.List<T>,
-		value: T,
-		isSorted?: boolean): number;
+	indexOf<T>(array: _.List<T>, value: T, isSorted?: boolean): number;
 
 	/**
 	* @see _indexof
 	**/
-	indexOf<T>(
-		array: _.List<T>,
-		value: T,
-		startFrom: number): number;
+	indexOf<T>(array: _.List<T>, value: T, startFrom: number): number;
 
 	/**
 	* Returns the index of the last occurrence of value in the array, or -1 if value is not present. Uses the
@@ -1010,10 +982,7 @@ interface UnderscoreStatic {
 	* @param from The starting index for the search, optional.
 	* @return The index of the last occurrence of `value` within `array`.
 	**/
-	lastIndexOf<T>(
-		array: _.List<T>,
-		value: T,
-		from?: number): number;
+	lastIndexOf<T>(array: _.List<T>, value: T, from?: number): number;
 
 	/**
 	* Returns the first index of an element in `array` where the predicate truth test passes
@@ -1025,7 +994,8 @@ interface UnderscoreStatic {
 	findIndex<T>(
 		array: _.List<T>,
 		predicate: _.ListIterator<T, boolean> | {},
-		context?: any): number;
+		context?: any
+	): number;
 
 	/**
 	* Returns the last index of an element in `array` where the predicate truth test passes
@@ -1037,7 +1007,8 @@ interface UnderscoreStatic {
 	findLastIndex<T>(
 		array: _.List<T>,
 		predicate: _.ListIterator<T, boolean> | {},
-		context?: any): number;
+		context?: any
+	): number;
 
 	/**
 	* Uses a binary search to determine the index at which the value should be inserted into the list in order
@@ -1051,7 +1022,9 @@ interface UnderscoreStatic {
 	sortedIndex<T, TSort>(
 		list: _.List<T>,
 		value: T,
-		iterator?: (x: T) => TSort, context?: any): number;
+		iterator?: (x: T) => TSort,
+		context?: any
+	): number;
 
 	/**
 	* A function to create flexibly-numbered lists of integers, handy for each and map loops. start, if omitted,
@@ -1063,10 +1036,7 @@ interface UnderscoreStatic {
 	* @return Array of numbers from `start` to `stop` with increments of `step`.
 	**/
 
-	range(
-		start: number,
-		stop: number,
-		step?: number): number[];
+	range(start: number, stop: number, step?: number): number[];
 
 	/**
 	* @see _.range
@@ -1082,7 +1052,7 @@ interface UnderscoreStatic {
 	* @param array The array to split
 	* @param count The maximum size of the inner arrays.
 	*/
-	chunk<T>(array: _.Collection<T>, count: number): (_.Collection<T>)[]
+	chunk<T>(array: _.Collection<T>, count: number): (_.Collection<T>)[];
 
 	/*************
 	 * Functions *
@@ -1096,10 +1066,7 @@ interface UnderscoreStatic {
 	* @param arguments Additional arguments to pass to `fn` when called.
 	* @return `fn` with `this` bound to `object`.
 	**/
-	bind(
-		func: Function,
-		context: any,
-		...arguments: any[]): () => any;
+	bind(func: Function, context: any, ...arguments: any[]): () => any;
 
 	/**
 	* Binds a number of methods on the object, specified by methodNames, to be run in the context of that object
@@ -1110,9 +1077,7 @@ interface UnderscoreStatic {
 	* @param methodNames The methods to bind to `object`, optional and if not provided all of `object`'s
 	* methods are bound.
 	**/
-	bindAll(
-		object: any,
-		...methodNames: string[]): any;
+	bindAll(object: any, ...methodNames: string[]): any;
 
 	/**
 	* Partially apply a function by filling in any number of its arguments, without changing its dynamic this value.
@@ -1123,120 +1088,110 @@ interface UnderscoreStatic {
 	* @return `fn` with partially filled in arguments.
 	**/
 
-	partial<T1, T2>(
-		fn: { (p1: T1):T2 },
-		p1: T1
-	): { (): T2 };
+	partial<T1, T2>(fn: { (p1: T1): T2 }, p1: T1): { (): T2 };
+
+	partial<T1, T2, T3>(fn: { (p1: T1, p2: T2): T3 }, p1: T1): { (p2: T2): T3 };
+
+	partial<T1, T2, T3>(fn: { (p1: T1, p2: T2): T3 }, p1: T1, p2: T2): { (): T3 };
 
 	partial<T1, T2, T3>(
-		fn: { (p1: T1, p2: T2):T3 },
-		p1: T1
-	): { (p2: T2): T3 };
-
-	partial<T1, T2, T3>(
-		fn: { (p1: T1, p2: T2):T3 },
-		p1: T1,
-		p2: T2
-	): { (): T3 };
-
-	partial<T1, T2, T3>(
-		fn: { (p1: T1, p2: T2):T3 },
+		fn: { (p1: T1, p2: T2): T3 },
 		stub1: UnderscoreStatic,
 		p2: T2
 	): { (p1: T1): T3 };
 
 	partial<T1, T2, T3, T4>(
-		fn: { (p1: T1, p2: T2, p3: T3):T4 },
+		fn: { (p1: T1, p2: T2, p3: T3): T4 },
 		p1: T1
 	): { (p2: T2, p3: T3): T4 };
 
 	partial<T1, T2, T3, T4>(
-		fn: { (p1: T1, p2: T2, p3: T3):T4 },
+		fn: { (p1: T1, p2: T2, p3: T3): T4 },
 		p1: T1,
 		p2: T2
 	): { (p3: T3): T4 };
 
 	partial<T1, T2, T3, T4>(
-		fn: { (p1: T1, p2: T2, p3: T3):T4 },
+		fn: { (p1: T1, p2: T2, p3: T3): T4 },
 		stub1: UnderscoreStatic,
 		p2: T2
 	): { (p1: T1, p3: T3): T4 };
 
 	partial<T1, T2, T3, T4>(
-		fn: { (p1: T1, p2: T2, p3: T3):T4 },
+		fn: { (p1: T1, p2: T2, p3: T3): T4 },
 		p1: T1,
 		p2: T2,
 		p3: T3
 	): { (): T4 };
 
 	partial<T1, T2, T3, T4>(
-		fn: { (p1: T1, p2: T2, p3: T3):T4 },
+		fn: { (p1: T1, p2: T2, p3: T3): T4 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		p3: T3
 	): { (p1: T1): T4 };
 
 	partial<T1, T2, T3, T4>(
-		fn: { (p1: T1, p2: T2, p3: T3):T4 },
+		fn: { (p1: T1, p2: T2, p3: T3): T4 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		p3: T3
 	): { (p2: T2): T4 };
 
 	partial<T1, T2, T3, T4>(
-		fn: { (p1: T1, p2: T2, p3: T3):T4 },
+		fn: { (p1: T1, p2: T2, p3: T3): T4 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		p3: T3
 	): { (p1: T1, p2: T2): T4 };
 
 	partial<T1, T2, T3, T4, T5>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4):T5 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4): T5 },
 		p1: T1
 	): { (p2: T2, p3: T3, p4: T4): T5 };
 
 	partial<T1, T2, T3, T4, T5>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4):T5 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4): T5 },
 		p1: T1,
 		p2: T2
 	): { (p3: T3, p4: T4): T5 };
 
 	partial<T1, T2, T3, T4, T5>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4):T5 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4): T5 },
 		stub1: UnderscoreStatic,
 		p2: T2
 	): { (p1: T1, p3: T3, p4: T4): T5 };
 
 	partial<T1, T2, T3, T4, T5>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4):T5 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4): T5 },
 		p1: T1,
 		p2: T2,
 		p3: T3
 	): { (p4: T4): T5 };
 
 	partial<T1, T2, T3, T4, T5>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4):T5 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4): T5 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		p3: T3
 	): { (p1: T1, p4: T4): T5 };
 
 	partial<T1, T2, T3, T4, T5>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4):T5 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4): T5 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		p3: T3
 	): { (p2: T2, p4: T4): T5 };
 
 	partial<T1, T2, T3, T4, T5>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4):T5 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4): T5 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		p3: T3
 	): { (p1: T1, p2: T2, p4: T4): T5 };
 
 	partial<T1, T2, T3, T4, T5>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4):T5 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4): T5 },
 		p1: T1,
 		p2: T2,
 		p3: T3,
@@ -1244,7 +1199,7 @@ interface UnderscoreStatic {
 	): { (): T5 };
 
 	partial<T1, T2, T3, T4, T5>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4):T5 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4): T5 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		p3: T3,
@@ -1252,7 +1207,7 @@ interface UnderscoreStatic {
 	): { (p1: T1): T5 };
 
 	partial<T1, T2, T3, T4, T5>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4):T5 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4): T5 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -1260,7 +1215,7 @@ interface UnderscoreStatic {
 	): { (p2: T2): T5 };
 
 	partial<T1, T2, T3, T4, T5>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4):T5 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4): T5 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -1268,7 +1223,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2): T5 };
 
 	partial<T1, T2, T3, T4, T5>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4):T5 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4): T5 },
 		p1: T1,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -1276,7 +1231,7 @@ interface UnderscoreStatic {
 	): { (p3: T3): T5 };
 
 	partial<T1, T2, T3, T4, T5>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4):T5 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4): T5 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -1284,7 +1239,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p3: T3): T5 };
 
 	partial<T1, T2, T3, T4, T5>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4):T5 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4): T5 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -1292,7 +1247,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p3: T3): T5 };
 
 	partial<T1, T2, T3, T4, T5>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4):T5 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4): T5 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -1300,52 +1255,52 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p3: T3): T5 };
 
 	partial<T1, T2, T3, T4, T5, T6>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5):T6 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): T6 },
 		p1: T1
 	): { (p2: T2, p3: T3, p4: T4, p5: T5): T6 };
 
 	partial<T1, T2, T3, T4, T5, T6>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5):T6 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): T6 },
 		p1: T1,
 		p2: T2
 	): { (p3: T3, p4: T4, p5: T5): T6 };
 
 	partial<T1, T2, T3, T4, T5, T6>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5):T6 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): T6 },
 		stub1: UnderscoreStatic,
 		p2: T2
 	): { (p1: T1, p3: T3, p4: T4, p5: T5): T6 };
 
 	partial<T1, T2, T3, T4, T5, T6>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5):T6 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): T6 },
 		p1: T1,
 		p2: T2,
 		p3: T3
 	): { (p4: T4, p5: T5): T6 };
 
 	partial<T1, T2, T3, T4, T5, T6>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5):T6 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): T6 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		p3: T3
 	): { (p1: T1, p4: T4, p5: T5): T6 };
 
 	partial<T1, T2, T3, T4, T5, T6>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5):T6 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): T6 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		p3: T3
 	): { (p2: T2, p4: T4, p5: T5): T6 };
 
 	partial<T1, T2, T3, T4, T5, T6>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5):T6 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): T6 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		p3: T3
 	): { (p1: T1, p2: T2, p4: T4, p5: T5): T6 };
 
 	partial<T1, T2, T3, T4, T5, T6>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5):T6 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): T6 },
 		p1: T1,
 		p2: T2,
 		p3: T3,
@@ -1353,7 +1308,7 @@ interface UnderscoreStatic {
 	): { (p5: T5): T6 };
 
 	partial<T1, T2, T3, T4, T5, T6>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5):T6 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): T6 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		p3: T3,
@@ -1361,7 +1316,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p5: T5): T6 };
 
 	partial<T1, T2, T3, T4, T5, T6>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5):T6 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): T6 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -1369,7 +1324,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p5: T5): T6 };
 
 	partial<T1, T2, T3, T4, T5, T6>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5):T6 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): T6 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -1377,7 +1332,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p5: T5): T6 };
 
 	partial<T1, T2, T3, T4, T5, T6>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5):T6 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): T6 },
 		p1: T1,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -1385,7 +1340,7 @@ interface UnderscoreStatic {
 	): { (p3: T3, p5: T5): T6 };
 
 	partial<T1, T2, T3, T4, T5, T6>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5):T6 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): T6 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -1393,7 +1348,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p3: T3, p5: T5): T6 };
 
 	partial<T1, T2, T3, T4, T5, T6>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5):T6 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): T6 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -1401,7 +1356,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p3: T3, p5: T5): T6 };
 
 	partial<T1, T2, T3, T4, T5, T6>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5):T6 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): T6 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -1409,7 +1364,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p3: T3, p5: T5): T6 };
 
 	partial<T1, T2, T3, T4, T5, T6>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5):T6 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): T6 },
 		p1: T1,
 		p2: T2,
 		p3: T3,
@@ -1418,7 +1373,7 @@ interface UnderscoreStatic {
 	): { (): T6 };
 
 	partial<T1, T2, T3, T4, T5, T6>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5):T6 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): T6 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		p3: T3,
@@ -1427,7 +1382,7 @@ interface UnderscoreStatic {
 	): { (p1: T1): T6 };
 
 	partial<T1, T2, T3, T4, T5, T6>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5):T6 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): T6 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -1436,7 +1391,7 @@ interface UnderscoreStatic {
 	): { (p2: T2): T6 };
 
 	partial<T1, T2, T3, T4, T5, T6>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5):T6 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): T6 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -1445,7 +1400,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2): T6 };
 
 	partial<T1, T2, T3, T4, T5, T6>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5):T6 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): T6 },
 		p1: T1,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -1454,7 +1409,7 @@ interface UnderscoreStatic {
 	): { (p3: T3): T6 };
 
 	partial<T1, T2, T3, T4, T5, T6>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5):T6 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): T6 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -1463,7 +1418,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p3: T3): T6 };
 
 	partial<T1, T2, T3, T4, T5, T6>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5):T6 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): T6 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -1472,7 +1427,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p3: T3): T6 };
 
 	partial<T1, T2, T3, T4, T5, T6>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5):T6 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): T6 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -1481,7 +1436,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p3: T3): T6 };
 
 	partial<T1, T2, T3, T4, T5, T6>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5):T6 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): T6 },
 		p1: T1,
 		p2: T2,
 		p3: T3,
@@ -1490,7 +1445,7 @@ interface UnderscoreStatic {
 	): { (p4: T4): T6 };
 
 	partial<T1, T2, T3, T4, T5, T6>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5):T6 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): T6 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		p3: T3,
@@ -1499,7 +1454,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p4: T4): T6 };
 
 	partial<T1, T2, T3, T4, T5, T6>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5):T6 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): T6 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -1508,7 +1463,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p4: T4): T6 };
 
 	partial<T1, T2, T3, T4, T5, T6>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5):T6 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): T6 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -1517,7 +1472,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p4: T4): T6 };
 
 	partial<T1, T2, T3, T4, T5, T6>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5):T6 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): T6 },
 		p1: T1,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -1526,7 +1481,7 @@ interface UnderscoreStatic {
 	): { (p3: T3, p4: T4): T6 };
 
 	partial<T1, T2, T3, T4, T5, T6>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5):T6 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): T6 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -1535,7 +1490,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p3: T3, p4: T4): T6 };
 
 	partial<T1, T2, T3, T4, T5, T6>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5):T6 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): T6 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -1544,7 +1499,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p3: T3, p4: T4): T6 };
 
 	partial<T1, T2, T3, T4, T5, T6>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5):T6 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): T6 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -1553,52 +1508,52 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p3: T3, p4: T4): T6 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		p1: T1
 	): { (p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		p1: T1,
 		p2: T2
 	): { (p3: T3, p4: T4, p5: T5, p6: T6): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		stub1: UnderscoreStatic,
 		p2: T2
 	): { (p1: T1, p3: T3, p4: T4, p5: T5, p6: T6): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		p1: T1,
 		p2: T2,
 		p3: T3
 	): { (p4: T4, p5: T5, p6: T6): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		p3: T3
 	): { (p1: T1, p4: T4, p5: T5, p6: T6): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		p3: T3
 	): { (p2: T2, p4: T4, p5: T5, p6: T6): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		p3: T3
 	): { (p1: T1, p2: T2, p4: T4, p5: T5, p6: T6): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		p1: T1,
 		p2: T2,
 		p3: T3,
@@ -1606,7 +1561,7 @@ interface UnderscoreStatic {
 	): { (p5: T5, p6: T6): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		p3: T3,
@@ -1614,7 +1569,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p5: T5, p6: T6): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -1622,7 +1577,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p5: T5, p6: T6): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -1630,7 +1585,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p5: T5, p6: T6): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		p1: T1,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -1638,7 +1593,7 @@ interface UnderscoreStatic {
 	): { (p3: T3, p5: T5, p6: T6): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -1646,7 +1601,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p3: T3, p5: T5, p6: T6): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -1654,7 +1609,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p3: T3, p5: T5, p6: T6): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -1662,7 +1617,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p3: T3, p5: T5, p6: T6): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		p1: T1,
 		p2: T2,
 		p3: T3,
@@ -1671,7 +1626,7 @@ interface UnderscoreStatic {
 	): { (p6: T6): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		p3: T3,
@@ -1680,7 +1635,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p6: T6): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -1689,7 +1644,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p6: T6): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -1698,7 +1653,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p6: T6): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		p1: T1,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -1707,7 +1662,7 @@ interface UnderscoreStatic {
 	): { (p3: T3, p6: T6): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -1716,7 +1671,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p3: T3, p6: T6): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -1725,7 +1680,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p3: T3, p6: T6): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -1734,7 +1689,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p3: T3, p6: T6): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		p1: T1,
 		p2: T2,
 		p3: T3,
@@ -1743,7 +1698,7 @@ interface UnderscoreStatic {
 	): { (p4: T4, p6: T6): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		p3: T3,
@@ -1752,7 +1707,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p4: T4, p6: T6): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -1761,7 +1716,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p4: T4, p6: T6): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -1770,7 +1725,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p4: T4, p6: T6): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		p1: T1,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -1779,7 +1734,7 @@ interface UnderscoreStatic {
 	): { (p3: T3, p4: T4, p6: T6): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -1788,7 +1743,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p3: T3, p4: T4, p6: T6): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -1797,7 +1752,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p3: T3, p4: T4, p6: T6): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -1806,7 +1761,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p3: T3, p4: T4, p6: T6): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		p1: T1,
 		p2: T2,
 		p3: T3,
@@ -1816,7 +1771,7 @@ interface UnderscoreStatic {
 	): { (): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		p3: T3,
@@ -1826,7 +1781,7 @@ interface UnderscoreStatic {
 	): { (p1: T1): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -1836,7 +1791,7 @@ interface UnderscoreStatic {
 	): { (p2: T2): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -1846,7 +1801,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		p1: T1,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -1856,7 +1811,7 @@ interface UnderscoreStatic {
 	): { (p3: T3): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -1866,7 +1821,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p3: T3): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -1876,7 +1831,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p3: T3): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -1886,7 +1841,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p3: T3): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		p1: T1,
 		p2: T2,
 		p3: T3,
@@ -1896,7 +1851,7 @@ interface UnderscoreStatic {
 	): { (p4: T4): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		p3: T3,
@@ -1906,7 +1861,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p4: T4): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -1916,7 +1871,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p4: T4): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -1926,7 +1881,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p4: T4): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		p1: T1,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -1936,7 +1891,7 @@ interface UnderscoreStatic {
 	): { (p3: T3, p4: T4): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -1946,7 +1901,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p3: T3, p4: T4): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -1956,7 +1911,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p3: T3, p4: T4): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -1966,7 +1921,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p3: T3, p4: T4): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		p1: T1,
 		p2: T2,
 		p3: T3,
@@ -1976,7 +1931,7 @@ interface UnderscoreStatic {
 	): { (p5: T5): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		p3: T3,
@@ -1986,7 +1941,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p5: T5): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -1996,7 +1951,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p5: T5): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -2006,7 +1961,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p5: T5): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		p1: T1,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -2016,7 +1971,7 @@ interface UnderscoreStatic {
 	): { (p3: T3, p5: T5): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -2026,7 +1981,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p3: T3, p5: T5): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -2036,7 +1991,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p3: T3, p5: T5): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -2046,7 +2001,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p3: T3, p5: T5): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		p1: T1,
 		p2: T2,
 		p3: T3,
@@ -2056,7 +2011,7 @@ interface UnderscoreStatic {
 	): { (p4: T4, p5: T5): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		p3: T3,
@@ -2066,7 +2021,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p4: T4, p5: T5): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -2076,7 +2031,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p4: T4, p5: T5): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -2086,7 +2041,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p4: T4, p5: T5): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		p1: T1,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -2096,7 +2051,7 @@ interface UnderscoreStatic {
 	): { (p3: T3, p4: T4, p5: T5): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -2106,7 +2061,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p3: T3, p4: T4, p5: T5): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -2116,7 +2071,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p3: T3, p4: T4, p5: T5): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6):T7 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T7 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -2126,52 +2081,52 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): T7 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1
 	): { (p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		p2: T2
 	): { (p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		p2: T2
 	): { (p1: T1, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		p2: T2,
 		p3: T3
 	): { (p4: T4, p5: T5, p6: T6, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		p3: T3
 	): { (p1: T1, p4: T4, p5: T5, p6: T6, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		p3: T3
 	): { (p2: T2, p4: T4, p5: T5, p6: T6, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		p3: T3
 	): { (p1: T1, p2: T2, p4: T4, p5: T5, p6: T6, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		p2: T2,
 		p3: T3,
@@ -2179,7 +2134,7 @@ interface UnderscoreStatic {
 	): { (p5: T5, p6: T6, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		p3: T3,
@@ -2187,7 +2142,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p5: T5, p6: T6, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -2195,7 +2150,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p5: T5, p6: T6, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -2203,7 +2158,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p5: T5, p6: T6, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -2211,7 +2166,7 @@ interface UnderscoreStatic {
 	): { (p3: T3, p5: T5, p6: T6, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -2219,7 +2174,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p3: T3, p5: T5, p6: T6, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -2227,7 +2182,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p3: T3, p5: T5, p6: T6, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -2235,7 +2190,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p3: T3, p5: T5, p6: T6, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		p2: T2,
 		p3: T3,
@@ -2244,7 +2199,7 @@ interface UnderscoreStatic {
 	): { (p6: T6, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		p3: T3,
@@ -2253,7 +2208,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p6: T6, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -2262,7 +2217,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p6: T6, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -2271,7 +2226,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p6: T6, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -2280,7 +2235,7 @@ interface UnderscoreStatic {
 	): { (p3: T3, p6: T6, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -2289,7 +2244,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p3: T3, p6: T6, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -2298,7 +2253,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p3: T3, p6: T6, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -2307,7 +2262,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p3: T3, p6: T6, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		p2: T2,
 		p3: T3,
@@ -2316,7 +2271,7 @@ interface UnderscoreStatic {
 	): { (p4: T4, p6: T6, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		p3: T3,
@@ -2325,7 +2280,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p4: T4, p6: T6, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -2334,7 +2289,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p4: T4, p6: T6, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -2343,7 +2298,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p4: T4, p6: T6, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -2352,7 +2307,7 @@ interface UnderscoreStatic {
 	): { (p3: T3, p4: T4, p6: T6, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -2361,7 +2316,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p3: T3, p4: T4, p6: T6, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -2370,7 +2325,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p3: T3, p4: T4, p6: T6, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -2379,7 +2334,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p3: T3, p4: T4, p6: T6, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		p2: T2,
 		p3: T3,
@@ -2389,7 +2344,7 @@ interface UnderscoreStatic {
 	): { (p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		p3: T3,
@@ -2399,7 +2354,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -2409,7 +2364,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -2419,7 +2374,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -2429,7 +2384,7 @@ interface UnderscoreStatic {
 	): { (p3: T3, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -2439,7 +2394,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p3: T3, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -2449,7 +2404,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p3: T3, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -2459,7 +2414,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p3: T3, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		p2: T2,
 		p3: T3,
@@ -2469,7 +2424,7 @@ interface UnderscoreStatic {
 	): { (p4: T4, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		p3: T3,
@@ -2479,7 +2434,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p4: T4, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -2489,7 +2444,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p4: T4, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -2499,7 +2454,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p4: T4, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -2509,7 +2464,7 @@ interface UnderscoreStatic {
 	): { (p3: T3, p4: T4, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -2519,7 +2474,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p3: T3, p4: T4, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -2529,7 +2484,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p3: T3, p4: T4, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -2539,7 +2494,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p3: T3, p4: T4, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		p2: T2,
 		p3: T3,
@@ -2549,7 +2504,7 @@ interface UnderscoreStatic {
 	): { (p5: T5, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		p3: T3,
@@ -2559,7 +2514,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p5: T5, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -2569,7 +2524,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p5: T5, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -2579,7 +2534,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p5: T5, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -2589,7 +2544,7 @@ interface UnderscoreStatic {
 	): { (p3: T3, p5: T5, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -2599,7 +2554,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p3: T3, p5: T5, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -2609,7 +2564,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p3: T3, p5: T5, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -2619,7 +2574,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p3: T3, p5: T5, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		p2: T2,
 		p3: T3,
@@ -2629,7 +2584,7 @@ interface UnderscoreStatic {
 	): { (p4: T4, p5: T5, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		p3: T3,
@@ -2639,7 +2594,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p4: T4, p5: T5, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -2649,7 +2604,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p4: T4, p5: T5, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -2659,7 +2614,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p4: T4, p5: T5, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -2669,7 +2624,7 @@ interface UnderscoreStatic {
 	): { (p3: T3, p4: T4, p5: T5, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -2679,7 +2634,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p3: T3, p4: T4, p5: T5, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -2689,7 +2644,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p3: T3, p4: T4, p5: T5, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -2699,7 +2654,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p7: T7): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		p2: T2,
 		p3: T3,
@@ -2710,7 +2665,7 @@ interface UnderscoreStatic {
 	): { (): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		p3: T3,
@@ -2721,7 +2676,7 @@ interface UnderscoreStatic {
 	): { (p1: T1): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -2732,7 +2687,7 @@ interface UnderscoreStatic {
 	): { (p2: T2): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -2743,7 +2698,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -2754,7 +2709,7 @@ interface UnderscoreStatic {
 	): { (p3: T3): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -2765,7 +2720,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p3: T3): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -2776,7 +2731,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p3: T3): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -2787,7 +2742,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p3: T3): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		p2: T2,
 		p3: T3,
@@ -2798,7 +2753,7 @@ interface UnderscoreStatic {
 	): { (p4: T4): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		p3: T3,
@@ -2809,7 +2764,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p4: T4): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -2820,7 +2775,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p4: T4): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -2831,7 +2786,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p4: T4): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -2842,7 +2797,7 @@ interface UnderscoreStatic {
 	): { (p3: T3, p4: T4): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -2853,7 +2808,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p3: T3, p4: T4): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -2864,7 +2819,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p3: T3, p4: T4): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -2875,7 +2830,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p3: T3, p4: T4): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		p2: T2,
 		p3: T3,
@@ -2886,7 +2841,7 @@ interface UnderscoreStatic {
 	): { (p5: T5): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		p3: T3,
@@ -2897,7 +2852,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p5: T5): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -2908,7 +2863,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p5: T5): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -2919,7 +2874,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p5: T5): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -2930,7 +2885,7 @@ interface UnderscoreStatic {
 	): { (p3: T3, p5: T5): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -2941,7 +2896,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p3: T3, p5: T5): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -2952,7 +2907,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p3: T3, p5: T5): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -2963,7 +2918,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p3: T3, p5: T5): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		p2: T2,
 		p3: T3,
@@ -2974,7 +2929,7 @@ interface UnderscoreStatic {
 	): { (p4: T4, p5: T5): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		p3: T3,
@@ -2985,7 +2940,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p4: T4, p5: T5): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -2996,7 +2951,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p4: T4, p5: T5): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -3007,7 +2962,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p4: T4, p5: T5): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -3018,7 +2973,7 @@ interface UnderscoreStatic {
 	): { (p3: T3, p4: T4, p5: T5): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -3029,7 +2984,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p3: T3, p4: T4, p5: T5): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -3040,7 +2995,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p3: T3, p4: T4, p5: T5): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -3051,7 +3006,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		p2: T2,
 		p3: T3,
@@ -3062,7 +3017,7 @@ interface UnderscoreStatic {
 	): { (p6: T6): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		p3: T3,
@@ -3073,7 +3028,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p6: T6): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -3084,7 +3039,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p6: T6): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -3095,7 +3050,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p6: T6): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -3106,7 +3061,7 @@ interface UnderscoreStatic {
 	): { (p3: T3, p6: T6): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -3117,7 +3072,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p3: T3, p6: T6): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -3128,7 +3083,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p3: T3, p6: T6): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -3139,7 +3094,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p3: T3, p6: T6): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		p2: T2,
 		p3: T3,
@@ -3150,7 +3105,7 @@ interface UnderscoreStatic {
 	): { (p4: T4, p6: T6): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		p3: T3,
@@ -3161,7 +3116,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p4: T4, p6: T6): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -3172,7 +3127,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p4: T4, p6: T6): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -3183,7 +3138,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p4: T4, p6: T6): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -3194,7 +3149,7 @@ interface UnderscoreStatic {
 	): { (p3: T3, p4: T4, p6: T6): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -3205,7 +3160,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p3: T3, p4: T4, p6: T6): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -3216,7 +3171,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p3: T3, p4: T4, p6: T6): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -3227,7 +3182,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p3: T3, p4: T4, p6: T6): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		p2: T2,
 		p3: T3,
@@ -3238,7 +3193,7 @@ interface UnderscoreStatic {
 	): { (p5: T5, p6: T6): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		p3: T3,
@@ -3249,7 +3204,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p5: T5, p6: T6): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -3260,7 +3215,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p5: T5, p6: T6): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -3271,7 +3226,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p5: T5, p6: T6): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -3282,7 +3237,7 @@ interface UnderscoreStatic {
 	): { (p3: T3, p5: T5, p6: T6): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -3293,7 +3248,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p3: T3, p5: T5, p6: T6): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -3304,7 +3259,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p3: T3, p5: T5, p6: T6): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -3315,7 +3270,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p3: T3, p5: T5, p6: T6): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		p2: T2,
 		p3: T3,
@@ -3326,7 +3281,7 @@ interface UnderscoreStatic {
 	): { (p4: T4, p5: T5, p6: T6): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		p3: T3,
@@ -3337,7 +3292,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p4: T4, p5: T5, p6: T6): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -3348,7 +3303,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p4: T4, p5: T5, p6: T6): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		p3: T3,
@@ -3359,7 +3314,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p2: T2, p4: T4, p5: T5, p6: T6): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -3370,7 +3325,7 @@ interface UnderscoreStatic {
 	): { (p3: T3, p4: T4, p5: T5, p6: T6): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		p2: T2,
 		stub3: UnderscoreStatic,
@@ -3381,7 +3336,7 @@ interface UnderscoreStatic {
 	): { (p1: T1, p3: T3, p4: T4, p5: T5, p6: T6): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		p1: T1,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -3392,7 +3347,7 @@ interface UnderscoreStatic {
 	): { (p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): T8 };
 
 	partial<T1, T2, T3, T4, T5, T6, T7, T8>(
-		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7):T8 },
+		fn: { (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): T8 },
 		stub1: UnderscoreStatic,
 		stub2: UnderscoreStatic,
 		stub3: UnderscoreStatic,
@@ -3411,9 +3366,7 @@ interface UnderscoreStatic {
 	* @param hashFn Hash function for storing the result of `fn`.
 	* @return Memoized version of `fn`.
 	**/
-	memoize(
-		fn: Function,
-		hashFn?: (...args: any[]) => string): Function;
+	memoize(fn: Function, hashFn?: (...args: any[]) => string): Function;
 
 	/**
 	* Much like setTimeout, invokes function after wait milliseconds. If you pass the optional arguments,
@@ -3422,17 +3375,12 @@ interface UnderscoreStatic {
 	* @param wait The amount of milliseconds to delay `fn`.
 	* @arguments Additional arguments to pass to `fn`.
 	**/
-	delay(
-		func: Function,
-		wait: number,
-		...arguments: any[]): any;
+	delay(func: Function, wait: number, ...arguments: any[]): any;
 
 	/**
 	* @see _delay
 	**/
-	delay(
-		func: Function,
-		...arguments: any[]): any;
+	delay(func: Function, ...arguments: any[]): any;
 
 	/**
 	* Defers invoking the function until the current call stack has cleared, similar to using setTimeout
@@ -3442,9 +3390,7 @@ interface UnderscoreStatic {
 	* @param fn The function to defer.
 	* @param arguments Additional arguments to pass to `fn`.
 	**/
-	defer(
-		fn: Function,
-		...arguments: any[]): void;
+	defer(fn: Function, ...arguments: any[]): void;
 
 	/**
 	* Creates and returns a new, throttled version of the passed function, that, when invoked repeatedly,
@@ -3462,7 +3408,8 @@ interface UnderscoreStatic {
 	throttle<T extends Function>(
 		func: T,
 		wait: number,
-		options?: _.ThrottleSettings): T & _.Cancelable;
+		options?: _.ThrottleSettings
+	): T & _.Cancelable;
 
 	/**
 	* Creates and returns a new debounced version of the passed function that will postpone its execution
@@ -3481,7 +3428,8 @@ interface UnderscoreStatic {
 	debounce<T extends Function>(
 		fn: T,
 		wait: number,
-		immediate?: boolean): T & _.Cancelable;
+		immediate?: boolean
+	): T & _.Cancelable;
 
 	/**
 	* Creates a version of the function that can only be called one time. Repeated calls to the modified
@@ -3496,7 +3444,7 @@ interface UnderscoreStatic {
 	* Similar to ES6's rest param (http://ariya.ofilabs.com/2013/03/es6-and-rest-parameter.html)
 	* This accumulates the arguments passed into an array, after a given index.
 	**/
-	restArgs(func: Function, starIndex?: number) : Function;
+	restArgs(func: Function, starIndex?: number): Function;
 
 	/**
 	* Creates a version of the function that will only be run after first being called count times. Useful
@@ -3506,9 +3454,7 @@ interface UnderscoreStatic {
 	* @param Function fn The function to defer execution `count` times.
 	* @return Copy of `fn` that will not execute until it is invoked `count` times.
 	**/
-	after(
-		count: number,
-		fn: Function): Function;
+	after(count: number, fn: Function): Function;
 
 	/**
 	* Creates a version of the function that can be called no more than count times.  The result of
@@ -3517,9 +3463,7 @@ interface UnderscoreStatic {
 	* @param Function fn The function to limit the number of times it can be called.
 	* @return Copy of `fn` that can only be called `count` times.
 	**/
-	before(
-		count: number,
-		fn: Function): Function;
+	before(count: number, fn: Function): Function;
 
 	/**
 	* Wraps the first function inside of the wrapper function, passing it as the first argument. This allows
@@ -3529,9 +3473,7 @@ interface UnderscoreStatic {
 	* @param wrapper The function that will wrap `fn`.
 	* @return Wrapped version of `fn.
 	**/
-	wrap(
-		fn: Function,
-		wrapper: (fn: Function, ...args: any[]) => any): Function;
+	wrap(fn: Function, wrapper: (fn: Function, ...args: any[]) => any): Function;
 
 	/**
 	* Returns a negated version of the pass-in predicate.
@@ -3546,7 +3488,7 @@ interface UnderscoreStatic {
 	* @param functions List of functions to compose.
 	* @return Composition of `functions`.
 	**/
-	compose<A,B,C>(f1:(i:A)=>B, f2:(i:B)=>C): (i:A)=>C;
+	compose<A, B, C>(f1: (i: A) => B, f2: (i: B) => C): (i: A) => C;
 	compose(...functions: Function[]): Function;
 
 	/**********
@@ -3588,7 +3530,11 @@ interface UnderscoreStatic {
 	 * @param context The optional context (value of `this`) to bind to
 	 * @return a new _.Dictionary of property values
 	 */
-	mapObject<T, U>(object: _.Dictionary<T>, iteratee: (val: T, key: string, object: _.Dictionary<T>) => U, context?: any): _.Dictionary<U>;
+	mapObject<T, U>(
+		object: _.Dictionary<T>,
+		iteratee: (val: T, key: string, object: _.Dictionary<T>) => U,
+		context?: any
+	): _.Dictionary<U>;
 
 	/**
 	 * Like map, but for objects. Transform the value of each property in turn.
@@ -3596,7 +3542,11 @@ interface UnderscoreStatic {
 	 * @param iteratee The function that tranforms property values
 	 * @param context The optional context (value of `this`) to bind to
 	 */
-	mapObject<T>(object: any, iteratee: (val: any, key: string, object: any) => T, context?: any): _.Dictionary<T>;
+	mapObject<T>(
+		object: any,
+		iteratee: (val: any, key: string, object: any) => T,
+		context?: any
+	): _.Dictionary<T>;
 
 	/**
 	 * Like map, but for objects. Retrieves a property from each entry in the object, as if by _.property
@@ -3642,23 +3592,17 @@ interface UnderscoreStatic {
 	* @param sources Extends `destination` with all properties from these source objects.
 	* @return `destination` extended with all the properties from the `sources` objects.
 	**/
-	extend(
-		destination: any,
-		...sources: any[]): any;
+	extend(destination: any, ...sources: any[]): any;
 
 	/**
 	* Like extend, but only copies own properties over to the destination object. (alias: assign)
 	*/
-	extendOwn(
-		destination: any,
-		...source: any[]): any;
+	extendOwn(destination: any, ...source: any[]): any;
 
 	/**
 	* Like extend, but only copies own properties over to the destination object. (alias: extendOwn)
 	*/
-	assign(
-		destination: any,
-		...source: any[]): any;
+	assign(destination: any, ...source: any[]): any;
 
 	/**
 	* Returns the first key on an object that passes a predicate test.
@@ -3666,7 +3610,11 @@ interface UnderscoreStatic {
 	* @param predicate Predicate function.
 	* @param context `this` object in `iterator`, optional.
 	*/
-	findKey<T>(obj: _.Dictionary<T>, predicate: _.ObjectIterator<T, boolean>, context? : any): T
+	findKey<T>(
+		obj: _.Dictionary<T>,
+		predicate: _.ObjectIterator<T, boolean>,
+		context?: any
+	): T;
 
 	/**
 	* Return a copy of the object, filtered to only have values for the whitelisted keys
@@ -3675,16 +3623,12 @@ interface UnderscoreStatic {
 	* @keys The key/value pairs to keep on `object`.
 	* @return Copy of `object` with only the `keys` properties.
 	**/
-	pick(
-		object: any,
-		...keys: any[]): any;
+	pick(object: any, ...keys: any[]): any;
 
 	/**
 	* @see _.pick
 	**/
-	pick(
-		object: any,
-		fn: (value: any, key: any, object: any) => any): any;
+	pick(object: any, fn: (value: any, key: any, object: any) => any): any;
 
 	/**
 	* Return a copy of the object, filtered to omit the blacklisted keys (or array of keys).
@@ -3692,23 +3636,17 @@ interface UnderscoreStatic {
 	* @param keys The key/value pairs to remove on `object`.
 	* @return Copy of `object` without the `keys` properties.
 	**/
-	omit(
-		object: any,
-		...keys: string[]): any;
+	omit(object: any, ...keys: string[]): any;
 
 	/**
 	* @see _.omit
 	**/
-	omit(
-		object: any,
-		keys: string[]): any;
+	omit(object: any, keys: string[]): any;
 
 	/**
 	* @see _.omit
 	**/
-	omit(
-		object: any,
-		iteratee: Function): any;
+	omit(object: any, iteratee: Function): any;
 
 	/**
 	* Fill in null and undefined properties in object with values from the defaults objects,
@@ -3717,10 +3655,7 @@ interface UnderscoreStatic {
 	* @param defaults The default values to add to `object`.
 	* @return `object` with added `defaults` values.
 	**/
-	defaults(
-		object: any,
-		...defaults: any[]): any;
-
+	defaults(object: any, ...defaults: any[]): any;
 
 	/**
 	* Creates an object that inherits from the given prototype object.
@@ -3808,7 +3743,7 @@ interface UnderscoreStatic {
 	* @param properties Properties be compared with `object`
 	* @return True if `object` has matching keys and values, otherwise false.
 	**/
-	isMatch(object:any, properties:any): boolean;
+	isMatch(object: any, properties: any): boolean;
 
 	/**
 	* Returns true if object is a DOM element.
@@ -3865,7 +3800,7 @@ interface UnderscoreStatic {
 	* @param object Check if this object is an Error.
 	* @return True if `object` is a Error, otherwise false.
 	**/
-	isError(object:any): object is Error;
+	isError(object: any): object is Error;
 
 	/**
 	* Returns true if object is a String.
@@ -3973,7 +3908,11 @@ interface UnderscoreStatic {
 	* @param iterator Function iterator to invoke `n` times.
 	* @param context `this` object in `iterator`, optional.
 	**/
-	times<TResult>(n: number, iterator: (n: number) => TResult, context?: any): TResult[];
+	times<TResult>(
+		n: number,
+		iterator: (n: number) => TResult,
+		context?: any
+	): TResult[];
 
 	/**
 	* Returns a random integer between min and max, inclusive. If you only pass one argument,
@@ -4039,7 +3978,7 @@ interface UnderscoreStatic {
 	* @param defaultValue The value to be returned in case `property` doesn't exist or is undefined.
 	* @return The result of invoking the function `property` on `object.
 	**/
-	result(object: any, property: string, defaultValue?:any): any;
+	result(object: any, property: string, defaultValue?: any): any;
 
 	/**
 	* Compiles JavaScript templates into functions that can be evaluated for rendering. Useful
@@ -4056,7 +3995,10 @@ interface UnderscoreStatic {
 	* @param settings Settings to use while compiling.
 	* @return Returns the compiled Underscore HTML template.
 	**/
-	template(templateString: string, settings?: _.TemplateSettings): (...data: any[]) => string;
+	template(
+		templateString: string,
+		settings?: _.TemplateSettings
+	): (...data: any[]) => string;
 
 	/**
 	* By default, Underscore uses ERB-style template delimiters, change the
@@ -4085,7 +4027,6 @@ interface UnderscoreStatic {
 }
 
 interface Underscore<T> {
-
 	/* *************
 	 * Collections *
 	 ************* */
@@ -4121,50 +4062,82 @@ interface Underscore<T> {
 	* Wrapped type `any[]`.
 	* @see _.map
 	**/
-	map<TResult>(iterator: _.ObjectIterator<T, TResult>, context?: any): TResult[];
+	map<TResult>(
+		iterator: _.ObjectIterator<T, TResult>,
+		context?: any
+	): TResult[];
 
 	/**
 	* @see _.map
 	**/
-	collect<TResult>(iterator: _.ListIterator<T, TResult>, context?: any): TResult[];
+	collect<TResult>(
+		iterator: _.ListIterator<T, TResult>,
+		context?: any
+	): TResult[];
 
 	/**
 	* @see _.map
 	**/
-	collect<TResult>(iterator: _.ObjectIterator<T, TResult>, context?: any): TResult[];
+	collect<TResult>(
+		iterator: _.ObjectIterator<T, TResult>,
+		context?: any
+	): TResult[];
 
 	/**
 	* Wrapped type `any[]`.
 	* @see _.reduce
 	**/
-	reduce<TResult>(iterator: _.MemoIterator<T, TResult>, memo?: TResult, context?: any): TResult;
+	reduce<TResult>(
+		iterator: _.MemoIterator<T, TResult>,
+		memo?: TResult,
+		context?: any
+	): TResult;
 
 	/**
 	* @see _.reduce
 	**/
-	inject<TResult>(iterator: _.MemoIterator<T, TResult>, memo?: TResult, context?: any): TResult;
+	inject<TResult>(
+		iterator: _.MemoIterator<T, TResult>,
+		memo?: TResult,
+		context?: any
+	): TResult;
 
 	/**
 	* @see _.reduce
 	**/
-	foldl<TResult>(iterator: _.MemoIterator<T, TResult>, memo?: TResult, context?: any): TResult;
+	foldl<TResult>(
+		iterator: _.MemoIterator<T, TResult>,
+		memo?: TResult,
+		context?: any
+	): TResult;
 
 	/**
 	* Wrapped type `any[]`.
 	* @see _.reduceRight
 	**/
-	reduceRight<TResult>(iterator: _.MemoIterator<T, TResult>, memo?: TResult, context?: any): TResult;
+	reduceRight<TResult>(
+		iterator: _.MemoIterator<T, TResult>,
+		memo?: TResult,
+		context?: any
+	): TResult;
 
 	/**
 	* @see _.reduceRight
 	**/
-	foldr<TResult>(iterator: _.MemoIterator<T, TResult>, memo?: TResult, context?: any): TResult;
+	foldr<TResult>(
+		iterator: _.MemoIterator<T, TResult>,
+		memo?: TResult,
+		context?: any
+	): TResult;
 
 	/**
 	* Wrapped type `any[]`.
 	* @see _.find
 	**/
-	find<T>(iterator: _.ListIterator<T, boolean>|_.ObjectIterator<T, boolean>, context?: any): T;
+	find<T>(
+		iterator: _.ListIterator<T, boolean> | _.ObjectIterator<T, boolean>,
+		context?: any
+	): T;
 
 	/**
 	* @see _.find
@@ -4179,7 +4152,10 @@ interface Underscore<T> {
 	/**
 	* @see _.find
 	**/
-	detect<T>(iterator: _.ListIterator<T, boolean>|_.ObjectIterator<T, boolean>, context?: any): T;
+	detect<T>(
+		iterator: _.ListIterator<T, boolean> | _.ObjectIterator<T, boolean>,
+		context?: any
+	): T;
 
 	/**
 	* @see _.find
@@ -4246,19 +4222,19 @@ interface Underscore<T> {
 	* Wrapped type `any[]`.
 	* @see _.contains
 	**/
-	contains(value: T, fromIndex? : number): boolean;
+	contains(value: T, fromIndex?: number): boolean;
 
 	/**
 	* Alias for 'contains'.
 	* @see contains
 	**/
-	include(value: T, fromIndex? : number): boolean;
+	include(value: T, fromIndex?: number): boolean;
 
 	/**
 	 * Alias for 'contains'.
 	 * @see contains
 	 **/
-	includes(value: T, fromIndex? : number): boolean;
+	includes(value: T, fromIndex?: number): boolean;
 
 	/**
 	* Wrapped type `any[]`.
@@ -4324,7 +4300,10 @@ interface Underscore<T> {
 	* Wrapped type `any[]`.
 	* @see _.groupBy
 	**/
-	groupBy(iterator?: _.ListIterator<T, any>, context?: any): _.Dictionary<_.List<T>>;
+	groupBy(
+		iterator?: _.ListIterator<T, any>,
+		context?: any
+	): _.Dictionary<_.List<T>>;
 
 	/**
 	* Wrapped type `any[]`.
@@ -4348,7 +4327,10 @@ interface Underscore<T> {
 	* Wrapped type `any[]`.
 	* @see _.countBy
 	**/
-	countBy(iterator?: _.ListIterator<T, any>, context?: any): _.Dictionary<number>;
+	countBy(
+		iterator?: _.ListIterator<T, any>,
+		context?: any
+	): _.Dictionary<number>;
 
 	/**
 	* Wrapped type `any[]`.
@@ -4562,12 +4544,20 @@ interface Underscore<T> {
 	/**
 	* @see _.findIndex
 	**/
-	findIndex<T>(array: _.List<T>, predicate: _.ListIterator<T, boolean> | {}, context?: any): number;
+	findIndex<T>(
+		array: _.List<T>,
+		predicate: _.ListIterator<T, boolean> | {},
+		context?: any
+	): number;
 
 	/**
 	* @see _.findLastIndex
 	**/
-	findLastIndex<T>(array: _.List<T>, predicate: _.ListIterator<T, boolean> | {}, context?: any): number;
+	findLastIndex<T>(
+		array: _.List<T>,
+		predicate: _.ListIterator<T, boolean> | {},
+		context?: any
+	): number;
 
 	/**
 	* Wrapped type `any[]`.
@@ -4660,7 +4650,7 @@ interface Underscore<T> {
 	* Wrapped type `Function`.
 	* @see _.once
 	**/
-	restArgs(starIndex?: number) : Function;
+	restArgs(starIndex?: number): Function;
 
 	/**
 	* Wrapped type `number`.
@@ -4747,7 +4737,7 @@ interface Underscore<T> {
 	* Wrapped type `object`.
 	* @see _.extend
 	**/
-	findKey(predicate: _.ObjectIterator<any, boolean>, context? : any): any
+	findKey(predicate: _.ObjectIterator<any, boolean>, context?: any): any;
 
 	/**
 	* Wrapped type `object`.
@@ -5006,7 +4996,7 @@ interface Underscore<T> {
 	* Wrapped type `object`.
 	* @see _.result
 	**/
-	result(property: string, defaultValue?:any): any;
+	result(property: string, defaultValue?: any): any;
 
 	/**
 	* Wrapped type `string`.
@@ -5033,7 +5023,6 @@ interface Underscore<T> {
 }
 
 interface _Chain<T> {
-
 	/* *************
 	 * Collections *
 	 ************* */
@@ -5063,68 +5052,109 @@ interface _Chain<T> {
 	* Wrapped type `any[]`.
 	* @see _.map
 	**/
-	map<TArray>(iterator: _.ListIterator<T, TArray[]>, context?: any): _ChainOfArrays<TArray>;
+	map<TArray>(
+		iterator: _.ListIterator<T, TArray[]>,
+		context?: any
+	): _ChainOfArrays<TArray>;
 
 	/**
 	* Wrapped type `any[]`.
 	* @see _.map
 	**/
-	map<TResult>(iterator: _.ListIterator<T, TResult>, context?: any): _Chain<TResult>;
+	map<TResult>(
+		iterator: _.ListIterator<T, TResult>,
+		context?: any
+	): _Chain<TResult>;
 
 	/**
 	* Wrapped type `any[]`.
 	* @see _.map
 	**/
-	map<TArray>(iterator: _.ObjectIterator<T, TArray[]>, context?: any): _ChainOfArrays<TArray>;
+	map<TArray>(
+		iterator: _.ObjectIterator<T, TArray[]>,
+		context?: any
+	): _ChainOfArrays<TArray>;
 
 	/**
 	* Wrapped type `any[]`.
 	* @see _.map
 	**/
-	map<TResult>(iterator: _.ObjectIterator<T, TResult>, context?: any): _Chain<TResult>;
+	map<TResult>(
+		iterator: _.ObjectIterator<T, TResult>,
+		context?: any
+	): _Chain<TResult>;
 
 	/**
 	* @see _.map
 	**/
-	collect<TResult>(iterator: _.ListIterator<T, TResult>, context?: any): _Chain<TResult>;
+	collect<TResult>(
+		iterator: _.ListIterator<T, TResult>,
+		context?: any
+	): _Chain<TResult>;
 
 	/**
 	* @see _.map
 	**/
-	collect<TResult>(iterator: _.ObjectIterator<T, TResult>, context?: any): _Chain<TResult>;
+	collect<TResult>(
+		iterator: _.ObjectIterator<T, TResult>,
+		context?: any
+	): _Chain<TResult>;
 
 	/**
 	* Wrapped type `any[]`.
 	* @see _.reduce
 	**/
-	reduce<TResult>(iterator: _.MemoIterator<T, TResult>, memo?: TResult, context?: any): _ChainSingle<TResult>;
+	reduce<TResult>(
+		iterator: _.MemoIterator<T, TResult>,
+		memo?: TResult,
+		context?: any
+	): _ChainSingle<TResult>;
 
 	/**
 	* @see _.reduce
 	**/
-	inject<TResult>(iterator: _.MemoIterator<T, TResult>, memo?: TResult, context?: any): _ChainSingle<TResult>;
+	inject<TResult>(
+		iterator: _.MemoIterator<T, TResult>,
+		memo?: TResult,
+		context?: any
+	): _ChainSingle<TResult>;
 
 	/**
 	* @see _.reduce
 	**/
-	foldl<TResult>(iterator: _.MemoIterator<T, TResult>, memo?: TResult, context?: any): _ChainSingle<TResult>;
+	foldl<TResult>(
+		iterator: _.MemoIterator<T, TResult>,
+		memo?: TResult,
+		context?: any
+	): _ChainSingle<TResult>;
 
 	/**
 	* Wrapped type `any[]`.
 	* @see _.reduceRight
 	**/
-	reduceRight<TResult>(iterator: _.MemoIterator<T, TResult>, memo?: TResult, context?: any): _ChainSingle<TResult>;
+	reduceRight<TResult>(
+		iterator: _.MemoIterator<T, TResult>,
+		memo?: TResult,
+		context?: any
+	): _ChainSingle<TResult>;
 
 	/**
 	* @see _.reduceRight
 	**/
-	foldr<TResult>(iterator: _.MemoIterator<T, TResult>, memo?: TResult, context?: any): _ChainSingle<TResult>;
+	foldr<TResult>(
+		iterator: _.MemoIterator<T, TResult>,
+		memo?: TResult,
+		context?: any
+	): _ChainSingle<TResult>;
 
 	/**
 	* Wrapped type `any[]`.
 	* @see _.find
 	**/
-	find<T>(iterator: _.ListIterator<T, boolean>|_.ObjectIterator<T, boolean>, context?: any): _ChainSingle<T>;
+	find<T>(
+		iterator: _.ListIterator<T, boolean> | _.ObjectIterator<T, boolean>,
+		context?: any
+	): _ChainSingle<T>;
 
 	/**
 	* @see _.find
@@ -5139,7 +5169,10 @@ interface _Chain<T> {
 	/**
 	* @see _.find
 	**/
-	detect<T>(iterator: _.ListIterator<T, boolean>|_.ObjectIterator<T, boolean>, context?: any): _ChainSingle<T>;
+	detect<T>(
+		iterator: _.ListIterator<T, boolean> | _.ObjectIterator<T, boolean>,
+		context?: any
+	): _ChainSingle<T>;
 
 	/**
 	* @see _.find
@@ -5184,23 +5217,35 @@ interface _Chain<T> {
 	* Wrapped type `any[]`.
 	* @see _.all
 	**/
-	all(iterator?: _.ListIterator<T, boolean>, context?: any): _ChainSingle<boolean>;
+	all(
+		iterator?: _.ListIterator<T, boolean>,
+		context?: any
+	): _ChainSingle<boolean>;
 
 	/**
 	* @see _.all
 	**/
-	every(iterator?: _.ListIterator<T, boolean>, context?: any): _ChainSingle<boolean>;
+	every(
+		iterator?: _.ListIterator<T, boolean>,
+		context?: any
+	): _ChainSingle<boolean>;
 
 	/**
 	* Wrapped type `any[]`.
 	* @see _.any
 	**/
-	any(iterator?: _.ListIterator<T, boolean>, context?: any): _ChainSingle<boolean>;
+	any(
+		iterator?: _.ListIterator<T, boolean>,
+		context?: any
+	): _ChainSingle<boolean>;
 
 	/**
 	* @see _.any
 	**/
-	some(iterator?: _.ListIterator<T, boolean>, context?: any): _ChainSingle<boolean>;
+	some(
+		iterator?: _.ListIterator<T, boolean>,
+		context?: any
+	): _ChainSingle<boolean>;
 
 	/**
 	* Wrapped type `any[]`.
@@ -5472,7 +5517,10 @@ interface _Chain<T> {
 	/**
 	* @see _.uniq
 	**/
-	unique<TSort>(isSorted?: boolean, iterator?: _.ListIterator<T, TSort>): _Chain<T>;
+	unique<TSort>(
+		isSorted?: boolean,
+		iterator?: _.ListIterator<T, TSort>
+	): _Chain<T>;
 
 	/**
 	* @see _.uniq
@@ -5522,18 +5570,28 @@ interface _Chain<T> {
 	/**
 	* @see _.findIndex
 	**/
-	findIndex<T>(predicate: _.ListIterator<T, boolean> | {}, context?: any): _ChainSingle<number>;
+	findIndex<T>(
+		predicate: _.ListIterator<T, boolean> | {},
+		context?: any
+	): _ChainSingle<number>;
 
 	/**
 	* @see _.findLastIndex
 	**/
-	findLastIndex<T>(predicate: _.ListIterator<T, boolean> | {}, context?: any): _ChainSingle<number>;
+	findLastIndex<T>(
+		predicate: _.ListIterator<T, boolean> | {},
+		context?: any
+	): _ChainSingle<number>;
 
 	/**
 	* Wrapped type `any[]`.
 	* @see _.sortedIndex
 	**/
-	sortedIndex(value: T, iterator?: (x: T) => any, context?: any): _ChainSingle<number>;
+	sortedIndex(
+		value: T,
+		iterator?: (x: T) => any,
+		context?: any
+	): _ChainSingle<number>;
 
 	/**
 	* Wrapped type `number`.
@@ -5620,7 +5678,7 @@ interface _Chain<T> {
 	 * Wrapped type `Function`.
 	 * @see _.once
 	 **/
-	restArgs(startIndex? : number): _Chain<T>;
+	restArgs(startIndex?: number): _Chain<T>;
 
 	/**
 	* Wrapped type `number`.
@@ -5707,7 +5765,7 @@ interface _Chain<T> {
 	* Wrapped type `object`.
 	* @see _.extend
 	**/
-	findKey(predicate: _.ObjectIterator<any, boolean>, context? : any): _Chain<T>
+	findKey(predicate: _.ObjectIterator<any, boolean>, context?: any): _Chain<T>;
 
 	/**
 	* Wrapped type `object`.
@@ -5966,7 +6024,7 @@ interface _Chain<T> {
 	* Wrapped type `object`.
 	* @see _.result
 	**/
-	result(property: string, defaultValue?:any): _Chain<T>;
+	result(property: string, defaultValue?: any): _Chain<T>;
 
 	/**
 	* Wrapped type `string`.
@@ -6081,6 +6139,6 @@ interface _ChainOfArrays<T> extends _Chain<T[]> {
 
 declare var _: UnderscoreStatic;
 
-declare module "underscore" {
+declare module 'underscore' {
 	export = _;
 }

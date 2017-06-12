@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { sequence, asWinJsPromise } from 'vs/base/common/async';
 import { isFalsyOrEmpty } from 'vs/base/common/arrays';
@@ -12,16 +12,30 @@ import { onUnexpectedExternalError } from 'vs/base/common/errors';
 import { TPromise } from 'vs/base/common/winjs.base';
 import { IModel } from 'vs/editor/common/editorCommon';
 import { CommonEditorRegistry } from 'vs/editor/common/editorCommonExtensions';
-import { ISuggestResult, ISuggestSupport, ISuggestion, SuggestRegistry } from 'vs/editor/common/modes';
+import {
+	ISuggestResult,
+	ISuggestSupport,
+	ISuggestion,
+	SuggestRegistry
+} from 'vs/editor/common/modes';
 import { Position, IPosition } from 'vs/editor/common/core/position';
 import { RawContextKey } from 'vs/platform/contextkey/common/contextkey';
 
 export const Context = {
 	Visible: new RawContextKey<boolean>('suggestWidgetVisible', false),
-	MultipleSuggestions: new RawContextKey<boolean>('suggestWidgetMultipleSuggestions', false),
+	MultipleSuggestions: new RawContextKey<boolean>(
+		'suggestWidgetMultipleSuggestions',
+		false
+	),
 	MakesTextEdit: new RawContextKey('suggestionMakesTextEdit', true),
-	AcceptOnKey: new RawContextKey<boolean>('suggestionSupportsAcceptOnKey', true),
-	AcceptSuggestionsOnEnter: new RawContextKey<boolean>('acceptSuggestionOnEnter', true)
+	AcceptOnKey: new RawContextKey<boolean>(
+		'suggestionSupportsAcceptOnKey',
+		true
+	),
+	AcceptSuggestionsOnEnter: new RawContextKey<boolean>(
+		'acceptSuggestionOnEnter',
+		true
+	)
 };
 
 export interface ISuggestionItem {
@@ -36,14 +50,20 @@ export type SnippetConfig = 'top' | 'bottom' | 'inline' | 'none';
 
 let _snippetSuggestSupport: ISuggestSupport;
 
-export function setSnippetSuggestSupport(support: ISuggestSupport): ISuggestSupport {
+export function setSnippetSuggestSupport(
+	support: ISuggestSupport
+): ISuggestSupport {
 	const old = _snippetSuggestSupport;
 	_snippetSuggestSupport = support;
 	return old;
 }
 
-export function provideSuggestionItems(model: IModel, position: Position, snippetConfig: SnippetConfig = 'bottom', onlyFrom?: ISuggestSupport[]): TPromise<ISuggestionItem[]> {
-
+export function provideSuggestionItems(
+	model: IModel,
+	position: Position,
+	snippetConfig: SnippetConfig = 'bottom',
+	onlyFrom?: ISuggestSupport[]
+): TPromise<ISuggestionItem[]> {
 	const allSuggestions: ISuggestionItem[] = [];
 	const acceptSuggestion = createSuggesionFilter(snippetConfig);
 
@@ -67,43 +87,53 @@ export function provideSuggestionItems(model: IModel, position: Position, snippe
 				return undefined;
 			}
 			// for each support in the group ask for suggestions
-			return TPromise.join(supports.map(support => {
+			return TPromise.join(
+				supports.map(support => {
+					if (!isFalsyOrEmpty(onlyFrom) && onlyFrom.indexOf(support) < 0) {
+						return undefined;
+					}
 
-				if (!isFalsyOrEmpty(onlyFrom) && onlyFrom.indexOf(support) < 0) {
-					return undefined;
-				}
+					return asWinJsPromise(token =>
+						support.provideCompletionItems(model, position, token)
+					).then(container => {
+						const len = allSuggestions.length;
 
-				return asWinJsPromise(token => support.provideCompletionItems(model, position, token)).then(container => {
+						if (container && !isFalsyOrEmpty(container.suggestions)) {
+							for (let suggestion of container.suggestions) {
+								if (acceptSuggestion(suggestion)) {
+									fixOverwriteBeforeAfter(suggestion, container);
 
-					const len = allSuggestions.length;
-
-					if (container && !isFalsyOrEmpty(container.suggestions)) {
-						for (let suggestion of container.suggestions) {
-							if (acceptSuggestion(suggestion)) {
-
-								fixOverwriteBeforeAfter(suggestion, container);
-
-								allSuggestions.push({
-									position,
-									container,
-									suggestion,
-									support,
-									resolve: createSuggestionResolver(support, suggestion, model, position)
-								});
+									allSuggestions.push({
+										position,
+										container,
+										suggestion,
+										support,
+										resolve: createSuggestionResolver(
+											support,
+											suggestion,
+											model,
+											position
+										)
+									});
+								}
 							}
 						}
-					}
 
-					if (len !== allSuggestions.length && support !== _snippetSuggestSupport) {
-						hasResult = true;
-					}
-
-				}, onUnexpectedExternalError);
-			}));
+						if (
+							len !== allSuggestions.length &&
+							support !== _snippetSuggestSupport
+						) {
+							hasResult = true;
+						}
+					}, onUnexpectedExternalError);
+				})
+			);
 		};
 	});
 
-	const result = sequence(factory).then(() => allSuggestions.sort(getSuggestionComparator(snippetConfig)));
+	const result = sequence(factory).then(() =>
+		allSuggestions.sort(getSuggestionComparator(snippetConfig))
+	);
 
 	// result.then(items => {
 	// 	console.log(model.getWordUntilPosition(position), items.map(item => `${item.suggestion.label}, type=${item.suggestion.type}, incomplete?${item.container.incomplete}, overwriteBefore=${item.suggestion.overwriteBefore}`));
@@ -115,26 +145,42 @@ export function provideSuggestionItems(model: IModel, position: Position, snippe
 	return result;
 }
 
-function fixOverwriteBeforeAfter(suggestion: ISuggestion, container: ISuggestResult): void {
+function fixOverwriteBeforeAfter(
+	suggestion: ISuggestion,
+	container: ISuggestResult
+): void {
 	if (typeof suggestion.overwriteBefore !== 'number') {
 		suggestion.overwriteBefore = 0;
 	}
-	if (typeof suggestion.overwriteAfter !== 'number' || suggestion.overwriteAfter < 0) {
+	if (
+		typeof suggestion.overwriteAfter !== 'number' ||
+		suggestion.overwriteAfter < 0
+	) {
 		suggestion.overwriteAfter = 0;
 	}
 }
 
-function createSuggestionResolver(provider: ISuggestSupport, suggestion: ISuggestion, model: IModel, position: Position): () => TPromise<void> {
+function createSuggestionResolver(
+	provider: ISuggestSupport,
+	suggestion: ISuggestion,
+	model: IModel,
+	position: Position
+): () => TPromise<void> {
 	return () => {
 		if (typeof provider.resolveCompletionItem === 'function') {
-			return asWinJsPromise(token => provider.resolveCompletionItem(model, position, suggestion, token))
-				.then(value => { assign(suggestion, value); });
+			return asWinJsPromise(token =>
+				provider.resolveCompletionItem(model, position, suggestion, token)
+			).then(value => {
+				assign(suggestion, value);
+			});
 		}
 		return TPromise.as(void 0);
 	};
 }
 
-function createSuggesionFilter(snippetConfig: SnippetConfig): (candidate: ISuggestion) => boolean {
+function createSuggesionFilter(
+	snippetConfig: SnippetConfig
+): (candidate: ISuggestion) => boolean {
 	if (snippetConfig === 'none') {
 		return suggestion => suggestion.type !== 'snippet';
 	} else {
@@ -142,11 +188,13 @@ function createSuggesionFilter(snippetConfig: SnippetConfig): (candidate: ISugge
 	}
 }
 function defaultComparator(a: ISuggestionItem, b: ISuggestionItem): number {
-
 	let ret = 0;
 
 	// check with 'sortText'
-	if (typeof a.suggestion.sortText === 'string' && typeof b.suggestion.sortText === 'string') {
+	if (
+		typeof a.suggestion.sortText === 'string' &&
+		typeof b.suggestion.sortText === 'string'
+	) {
 		ret = compareIgnoreCase(a.suggestion.sortText, b.suggestion.sortText);
 	}
 
@@ -189,7 +237,9 @@ function snippetDownComparator(a: ISuggestionItem, b: ISuggestionItem): number {
 	return defaultComparator(a, b);
 }
 
-export function getSuggestionComparator(snippetConfig: SnippetConfig): (a: ISuggestionItem, b: ISuggestionItem) => number {
+export function getSuggestionComparator(
+	snippetConfig: SnippetConfig
+): (a: ISuggestionItem, b: ISuggestionItem) => number {
 	if (snippetConfig === 'top') {
 		return snippetUpComparator;
 	} else if (snippetConfig === 'bottom') {
@@ -199,20 +249,21 @@ export function getSuggestionComparator(snippetConfig: SnippetConfig): (a: ISugg
 	}
 }
 
-CommonEditorRegistry.registerDefaultLanguageCommand('_executeCompletionItemProvider', (model, position, args) => {
+CommonEditorRegistry.registerDefaultLanguageCommand(
+	'_executeCompletionItemProvider',
+	(model, position, args) => {
+		const result: ISuggestResult = {
+			incomplete: false,
+			suggestions: []
+		};
 
-	const result: ISuggestResult = {
-		incomplete: false,
-		suggestions: []
-	};
+		return provideSuggestionItems(model, position).then(items => {
+			for (const { container, suggestion } of items) {
+				result.incomplete = result.incomplete || container.incomplete;
+				result.suggestions.push(suggestion);
+			}
 
-	return provideSuggestionItems(model, position).then(items => {
-
-		for (const { container, suggestion } of items) {
-			result.incomplete = result.incomplete || container.incomplete;
-			result.suggestions.push(suggestion);
-		}
-
-		return result;
-	});
-});
+			return result;
+		});
+	}
+);

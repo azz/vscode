@@ -6,7 +6,6 @@
 // This is the place for API experiments and proposal.
 
 declare module 'vscode' {
-
 	/**
 	 * Controls the behaviour of the terminal's visibility.
 	 */
@@ -84,7 +83,6 @@ declare module 'vscode' {
 	 * A task that starts an external process.
 	 */
 	export class ProcessTask {
-
 		/**
 		 * Creates a process task.
 		 *
@@ -94,7 +92,11 @@ declare module 'vscode' {
 		 *  or '$eslint'. Problem matchers can be contributed by an extension using
 		 *  the `problemMatchers` extension point.
 		 */
-		constructor(name: string, process: string, problemMatchers?: string | string[]);
+		constructor(
+			name: string,
+			process: string,
+			problemMatchers?: string | string[]
+		);
 
 		/**
 		 * Creates a process task.
@@ -106,7 +108,12 @@ declare module 'vscode' {
 		 *  or '$eslint'. Problem matchers can be contributed by an extension using
 		 *  the `problemMatchers` extension point.
 		 */
-		constructor(name: string, process: string, args: string[], problemMatchers?: string | string[]);
+		constructor(
+			name: string,
+			process: string,
+			args: string[],
+			problemMatchers?: string | string[]
+		);
 
 		/**
 		 * Creates a process task.
@@ -119,7 +126,13 @@ declare module 'vscode' {
 		 *  or '$eslint'. Problem matchers can be contributed by an extension using
 		 *  the `problemMatchers` extension point.
 		 */
-		constructor(name: string, process: string, args: string[], options: ProcessTaskOptions, problemMatchers?: string | string[]);
+		constructor(
+			name: string,
+			process: string,
+			args: string[],
+			options: ProcessTaskOptions,
+			problemMatchers?: string | string[]
+		);
 
 		/**
 		 * The task's name
@@ -179,62 +192,64 @@ declare module 'vscode' {
 		problemMatchers: string[];
 	}
 
-	export type ShellTaskOptions = {
-		/**
+	export type ShellTaskOptions =
+		| {
+				/**
 		 * The shell executable.
 		 */
-		executable: string;
+				executable: string;
 
-		/**
+				/**
 		 * The arguments to be passed to the shell executable used to run the task.
 		 */
-		shellArgs?: string[];
+				shellArgs?: string[];
 
-		/**
+				/**
 		 * The current working directory of the executed shell.
 		 * If omitted the tools current workspace root is used.
 		 */
-		cwd?: string;
+				cwd?: string;
 
-		/**
+				/**
 		 * The additional environment of the executed shell. If omitted
 		 * the parent process' environment is used. If provided it is merged with
 		 * the parent process' environment.
 		 */
-		env?: { [key: string]: string };
-	} | {
-			/**
+				env?: { [key: string]: string };
+			}
+		| {
+				/**
 			 * The current working directory of the executed shell.
 			 * If omitted the tools current workspace root is used.
 			 */
-			cwd: string;
+				cwd: string;
 
-			/**
+				/**
 			 * The additional environment of the executed shell. If omitted
 			 * the parent process' environment is used. If provided it is merged with
 			 * the parent process' environment.
 			 */
-			env?: { [key: string]: string };
-		} | {
-			/**
+				env?: { [key: string]: string };
+			}
+		| {
+				/**
 			 * The current working directory of the executed shell.
 			 * If omitted the tools current workspace root is used.
 			 */
-			cwd?: string;
+				cwd?: string;
 
-			/**
+				/**
 			 * The additional environment of the executed shell. If omitted
 			 * the parent process' environment is used. If provided it is merged with
 			 * the parent process' environment.
 			 */
-			env: { [key: string]: string };
-		};
+				env: { [key: string]: string };
+			};
 
 	/**
 	 * A task that executes a shell command.
 	 */
 	export class ShellTask {
-
 		/**
 		 * Creates a shell task.
 		 *
@@ -244,7 +259,11 @@ declare module 'vscode' {
 		 *  or '$eslint'. Problem matchers can be contributed by an extension using
 		 *  the `problemMatchers` extension point.
 		 */
-		constructor(name: string, commandLine: string, problemMatchers?: string | string[]);
+		constructor(
+			name: string,
+			commandLine: string,
+			problemMatchers?: string | string[]
+		);
 
 		/**
 		 * Creates a shell task.
@@ -256,7 +275,12 @@ declare module 'vscode' {
 		 *  or '$eslint'. Problem matchers can be contributed by an extension using
 		 *  the `problemMatchers` extension point.
 		 */
-		constructor(name: string, commandLine: string, options: ShellTaskOptions, problemMatchers?: string | string[]);
+		constructor(
+			name: string,
+			commandLine: string,
+			options: ShellTaskOptions,
+			problemMatchers?: string | string[]
+		);
 
 		/**
 		 * The task's name
@@ -337,7 +361,6 @@ declare module 'vscode' {
 	}
 
 	export namespace window {
-
 		export function sampleFunction(): Thenable<any>;
 	}
 
@@ -352,7 +375,6 @@ declare module 'vscode' {
 	}
 
 	export namespace commands {
-
 		/**
 		 * Registers a diff information command that can be invoked via a keyboard shortcut,
 		 * a menu item, an action, or directly.
@@ -367,11 +389,14 @@ declare module 'vscode' {
 		 * @param thisArg The `this` context used when invoking the handler function.
 		 * @return Disposable which unregisters this command on disposal.
 		 */
-		export function registerDiffInformationCommand(command: string, callback: (diff: LineChange[], ...args: any[]) => any, thisArg?: any): Disposable;
+		export function registerDiffInformationCommand(
+			command: string,
+			callback: (diff: LineChange[], ...args: any[]) => any,
+			thisArg?: any
+		): Disposable;
 	}
 
 	export interface Terminal {
-
 		/**
 		 * The name of the terminal.
 		 */

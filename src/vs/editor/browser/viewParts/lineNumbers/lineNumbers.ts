@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./lineNumbers';
 import { editorLineNumbers } from 'vs/editor/common/view/editorColorRegistry';
@@ -16,7 +16,6 @@ import * as viewEvents from 'vs/editor/common/view/viewEvents';
 import { Position } from 'vs/editor/common/core/position';
 
 export class LineNumbersOverlay extends DynamicViewOverlay {
-
 	public static CLASS_NAME = 'line-numbers';
 
 	private _context: ViewContext;
@@ -61,13 +60,19 @@ export class LineNumbersOverlay extends DynamicViewOverlay {
 
 	// --- begin event handlers
 
-	public onConfigurationChanged(e: viewEvents.ViewConfigurationChangedEvent): boolean {
+	public onConfigurationChanged(
+		e: viewEvents.ViewConfigurationChangedEvent
+	): boolean {
 		this._readConfig();
 		return true;
 	}
-	public onCursorStateChanged(e: viewEvents.ViewCursorStateChangedEvent): boolean {
+	public onCursorStateChanged(
+		e: viewEvents.ViewCursorStateChangedEvent
+	): boolean {
 		const primaryViewPosition = e.selections[0].getPosition();
-		this._lastCursorModelPosition = this._context.model.coordinatesConverter.convertViewPositionToModelPosition(primaryViewPosition);
+		this._lastCursorModelPosition = this._context.model.coordinatesConverter.convertViewPositionToModelPosition(
+			primaryViewPosition
+		);
 
 		if (this._renderRelativeLineNumbers) {
 			return true;
@@ -96,7 +101,9 @@ export class LineNumbersOverlay extends DynamicViewOverlay {
 	// --- end event handlers
 
 	private _getLineRenderLineNumber(viewLineNumber: number): string {
-		const modelPosition = this._context.model.coordinatesConverter.convertViewPositionToModelPosition(new Position(viewLineNumber, 1));
+		const modelPosition = this._context.model.coordinatesConverter.convertViewPositionToModelPosition(
+			new Position(viewLineNumber, 1)
+		);
 		if (modelPosition.column !== 1) {
 			return '';
 		}
@@ -107,9 +114,15 @@ export class LineNumbersOverlay extends DynamicViewOverlay {
 		}
 
 		if (this._renderRelativeLineNumbers) {
-			let diff = Math.abs(this._lastCursorModelPosition.lineNumber - modelLineNumber);
+			let diff = Math.abs(
+				this._lastCursorModelPosition.lineNumber - modelLineNumber
+			);
 			if (diff === 0) {
-				return '<span class="relative-current-line-number">' + modelLineNumber + '</span>';
+				return (
+					'<span class="relative-current-line-number">' +
+					modelLineNumber +
+					'</span>'
+				);
 			}
 			return String(diff);
 		}
@@ -123,22 +136,32 @@ export class LineNumbersOverlay extends DynamicViewOverlay {
 			return;
 		}
 
-		let lineHeightClassName = (platform.isLinux ? (this._lineHeight % 2 === 0 ? ' lh-even' : ' lh-odd') : '');
+		let lineHeightClassName = platform.isLinux
+			? this._lineHeight % 2 === 0 ? ' lh-even' : ' lh-odd'
+			: '';
 		let visibleStartLineNumber = ctx.visibleRange.startLineNumber;
 		let visibleEndLineNumber = ctx.visibleRange.endLineNumber;
-		let common = '<div class="' + LineNumbersOverlay.CLASS_NAME + lineHeightClassName + '" style="left:' + this._lineNumbersLeft.toString() + 'px;width:' + this._lineNumbersWidth.toString() + 'px;">';
+		let common =
+			'<div class="' +
+			LineNumbersOverlay.CLASS_NAME +
+			lineHeightClassName +
+			'" style="left:' +
+			this._lineNumbersLeft.toString() +
+			'px;width:' +
+			this._lineNumbersWidth.toString() +
+			'px;">';
 
 		let output: string[] = [];
-		for (let lineNumber = visibleStartLineNumber; lineNumber <= visibleEndLineNumber; lineNumber++) {
+		for (
+			let lineNumber = visibleStartLineNumber;
+			lineNumber <= visibleEndLineNumber;
+			lineNumber++
+		) {
 			let lineIndex = lineNumber - visibleStartLineNumber;
 
 			let renderLineNumber = this._getLineRenderLineNumber(lineNumber);
 			if (renderLineNumber) {
-				output[lineIndex] = (
-					common
-					+ renderLineNumber
-					+ '</div>'
-				);
+				output[lineIndex] = common + renderLineNumber + '</div>';
 			} else {
 				output[lineIndex] = '';
 			}
@@ -164,6 +187,8 @@ export class LineNumbersOverlay extends DynamicViewOverlay {
 registerThemingParticipant((theme, collector) => {
 	let lineNumbers = theme.getColor(editorLineNumbers);
 	if (lineNumbers) {
-		collector.addRule(`.monaco-editor .line-numbers { color: ${lineNumbers}; }`);
+		collector.addRule(
+			`.monaco-editor .line-numbers { color: ${lineNumbers}; }`
+		);
 	}
 });

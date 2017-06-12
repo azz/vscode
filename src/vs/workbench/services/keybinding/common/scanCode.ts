@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { KeyCode } from 'vs/base/common/keyCodes';
 
@@ -210,11 +210,14 @@ export const enum ScanCode {
 }
 
 const scanCodeIntToStr: string[] = [];
-const scanCodeStrToInt: { [code: string]: number; } = Object.create(null);
-const scanCodeLowerCaseStrToInt: { [code: string]: number; } = Object.create(null);
+const scanCodeStrToInt: { [code: string]: number } = Object.create(null);
+const scanCodeLowerCaseStrToInt: { [code: string]: number } = Object.create(
+	null
+);
 
 export const ScanCodeUtils = {
-	lowerCaseToEnum: (scanCode: string) => scanCodeLowerCaseStrToInt[scanCode] || ScanCode.None,
+	lowerCaseToEnum: (scanCode: string) =>
+		scanCodeLowerCaseStrToInt[scanCode] || ScanCode.None,
 	toEnum: (scanCode: string) => scanCodeStrToInt[scanCode] || ScanCode.None,
 	toString: (scanCode: ScanCode) => scanCodeIntToStr[scanCode] || 'None'
 };
@@ -236,7 +239,13 @@ export class ScanCodeBinding {
 	public readonly metaKey: boolean;
 	public readonly scanCode: ScanCode;
 
-	constructor(ctrlKey: boolean, shiftKey: boolean, altKey: boolean, metaKey: boolean, scanCode: ScanCode) {
+	constructor(
+		ctrlKey: boolean,
+		shiftKey: boolean,
+		altKey: boolean,
+		metaKey: boolean,
+		scanCode: ScanCode
+	) {
 		this.ctrlKey = ctrlKey;
 		this.shiftKey = shiftKey;
 		this.altKey = altKey;
@@ -246,11 +255,11 @@ export class ScanCodeBinding {
 
 	public equals(other: ScanCodeBinding): boolean {
 		return (
-			this.ctrlKey === other.ctrlKey
-			&& this.shiftKey === other.shiftKey
-			&& this.altKey === other.altKey
-			&& this.metaKey === other.metaKey
-			&& this.scanCode === other.scanCode
+			this.ctrlKey === other.ctrlKey &&
+			this.shiftKey === other.shiftKey &&
+			this.altKey === other.altKey &&
+			this.metaKey === other.metaKey &&
+			this.scanCode === other.scanCode
 		);
 	}
 
@@ -259,15 +268,23 @@ export class ScanCodeBinding {
 	 */
 	public isDuplicateModifierCase(): boolean {
 		return (
-			(this.ctrlKey && (this.scanCode === ScanCode.ControlLeft || this.scanCode === ScanCode.ControlRight))
-			|| (this.shiftKey && (this.scanCode === ScanCode.ShiftLeft || this.scanCode === ScanCode.ShiftRight))
-			|| (this.altKey && (this.scanCode === ScanCode.AltLeft || this.scanCode === ScanCode.AltRight))
-			|| (this.metaKey && (this.scanCode === ScanCode.MetaLeft || this.scanCode === ScanCode.MetaRight))
+			(this.ctrlKey &&
+				(this.scanCode === ScanCode.ControlLeft ||
+					this.scanCode === ScanCode.ControlRight)) ||
+			(this.shiftKey &&
+				(this.scanCode === ScanCode.ShiftLeft ||
+					this.scanCode === ScanCode.ShiftRight)) ||
+			(this.altKey &&
+				(this.scanCode === ScanCode.AltLeft ||
+					this.scanCode === ScanCode.AltRight)) ||
+			(this.metaKey &&
+				(this.scanCode === ScanCode.MetaLeft ||
+					this.scanCode === ScanCode.MetaRight))
 		);
 	}
 }
 
-(function () {
+(function() {
 	function d(intScanCode: ScanCode, strScanCode: string): void {
 		scanCodeIntToStr[intScanCode] = strScanCode;
 		scanCodeStrToInt[strScanCode] = intScanCode;
@@ -468,7 +485,7 @@ export class ScanCodeBinding {
 	d(ScanCode.MailSend, 'MailSend');
 })();
 
-(function () {
+(function() {
 	for (let i = 0; i <= ScanCode.MAX_VALUE; i++) {
 		IMMUTABLE_CODE_TO_KEY_CODE[i] = -1;
 	}
@@ -481,12 +498,12 @@ export class ScanCodeBinding {
 		IMMUTABLE_CODE_TO_KEY_CODE[code] = keyCode;
 
 		if (
-			(keyCode !== KeyCode.Unknown)
-			&& (keyCode !== KeyCode.Enter)
-			&& (keyCode !== KeyCode.Ctrl)
-			&& (keyCode !== KeyCode.Shift)
-			&& (keyCode !== KeyCode.Alt)
-			&& (keyCode !== KeyCode.Meta)
+			keyCode !== KeyCode.Unknown &&
+			keyCode !== KeyCode.Enter &&
+			keyCode !== KeyCode.Ctrl &&
+			keyCode !== KeyCode.Shift &&
+			keyCode !== KeyCode.Alt &&
+			keyCode !== KeyCode.Meta
 		) {
 			IMMUTABLE_KEY_CODE_TO_CODE[keyCode] = code;
 		}

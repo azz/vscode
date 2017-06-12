@@ -12,12 +12,19 @@ import { Widget } from 'vs/base/browser/ui/widget';
 import { IExpression, splitGlobAware } from 'vs/base/common/glob';
 import { Checkbox } from 'vs/base/browser/ui/checkbox/checkbox';
 import { IContextViewProvider } from 'vs/base/browser/ui/contextview/contextview';
-import { MessageType, InputBox, IInputValidator } from 'vs/base/browser/ui/inputbox/inputBox';
+import {
+	MessageType,
+	InputBox,
+	IInputValidator
+} from 'vs/base/browser/ui/inputbox/inputBox';
 import { IKeyboardEvent } from 'vs/base/browser/keyboardEvent';
 import { KeyCode } from 'vs/base/common/keyCodes';
 import CommonEvent, { Emitter } from 'vs/base/common/event';
 import { IThemeService } from 'vs/platform/theme/common/themeService';
-import { attachInputBoxStyler, attachCheckboxStyler } from 'vs/platform/theme/common/styler';
+import {
+	attachInputBoxStyler,
+	attachCheckboxStyler
+} from 'vs/platform/theme/common/styler';
 import { ITelemetryService } from 'vs/platform/telemetry/common/telemetry';
 
 export interface IOptions {
@@ -28,7 +35,6 @@ export interface IOptions {
 }
 
 export class PatternInputWidget extends Widget {
-
 	static OPTION_CHANGE: string = 'optionChange';
 
 	public inputFocusTracker: dom.IFocusTracker;
@@ -47,12 +53,17 @@ export class PatternInputWidget extends Widget {
 	private _onSubmit = this._register(new Emitter<boolean>());
 	public onSubmit: CommonEvent<boolean> = this._onSubmit.event;
 
-	constructor(parent: HTMLElement, private contextViewProvider: IContextViewProvider, protected themeService: IThemeService, options: IOptions = Object.create(null)) {
+	constructor(
+		parent: HTMLElement,
+		private contextViewProvider: IContextViewProvider,
+		protected themeService: IThemeService,
+		options: IOptions = Object.create(null)
+	) {
 		super();
 		this.onOptionChange = null;
 		this.width = options.width || 100;
 		this.placeholder = options.placeholder || '';
-		this.ariaLabel = options.ariaLabel || nls.localize('defaultLabel', "input");
+		this.ariaLabel = options.ariaLabel || nls.localize('defaultLabel', 'input');
 
 		this.pattern = null;
 		this.domNode = null;
@@ -72,7 +83,10 @@ export class PatternInputWidget extends Widget {
 		}
 	}
 
-	public on(eventType: string, handler: (event: Event) => void): PatternInputWidget {
+	public on(
+		eventType: string,
+		handler: (event: Event) => void
+	): PatternInputWidget {
 		switch (eventType) {
 			case 'keydown':
 			case 'keyup':
@@ -102,7 +116,7 @@ export class PatternInputWidget extends Widget {
 		}
 	}
 
-	public getGlob(): { expression?: IExpression, searchPaths?: string[] } {
+	public getGlob(): { expression?: IExpression; searchPaths?: string[] } {
 		const pattern = this.getValue();
 		const isGlobPattern = this.isGlobPattern();
 
@@ -121,31 +135,36 @@ export class PatternInputWidget extends Widget {
 			searchPaths = groups.searchPaths;
 			exprSegments = groups.exprSegments;
 		} else {
-			const segments = pattern.split(',')
+			const segments = pattern
+				.split(',')
 				.map(s => strings.trim(s.trim(), '/'))
 				.filter(s => !!s.length);
 
 			const groups = this.groupByPathsAndExprSegments(segments);
 			searchPaths = groups.searchPaths;
-			exprSegments = groups.exprSegments
-				.map(p => {
-					if (p[0] === '.') {
-						p = '*' + p; // convert ".js" to "*.js"
-					}
+			exprSegments = groups.exprSegments.map(p => {
+				if (p[0] === '.') {
+					p = '*' + p; // convert ".js" to "*.js"
+				}
 
-					return strings.format('{{0}/**,**/{1}}', p, p); // convert foo to {foo/**,**/foo} to cover files and folders
-				});
+				return strings.format('{{0}/**,**/{1}}', p, p); // convert foo to {foo/**,**/foo} to cover files and folders
+			});
 		}
 
-		const expression = exprSegments.reduce((glob, cur) => { glob[cur] = true; return glob; }, Object.create(null));
+		const expression = exprSegments.reduce((glob, cur) => {
+			glob[cur] = true;
+			return glob;
+		}, Object.create(null));
 		return { expression, searchPaths };
 	}
 
 	private groupByPathsAndExprSegments(segments: string[]) {
 		const isSearchPath = segment => segment.match(/^\.\//);
 
-		const groups = collections.groupBy(segments,
-			segment => isSearchPath(segment) ? 'searchPaths' : 'exprSegments');
+		const groups = collections.groupBy(
+			segments,
+			segment => (isSearchPath(segment) ? 'searchPaths' : 'exprSegments')
+		);
 		groups.searchPaths = groups.searchPaths || [];
 		groups.exprSegments = groups.exprSegments || [];
 
@@ -205,13 +224,15 @@ export class PatternInputWidget extends Widget {
 		});
 		this._register(attachInputBoxStyler(this.inputBox, this.themeService));
 		this.inputFocusTracker = dom.trackFocus(this.inputBox.inputElement);
-		this.onkeyup(this.inputBox.inputElement, (keyboardEvent) => this.onInputKeyUp(keyboardEvent));
+		this.onkeyup(this.inputBox.inputElement, keyboardEvent =>
+			this.onInputKeyUp(keyboardEvent)
+		);
 
 		this.pattern = new Checkbox({
 			actionClassName: 'pattern',
-			title: nls.localize('patternDescription', "Use Glob Patterns"),
+			title: nls.localize('patternDescription', 'Use Glob Patterns'),
 			isChecked: false,
-			onChange: (viaKeyboard) => {
+			onChange: viaKeyboard => {
 				this.onOptionChange(null);
 				if (!viaKeyboard) {
 					this.inputBox.focus();
@@ -249,13 +270,17 @@ export class PatternInputWidget extends Widget {
 	}
 
 	private showGlobHelp(): void {
-		this.inputBox.showMessage({
-			type: MessageType.INFO,
-			formatContent: true,
-			content: nls.localize('patternHelpInclude',
-				"The pattern to match. e.g. **\\*\\*/*.js** to match all JavaScript files or **myFolder/\\*\\*** to match that folder with all children.\n\n**Reference**:\n**\\*** matches 0 or more characters\n**?** matches 1 character\n**\\*\\*** matches zero or more directories\n**[a-z]** matches a range of characters\n**{a,b}** matches any of the patterns)"
-			)
-		}, true);
+		this.inputBox.showMessage(
+			{
+				type: MessageType.INFO,
+				formatContent: true,
+				content: nls.localize(
+					'patternHelpInclude',
+					'The pattern to match. e.g. **\\*\\*/*.js** to match all JavaScript files or **myFolder/\\*\\*** to match that folder with all children.\n\n**Reference**:\n**\\*** matches 0 or more characters\n**?** matches 1 character\n**\\*\\*** matches zero or more directories\n**[a-z]** matches a range of characters\n**{a,b}** matches any of the patterns)'
+				)
+			},
+			true
+		);
 	}
 
 	private onInputKeyUp(keyboardEvent: IKeyboardEvent) {
@@ -270,8 +295,13 @@ export class PatternInputWidget extends Widget {
 }
 
 export class ExcludePatternInputWidget extends PatternInputWidget {
-
-	constructor(parent: HTMLElement, contextViewProvider: IContextViewProvider, themeService: IThemeService, private telemetryService: ITelemetryService, options: IOptions = Object.create(null)) {
+	constructor(
+		parent: HTMLElement,
+		contextViewProvider: IContextViewProvider,
+		themeService: IThemeService,
+		private telemetryService: ITelemetryService,
+		options: IOptions = Object.create(null)
+	) {
 		super(parent, contextViewProvider, themeService, options);
 	}
 
@@ -301,15 +331,19 @@ export class ExcludePatternInputWidget extends PatternInputWidget {
 	}
 
 	protected getSubcontrolsWidth(): number {
-		return super.getSubcontrolsWidth() + this.useIgnoreFilesBox.width() + this.useExcludeSettingsBox.width();
+		return (
+			super.getSubcontrolsWidth() +
+			this.useIgnoreFilesBox.width() +
+			this.useExcludeSettingsBox.width()
+		);
 	}
 
 	protected renderSubcontrols(controlsDiv: HTMLDivElement): void {
 		this.useIgnoreFilesBox = new Checkbox({
 			actionClassName: 'useIgnoreFiles',
-			title: nls.localize('useIgnoreFilesDescription', "Use Ignore Files"),
+			title: nls.localize('useIgnoreFilesDescription', 'Use Ignore Files'),
 			isChecked: false,
-			onChange: (viaKeyboard) => {
+			onChange: viaKeyboard => {
 				this.telemetryService.publicLog('search.useIgnoreFiles.toggled');
 				this.onOptionChange(null);
 				if (!viaKeyboard) {
@@ -317,13 +351,18 @@ export class ExcludePatternInputWidget extends PatternInputWidget {
 				}
 			}
 		});
-		this._register(attachCheckboxStyler(this.useIgnoreFilesBox, this.themeService));
+		this._register(
+			attachCheckboxStyler(this.useIgnoreFilesBox, this.themeService)
+		);
 
 		this.useExcludeSettingsBox = new Checkbox({
 			actionClassName: 'useExcludeSettings',
-			title: nls.localize('useExcludeSettingsDescription', "Use Exclude Settings"),
+			title: nls.localize(
+				'useExcludeSettingsDescription',
+				'Use Exclude Settings'
+			),
 			isChecked: false,
-			onChange: (viaKeyboard) => {
+			onChange: viaKeyboard => {
 				this.telemetryService.publicLog('search.useExcludeSettings.toggled');
 				this.onOptionChange(null);
 				if (!viaKeyboard) {
@@ -331,7 +370,9 @@ export class ExcludePatternInputWidget extends PatternInputWidget {
 				}
 			}
 		});
-		this._register(attachCheckboxStyler(this.useExcludeSettingsBox, this.themeService));
+		this._register(
+			attachCheckboxStyler(this.useExcludeSettingsBox, this.themeService)
+		);
 
 		controlsDiv.appendChild(this.useIgnoreFilesBox.domNode);
 		controlsDiv.appendChild(this.useExcludeSettingsBox.domNode);

@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { hash } from 'vs/base/common/hash';
@@ -40,9 +40,12 @@ suite('Hash', () => {
 
 	test('object', () => {
 		assert.equal(hash({}), hash({}));
-		assert.equal(hash({ 'foo': 'bar' }), hash({ 'foo': 'bar' }));
-		assert.equal(hash({ 'foo': 'bar', 'foo2': void 0 }), hash({ 'foo2': void 0, 'foo': 'bar' }));
-		assert.notEqual(hash({ 'foo': 'bar' }), hash({ 'foo': 'bar2' }));
+		assert.equal(hash({ foo: 'bar' }), hash({ foo: 'bar' }));
+		assert.equal(
+			hash({ foo: 'bar', foo2: void 0 }),
+			hash({ foo2: void 0, foo: 'bar' })
+		);
+		assert.notEqual(hash({ foo: 'bar' }), hash({ foo: 'bar2' }));
 		assert.notEqual(hash({}), hash([]));
 	});
 });

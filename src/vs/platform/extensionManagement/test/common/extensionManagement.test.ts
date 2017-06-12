@@ -2,13 +2,12 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { EXTENSION_IDENTIFIER_PATTERN } from 'vs/platform/extensionManagement/common/extensionManagement';
 
 suite('Extension Identifier Pattern', () => {
-
 	test('extension identifier pattern', () => {
 		const regEx = new RegExp(EXTENSION_IDENTIFIER_PATTERN);
 		assert.equal(true, regEx.test('publisher.name'));

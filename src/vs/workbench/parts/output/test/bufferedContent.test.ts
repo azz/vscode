@@ -7,7 +7,6 @@ import * as assert from 'assert';
 import { BufferedContent } from 'vs/workbench/parts/output/browser/outputServices';
 
 suite('Workbench - Output Buffered Content', () => {
-
 	test('Buffered Content - Simple', () => {
 		const bufferedContent = new BufferedContent();
 		bufferedContent.append('first');
@@ -31,11 +30,14 @@ suite('Workbench - Output Buffered Content', () => {
 		assert.equal(secondDelta.value, 'secondthird');
 		bufferedContent.append('fourth');
 		bufferedContent.append('fifth');
-		assert.equal(bufferedContent.getDelta(firstDelta).value, 'secondthirdfourthfifth');
+		assert.equal(
+			bufferedContent.getDelta(firstDelta).value,
+			'secondthirdfourthfifth'
+		);
 		assert.equal(bufferedContent.getDelta(secondDelta).value, 'fourthfifth');
 	});
 
-	test('Buffered Content - Lots of Output', function () {
+	test('Buffered Content - Lots of Output', function() {
 		this.timeout(10000);
 		const bufferedContent = new BufferedContent();
 		bufferedContent.append('first line');
@@ -47,7 +49,10 @@ suite('Workbench - Output Buffered Content', () => {
 		}
 		const secondDelta = bufferedContent.getDelta(firstDelta);
 		assert.equal(secondDelta.append, true);
-		assert.equal(secondDelta.value.substr(secondDelta.value.length - 4), '4999');
+		assert.equal(
+			secondDelta.value.substr(secondDelta.value.length - 4),
+			'4999'
+		);
 		longString = longString + longString + longString + longString;
 		bufferedContent.append(longString);
 		bufferedContent.append(longString);

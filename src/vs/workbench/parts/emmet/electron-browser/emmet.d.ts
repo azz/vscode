@@ -4,7 +4,6 @@
  *--------------------------------------------------------------------------------------------*/
 
 declare module 'emmet' {
-
 	export interface Range {
 		start: number;
 		end: number;
@@ -93,7 +92,12 @@ declare module 'emmet' {
 		 * @param {Number} [end] End index of editor's content
 		 * @param {Boolean} [no_indent] Do not auto indent <code>value</code>
 		 */
-		replaceContent(value: string, start: number, end: number, no_indent: boolean): void;
+		replaceContent(
+			value: string,
+			start: number,
+			end: number,
+			no_indent: boolean
+		): void;
 
 		/**
 		 * Returns editor's content

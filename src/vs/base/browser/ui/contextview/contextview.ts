@@ -3,8 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-
-'use strict';
+('use strict');
 
 import 'vs/css!./contextview';
 import { Builder, $ } from 'vs/base/browser/builder';
@@ -20,11 +19,13 @@ export interface IAnchor {
 }
 
 export enum AnchorAlignment {
-	LEFT, RIGHT
+	LEFT,
+	RIGHT
 }
 
 export enum AnchorPosition {
-	BELOW, ABOVE
+	BELOW,
+	ABOVE
 }
 
 export interface IDelegate {
@@ -54,11 +55,21 @@ export interface ISize {
 	height: number;
 }
 
-export interface IView extends IPosition, ISize { }
+export interface IView extends IPosition, ISize {}
 
-function layout(view: ISize, around: IView, viewport: IView, anchorPosition: AnchorPosition, anchorAlignment: AnchorAlignment): IPosition {
-
-	let chooseBiased = (a: number, aIsGood: boolean, b: number, bIsGood: boolean) => {
+function layout(
+	view: ISize,
+	around: IView,
+	viewport: IView,
+	anchorPosition: AnchorPosition,
+	anchorAlignment: AnchorAlignment
+): IPosition {
+	let chooseBiased = (
+		a: number,
+		aIsGood: boolean,
+		b: number,
+		bIsGood: boolean
+	) => {
 		if (aIsGood) {
 			return a;
 		}
@@ -68,7 +79,13 @@ function layout(view: ISize, around: IView, viewport: IView, anchorPosition: Anc
 		return a;
 	};
 
-	let chooseOne = (a: number, aIsGood: boolean, b: number, bIsGood: boolean, aIsPreferred: boolean) => {
+	let chooseOne = (
+		a: number,
+		aIsGood: boolean,
+		b: number,
+		bIsGood: boolean,
+		aIsPreferred: boolean
+	) => {
 		if (aIsPreferred) {
 			return chooseBiased(a, aIsGood, b, bIsGood);
 		} else {
@@ -82,10 +99,20 @@ function layout(view: ISize, around: IView, viewport: IView, anchorPosition: Anc
 		let posBelow = around.top + around.height;
 
 		// Check for both options if they are good
-		let aboveIsGood = (posAbove >= viewport.top && posAbove + view.height <= viewport.top + viewport.height);
-		let belowIsGood = (posBelow >= viewport.top && posBelow + view.height <= viewport.top + viewport.height);
+		let aboveIsGood =
+			posAbove >= viewport.top &&
+			posAbove + view.height <= viewport.top + viewport.height;
+		let belowIsGood =
+			posBelow >= viewport.top &&
+			posBelow + view.height <= viewport.top + viewport.height;
 
-		return chooseOne(posAbove, aboveIsGood, posBelow, belowIsGood, anchorPosition === AnchorPosition.ABOVE);
+		return chooseOne(
+			posAbove,
+			aboveIsGood,
+			posBelow,
+			belowIsGood,
+			anchorPosition === AnchorPosition.ABOVE
+		);
 	})();
 
 	let left = (() => {
@@ -94,17 +121,26 @@ function layout(view: ISize, around: IView, viewport: IView, anchorPosition: Anc
 		let posRight = around.left + around.width - view.width;
 
 		// Check for both options if they are good
-		let leftIsGood = (posLeft >= viewport.left && posLeft + view.width <= viewport.left + viewport.width);
-		let rightIsGood = (posRight >= viewport.left && posRight + view.width <= viewport.left + viewport.width);
+		let leftIsGood =
+			posLeft >= viewport.left &&
+			posLeft + view.width <= viewport.left + viewport.width;
+		let rightIsGood =
+			posRight >= viewport.left &&
+			posRight + view.width <= viewport.left + viewport.width;
 
-		return chooseOne(posLeft, leftIsGood, posRight, rightIsGood, anchorAlignment === AnchorAlignment.LEFT);
+		return chooseOne(
+			posLeft,
+			leftIsGood,
+			posRight,
+			rightIsGood,
+			anchorAlignment === AnchorAlignment.LEFT
+		);
 	})();
 
 	return { top: top, left: left };
 }
 
 export class ContextView extends EventEmitter {
-
 	private static BUBBLE_UP_EVENTS = ['click', 'keydown', 'focus', 'blur'];
 	private static BUBBLE_DOWN_EVENTS = ['click'];
 
@@ -119,11 +155,13 @@ export class ContextView extends EventEmitter {
 		this.$view = $('.context-view').hide();
 		this.setContainer(container);
 
-		this.toDispose = [{
-			dispose: () => {
-				this.setContainer(null);
+		this.toDispose = [
+			{
+				dispose: () => {
+					this.setContainer(null);
+				}
 			}
-		}];
+		];
 
 		this.toDisposeOnClean = null;
 	}
@@ -140,9 +178,14 @@ export class ContextView extends EventEmitter {
 			this.$container.on(ContextView.BUBBLE_UP_EVENTS, (e: Event) => {
 				this.onDOMEvent(e, <HTMLElement>document.activeElement, false);
 			});
-			this.$container.on(ContextView.BUBBLE_DOWN_EVENTS, (e: Event) => {
-				this.onDOMEvent(e, <HTMLElement>document.activeElement, true);
-			}, null, true);
+			this.$container.on(
+				ContextView.BUBBLE_DOWN_EVENTS,
+				(e: Event) => {
+					this.onDOMEvent(e, <HTMLElement>document.activeElement, true);
+				},
+				null,
+				true
+			);
 		}
 	}
 
@@ -152,7 +195,11 @@ export class ContextView extends EventEmitter {
 		}
 
 		// Show static box
-		this.$view.setClass('context-view').empty().style({ top: '0px', left: '0px' }).show();
+		this.$view
+			.setClass('context-view')
+			.empty()
+			.style({ top: '0px', left: '0px' })
+			.show();
 
 		// Render content
 		this.toDisposeOnClean = delegate.render(this.$view.getHTMLElement());
@@ -223,16 +270,32 @@ export class ContextView extends EventEmitter {
 		let anchorPosition = this.delegate.anchorPosition || AnchorPosition.BELOW;
 		let anchorAlignment = this.delegate.anchorAlignment || AnchorAlignment.LEFT;
 
-		let result = layout(view, around, viewport, anchorPosition, anchorAlignment);
+		let result = layout(
+			view,
+			around,
+			viewport,
+			anchorPosition,
+			anchorAlignment
+		);
 
-		let containerPosition = DOM.getDomNodePagePosition(this.$container.getHTMLElement());
+		let containerPosition = DOM.getDomNodePagePosition(
+			this.$container.getHTMLElement()
+		);
 		result.top -= containerPosition.top;
 		result.left -= containerPosition.left;
 
 		this.$view.removeClass('top', 'bottom', 'left', 'right');
-		this.$view.addClass(anchorPosition === AnchorPosition.BELOW ? 'bottom' : 'top');
-		this.$view.addClass(anchorAlignment === AnchorAlignment.LEFT ? 'left' : 'right');
-		this.$view.style({ top: result.top + 'px', left: result.left + 'px', width: 'initial' });
+		this.$view.addClass(
+			anchorPosition === AnchorPosition.BELOW ? 'bottom' : 'top'
+		);
+		this.$view.addClass(
+			anchorAlignment === AnchorAlignment.LEFT ? 'left' : 'right'
+		);
+		this.$view.style({
+			top: result.top + 'px',
+			left: result.left + 'px',
+			width: 'initial'
+		});
 	}
 
 	public hide(data?: any): void {
@@ -258,7 +321,10 @@ export class ContextView extends EventEmitter {
 		if (this.delegate) {
 			if (this.delegate.onDOMEvent) {
 				this.delegate.onDOMEvent(e, <HTMLElement>document.activeElement);
-			} else if (onCapture && !DOM.isAncestor(<HTMLElement>e.target, this.$container.getHTMLElement())) {
+			} else if (
+				onCapture &&
+				!DOM.isAncestor(<HTMLElement>e.target, this.$container.getHTMLElement())
+			) {
 				this.hide();
 			}
 		}

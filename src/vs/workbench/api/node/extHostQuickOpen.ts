@@ -2,19 +2,23 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import { wireCancellationToken } from 'vs/base/common/async';
 import { CancellationToken } from 'vs/base/common/cancellation';
 import { IThreadService } from 'vs/workbench/services/thread/common/threadService';
 import { QuickPickOptions, QuickPickItem, InputBoxOptions } from 'vscode';
-import { MainContext, MainThreadQuickOpenShape, ExtHostQuickOpenShape, MyQuickPickItems } from './extHost.protocol';
+import {
+	MainContext,
+	MainThreadQuickOpenShape,
+	ExtHostQuickOpenShape,
+	MyQuickPickItems
+} from './extHost.protocol';
 
 export type Item = string | QuickPickItem;
 
 export class ExtHostQuickOpen extends ExtHostQuickOpenShape {
-
 	private _proxy: MainThreadQuickOpenShape;
 	private _onDidSelectItem: (handle: number) => void;
 	private _validateInput: (input: string) => string;
@@ -24,8 +28,11 @@ export class ExtHostQuickOpen extends ExtHostQuickOpenShape {
 		this._proxy = threadService.get(MainContext.MainThreadQuickOpen);
 	}
 
-	showQuickPick(itemsOrItemsPromise: Item[] | Thenable<Item[]>, options?: QuickPickOptions, token: CancellationToken = CancellationToken.None): Thenable<Item> {
-
+	showQuickPick(
+		itemsOrItemsPromise: Item[] | Thenable<Item[]>,
+		options?: QuickPickOptions,
+		token: CancellationToken = CancellationToken.None
+	): Thenable<Item> {
 		// clear state from last invocation
 		this._onDidSelectItem = undefined;
 
@@ -39,57 +46,60 @@ export class ExtHostQuickOpen extends ExtHostQuickOpenShape {
 			ignoreFocusLost: options && options.ignoreFocusOut
 		});
 
-		const promise = TPromise.any(<TPromise<number | Item[]>[]>[quickPickWidget, itemsPromise]).then(values => {
+		const promise = TPromise.any(
+			<TPromise<number | Item[]>[]>[quickPickWidget, itemsPromise]
+		).then(values => {
 			if (values.key === '0') {
 				return undefined;
 			}
 
-			return itemsPromise.then(items => {
+			return itemsPromise.then(
+				items => {
+					let pickItems: MyQuickPickItems[] = [];
+					for (let handle = 0; handle < items.length; handle++) {
+						let item = items[handle];
+						let label: string;
+						let description: string;
+						let detail: string;
 
-				let pickItems: MyQuickPickItems[] = [];
-				for (let handle = 0; handle < items.length; handle++) {
-
-					let item = items[handle];
-					let label: string;
-					let description: string;
-					let detail: string;
-
-					if (typeof item === 'string') {
-						label = item;
-					} else {
-						label = item.label;
-						description = item.description;
-						detail = item.detail;
+						if (typeof item === 'string') {
+							label = item;
+						} else {
+							label = item.label;
+							description = item.description;
+							detail = item.detail;
+						}
+						pickItems.push({
+							label,
+							description,
+							handle,
+							detail
+						});
 					}
-					pickItems.push({
-						label,
-						description,
-						handle,
-						detail
+
+					// handle selection changes
+					if (options && typeof options.onDidSelectItem === 'function') {
+						this._onDidSelectItem = handle => {
+							options.onDidSelectItem(items[handle]);
+						};
+					}
+
+					// show items
+					this._proxy.$setItems(pickItems);
+
+					return quickPickWidget.then(handle => {
+						if (typeof handle === 'number') {
+							return items[handle];
+						}
+						return undefined;
 					});
+				},
+				err => {
+					this._proxy.$setError(err);
+
+					return TPromise.wrapError(err);
 				}
-
-				// handle selection changes
-				if (options && typeof options.onDidSelectItem === 'function') {
-					this._onDidSelectItem = (handle) => {
-						options.onDidSelectItem(items[handle]);
-					};
-				}
-
-				// show items
-				this._proxy.$setItems(pickItems);
-
-				return quickPickWidget.then(handle => {
-					if (typeof handle === 'number') {
-						return items[handle];
-					}
-					return undefined;
-				});
-			}, (err) => {
-				this._proxy.$setError(err);
-
-				return TPromise.wrapError(err);
-			});
+			);
 		});
 		return wireCancellationToken<Item>(token, promise, true);
 	}
@@ -102,12 +112,17 @@ export class ExtHostQuickOpen extends ExtHostQuickOpenShape {
 
 	// ---- input
 
-	showInput(options?: InputBoxOptions, token: CancellationToken = CancellationToken.None): Thenable<string> {
-
+	showInput(
+		options?: InputBoxOptions,
+		token: CancellationToken = CancellationToken.None
+	): Thenable<string> {
 		// global validate fn used in callback below
 		this._validateInput = options && options.validateInput;
 
-		const promise = this._proxy.$input(options, typeof this._validateInput === 'function');
+		const promise = this._proxy.$input(
+			options,
+			typeof this._validateInput === 'function'
+		);
 		return wireCancellationToken(token, promise, true);
 	}
 

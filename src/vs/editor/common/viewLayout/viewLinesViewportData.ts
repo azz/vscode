@@ -2,9 +2,14 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
-import { ViewLineRenderingData, IViewModel, ViewModelDecoration, IViewWhitespaceViewportData } from 'vs/editor/common/viewModel/viewModel';
+import {
+	ViewLineRenderingData,
+	IViewModel,
+	ViewModelDecoration,
+	IViewWhitespaceViewportData
+} from 'vs/editor/common/viewModel/viewModel';
 import { Range } from 'vs/editor/common/core/range';
 
 export interface IPartialViewLinesViewportData {
@@ -42,7 +47,6 @@ export interface IPartialViewLinesViewportData {
  * Contains all data needed to render at a specific viewport.
  */
 export class ViewportData {
-
 	/**
 	 * The line number at which to start rendering (inclusive).
 	 */

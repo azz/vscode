@@ -4,12 +4,11 @@
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 
 declare module 'gulp-util' {
-
 	import vinyl = require('vinyl');
 	import chalk = require('chalk');
 	import through2 = require('through2');
 
-	export class File extends vinyl { }
+	export class File extends vinyl {}
 
 	/**
 	* Replaces a file extension in a path. Returns the new path.
@@ -35,8 +34,13 @@ declare module 'gulp-util' {
 	* file object so it is available to the user or it will error. You can not
 	* configure any of the delimiters. Look at the lodash docs for more info.
 	*/
-	export function template(tmpl: string): (opt: { file: { path: string } }) => string;
-	export function template(tmpl: string, opt: { file: { path: string } }): string;
+	export function template(
+		tmpl: string
+	): (opt: { file: { path: string } }) => string;
+	export function template(
+		tmpl: string,
+		opt: { file: { path: string } }
+	): string;
 
 	export var env: any;
 
@@ -55,20 +59,34 @@ declare module 'gulp-util' {
 
 	export var linefeed: string;
 
-	export function combine(streams: NodeJS.ReadWriteStream[]): () => NodeJS.ReadWriteStream;
-	export function combine(...streams: NodeJS.ReadWriteStream[]): () => NodeJS.ReadWriteStream;
+	export function combine(
+		streams: NodeJS.ReadWriteStream[]
+	): () => NodeJS.ReadWriteStream;
+	export function combine(
+		...streams: NodeJS.ReadWriteStream[]
+	): () => NodeJS.ReadWriteStream;
 
 	/**
 	* This is similar to es.wait but instead of buffering text into one string
 	* it buffers anything into an array (so very useful for file objects).
 	*/
-	export function buffer(cb?: (err: Error, data: any[]) => void): NodeJS.ReadWriteStream;
+	export function buffer(
+		cb?: (err: Error, data: any[]) => void
+	): NodeJS.ReadWriteStream;
 
 	export class PluginError implements Error, PluginErrorOptions {
 		constructor(options?: PluginErrorOptions);
 		constructor(pluginName: string, options?: PluginErrorOptions);
-		constructor(pluginName: string, message: string, options?: PluginErrorOptions);
-		constructor(pluginName: string, message: Error, options?: PluginErrorOptions);
+		constructor(
+			pluginName: string,
+			message: string,
+			options?: PluginErrorOptions
+		);
+		constructor(
+			pluginName: string,
+			message: Error,
+			options?: PluginErrorOptions
+		);
 		/**
 		* The module name of your plugin.
 		*/
@@ -98,7 +116,6 @@ declare module 'gulp-util' {
 		plugin: string;
 		error: Error;
 	}
-
 }
 
 interface PluginErrorOptions {

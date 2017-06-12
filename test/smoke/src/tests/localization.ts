@@ -5,21 +5,32 @@
 
 import * as assert from 'assert';
 
-import { SpectronApplication, LATEST_PATH, WORKSPACE_PATH, USER_DIR } from "../spectron/application";
+import {
+	SpectronApplication,
+	LATEST_PATH,
+	WORKSPACE_PATH,
+	USER_DIR
+} from '../spectron/application';
 import { CommonActions } from '../areas/common';
-import { Localization, ViewletType } from "../areas/localization";
+import { Localization, ViewletType } from '../areas/localization';
 
 let app: SpectronApplication;
 let common: CommonActions;
 
 export function testLocalization() {
 	context('Localization', () => {
-		afterEach(async function () {
+		afterEach(async function() {
 			return await app.stop();
 		});
 
-		it(`starts with 'DE' locale and verifies title and viewlets text is in German`, async function () {
-			app = new SpectronApplication(LATEST_PATH, this.test.fullTitle(), this.test.currentRetry(), [WORKSPACE_PATH, '--locale=DE'], [`--user-data-dir=${USER_DIR}`]);
+		it(`starts with 'DE' locale and verifies title and viewlets text is in German`, async function() {
+			app = new SpectronApplication(
+				LATEST_PATH,
+				this.test.fullTitle(),
+				this.test.currentRetry(),
+				[WORKSPACE_PATH, '--locale=DE'],
+				[`--user-data-dir=${USER_DIR}`]
+			);
 			common = new CommonActions(app);
 			const locale = new Localization(app);
 			common.removeDirectory(USER_DIR);
@@ -43,7 +54,10 @@ export function testLocalization() {
 
 			await locale.openViewlet(ViewletType.EXTENSIONS);
 			text = await locale.getExtensionsSearchPlaceholder();
-			assert.equal(text.toLowerCase(), 'nach erweiterungen im marketplace suchen');
+			assert.equal(
+				text.toLowerCase(),
+				'nach erweiterungen im marketplace suchen'
+			);
 		});
 	});
 }

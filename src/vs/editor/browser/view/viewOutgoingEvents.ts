@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { Disposable } from 'vs/base/common/lifecycle';
 import { IKeyboardEvent } from 'vs/base/browser/keyboardEvent';
@@ -10,48 +10,81 @@ import { Position } from 'vs/editor/common/core/position';
 import { Range } from 'vs/editor/common/core/range';
 import { IViewModel } from 'vs/editor/common/viewModel/viewModel';
 import { IScrollEvent } from 'vs/editor/common/editorCommon';
-import { IEditorMouseEvent, IMouseTarget, MouseTargetType } from 'vs/editor/browser/editorBrowser';
+import {
+	IEditorMouseEvent,
+	IMouseTarget,
+	MouseTargetType
+} from 'vs/editor/browser/editorBrowser';
 import { MouseTarget } from 'vs/editor/browser/controller/mouseTarget';
 import * as viewEvents from 'vs/editor/common/view/viewEvents';
 import Event, { Emitter } from 'vs/base/common/event';
 
 export class ViewOutgoingEvents extends Disposable {
-
-	private readonly _onDidScroll: Emitter<IScrollEvent> = this._register(new Emitter<IScrollEvent>());
+	private readonly _onDidScroll: Emitter<IScrollEvent> = this._register(
+		new Emitter<IScrollEvent>()
+	);
 	public readonly onDidScroll: Event<IScrollEvent> = this._onDidScroll.event;
 
-	private readonly _onDidGainFocus: Emitter<void> = this._register(new Emitter<void>());
+	private readonly _onDidGainFocus: Emitter<void> = this._register(
+		new Emitter<void>()
+	);
 	public readonly onDidGainFocus: Event<void> = this._onDidGainFocus.event;
 
-	private readonly _onDidLoseFocus: Emitter<void> = this._register(new Emitter<void>());
+	private readonly _onDidLoseFocus: Emitter<void> = this._register(
+		new Emitter<void>()
+	);
 	public readonly onDidLoseFocus: Event<void> = this._onDidLoseFocus.event;
 
-	private readonly _onKeyDown: Emitter<IKeyboardEvent> = this._register(new Emitter<IKeyboardEvent>());
+	private readonly _onKeyDown: Emitter<IKeyboardEvent> = this._register(
+		new Emitter<IKeyboardEvent>()
+	);
 	public readonly onKeyDown: Event<IKeyboardEvent> = this._onKeyDown.event;
 
-	private readonly _onKeyUp: Emitter<IKeyboardEvent> = this._register(new Emitter<IKeyboardEvent>());
+	private readonly _onKeyUp: Emitter<IKeyboardEvent> = this._register(
+		new Emitter<IKeyboardEvent>()
+	);
 	public readonly onKeyUp: Event<IKeyboardEvent> = this._onKeyUp.event;
 
-	private readonly _onContextMenu: Emitter<IEditorMouseEvent> = this._register(new Emitter<IEditorMouseEvent>());
-	public readonly onContextMenu: Event<IEditorMouseEvent> = this._onContextMenu.event;
+	private readonly _onContextMenu: Emitter<IEditorMouseEvent> = this._register(
+		new Emitter<IEditorMouseEvent>()
+	);
+	public readonly onContextMenu: Event<IEditorMouseEvent> = this._onContextMenu
+		.event;
 
-	private readonly _onMouseMove: Emitter<IEditorMouseEvent> = this._register(new Emitter<IEditorMouseEvent>());
-	public readonly onMouseMove: Event<IEditorMouseEvent> = this._onMouseMove.event;
+	private readonly _onMouseMove: Emitter<IEditorMouseEvent> = this._register(
+		new Emitter<IEditorMouseEvent>()
+	);
+	public readonly onMouseMove: Event<IEditorMouseEvent> = this._onMouseMove
+		.event;
 
-	private readonly _onMouseLeave: Emitter<IEditorMouseEvent> = this._register(new Emitter<IEditorMouseEvent>());
-	public readonly onMouseLeave: Event<IEditorMouseEvent> = this._onMouseLeave.event;
+	private readonly _onMouseLeave: Emitter<IEditorMouseEvent> = this._register(
+		new Emitter<IEditorMouseEvent>()
+	);
+	public readonly onMouseLeave: Event<IEditorMouseEvent> = this._onMouseLeave
+		.event;
 
-	private readonly _onMouseUp: Emitter<IEditorMouseEvent> = this._register(new Emitter<IEditorMouseEvent>());
+	private readonly _onMouseUp: Emitter<IEditorMouseEvent> = this._register(
+		new Emitter<IEditorMouseEvent>()
+	);
 	public readonly onMouseUp: Event<IEditorMouseEvent> = this._onMouseUp.event;
 
-	private readonly _onMouseDown: Emitter<IEditorMouseEvent> = this._register(new Emitter<IEditorMouseEvent>());
-	public readonly onMouseDown: Event<IEditorMouseEvent> = this._onMouseDown.event;
+	private readonly _onMouseDown: Emitter<IEditorMouseEvent> = this._register(
+		new Emitter<IEditorMouseEvent>()
+	);
+	public readonly onMouseDown: Event<IEditorMouseEvent> = this._onMouseDown
+		.event;
 
-	private readonly _onMouseDrag: Emitter<IEditorMouseEvent> = this._register(new Emitter<IEditorMouseEvent>());
-	public readonly onMouseDrag: Event<IEditorMouseEvent> = this._onMouseDrag.event;
+	private readonly _onMouseDrag: Emitter<IEditorMouseEvent> = this._register(
+		new Emitter<IEditorMouseEvent>()
+	);
+	public readonly onMouseDrag: Event<IEditorMouseEvent> = this._onMouseDrag
+		.event;
 
-	private readonly _onMouseDrop: Emitter<IEditorMouseEvent> = this._register(new Emitter<IEditorMouseEvent>());
-	public readonly onMouseDrop: Event<IEditorMouseEvent> = this._onMouseDrop.event;
+	private readonly _onMouseDrop: Emitter<IEditorMouseEvent> = this._register(
+		new Emitter<IEditorMouseEvent>()
+	);
+	public readonly onMouseDrop: Event<IEditorMouseEvent> = this._onMouseDrop
+		.event;
 
 	private _viewModel: IViewModel;
 
@@ -108,7 +141,9 @@ export class ViewOutgoingEvents extends Disposable {
 		this._onMouseDrop.fire(this._convertViewToModelMouseEvent(e));
 	}
 
-	private _convertViewToModelMouseEvent(e: IEditorMouseEvent): IEditorMouseEvent {
+	private _convertViewToModelMouseEvent(
+		e: IEditorMouseEvent
+	): IEditorMouseEvent {
 		if (e.target) {
 			return {
 				event: e.event,
@@ -123,23 +158,28 @@ export class ViewOutgoingEvents extends Disposable {
 			target.element,
 			target.type,
 			target.mouseColumn,
-			target.position ? this._convertViewToModelPosition(target.position) : null,
+			target.position
+				? this._convertViewToModelPosition(target.position)
+				: null,
 			target.range ? this._convertViewToModelRange(target.range) : null,
 			target.detail
 		);
 	}
 
 	private _convertViewToModelPosition(viewPosition: Position): Position {
-		return this._viewModel.coordinatesConverter.convertViewPositionToModelPosition(viewPosition);
+		return this._viewModel.coordinatesConverter.convertViewPositionToModelPosition(
+			viewPosition
+		);
 	}
 
 	private _convertViewToModelRange(viewRange: Range): Range {
-		return this._viewModel.coordinatesConverter.convertViewRangeToModelRange(viewRange);
+		return this._viewModel.coordinatesConverter.convertViewRangeToModelRange(
+			viewRange
+		);
 	}
 }
 
 class ExternalMouseTarget implements IMouseTarget {
-
 	public readonly element: Element;
 	public readonly type: MouseTargetType;
 	public readonly mouseColumn: number;
@@ -147,7 +187,14 @@ class ExternalMouseTarget implements IMouseTarget {
 	public readonly range: Range;
 	public readonly detail: any;
 
-	constructor(element: Element, type: MouseTargetType, mouseColumn: number, position: Position, range: Range, detail: any) {
+	constructor(
+		element: Element,
+		type: MouseTargetType,
+		mouseColumn: number,
+		position: Position,
+		range: Range,
+		detail: any
+	) {
 		this.element = element;
 		this.type = type;
 		this.mouseColumn = mouseColumn;

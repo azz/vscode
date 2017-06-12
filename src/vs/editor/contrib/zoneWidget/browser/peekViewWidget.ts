@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./peekViewWidget';
 import * as nls from 'vs/nls';
@@ -14,23 +14,37 @@ import { $ } from 'vs/base/browser/builder';
 import Event, { Emitter } from 'vs/base/common/event';
 import * as dom from 'vs/base/browser/dom';
 import { ActionBar } from 'vs/base/browser/ui/actionbar/actionbar';
-import { ServicesAccessor, createDecorator } from 'vs/platform/instantiation/common/instantiation';
+import {
+	ServicesAccessor,
+	createDecorator
+} from 'vs/platform/instantiation/common/instantiation';
 import { ICommonCodeEditor } from 'vs/editor/common/editorCommon';
 import { ICodeEditorService } from 'vs/editor/common/services/codeEditorService';
 import { ICodeEditor } from 'vs/editor/browser/editorBrowser';
 import { IOptions, ZoneWidget, IStyles } from './zoneWidget';
 import { EmbeddedCodeEditorWidget } from 'vs/editor/browser/widget/embeddedCodeEditorWidget';
-import { ContextKeyExpr, RawContextKey } from 'vs/platform/contextkey/common/contextkey';
+import {
+	ContextKeyExpr,
+	RawContextKey
+} from 'vs/platform/contextkey/common/contextkey';
 import { Color } from 'vs/base/common/color';
 
-export var IPeekViewService = createDecorator<IPeekViewService>('peekViewService');
+export var IPeekViewService = createDecorator<IPeekViewService>(
+	'peekViewService'
+);
 
 export namespace PeekContext {
-	export const inPeekEditor = new RawContextKey<boolean>('inReferenceSearchEditor', true);
+	export const inPeekEditor = new RawContextKey<boolean>(
+		'inReferenceSearchEditor',
+		true
+	);
 	export const notInPeekEditor: ContextKeyExpr = inPeekEditor.toNegated();
 }
 
-export const NOT_INNER_EDITOR_CONTEXT_KEY = new RawContextKey<boolean>('inReferenceSearchEditor', true);
+export const NOT_INNER_EDITOR_CONTEXT_KEY = new RawContextKey<boolean>(
+	'inReferenceSearchEditor',
+	true
+);
 
 export interface IPeekViewService {
 	_serviceBrand: any;
@@ -51,8 +65,7 @@ export interface IPeekViewStyles extends IStyles {
 	secondaryHeadingColor?: Color;
 }
 
-export interface IPeekViewOptions extends IOptions, IPeekViewStyles {
-}
+export interface IPeekViewOptions extends IOptions, IPeekViewStyles {}
 
 const defaultOptions: IPeekViewOptions = {
 	headerBackgroundColor: Color.white,
@@ -60,8 +73,8 @@ const defaultOptions: IPeekViewOptions = {
 	secondaryHeadingColor: Color.fromHex('#6c6c6cb3')
 };
 
-export abstract class PeekViewWidget extends ZoneWidget implements IPeekViewService {
-
+export abstract class PeekViewWidget extends ZoneWidget
+	implements IPeekViewService {
 	public _serviceBrand: any;
 
 	private _onDidClose = new Emitter<PeekViewWidget>();
@@ -143,24 +156,36 @@ export abstract class PeekViewWidget extends ZoneWidget implements IPeekViewServ
 	}
 
 	protected _fillHead(container: HTMLElement): void {
-		var titleElement = $('.peekview-title').
-			on(dom.EventType.CLICK, e => this._onTitleClick(<MouseEvent>e)).
-			appendTo(this._headElement).
-			getHTMLElement();
+		var titleElement = $('.peekview-title')
+			.on(dom.EventType.CLICK, e => this._onTitleClick(<MouseEvent>e))
+			.appendTo(this._headElement)
+			.getHTMLElement();
 
-		this._primaryHeading = $('span.filename').appendTo(titleElement).getHTMLElement();
-		this._secondaryHeading = $('span.dirname').appendTo(titleElement).getHTMLElement();
+		this._primaryHeading = $('span.filename')
+			.appendTo(titleElement)
+			.getHTMLElement();
+		this._secondaryHeading = $('span.dirname')
+			.appendTo(titleElement)
+			.getHTMLElement();
 		this._metaHeading = $('span.meta').appendTo(titleElement).getHTMLElement();
 
 		this._actionbarWidget = new ActionBar(
-			$('.peekview-actions').
-				appendTo(this._headElement)
+			$('.peekview-actions').appendTo(this._headElement)
 		);
 
-		this._actionbarWidget.push(new Action('peekview.close', nls.localize('label.close', "Close"), 'close-peekview-action', true, () => {
-			this.dispose();
-			return null;
-		}), { label: false, icon: true });
+		this._actionbarWidget.push(
+			new Action(
+				'peekview.close',
+				nls.localize('label.close', 'Close'),
+				'close-peekview-action',
+				true,
+				() => {
+					this.dispose();
+					return null;
+				}
+			),
+			{ label: false, icon: true }
+		);
 	}
 
 	protected _onTitleClick(event: MouseEvent): void {
@@ -189,7 +214,6 @@ export abstract class PeekViewWidget extends ZoneWidget implements IPeekViewServ
 	}
 
 	public _doLayout(heightInPixel: number, widthInPixel: number): void {
-
 		if (!this._isShowing && heightInPixel < 0) {
 			// Looks like the view zone got folded away!
 			this.dispose();
@@ -198,7 +222,8 @@ export abstract class PeekViewWidget extends ZoneWidget implements IPeekViewServ
 		}
 
 		var headHeight = Math.ceil(this.editor.getConfiguration().lineHeight * 1.2),
-			bodyHeight = heightInPixel - (headHeight + 2 /* the border-top/bottom width*/);
+			bodyHeight =
+				heightInPixel - (headHeight + 2) /* the border-top/bottom width*/;
 
 		this._doLayoutHead(headHeight, widthInPixel);
 		this._doLayoutBody(bodyHeight, widthInPixel);

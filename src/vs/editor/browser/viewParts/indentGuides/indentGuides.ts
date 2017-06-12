@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./indentGuides';
 import { DynamicViewOverlay } from 'vs/editor/browser/view/dynamicViewOverlay';
@@ -14,7 +14,6 @@ import { registerThemingParticipant } from 'vs/platform/theme/common/themeServic
 import { editorIndentGuides } from 'vs/editor/common/view/editorColorRegistry';
 
 export class IndentGuidesOverlay extends DynamicViewOverlay {
-
 	private _context: ViewContext;
 	private _lineHeight: number;
 	private _spaceWidth: number;
@@ -41,7 +40,9 @@ export class IndentGuidesOverlay extends DynamicViewOverlay {
 
 	// --- begin event handlers
 
-	public onConfigurationChanged(e: viewEvents.ViewConfigurationChangedEvent): boolean {
+	public onConfigurationChanged(
+		e: viewEvents.ViewConfigurationChangedEvent
+	): boolean {
 		if (e.lineHeight) {
 			this._lineHeight = this._context.configuration.editor.lineHeight;
 		}
@@ -66,7 +67,7 @@ export class IndentGuidesOverlay extends DynamicViewOverlay {
 		return true;
 	}
 	public onScrollChanged(e: viewEvents.ViewScrollChangedEvent): boolean {
-		return e.scrollTopChanged;// || e.scrollWidthChanged;
+		return e.scrollTopChanged; // || e.scrollWidthChanged;
 	}
 	public onZonesChanged(e: viewEvents.ViewZonesChangedEvent): boolean {
 		return true;
@@ -87,7 +88,11 @@ export class IndentGuidesOverlay extends DynamicViewOverlay {
 		const lineHeight = this._lineHeight;
 
 		let output: string[] = [];
-		for (let lineNumber = visibleStartLineNumber; lineNumber <= visibleEndLineNumber; lineNumber++) {
+		for (
+			let lineNumber = visibleStartLineNumber;
+			lineNumber <= visibleEndLineNumber;
+			lineNumber++
+		) {
 			let lineIndex = lineNumber - visibleStartLineNumber;
 			let indent = this._context.model.getLineIndentGuide(lineNumber);
 
@@ -118,6 +123,8 @@ export class IndentGuidesOverlay extends DynamicViewOverlay {
 registerThemingParticipant((theme, collector) => {
 	let editorGuideColor = theme.getColor(editorIndentGuides);
 	if (editorGuideColor) {
-		collector.addRule(`.monaco-editor .lines-content .cigr { background-color: ${editorGuideColor}; }`);
+		collector.addRule(
+			`.monaco-editor .lines-content .cigr { background-color: ${editorGuideColor}; }`
+		);
 	}
 });

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import nls = require('vs/nls');
 import { BasicEmmetEditorAction } from 'vs/workbench/parts/emmet/electron-browser/emmetActions';
@@ -15,7 +15,7 @@ class EvaluateMathAction extends BasicEmmetEditorAction {
 	constructor() {
 		super(
 			'editor.emmet.action.evaluateMath',
-			nls.localize('evaluateMathExpression', "Emmet: Evaluate Math Expression"),
+			nls.localize('evaluateMathExpression', 'Emmet: Evaluate Math Expression'),
 			'Emmet: Evaluate Math Expression',
 			'evaluate_math_expression'
 		);

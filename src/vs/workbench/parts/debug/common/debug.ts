@@ -10,37 +10,76 @@ import severity from 'vs/base/common/severity';
 import Event from 'vs/base/common/event';
 import { IJSONSchemaSnippet } from 'vs/base/common/jsonSchema';
 import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
-import { IModel as EditorIModel, IEditorContribution } from 'vs/editor/common/editorCommon';
+import {
+	IModel as EditorIModel,
+	IEditorContribution
+} from 'vs/editor/common/editorCommon';
 import { IEditor } from 'vs/platform/editor/common/editor';
 import { Position } from 'vs/editor/common/core/position';
 import { ISuggestion } from 'vs/editor/common/modes';
 import { Source } from 'vs/workbench/parts/debug/common/debugSource';
 import { Range, IRange } from 'vs/editor/common/core/range';
-import { RawContextKey, ContextKeyExpr } from 'vs/platform/contextkey/common/contextkey';
+import {
+	RawContextKey,
+	ContextKeyExpr
+} from 'vs/platform/contextkey/common/contextkey';
 import { IWorkbenchEditorService } from 'vs/workbench/services/editor/common/editorService';
 
 export const VIEWLET_ID = 'workbench.view.debug';
 export const REPL_ID = 'workbench.panel.repl';
 export const DEBUG_SERVICE_ID = 'debugService';
-export const CONTEXT_DEBUG_TYPE = new RawContextKey<string>('debugType', undefined);
-export const CONTEXT_DEBUG_STATE = new RawContextKey<string>('debugState', undefined);
-export const CONTEXT_IN_DEBUG_MODE = new RawContextKey<boolean>('inDebugMode', false);
+export const CONTEXT_DEBUG_TYPE = new RawContextKey<string>(
+	'debugType',
+	undefined
+);
+export const CONTEXT_DEBUG_STATE = new RawContextKey<string>(
+	'debugState',
+	undefined
+);
+export const CONTEXT_IN_DEBUG_MODE = new RawContextKey<boolean>(
+	'inDebugMode',
+	false
+);
 export const CONTEXT_NOT_IN_DEBUG_MODE: ContextKeyExpr = CONTEXT_IN_DEBUG_MODE.toNegated();
-export const CONTEXT_IN_DEBUG_REPL = new RawContextKey<boolean>('inDebugRepl', false);
+export const CONTEXT_IN_DEBUG_REPL = new RawContextKey<boolean>(
+	'inDebugRepl',
+	false
+);
 export const CONTEXT_NOT_IN_DEBUG_REPL: ContextKeyExpr = CONTEXT_IN_DEBUG_REPL.toNegated();
-export const CONTEXT_ON_FIRST_DEBUG_REPL_LINE = new RawContextKey<boolean>('onFirsteDebugReplLine', false);
-export const CONTEXT_ON_LAST_DEBUG_REPL_LINE = new RawContextKey<boolean>('onLastDebugReplLine', false);
-export const CONTEXT_BREAKPOINT_WIDGET_VISIBLE = new RawContextKey<boolean>('breakpointWidgetVisible', false);
-export const CONTEXT_BREAKPOINTS_FOCUSED = new RawContextKey<boolean>('breakpointsFocused', false);
-export const CONTEXT_WATCH_EXPRESSIONS_FOCUSED = new RawContextKey<boolean>('watchExpressionsFocused', false);
-export const CONTEXT_VARIABLES_FOCUSED = new RawContextKey<boolean>('variablesFocused', false);
+export const CONTEXT_ON_FIRST_DEBUG_REPL_LINE = new RawContextKey<boolean>(
+	'onFirsteDebugReplLine',
+	false
+);
+export const CONTEXT_ON_LAST_DEBUG_REPL_LINE = new RawContextKey<boolean>(
+	'onLastDebugReplLine',
+	false
+);
+export const CONTEXT_BREAKPOINT_WIDGET_VISIBLE = new RawContextKey<boolean>(
+	'breakpointWidgetVisible',
+	false
+);
+export const CONTEXT_BREAKPOINTS_FOCUSED = new RawContextKey<boolean>(
+	'breakpointsFocused',
+	false
+);
+export const CONTEXT_WATCH_EXPRESSIONS_FOCUSED = new RawContextKey<boolean>(
+	'watchExpressionsFocused',
+	false
+);
+export const CONTEXT_VARIABLES_FOCUSED = new RawContextKey<boolean>(
+	'variablesFocused',
+	false
+);
 
 export const EDITOR_CONTRIBUTION_ID = 'editor.contrib.debug';
 export const DEBUG_SCHEME = 'debug';
 export const INTERNAL_CONSOLE_OPTIONS_SCHEMA = {
 	enum: ['neverOpen', 'openOnSessionStart', 'openOnFirstSessionStart'],
 	default: 'openOnFirstSessionStart',
-	description: nls.localize('internalConsoleOptions', "Controls behavior of the internal debug console.")
+	description: nls.localize(
+		'internalConsoleOptions',
+		'Controls behavior of the internal debug console.'
+	)
 };
 
 // raw
@@ -86,29 +125,63 @@ export interface IExpression extends IReplElement, IExpressionContainer {
 }
 
 export interface ISession {
-	stackTrace(args: DebugProtocol.StackTraceArguments): TPromise<DebugProtocol.StackTraceResponse>;
-	exceptionInfo(args: DebugProtocol.ExceptionInfoArguments): TPromise<DebugProtocol.ExceptionInfoResponse>;
-	scopes(args: DebugProtocol.ScopesArguments): TPromise<DebugProtocol.ScopesResponse>;
-	variables(args: DebugProtocol.VariablesArguments): TPromise<DebugProtocol.VariablesResponse>;
-	evaluate(args: DebugProtocol.EvaluateArguments): TPromise<DebugProtocol.EvaluateResponse>;
+	stackTrace(
+		args: DebugProtocol.StackTraceArguments
+	): TPromise<DebugProtocol.StackTraceResponse>;
+	exceptionInfo(
+		args: DebugProtocol.ExceptionInfoArguments
+	): TPromise<DebugProtocol.ExceptionInfoResponse>;
+	scopes(
+		args: DebugProtocol.ScopesArguments
+	): TPromise<DebugProtocol.ScopesResponse>;
+	variables(
+		args: DebugProtocol.VariablesArguments
+	): TPromise<DebugProtocol.VariablesResponse>;
+	evaluate(
+		args: DebugProtocol.EvaluateArguments
+	): TPromise<DebugProtocol.EvaluateResponse>;
 
 	capabilities: DebugProtocol.Capabilities;
-	disconnect(restart?: boolean, force?: boolean): TPromise<DebugProtocol.DisconnectResponse>;
+	disconnect(
+		restart?: boolean,
+		force?: boolean
+	): TPromise<DebugProtocol.DisconnectResponse>;
 	custom(request: string, args: any): TPromise<DebugProtocol.Response>;
 	onDidEvent: Event<DebugProtocol.Event>;
-	restartFrame(args: DebugProtocol.RestartFrameArguments, threadId: number): TPromise<DebugProtocol.RestartFrameResponse>;
+	restartFrame(
+		args: DebugProtocol.RestartFrameArguments,
+		threadId: number
+	): TPromise<DebugProtocol.RestartFrameResponse>;
 
 	next(args: DebugProtocol.NextArguments): TPromise<DebugProtocol.NextResponse>;
-	stepIn(args: DebugProtocol.StepInArguments): TPromise<DebugProtocol.StepInResponse>;
-	stepOut(args: DebugProtocol.StepOutArguments): TPromise<DebugProtocol.StepOutResponse>;
-	continue(args: DebugProtocol.ContinueArguments): TPromise<DebugProtocol.ContinueResponse>;
-	pause(args: DebugProtocol.PauseArguments): TPromise<DebugProtocol.PauseResponse>;
-	stepBack(args: DebugProtocol.StepBackArguments): TPromise<DebugProtocol.StepBackResponse>;
-	reverseContinue(args: DebugProtocol.ReverseContinueArguments): TPromise<DebugProtocol.ReverseContinueResponse>;
+	stepIn(
+		args: DebugProtocol.StepInArguments
+	): TPromise<DebugProtocol.StepInResponse>;
+	stepOut(
+		args: DebugProtocol.StepOutArguments
+	): TPromise<DebugProtocol.StepOutResponse>;
+	continue(
+		args: DebugProtocol.ContinueArguments
+	): TPromise<DebugProtocol.ContinueResponse>;
+	pause(
+		args: DebugProtocol.PauseArguments
+	): TPromise<DebugProtocol.PauseResponse>;
+	stepBack(
+		args: DebugProtocol.StepBackArguments
+	): TPromise<DebugProtocol.StepBackResponse>;
+	reverseContinue(
+		args: DebugProtocol.ReverseContinueArguments
+	): TPromise<DebugProtocol.ReverseContinueResponse>;
 
-	completions(args: DebugProtocol.CompletionsArguments): TPromise<DebugProtocol.CompletionsResponse>;
-	setVariable(args: DebugProtocol.SetVariableArguments): TPromise<DebugProtocol.SetVariableResponse>;
-	source(args: DebugProtocol.SourceArguments): TPromise<DebugProtocol.SourceResponse>;
+	completions(
+		args: DebugProtocol.CompletionsArguments
+	): TPromise<DebugProtocol.CompletionsResponse>;
+	setVariable(
+		args: DebugProtocol.SetVariableArguments
+	): TPromise<DebugProtocol.SetVariableResponse>;
+	source(
+		args: DebugProtocol.SourceArguments
+	): TPromise<DebugProtocol.SourceResponse>;
 }
 
 export interface IProcess extends ITreeElement {
@@ -119,11 +192,15 @@ export interface IProcess extends ITreeElement {
 	isAttach(): boolean;
 	getThread(threadId: number): IThread;
 	getAllThreads(): IThread[];
-	completions(frameId: number, text: string, position: Position, overwriteBefore: number): TPromise<ISuggestion[]>;
+	completions(
+		frameId: number,
+		text: string,
+		position: Position,
+		overwriteBefore: number
+	): TPromise<ISuggestion[]>;
 }
 
 export interface IThread extends ITreeElement {
-
 	/**
 	 * Process the thread belongs to
 	 */
@@ -191,7 +268,11 @@ export interface IStackFrame extends ITreeElement {
 	getMostSpecificScopes(range: IRange): TPromise<IScope[]>;
 	restart(): TPromise<any>;
 	toString(): string;
-	openInEditor(editorService: IWorkbenchEditorService, preserveFocus?: boolean, sideBySide?: boolean): TPromise<any>;
+	openInEditor(
+		editorService: IWorkbenchEditorService,
+		preserveFocus?: boolean,
+		sideBySide?: boolean
+	): TPromise<any>;
 }
 
 export interface IEnablement extends ITreeElement {
@@ -287,7 +368,7 @@ export interface IModel extends ITreeElement {
 	onDidChangeCallStack: Event<void>;
 	onDidChangeWatchExpressions: Event<IExpression>;
 	onDidChangeReplElements: Event<void>;
-};
+}
 
 // Debug enums
 
@@ -369,7 +450,6 @@ export interface IRawAdapter extends IRawEnvAdapter {
 }
 
 export interface IConfigurationManager {
-
 	/**
 	 * Returns a configuration with the specified name.
 	 * Returns null if there is no configuration with the specified name.
@@ -411,7 +491,9 @@ export interface IConfigurationManager {
 	 * If no type is specified will try to automatically pick an adapter by looking at
 	 * the active editor language and matching it against the "languages" contribution of an adapter.
 	 */
-	getStartSessionCommand(type?: string): TPromise<{ command: string, type: string }>;
+	getStartSessionCommand(
+		type?: string
+	): TPromise<{ command: string; type: string }>;
 }
 
 // Debug service interfaces
@@ -439,7 +521,10 @@ export interface IDebugService {
 	/**
 	 * Sets the focused stack frame and evaluates all expresions against the newly focused stack frame,
 	 */
-	focusStackFrameAndEvaluate(focusedStackFrame: IStackFrame, process?: IProcess): TPromise<void>;
+	focusStackFrameAndEvaluate(
+		focusedStackFrame: IStackFrame,
+		process?: IProcess
+	): TPromise<void>;
 
 	/**
 	 * Adds new breakpoints to the model for the file specified with the uri. Notifies debug adapter of breakpoint changes.
@@ -450,7 +535,10 @@ export interface IDebugService {
 	 * Enables or disables all breakpoints. If breakpoint is passed only enables or disables the passed breakpoint.
 	 * Notifies debug adapter of breakpoint changes.
 	 */
-	enableOrDisableBreakpoints(enable: boolean, breakpoint?: IEnablement): TPromise<void>;
+	enableOrDisableBreakpoints(
+		enable: boolean,
+		breakpoint?: IEnablement
+	): TPromise<void>;
 
 	/**
 	 * Sets the global activated property for all breakpoints.
@@ -566,14 +654,16 @@ export interface IDebugEditorContribution extends IEditorContribution {
 
 const _formatPIIRegexp = /{([^}]+)}/g;
 
-export function formatPII(value: string, excludePII: boolean, args: { [key: string]: string }): string {
-	return value.replace(_formatPIIRegexp, function (match, group) {
+export function formatPII(
+	value: string,
+	excludePII: boolean,
+	args: { [key: string]: string }
+): string {
+	return value.replace(_formatPIIRegexp, function(match, group) {
 		if (excludePII && group.length > 0 && group[0] !== '_') {
 			return match;
 		}
 
-		return args && args.hasOwnProperty(group) ?
-			args[group] :
-			match;
+		return args && args.hasOwnProperty(group) ? args[group] : match;
 	});
 }

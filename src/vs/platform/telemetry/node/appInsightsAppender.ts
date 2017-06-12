@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as appInsights from 'applicationinsights';
 import { isObject } from 'vs/base/common/types';
@@ -15,7 +15,8 @@ let _initialized = false;
 function ensureAIEngineIsInitialized(): void {
 	if (_initialized === false) {
 		// we need to pass some fake key, otherwise AI throws an exception
-		appInsights.setup('2588e01f-f6c9-4cd6-a348-143741f8d702')
+		appInsights
+			.setup('2588e01f-f6c9-4cd6-a348-143741f8d702')
 			.setAutoCollectConsole(false)
 			.setAutoCollectExceptions(false)
 			.setAutoCollectPerformance(false)
@@ -26,7 +27,6 @@ function ensureAIEngineIsInitialized(): void {
 }
 
 function getClient(aiKey: string): typeof appInsights.client {
-
 	ensureAIEngineIsInitialized();
 
 	const client = appInsights.getClient(aiKey);
@@ -47,7 +47,6 @@ interface Measurements {
 }
 
 export class AppInsightsAppender implements ITelemetryAppender {
-
 	private _aiClient: typeof appInsights.client;
 
 	constructor(
@@ -66,8 +65,9 @@ export class AppInsightsAppender implements ITelemetryAppender {
 		}
 	}
 
-	private static _getData(data?: any): { properties: Properties, measurements: Measurements } {
-
+	private static _getData(
+		data?: any
+	): { properties: Properties; measurements: Measurements } {
 		const properties: Properties = Object.create(null);
 		const measurements: Measurements = Object.create(null);
 
@@ -81,14 +81,11 @@ export class AppInsightsAppender implements ITelemetryAppender {
 
 			if (typeof value === 'number') {
 				measurements[prop] = value;
-
 			} else if (typeof value === 'boolean') {
 				measurements[prop] = value ? 1 : 0;
-
 			} else if (typeof value === 'string') {
 				//enforce property value to be less than 1024 char, take the first 1024 char
 				properties[prop] = value.substring(0, 1023);
-
 			} else if (typeof value !== 'undefined' && value !== null) {
 				properties[prop] = value;
 			}
@@ -100,7 +97,12 @@ export class AppInsightsAppender implements ITelemetryAppender {
 		};
 	}
 
-	private static _flaten(obj: any, result: { [key: string]: any }, order: number = 0, prefix?: string): void {
+	private static _flaten(
+		obj: any,
+		result: { [key: string]: any },
+		order: number = 0,
+		prefix?: string
+	): void {
 		if (!obj) {
 			return;
 		}
@@ -111,11 +113,9 @@ export class AppInsightsAppender implements ITelemetryAppender {
 
 			if (Array.isArray(value)) {
 				result[index] = safeStringify(value);
-
 			} else if (value instanceof Date) {
 				// TODO unsure why this is here and not in _getData
 				result[index] = value.toISOString();
-
 			} else if (isObject(value)) {
 				if (order < 2) {
 					AppInsightsAppender._flaten(value, result, order + 1, index + '.');
@@ -134,7 +134,11 @@ export class AppInsightsAppender implements ITelemetryAppender {
 		}
 		data = mixin(data, this._defaultData);
 		let { properties, measurements } = AppInsightsAppender._getData(data);
-		this._aiClient.trackEvent(this._eventPrefix + '/' + eventName, properties, measurements);
+		this._aiClient.trackEvent(
+			this._eventPrefix + '/' + eventName,
+			properties,
+			measurements
+		);
 	}
 
 	dispose(): TPromise<any> {

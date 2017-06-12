@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { ITextModel } from 'vs/editor/common/editorCommon';
 
@@ -29,11 +29,13 @@ export class IndentRange {
 	}
 }
 
-export function computeRanges(model: ITextModel, minimumRangeSize: number = 1): IndentRange[] {
-
+export function computeRanges(
+	model: ITextModel,
+	minimumRangeSize: number = 1
+): IndentRange[] {
 	let result: IndentRange[] = [];
 
-	let previousRegions: { indent: number, line: number }[] = [];
+	let previousRegions: { indent: number; line: number }[] = [];
 	previousRegions.push({ indent: -1, line: model.getLineCount() + 1 }); // sentinel, to make sure there's at least one entry
 
 	for (let line = model.getLineCount(); line > 0; line--) {
@@ -59,7 +61,8 @@ export function computeRanges(model: ITextModel, minimumRangeSize: number = 1): 
 		}
 		if (previous.indent === indent) {
 			previous.line = line;
-		} else { // previous.indent < indent
+		} else {
+			// previous.indent < indent
 			// new region with a bigger indent
 			previousRegions.push({ indent, line });
 		}

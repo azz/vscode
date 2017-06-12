@@ -24,13 +24,17 @@ export class JavaScript {
 	}
 
 	public async getTitleReferencesCount(): Promise<any> {
-		const meta = await this.spectron.client.getText('.reference-zone-widget.results-loaded .peekview-title .meta');
+		const meta = await this.spectron.client.getText(
+			'.reference-zone-widget.results-loaded .peekview-title .meta'
+		);
 
 		return meta.match(/\d+/)[0];
 	}
 
 	public async getTreeReferencesCount(): Promise<any> {
-		const treeElems = await this.spectron.client.elements('.reference-zone-widget.results-loaded .ref-tree.inline .show-twisties .monaco-tree-row');
+		const treeElems = await this.spectron.client.elements(
+			'.reference-zone-widget.results-loaded .ref-tree.inline .show-twisties .monaco-tree-row'
+		);
 		return treeElems.value.length;
 	}
 
@@ -46,15 +50,21 @@ export class JavaScript {
 	}
 
 	public async toggleFirstCommentFold(): Promise<any> {
-		return this.spectron.client.click(`${this.firstCommentSelector} .cldr.folding`);
+		return this.spectron.client.click(
+			`${this.firstCommentSelector} .cldr.folding`
+		);
 	}
 
 	public async getFirstCommentFoldedIcon(): Promise<any> {
-		return this.spectron.client.getHTML(`${this.firstCommentSelector} .cldr.folding.collapsed`);
+		return this.spectron.client.getHTML(
+			`${this.firstCommentSelector} .cldr.folding.collapsed`
+		);
 	}
 
 	public async getNextLineNumberAfterFold(): Promise<any> {
-		return this.spectron.client.getText(`.margin-view-overlays>:nth-child(4) .line-numbers`)
+		return this.spectron.client.getText(
+			`.margin-view-overlays>:nth-child(4) .line-numbers`
+		);
 	}
 
 	public async goToExpressDefinition(): Promise<any> {
@@ -68,6 +78,8 @@ export class JavaScript {
 	}
 
 	public async getPeekExpressResultName(): Promise<any> {
-		return this.spectron.client.getText('.reference-zone-widget.results-loaded .filename');
+		return this.spectron.client.getText(
+			'.reference-zone-widget.results-loaded .filename'
+		);
 	}
 }

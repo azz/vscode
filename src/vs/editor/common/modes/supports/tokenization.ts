@@ -2,9 +2,15 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
-import { ColorId, FontStyle, MetadataConsts, LanguageId, StandardTokenType } from 'vs/editor/common/modes';
+import {
+	ColorId,
+	FontStyle,
+	MetadataConsts,
+	LanguageId,
+	StandardTokenType
+} from 'vs/editor/common/modes';
 import { Color } from 'vs/base/common/color';
 
 export interface ITokenThemeRule {
@@ -32,7 +38,7 @@ export class ParsedTokenThemeRule {
 		index: number,
 		fontStyle: number,
 		foreground: string,
-		background: string,
+		background: string
 	) {
 		this.token = token;
 		this.index = index;
@@ -45,11 +51,14 @@ export class ParsedTokenThemeRule {
 /**
  * Parse a raw theme into rules.
  */
-export function parseTokenTheme(source: ITokenThemeRule[]): ParsedTokenThemeRule[] {
+export function parseTokenTheme(
+	source: ITokenThemeRule[]
+): ParsedTokenThemeRule[] {
 	if (!source || !Array.isArray(source)) {
 		return [];
 	}
-	let result: ParsedTokenThemeRule[] = [], resultLen = 0;
+	let result: ParsedTokenThemeRule[] = [],
+		resultLen = 0;
 	for (let i = 0, len = source.length; i < len; i++) {
 		let entry = source[i];
 
@@ -99,8 +108,9 @@ export function parseTokenTheme(source: ITokenThemeRule[]): ParsedTokenThemeRule
 /**
  * Resolve rules (i.e. inheritance).
  */
-function resolveParsedTokenThemeRules(parsedThemeRules: ParsedTokenThemeRule[]): TokenTheme {
-
+function resolveParsedTokenThemeRules(
+	parsedThemeRules: ParsedTokenThemeRule[]
+): TokenTheme {
 	// Sort rules lexicographically, and then by index if necessary
 	parsedThemeRules.sort((a, b) => {
 		let r = strcmp(a.token, b.token);
@@ -128,19 +138,27 @@ function resolveParsedTokenThemeRules(parsedThemeRules: ParsedTokenThemeRule[]):
 	}
 	let colorMap = new ColorMap();
 	// ensure default foreground gets id 1 and default background gets id 2
-	let defaults = new ThemeTrieElementRule(defaultFontStyle, colorMap.getId(defaultForeground), colorMap.getId(defaultBackground));
+	let defaults = new ThemeTrieElementRule(
+		defaultFontStyle,
+		colorMap.getId(defaultForeground),
+		colorMap.getId(defaultBackground)
+	);
 
 	let root = new ThemeTrieElement(defaults);
 	for (let i = 0, len = parsedThemeRules.length; i < len; i++) {
 		let rule = parsedThemeRules[i];
-		root.insert(rule.token, rule.fontStyle, colorMap.getId(rule.foreground), colorMap.getId(rule.background));
+		root.insert(
+			rule.token,
+			rule.fontStyle,
+			colorMap.getId(rule.foreground),
+			colorMap.getId(rule.background)
+		);
 	}
 
 	return new TokenTheme(colorMap, root);
 }
 
 export class ColorMap {
-
 	private _lastColorId: number;
 	private _id2color: Color[];
 	private _color2id: Map<string, ColorId>;
@@ -172,16 +190,16 @@ export class ColorMap {
 	public getColorMap(): Color[] {
 		return this._id2color.slice(0);
 	}
-
 }
 
 export class TokenTheme {
-
 	public static createFromRawTokenTheme(source: ITokenThemeRule[]): TokenTheme {
 		return this.createFromParsedTokenTheme(parseTokenTheme(source));
 	}
 
-	public static createFromParsedTokenTheme(source: ParsedTokenThemeRule[]): TokenTheme {
+	public static createFromParsedTokenTheme(
+		source: ParsedTokenThemeRule[]
+	): TokenTheme {
 		return resolveParsedTokenThemeRules(source);
 	}
 
@@ -216,17 +234,14 @@ export class TokenTheme {
 		if (typeof result === 'undefined') {
 			let rule = this._match(token);
 			let standardToken = toStandardTokenType(token);
-			result = (
-				rule.metadata
-				| (standardToken << MetadataConsts.TOKEN_TYPE_OFFSET)
-			) >>> 0;
+			result =
+				(rule.metadata |
+					(standardToken << MetadataConsts.TOKEN_TYPE_OFFSET)) >>>
+				0;
 			this._cache.set(token, result);
 		}
 
-		return (
-			result
-			| (languageId << MetadataConsts.LANGUAGEID_OFFSET)
-		) >>> 0;
+		return (result | (languageId << MetadataConsts.LANGUAGEID_OFFSET)) >>> 0;
 	}
 }
 
@@ -269,15 +284,19 @@ export class ThemeTrieElementRule {
 		this._fontStyle = fontStyle;
 		this._foreground = foreground;
 		this._background = background;
-		this.metadata = (
-			(this._fontStyle << MetadataConsts.FONT_STYLE_OFFSET)
-			| (this._foreground << MetadataConsts.FOREGROUND_OFFSET)
-			| (this._background << MetadataConsts.BACKGROUND_OFFSET)
-		) >>> 0;
+		this.metadata =
+			((this._fontStyle << MetadataConsts.FONT_STYLE_OFFSET) |
+				(this._foreground << MetadataConsts.FOREGROUND_OFFSET) |
+				(this._background << MetadataConsts.BACKGROUND_OFFSET)) >>>
+			0;
 	}
 
 	public clone(): ThemeTrieElementRule {
-		return new ThemeTrieElementRule(this._fontStyle, this._foreground, this._background);
+		return new ThemeTrieElementRule(
+			this._fontStyle,
+			this._foreground,
+			this._background
+		);
 	}
 
 	public static cloneArr(arr: ThemeTrieElementRule[]): ThemeTrieElementRule[] {
@@ -288,7 +307,11 @@ export class ThemeTrieElementRule {
 		return r;
 	}
 
-	public acceptOverwrite(fontStyle: FontStyle, foreground: ColorId, background: ColorId): void {
+	public acceptOverwrite(
+		fontStyle: FontStyle,
+		foreground: ColorId,
+		background: ColorId
+	): void {
 		if (fontStyle !== FontStyle.NotSet) {
 			this._fontStyle = fontStyle;
 		}
@@ -298,20 +321,22 @@ export class ThemeTrieElementRule {
 		if (background !== ColorId.None) {
 			this._background = background;
 		}
-		this.metadata = (
-			(this._fontStyle << MetadataConsts.FONT_STYLE_OFFSET)
-			| (this._foreground << MetadataConsts.FOREGROUND_OFFSET)
-			| (this._background << MetadataConsts.BACKGROUND_OFFSET)
-		) >>> 0;
+		this.metadata =
+			((this._fontStyle << MetadataConsts.FONT_STYLE_OFFSET) |
+				(this._foreground << MetadataConsts.FOREGROUND_OFFSET) |
+				(this._background << MetadataConsts.BACKGROUND_OFFSET)) >>>
+			0;
 	}
 }
 
 export class ExternalThemeTrieElement {
-
 	public readonly mainRule: ThemeTrieElementRule;
 	public readonly children: { [segment: string]: ExternalThemeTrieElement };
 
-	constructor(mainRule: ThemeTrieElementRule, children?: { [segment: string]: ExternalThemeTrieElement }) {
+	constructor(
+		mainRule: ThemeTrieElementRule,
+		children?: { [segment: string]: ExternalThemeTrieElement }
+	) {
 		this.mainRule = mainRule;
 		this.children = children || Object.create(null);
 	}
@@ -332,7 +357,9 @@ export class ThemeTrieElement {
 	 * used for testing purposes
 	 */
 	public toExternalThemeTrieElement(): ExternalThemeTrieElement {
-		let children: { [segment: string]: ExternalThemeTrieElement } = Object.create(null);
+		let children: {
+			[segment: string]: ExternalThemeTrieElement;
+		} = Object.create(null);
 		this._children.forEach((element, index) => {
 			children[index] = element.toExternalThemeTrieElement();
 		});
@@ -363,7 +390,12 @@ export class ThemeTrieElement {
 		return this._mainRule;
 	}
 
-	public insert(token: string, fontStyle: FontStyle, foreground: ColorId, background: ColorId): void {
+	public insert(
+		token: string,
+		fontStyle: FontStyle,
+		foreground: ColorId,
+		background: ColorId
+	): void {
 		if (token === '') {
 			// Merge into the main rule
 			this._mainRule.acceptOverwrite(fontStyle, foreground, background);

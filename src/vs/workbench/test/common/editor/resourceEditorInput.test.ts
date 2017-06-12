@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import URI from 'vs/base/common/uri';
@@ -18,12 +18,10 @@ class ServiceAccessor {
 	constructor(
 		@IModelService public modelService: IModelService,
 		@IModeService public modeService: IModeService
-	) {
-	}
+	) {}
 }
 
 suite('Workbench - ResourceEditorInput', () => {
-
 	let instantiationService: IInstantiationService;
 	let accessor: ServiceAccessor;
 
@@ -32,10 +30,23 @@ suite('Workbench - ResourceEditorInput', () => {
 		accessor = instantiationService.createInstance(ServiceAccessor);
 	});
 
-	test('simple', function () {
-		let resource = URI.from({ scheme: 'inmemory', authority: null, path: 'thePath' });
-		accessor.modelService.createModel('function test() {}', accessor.modeService.getOrCreateMode('text'), resource);
-		let input: ResourceEditorInput = instantiationService.createInstance(ResourceEditorInput, 'The Name', 'The Description', resource);
+	test('simple', function() {
+		let resource = URI.from({
+			scheme: 'inmemory',
+			authority: null,
+			path: 'thePath'
+		});
+		accessor.modelService.createModel(
+			'function test() {}',
+			accessor.modeService.getOrCreateMode('text'),
+			resource
+		);
+		let input: ResourceEditorInput = instantiationService.createInstance(
+			ResourceEditorInput,
+			'The Name',
+			'The Description',
+			resource
+		);
 
 		return input.resolve().then((model: ResourceEditorModel) => {
 			assert.ok(model);

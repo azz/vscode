@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import scorer = require('vs/base/common/scorer');
 import strings = require('vs/base/common/strings');
@@ -75,13 +75,20 @@ export function comparePaths(one: string, other: string): number {
 			return -1;
 		} else if (endOther) {
 			return 1;
-		} else if ((onePart = oneParts[i].toLowerCase()) !== (otherPart = otherParts[i].toLowerCase())) {
+		} else if (
+			(onePart = oneParts[i].toLowerCase()) !==
+			(otherPart = otherParts[i].toLowerCase())
+		) {
 			return onePart < otherPart ? -1 : 1;
 		}
 	}
 }
 
-export function compareAnything(one: string, other: string, lookFor: string): number {
+export function compareAnything(
+	one: string,
+	other: string,
+	lookFor: string
+): number {
 	let elementAName = one.toLowerCase();
 	let elementBName = other.toLowerCase();
 
@@ -108,7 +115,11 @@ export function compareAnything(one: string, other: string, lookFor: string): nu
 	return elementAName.localeCompare(elementBName);
 }
 
-export function compareByPrefix(one: string, other: string, lookFor: string): number {
+export function compareByPrefix(
+	one: string,
+	other: string,
+	lookFor: string
+): number {
 	let elementAName = one.toLowerCase();
 	let elementBName = other.toLowerCase();
 
@@ -117,10 +128,8 @@ export function compareByPrefix(one: string, other: string, lookFor: string): nu
 	let elementBPrefixMatch = strings.startsWith(elementBName, lookFor);
 	if (elementAPrefixMatch !== elementBPrefixMatch) {
 		return elementAPrefixMatch ? -1 : 1;
-	}
-
-	// Same prefix: Sort shorter matches to the top to have those on top that match more precisely
-	else if (elementAPrefixMatch && elementBPrefixMatch) {
+	} else if (elementAPrefixMatch && elementBPrefixMatch) {
+		// Same prefix: Sort shorter matches to the top to have those on top that match more precisely
 		if (elementAName.length < elementBName.length) {
 			return -1;
 		}
@@ -138,7 +147,14 @@ export interface IScorableResourceAccessor<T> {
 	getResourcePath(t: T): string;
 }
 
-export function compareByScore<T>(elementA: T, elementB: T, accessor: IScorableResourceAccessor<T>, lookFor: string, lookForNormalizedLower: string, scorerCache?: { [key: string]: number }): number {
+export function compareByScore<T>(
+	elementA: T,
+	elementB: T,
+	accessor: IScorableResourceAccessor<T>,
+	lookFor: string,
+	lookForNormalizedLower: string,
+	scorerCache?: { [key: string]: number }
+): number {
 	const labelA = accessor.getLabel(elementA);
 	const labelB = accessor.getLabel(elementB);
 
@@ -173,13 +189,21 @@ export function compareByScore<T>(elementA: T, elementB: T, accessor: IScorableR
 		return labelA.length < labelB.length ? -1 : 1;
 	}
 
-	if (resourcePathA && resourcePathB && resourcePathA.length !== resourcePathB.length) {
+	if (
+		resourcePathA &&
+		resourcePathB &&
+		resourcePathA.length !== resourcePathB.length
+	) {
 		return resourcePathA.length < resourcePathB.length ? -1 : 1;
 	}
 
 	// Finally compare by label or resource path
 	if (labelA === labelB && resourcePathA && resourcePathB) {
-		return compareAnything(resourcePathA, resourcePathB, lookForNormalizedLower);
+		return compareAnything(
+			resourcePathA,
+			resourcePathB,
+			lookForNormalizedLower
+		);
 	}
 
 	return compareAnything(labelA, labelB, lookForNormalizedLower);

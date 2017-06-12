@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { toUint32 } from 'vs/editor/common/core/uint';
 
@@ -19,7 +19,6 @@ export class PrefixSumIndexOfResult {
 }
 
 export class PrefixSumComputer {
-
 	/**
 	 * values[i] is the value at index i
 	 */
@@ -58,7 +57,10 @@ export class PrefixSumComputer {
 
 		this.values = new Uint32Array(oldValues.length + insertValuesLen);
 		this.values.set(oldValues.subarray(0, insertIndex), 0);
-		this.values.set(oldValues.subarray(insertIndex), insertIndex + insertValuesLen);
+		this.values.set(
+			oldValues.subarray(insertIndex),
+			insertIndex + insertValuesLen
+		);
 		this.values.set(insertValues, insertIndex);
 
 		if (insertIndex - 1 < this.prefixSumValidIndex[0]) {
@@ -67,7 +69,9 @@ export class PrefixSumComputer {
 
 		this.prefixSum = new Uint32Array(this.values.length);
 		if (this.prefixSumValidIndex[0] >= 0) {
-			this.prefixSum.set(oldPrefixSum.subarray(0, this.prefixSumValidIndex[0] + 1));
+			this.prefixSum.set(
+				oldPrefixSum.subarray(0, this.prefixSumValidIndex[0] + 1)
+			);
 		}
 		return true;
 	}
@@ -115,7 +119,9 @@ export class PrefixSumComputer {
 			this.prefixSumValidIndex[0] = startIndex - 1;
 		}
 		if (this.prefixSumValidIndex[0] >= 0) {
-			this.prefixSum.set(oldPrefixSum.subarray(0, this.prefixSumValidIndex[0] + 1));
+			this.prefixSum.set(
+				oldPrefixSum.subarray(0, this.prefixSumValidIndex[0] + 1)
+			);
 		}
 		return true;
 	}
@@ -171,7 +177,7 @@ export class PrefixSumComputer {
 		let midStart: number;
 
 		while (low <= high) {
-			mid = low + ((high - low) / 2) | 0;
+			mid = (low + (high - low) / 2) | 0;
 
 			midStop = this.prefixSum[mid];
 			midStart = midStop - this.values[mid];
@@ -190,7 +196,6 @@ export class PrefixSumComputer {
 }
 
 export class PrefixSumComputerWithCache {
-
 	private readonly _actual: PrefixSumComputer;
 	private _cacheAccumulatedValueStart: number = 0;
 	private _cache: PrefixSumIndexOfResult[] = null;
@@ -253,10 +258,19 @@ export class PrefixSumComputerWithCache {
 	/**
 	 * Gives a hint that a lot of requests are about to come in for these accumulated values.
 	 */
-	public warmUpCache(accumulatedValueStart: number, accumulatedValueEnd: number): void {
+	public warmUpCache(
+		accumulatedValueStart: number,
+		accumulatedValueEnd: number
+	): void {
 		let newCache: PrefixSumIndexOfResult[] = [];
-		for (let accumulatedValue = accumulatedValueStart; accumulatedValue <= accumulatedValueEnd; accumulatedValue++) {
-			newCache[accumulatedValue - accumulatedValueStart] = this.getIndexOf(accumulatedValue);
+		for (
+			let accumulatedValue = accumulatedValueStart;
+			accumulatedValue <= accumulatedValueEnd;
+			accumulatedValue++
+		) {
+			newCache[accumulatedValue - accumulatedValueStart] = this.getIndexOf(
+				accumulatedValue
+			);
 		}
 		this._cache = newCache;
 		this._cacheAccumulatedValueStart = accumulatedValueStart;

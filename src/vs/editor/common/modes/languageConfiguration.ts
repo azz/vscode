@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { StandardTokenType } from 'vs/editor/common/modes';
 
@@ -224,6 +224,6 @@ export class StandardAutoClosingPairConditional {
 	}
 
 	public isOK(standardToken: StandardTokenType): boolean {
-		return (this._standardTokenMask & <number>standardToken) === 0;
+		return (this._standardTokenMask & (<number>standardToken)) === 0;
 	}
 }

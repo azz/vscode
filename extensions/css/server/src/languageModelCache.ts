@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { TextDocument } from 'vscode-languageserver';
 
@@ -12,8 +12,19 @@ export interface LanguageModelCache<T> {
 	dispose(): void;
 }
 
-export function getLanguageModelCache<T>(maxEntries: number, cleanupIntervalTimeInSec: number, parse: (document: TextDocument) => T): LanguageModelCache<T> {
-	let languageModels: { [uri: string]: { version: number, languageId: string, cTime: number, languageModel: T } } = {};
+export function getLanguageModelCache<T>(
+	maxEntries: number,
+	cleanupIntervalTimeInSec: number,
+	parse: (document: TextDocument) => T
+): LanguageModelCache<T> {
+	let languageModels: {
+		[uri: string]: {
+			version: number;
+			languageId: string;
+			cTime: number;
+			languageModel: T;
+		};
+	} = {};
 	let nModels = 0;
 
 	let cleanupInterval = void 0;
@@ -36,12 +47,21 @@ export function getLanguageModelCache<T>(maxEntries: number, cleanupIntervalTime
 			let version = document.version;
 			let languageId = document.languageId;
 			let languageModelInfo = languageModels[document.uri];
-			if (languageModelInfo && languageModelInfo.version === version && languageModelInfo.languageId === languageId) {
+			if (
+				languageModelInfo &&
+				languageModelInfo.version === version &&
+				languageModelInfo.languageId === languageId
+			) {
 				languageModelInfo.cTime = Date.now();
 				return languageModelInfo.languageModel;
 			}
 			let languageModel = parse(document);
-			languageModels[document.uri] = { languageModel, version, languageId, cTime: Date.now() };
+			languageModels[document.uri] = {
+				languageModel,
+				version,
+				languageId,
+				cTime: Date.now()
+			};
 			if (!languageModelInfo) {
 				nModels++;
 			}
@@ -62,7 +82,6 @@ export function getLanguageModelCache<T>(maxEntries: number, cleanupIntervalTime
 				}
 			}
 			return languageModel;
-
 		},
 		onDocumentRemoved(document: TextDocument) {
 			let uri = document.uri;

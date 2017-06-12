@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { IKeyboardEvent } from 'vs/base/browser/keyboardEvent';
 import { Position } from 'vs/editor/common/core/position';
@@ -11,7 +11,10 @@ import { IEditorMouseEvent } from 'vs/editor/browser/editorBrowser';
 import { ICommandService } from 'vs/platform/commands/common/commands';
 import { IViewModel } from 'vs/editor/common/viewModel/viewModel';
 import { ViewOutgoingEvents } from 'vs/editor/browser/view/viewOutgoingEvents';
-import { CoreNavigationCommands, CoreEditorCommand } from 'vs/editor/common/controller/coreCommands';
+import {
+	CoreNavigationCommands,
+	CoreEditorCommand
+} from 'vs/editor/common/controller/coreCommands';
 import { Configuration } from 'vs/editor/browser/config/configuration';
 
 export interface ExecCoreEditorCommandFunc {
@@ -35,7 +38,6 @@ export interface IMouseDispatchData {
 }
 
 export class ViewController {
-
 	private readonly configuration: Configuration;
 	private readonly viewModel: IViewModel;
 	private readonly _execCoreEditorCommandFunc: ExecCoreEditorCommandFunc;
@@ -64,7 +66,7 @@ export class ViewController {
 	public paste(source: string, text: string, pasteOnNewLine: boolean): void {
 		this.commandService.executeCommand(editorCommon.Handler.Paste, {
 			text: text,
-			pasteOnNewLine: pasteOnNewLine,
+			pasteOnNewLine: pasteOnNewLine
 		});
 	}
 
@@ -74,15 +76,25 @@ export class ViewController {
 		});
 	}
 
-	public replacePreviousChar(source: string, text: string, replaceCharCnt: number): void {
-		this.commandService.executeCommand(editorCommon.Handler.ReplacePreviousChar, {
-			text: text,
-			replaceCharCnt: replaceCharCnt
-		});
+	public replacePreviousChar(
+		source: string,
+		text: string,
+		replaceCharCnt: number
+	): void {
+		this.commandService.executeCommand(
+			editorCommon.Handler.ReplacePreviousChar,
+			{
+				text: text,
+				replaceCharCnt: replaceCharCnt
+			}
+		);
 	}
 
 	public compositionStart(source: string): void {
-		this.commandService.executeCommand(editorCommon.Handler.CompositionStart, {});
+		this.commandService.executeCommand(
+			editorCommon.Handler.CompositionStart,
+			{}
+		);
 	}
 
 	public compositionEnd(source: string): void {
@@ -200,11 +212,17 @@ export class ViewController {
 	}
 
 	public moveTo(viewPosition: Position): void {
-		this._execMouseCommand(CoreNavigationCommands.MoveTo, this._usualArgs(viewPosition));
+		this._execMouseCommand(
+			CoreNavigationCommands.MoveTo,
+			this._usualArgs(viewPosition)
+		);
 	}
 
 	private moveToSelect(viewPosition: Position): void {
-		this._execMouseCommand(CoreNavigationCommands.MoveToSelect, this._usualArgs(viewPosition));
+		this._execMouseCommand(
+			CoreNavigationCommands.MoveToSelect,
+			this._usualArgs(viewPosition)
+		);
 	}
 
 	private columnSelect(viewPosition: Position, mouseColumn: number): void {
@@ -226,35 +244,59 @@ export class ViewController {
 	}
 
 	private lastCursorMoveToSelect(viewPosition: Position): void {
-		this._execMouseCommand(CoreNavigationCommands.LastCursorMoveToSelect, this._usualArgs(viewPosition));
+		this._execMouseCommand(
+			CoreNavigationCommands.LastCursorMoveToSelect,
+			this._usualArgs(viewPosition)
+		);
 	}
 
 	private wordSelect(viewPosition: Position): void {
-		this._execMouseCommand(CoreNavigationCommands.WordSelect, this._usualArgs(viewPosition));
+		this._execMouseCommand(
+			CoreNavigationCommands.WordSelect,
+			this._usualArgs(viewPosition)
+		);
 	}
 
 	private wordSelectDrag(viewPosition: Position): void {
-		this._execMouseCommand(CoreNavigationCommands.WordSelectDrag, this._usualArgs(viewPosition));
+		this._execMouseCommand(
+			CoreNavigationCommands.WordSelectDrag,
+			this._usualArgs(viewPosition)
+		);
 	}
 
 	private lastCursorWordSelect(viewPosition: Position): void {
-		this._execMouseCommand(CoreNavigationCommands.LastCursorWordSelect, this._usualArgs(viewPosition));
+		this._execMouseCommand(
+			CoreNavigationCommands.LastCursorWordSelect,
+			this._usualArgs(viewPosition)
+		);
 	}
 
 	private lineSelect(viewPosition: Position): void {
-		this._execMouseCommand(CoreNavigationCommands.LineSelect, this._usualArgs(viewPosition));
+		this._execMouseCommand(
+			CoreNavigationCommands.LineSelect,
+			this._usualArgs(viewPosition)
+		);
 	}
 
 	private lineSelectDrag(viewPosition: Position): void {
-		this._execMouseCommand(CoreNavigationCommands.LineSelectDrag, this._usualArgs(viewPosition));
+		this._execMouseCommand(
+			CoreNavigationCommands.LineSelectDrag,
+			this._usualArgs(viewPosition)
+		);
 	}
 
 	private lastCursorLineSelect(viewPosition: Position): void {
-		this._execMouseCommand(CoreNavigationCommands.LastCursorLineSelect, this._usualArgs(viewPosition));
+		this._execMouseCommand(
+			CoreNavigationCommands.LastCursorLineSelect,
+			this._usualArgs(viewPosition)
+		);
 	}
 
 	private lastCursorLineSelectDrag(viewPosition: Position): void {
-		this._execMouseCommand(CoreNavigationCommands.LastCursorLineSelectDrag, this._usualArgs(viewPosition));
+		this._execMouseCommand(
+			CoreNavigationCommands.LastCursorLineSelectDrag,
+			this._usualArgs(viewPosition)
+		);
 	}
 
 	private selectAll(): void {
@@ -264,7 +306,9 @@ export class ViewController {
 	// ----------------------
 
 	private convertViewToModelPosition(viewPosition: Position): Position {
-		return this.viewModel.coordinatesConverter.convertViewPositionToModelPosition(viewPosition);
+		return this.viewModel.coordinatesConverter.convertViewPositionToModelPosition(
+			viewPosition
+		);
 	}
 
 	public emitKeyDown(e: IKeyboardEvent): void {

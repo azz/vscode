@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import winjs = require('vs/base/common/winjs.base');
 import errors = require('vs/base/common/errors');
@@ -17,7 +17,7 @@ import { IOptions } from 'vs/workbench/common/options';
 
 const SshProtocolMatcher = /^([^@:]+@)?([^:]+):/;
 const SecondLevelDomainMatcher = /([^@:.]+\.[^@:.]+)(:\d+)?$/;
-const RemoteMatcher = /^\s*url\s*=\s*(.+\S)\s*$/mg;
+const RemoteMatcher = /^\s*url\s*=\s*(.+\S)\s*$/gm;
 const AnyButDot = /[^.]/g;
 const SecondLevelDomainWhitelist = [
 	'github.com',
@@ -59,10 +59,13 @@ function extractDomain(url: string): string {
 	return null;
 }
 
-export function getDomainsOfRemotes(text: string, whitelist: string[]): string[] {
+export function getDomainsOfRemotes(
+	text: string,
+	whitelist: string[]
+): string[] {
 	let domains = new ArraySet<string>();
 	let match: RegExpExecArray;
-	while (match = RemoteMatcher.exec(text)) {
+	while ((match = RemoteMatcher.exec(text))) {
 		let domain = extractDomain(match[1]);
 		if (domain) {
 			domains.set(domain);
@@ -74,8 +77,9 @@ export function getDomainsOfRemotes(text: string, whitelist: string[]): string[]
 		return map;
 	}, Object.create(null));
 
-	return domains.elements
-		.map(key => whitemap[key] ? key : key.replace(AnyButDot, 'a'));
+	return domains.elements.map(
+		key => (whitemap[key] ? key : key.replace(AnyButDot, 'a'))
+	);
 }
 
 export class WorkspaceStats {
@@ -84,8 +88,7 @@ export class WorkspaceStats {
 		@IWorkspaceContextService private contextService: IWorkspaceContextService,
 		@ITelemetryService private telemetryService: ITelemetryService,
 		@IEnvironmentService private environmentService: IEnvironmentService
-	) {
-	}
+	) {}
 
 	private searchArray(arr: string[], regEx: RegExp): boolean {
 		return arr.some(v => v.search(regEx) > -1) || undefined;
@@ -95,87 +98,158 @@ export class WorkspaceStats {
 		const tags: Tags = Object.create(null);
 
 		const { filesToOpen, filesToCreate, filesToDiff } = workbenchOptions;
-		tags['workbench.filesToOpen'] = filesToOpen && filesToOpen.length || undefined;
-		tags['workbench.filesToCreate'] = filesToCreate && filesToCreate.length || undefined;
-		tags['workbench.filesToDiff'] = filesToDiff && filesToDiff.length || undefined;
+		tags['workbench.filesToOpen'] =
+			(filesToOpen && filesToOpen.length) || undefined;
+		tags['workbench.filesToCreate'] =
+			(filesToCreate && filesToCreate.length) || undefined;
+		tags['workbench.filesToDiff'] =
+			(filesToDiff && filesToDiff.length) || undefined;
 
 		const workspace = this.contextService.getWorkspace();
 		tags['workspace.empty'] = !workspace;
 
-		const folder = workspace ? workspace.resource : this.environmentService.appQuality !== 'stable' && this.findFolder(workbenchOptions);
+		const folder = workspace
+			? workspace.resource
+			: this.environmentService.appQuality !== 'stable' &&
+					this.findFolder(workbenchOptions);
 		if (folder && this.fileService) {
-			return this.fileService.resolveFile(folder).then(stats => {
-				let names = (stats.children || []).map(c => c.name);
+			return this.fileService.resolveFile(folder).then(
+				stats => {
+					let names = (stats.children || []).map(c => c.name);
 
-				tags['workspace.language.cs'] = this.searchArray(names, /^.+\.cs$/i);
-				tags['workspace.language.js'] = this.searchArray(names, /^.+\.js$/i);
-				tags['workspace.language.ts'] = this.searchArray(names, /^.+\.ts$/i);
-				tags['workspace.language.php'] = this.searchArray(names, /^.+\.php$/i);
-				tags['workspace.language.python'] = this.searchArray(names, /^.+\.py$/i);
-				tags['workspace.language.vb'] = this.searchArray(names, /^.+\.vb$/i);
-				tags['workspace.language.aspx'] = this.searchArray(names, /^.+\.aspx$/i);
+					tags['workspace.language.cs'] = this.searchArray(names, /^.+\.cs$/i);
+					tags['workspace.language.js'] = this.searchArray(names, /^.+\.js$/i);
+					tags['workspace.language.ts'] = this.searchArray(names, /^.+\.ts$/i);
+					tags['workspace.language.php'] = this.searchArray(
+						names,
+						/^.+\.php$/i
+					);
+					tags['workspace.language.python'] = this.searchArray(
+						names,
+						/^.+\.py$/i
+					);
+					tags['workspace.language.vb'] = this.searchArray(names, /^.+\.vb$/i);
+					tags['workspace.language.aspx'] = this.searchArray(
+						names,
+						/^.+\.aspx$/i
+					);
 
-				tags['workspace.grunt'] = this.searchArray(names, /^gruntfile\.js$/i);
-				tags['workspace.gulp'] = this.searchArray(names, /^gulpfile\.js$/i);
-				tags['workspace.jake'] = this.searchArray(names, /^jakefile\.js$/i);
+					tags['workspace.grunt'] = this.searchArray(names, /^gruntfile\.js$/i);
+					tags['workspace.gulp'] = this.searchArray(names, /^gulpfile\.js$/i);
+					tags['workspace.jake'] = this.searchArray(names, /^jakefile\.js$/i);
 
-				tags['workspace.tsconfig'] = this.searchArray(names, /^tsconfig\.json$/i);
-				tags['workspace.jsconfig'] = this.searchArray(names, /^jsconfig\.json$/i);
-				tags['workspace.config.xml'] = this.searchArray(names, /^config\.xml/i);
-				tags['workspace.vsc.extension'] = this.searchArray(names, /^vsc-extension-quickstart\.md/i);
+					tags['workspace.tsconfig'] = this.searchArray(
+						names,
+						/^tsconfig\.json$/i
+					);
+					tags['workspace.jsconfig'] = this.searchArray(
+						names,
+						/^jsconfig\.json$/i
+					);
+					tags['workspace.config.xml'] = this.searchArray(
+						names,
+						/^config\.xml/i
+					);
+					tags['workspace.vsc.extension'] = this.searchArray(
+						names,
+						/^vsc-extension-quickstart\.md/i
+					);
 
-				tags['workspace.ASP5'] = this.searchArray(names, /^project\.json$/i) && tags['workspace.language.cs'];
-				tags['workspace.sln'] = this.searchArray(names, /^.+\.sln$|^.+\.csproj$/i);
-				tags['workspace.unity'] = this.searchArray(names, /^Assets$/i) && this.searchArray(names, /^Library$/i) && this.searchArray(names, /^ProjectSettings/i);
-				tags['workspace.npm'] = this.searchArray(names, /^package\.json$|^node_modules$/i);
-				tags['workspace.bower'] = this.searchArray(names, /^bower\.json$|^bower_components$/i);
+					tags['workspace.ASP5'] =
+						this.searchArray(names, /^project\.json$/i) &&
+						tags['workspace.language.cs'];
+					tags['workspace.sln'] = this.searchArray(
+						names,
+						/^.+\.sln$|^.+\.csproj$/i
+					);
+					tags['workspace.unity'] =
+						this.searchArray(names, /^Assets$/i) &&
+						this.searchArray(names, /^Library$/i) &&
+						this.searchArray(names, /^ProjectSettings/i);
+					tags['workspace.npm'] = this.searchArray(
+						names,
+						/^package\.json$|^node_modules$/i
+					);
+					tags['workspace.bower'] = this.searchArray(
+						names,
+						/^bower\.json$|^bower_components$/i
+					);
 
-				tags['workspace.yeoman.code'] = this.searchArray(names, /^vscodequickstart\.md$/i);
-				tags['workspace.yeoman.code.ext'] = this.searchArray(names, /^vsc-extension-quickstart\.md$/i);
+					tags['workspace.yeoman.code'] = this.searchArray(
+						names,
+						/^vscodequickstart\.md$/i
+					);
+					tags['workspace.yeoman.code.ext'] = this.searchArray(
+						names,
+						/^vsc-extension-quickstart\.md$/i
+					);
 
-				let mainActivity = this.searchArray(names, /^MainActivity\.cs$/i) || this.searchArray(names, /^MainActivity\.fs$/i);
-				let appDelegate = this.searchArray(names, /^AppDelegate\.cs$/i) || this.searchArray(names, /^AppDelegate\.fs$/i);
-				let androidManifest = this.searchArray(names, /^AndroidManifest\.xml$/i);
+					let mainActivity =
+						this.searchArray(names, /^MainActivity\.cs$/i) ||
+						this.searchArray(names, /^MainActivity\.fs$/i);
+					let appDelegate =
+						this.searchArray(names, /^AppDelegate\.cs$/i) ||
+						this.searchArray(names, /^AppDelegate\.fs$/i);
+					let androidManifest = this.searchArray(
+						names,
+						/^AndroidManifest\.xml$/i
+					);
 
-				let platforms = this.searchArray(names, /^platforms$/i);
-				let plugins = this.searchArray(names, /^plugins$/i);
-				let www = this.searchArray(names, /^www$/i);
-				let properties = this.searchArray(names, /^Properties/i);
-				let resources = this.searchArray(names, /^Resources/i);
-				let jni = this.searchArray(names, /^JNI/i);
+					let platforms = this.searchArray(names, /^platforms$/i);
+					let plugins = this.searchArray(names, /^plugins$/i);
+					let www = this.searchArray(names, /^www$/i);
+					let properties = this.searchArray(names, /^Properties/i);
+					let resources = this.searchArray(names, /^Resources/i);
+					let jni = this.searchArray(names, /^JNI/i);
 
-				if (tags['workspace.config.xml'] &&
-					!tags['workspace.language.cs'] && !tags['workspace.language.vb'] && !tags['workspace.language.aspx']) {
-					if (platforms && plugins && www) {
-						tags['workspace.cordova.high'] = true;
-					} else {
-						tags['workspace.cordova.low'] = true;
+					if (
+						tags['workspace.config.xml'] &&
+						!tags['workspace.language.cs'] &&
+						!tags['workspace.language.vb'] &&
+						!tags['workspace.language.aspx']
+					) {
+						if (platforms && plugins && www) {
+							tags['workspace.cordova.high'] = true;
+						} else {
+							tags['workspace.cordova.low'] = true;
+						}
 					}
+
+					if (mainActivity && properties && resources) {
+						tags['workspace.xamarin.android'] = true;
+					}
+
+					if (appDelegate && resources) {
+						tags['workspace.xamarin.ios'] = true;
+					}
+
+					if (androidManifest && jni) {
+						tags['workspace.android.cpp'] = true;
+					}
+
+					tags['workspace.reactNative'] =
+						this.searchArray(names, /^android$/i) &&
+						this.searchArray(names, /^ios$/i) &&
+						this.searchArray(names, /^index\.android\.js$/i) &&
+						this.searchArray(names, /^index\.ios\.js$/i);
+
+					return tags;
+				},
+				error => {
+					errors.onUnexpectedError(error);
+					return null;
 				}
-
-				if (mainActivity && properties && resources) {
-					tags['workspace.xamarin.android'] = true;
-				}
-
-				if (appDelegate && resources) {
-					tags['workspace.xamarin.ios'] = true;
-				}
-
-				if (androidManifest && jni) {
-					tags['workspace.android.cpp'] = true;
-				}
-
-				tags['workspace.reactNative'] = this.searchArray(names, /^android$/i) && this.searchArray(names, /^ios$/i) &&
-					this.searchArray(names, /^index\.android\.js$/i) && this.searchArray(names, /^index\.ios\.js$/i);
-
-				return tags;
-			}, error => { errors.onUnexpectedError(error); return null; });
+			);
 		} else {
 			return winjs.TPromise.as(tags);
 		}
 	}
 
-	private findFolder({ filesToOpen, filesToCreate, filesToDiff }: IOptions): URI {
+	private findFolder({
+		filesToOpen,
+		filesToCreate,
+		filesToDiff
+	}: IOptions): URI {
 		if (filesToOpen && filesToOpen.length) {
 			return this.parentURI(filesToOpen[0].resource);
 		} else if (filesToCreate && filesToCreate.length) {
@@ -193,29 +267,42 @@ export class WorkspaceStats {
 	}
 
 	public reportWorkspaceTags(workbenchOptions: IOptions): void {
-		this.getWorkspaceTags(workbenchOptions).then((tags) => {
-			this.telemetryService.publicLog('workspce.tags', tags);
-		}, error => errors.onUnexpectedError(error));
+		this.getWorkspaceTags(workbenchOptions).then(
+			tags => {
+				this.telemetryService.publicLog('workspce.tags', tags);
+			},
+			error => errors.onUnexpectedError(error)
+		);
 	}
 
 	private reportRemotes(workspaceUri: URI): void {
 		let path = workspaceUri.path;
-		let uri = workspaceUri.with({ path: `${path !== '/' ? path : ''}/.git/config` });
-		this.fileService.resolveContent(uri, { acceptTextOnly: true }).then(
-			content => {
-				let domains = getDomainsOfRemotes(content.value, SecondLevelDomainWhitelist);
-				this.telemetryService.publicLog('workspace.remotes', { domains });
-			},
-			err => {
-				// ignore missing or binary file
-			}
-		).then(null, errors.onUnexpectedError);
+		let uri = workspaceUri.with({
+			path: `${path !== '/' ? path : ''}/.git/config`
+		});
+		this.fileService
+			.resolveContent(uri, { acceptTextOnly: true })
+			.then(
+				content => {
+					let domains = getDomainsOfRemotes(
+						content.value,
+						SecondLevelDomainWhitelist
+					);
+					this.telemetryService.publicLog('workspace.remotes', { domains });
+				},
+				err => {
+					// ignore missing or binary file
+				}
+			)
+			.then(null, errors.onUnexpectedError);
 	}
 
 	private reportAzureNode(workspaceUri: URI, tags: Tags): winjs.TPromise<Tags> {
 		// TODO: should also work for `node_modules` folders several levels down
 		let path = workspaceUri.path;
-		let uri = workspaceUri.with({ path: `${path !== '/' ? path : ''}/node_modules` });
+		let uri = workspaceUri.with({
+			path: `${path !== '/' ? path : ''}/node_modules`
+		});
 		return this.fileService.resolveFile(uri).then(
 			stats => {
 				let names = (stats.children || []).map(c => c.name);
@@ -227,12 +314,15 @@ export class WorkspaceStats {
 			},
 			err => {
 				return tags;
-			});
+			}
+		);
 	}
 
 	private reportAzureJava(workspaceUri: URI, tags: Tags): winjs.TPromise<Tags> {
 		let path = workspaceUri.path;
-		let uri = workspaceUri.with({ path: `${path !== '/' ? path : ''}/pom.xml` });
+		let uri = workspaceUri.with({
+			path: `${path !== '/' ? path : ''}/pom.xml`
+		});
 		return this.fileService.resolveContent(uri, { acceptTextOnly: true }).then(
 			content => {
 				let referencesAzure = content.value.match(/azure/i) !== null;
@@ -249,13 +339,16 @@ export class WorkspaceStats {
 
 	private reportAzure(uri: URI) {
 		const tags: Tags = Object.create(null);
-		this.reportAzureNode(uri, tags).then((tags) => {
-			return this.reportAzureJava(uri, tags);
-		}).then((tags) => {
-			if (Object.keys(tags).length) {
-				this.telemetryService.publicLog('workspace.azure', tags);
-			}
-		}).then(null, errors.onUnexpectedError);
+		this.reportAzureNode(uri, tags)
+			.then(tags => {
+				return this.reportAzureJava(uri, tags);
+			})
+			.then(tags => {
+				if (Object.keys(tags).length) {
+					this.telemetryService.publicLog('workspace.azure', tags);
+				}
+			})
+			.then(null, errors.onUnexpectedError);
 	}
 
 	public reportCloudStats(): void {

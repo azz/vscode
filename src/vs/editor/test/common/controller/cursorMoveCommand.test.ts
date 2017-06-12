@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { Cursor } from 'vs/editor/common/controller/cursor';
@@ -16,7 +16,6 @@ import { CoreNavigationCommands } from 'vs/editor/common/controller/coreCommands
 import { ViewModel } from 'vs/editor/common/viewModel/viewModelImpl';
 
 suite('Cursor move command test', () => {
-
 	let thisModel: Model;
 	let thisConfiguration: TestConfiguration;
 	let thisViewModel: ViewModel;
@@ -235,7 +234,6 @@ suite('Cursor move command test', () => {
 	});
 
 	test('move up by cursor move command', () => {
-
 		moveTo(thisCursor, 3, 5);
 		cursorEqual(thisCursor, 3, 5);
 
@@ -247,7 +245,6 @@ suite('Cursor move command test', () => {
 	});
 
 	test('move up by model line cursor move command', () => {
-
 		moveTo(thisCursor, 3, 5);
 		cursorEqual(thisCursor, 3, 5);
 
@@ -259,7 +256,6 @@ suite('Cursor move command test', () => {
 	});
 
 	test('move down by model line cursor move command', () => {
-
 		moveTo(thisCursor, 3, 5);
 		cursorEqual(thisCursor, 3, 5);
 
@@ -271,7 +267,6 @@ suite('Cursor move command test', () => {
 	});
 
 	test('move up with selection by cursor move command', () => {
-
 		moveTo(thisCursor, 3, 5);
 		cursorEqual(thisCursor, 3, 5);
 
@@ -283,7 +278,6 @@ suite('Cursor move command test', () => {
 	});
 
 	test('move up and down with tabs by cursor move command', () => {
-
 		moveTo(thisCursor, 1, 5);
 		cursorEqual(thisCursor, 1, 5);
 
@@ -304,7 +298,6 @@ suite('Cursor move command test', () => {
 	});
 
 	test('move up and down with end of lines starting from a long one by cursor move command', () => {
-
 		moveToEndOfLine(thisCursor);
 		cursorEqual(thisCursor, 1, 21);
 
@@ -417,7 +410,9 @@ function moveToLineStart(cursor: Cursor) {
 }
 
 function moveToLineFirstNonWhiteSpaceCharacter(cursor: Cursor) {
-	move(cursor, { to: CursorMove.RawDirection.WrappedLineFirstNonWhitespaceCharacter });
+	move(cursor, {
+		to: CursorMove.RawDirection.WrappedLineFirstNonWhitespaceCharacter
+	});
 }
 
 function moveToLineCenter(cursor: Cursor) {
@@ -429,35 +424,87 @@ function moveToLineEnd(cursor: Cursor) {
 }
 
 function moveToLineLastNonWhiteSpaceCharacter(cursor: Cursor) {
-	move(cursor, { to: CursorMove.RawDirection.WrappedLineLastNonWhitespaceCharacter });
+	move(cursor, {
+		to: CursorMove.RawDirection.WrappedLineLastNonWhitespaceCharacter
+	});
 }
 
-function moveLeft(cursor: Cursor, value?: number, by?: string, select?: boolean) {
-	move(cursor, { to: CursorMove.RawDirection.Left, by: by, value: value, select: select });
+function moveLeft(
+	cursor: Cursor,
+	value?: number,
+	by?: string,
+	select?: boolean
+) {
+	move(cursor, {
+		to: CursorMove.RawDirection.Left,
+		by: by,
+		value: value,
+		select: select
+	});
 }
 
-function moveRight(cursor: Cursor, value?: number, by?: string, select?: boolean) {
-	move(cursor, { to: CursorMove.RawDirection.Right, by: by, value: value, select: select });
+function moveRight(
+	cursor: Cursor,
+	value?: number,
+	by?: string,
+	select?: boolean
+) {
+	move(cursor, {
+		to: CursorMove.RawDirection.Right,
+		by: by,
+		value: value,
+		select: select
+	});
 }
 
 function moveUp(cursor: Cursor, noOfLines: number = 1, select?: boolean) {
-	move(cursor, { to: CursorMove.RawDirection.Up, by: CursorMove.RawUnit.WrappedLine, value: noOfLines, select: select });
+	move(cursor, {
+		to: CursorMove.RawDirection.Up,
+		by: CursorMove.RawUnit.WrappedLine,
+		value: noOfLines,
+		select: select
+	});
 }
 
-function moveUpByModelLine(cursor: Cursor, noOfLines: number = 1, select?: boolean) {
-	move(cursor, { to: CursorMove.RawDirection.Up, value: noOfLines, select: select });
+function moveUpByModelLine(
+	cursor: Cursor,
+	noOfLines: number = 1,
+	select?: boolean
+) {
+	move(cursor, {
+		to: CursorMove.RawDirection.Up,
+		value: noOfLines,
+		select: select
+	});
 }
 
 function moveDown(cursor: Cursor, noOfLines: number = 1, select?: boolean) {
-	move(cursor, { to: CursorMove.RawDirection.Down, by: CursorMove.RawUnit.WrappedLine, value: noOfLines, select: select });
+	move(cursor, {
+		to: CursorMove.RawDirection.Down,
+		by: CursorMove.RawUnit.WrappedLine,
+		value: noOfLines,
+		select: select
+	});
 }
 
-function moveDownByModelLine(cursor: Cursor, noOfLines: number = 1, select?: boolean) {
-	move(cursor, { to: CursorMove.RawDirection.Down, value: noOfLines, select: select });
+function moveDownByModelLine(
+	cursor: Cursor,
+	noOfLines: number = 1,
+	select?: boolean
+) {
+	move(cursor, {
+		to: CursorMove.RawDirection.Down,
+		value: noOfLines,
+		select: select
+	});
 }
 
 function moveToTop(cursor: Cursor, noOfLines: number = 1, select?: boolean) {
-	move(cursor, { to: CursorMove.RawDirection.ViewPortTop, value: noOfLines, select: select });
+	move(cursor, {
+		to: CursorMove.RawDirection.ViewPortTop,
+		value: noOfLines,
+		select: select
+	});
 }
 
 function moveToCenter(cursor: Cursor, select?: boolean) {
@@ -465,33 +512,68 @@ function moveToCenter(cursor: Cursor, select?: boolean) {
 }
 
 function moveToBottom(cursor: Cursor, noOfLines: number = 1, select?: boolean) {
-	move(cursor, { to: CursorMove.RawDirection.ViewPortBottom, value: noOfLines, select: select });
+	move(cursor, {
+		to: CursorMove.RawDirection.ViewPortBottom,
+		value: noOfLines,
+		select: select
+	});
 }
 
-function cursorEqual(cursor: Cursor, posLineNumber: number, posColumn: number, selLineNumber: number = posLineNumber, selColumn: number = posColumn) {
+function cursorEqual(
+	cursor: Cursor,
+	posLineNumber: number,
+	posColumn: number,
+	selLineNumber: number = posLineNumber,
+	selColumn: number = posColumn
+) {
 	positionEqual(cursor.getPosition(), posLineNumber, posColumn);
-	selectionEqual(cursor.getSelection(), posLineNumber, posColumn, selLineNumber, selColumn);
+	selectionEqual(
+		cursor.getSelection(),
+		posLineNumber,
+		posColumn,
+		selLineNumber,
+		selColumn
+	);
 }
 
 function positionEqual(position: Position, lineNumber: number, column: number) {
-	assert.deepEqual(position, new Position(lineNumber, column), 'position equal');
+	assert.deepEqual(
+		position,
+		new Position(lineNumber, column),
+		'position equal'
+	);
 }
 
-function selectionEqual(selection: Selection, posLineNumber: number, posColumn: number, selLineNumber: number, selColumn: number) {
-	assert.deepEqual({
-		selectionStartLineNumber: selection.selectionStartLineNumber,
-		selectionStartColumn: selection.selectionStartColumn,
-		positionLineNumber: selection.positionLineNumber,
-		positionColumn: selection.positionColumn
-	}, {
+function selectionEqual(
+	selection: Selection,
+	posLineNumber: number,
+	posColumn: number,
+	selLineNumber: number,
+	selColumn: number
+) {
+	assert.deepEqual(
+		{
+			selectionStartLineNumber: selection.selectionStartLineNumber,
+			selectionStartColumn: selection.selectionStartColumn,
+			positionLineNumber: selection.positionLineNumber,
+			positionColumn: selection.positionColumn
+		},
+		{
 			selectionStartLineNumber: selLineNumber,
 			selectionStartColumn: selColumn,
 			positionLineNumber: posLineNumber,
 			positionColumn: posColumn
-		}, 'selection equal');
+		},
+		'selection equal'
+	);
 }
 
-function moveTo(cursor: Cursor, lineNumber: number, column: number, inSelectionMode: boolean = false) {
+function moveTo(
+	cursor: Cursor,
+	lineNumber: number,
+	column: number,
+	inSelectionMode: boolean = false
+) {
 	if (inSelectionMode) {
 		CoreNavigationCommands.MoveToSelect.runCoreEditorCommand(cursor, {
 			position: new Position(lineNumber, column)

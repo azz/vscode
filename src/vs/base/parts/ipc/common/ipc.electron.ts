@@ -12,11 +12,12 @@ export interface Sender {
 }
 
 export class Protocol implements IMessagePassingProtocol {
-
 	private listener: IDisposable;
 
 	private _onMessage: Event<any>;
-	get onMessage(): Event<any> { return this._onMessage; }
+	get onMessage(): Event<any> {
+		return this._onMessage;
+	}
 
 	constructor(private sender: Sender, private onMessageEvent: Event<any>) {
 		const emitter = new Emitter<any>();

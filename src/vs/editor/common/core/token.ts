@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { IState } from 'vs/editor/common/modes';
 
@@ -14,7 +14,7 @@ export class Token {
 	public readonly language: string;
 
 	constructor(offset: number, type: string, language: string) {
-		this.offset = offset | 0;// @perf
+		this.offset = offset | 0; // @perf
 		this.type = type;
 		this.language = language;
 	}

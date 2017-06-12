@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as vscode from 'vscode';
 import * as path from 'path';
@@ -58,10 +58,16 @@ export class MarkdownEngine {
 				highlight: (str: string, lang: string) => {
 					if (lang && hljs.getLanguage(lang)) {
 						try {
-							return `<pre class="hljs"><code><div>${hljs.highlight(lang, str, true).value}</div></code></pre>`;
-						} catch (error) { }
+							return `<pre class="hljs"><code><div>${hljs.highlight(
+								lang,
+								str,
+								true
+							).value}</div></code></pre>`;
+						} catch (error) {}
 					}
-					return `<pre class="hljs"><code><div>${this.engine.utils.escapeHtml(str)}</div></code></pre>`;
+					return `<pre class="hljs"><code><div>${this.engine.utils.escapeHtml(
+						str
+					)}</div></code></pre>`;
 				}
 			}).use(mdnh, {
 				slugify: (header: string) => TableOfContentsProvider.slugify(header)
@@ -72,7 +78,14 @@ export class MarkdownEngine {
 			}
 			this.plugins = [];
 
-			for (const renderName of ['paragraph_open', 'heading_open', 'image', 'code_block', 'blockquote_open', 'list_item_open']) {
+			for (const renderName of [
+				'paragraph_open',
+				'heading_open',
+				'image',
+				'code_block',
+				'blockquote_open',
+				'list_item_open'
+			]) {
 				this.addLineNumberRenderer(this.md, renderName);
 			}
 
@@ -82,7 +95,7 @@ export class MarkdownEngine {
 		return this.md;
 	}
 
-	private stripFrontmatter(text: string): { text: string, offset: number } {
+	private stripFrontmatter(text: string): { text: string; offset: number } {
 		let offset = 0;
 		const frontMatterMatch = FrontMatterRegex.exec(text);
 		if (frontMatterMatch) {
@@ -93,7 +106,11 @@ export class MarkdownEngine {
 		return { text, offset };
 	}
 
-	public render(document: vscode.Uri, stripFrontmatter: boolean, text: string): string {
+	public render(
+		document: vscode.Uri,
+		stripFrontmatter: boolean,
+		text: string
+	): string {
 		let offset = 0;
 		if (stripFrontmatter) {
 			const markdownContent = this.stripFrontmatter(text);
@@ -118,7 +135,13 @@ export class MarkdownEngine {
 
 	private addLineNumberRenderer(md: any, ruleName: string): void {
 		const original = md.renderer.rules[ruleName];
-		md.renderer.rules[ruleName] = (tokens: any, idx: number, options: any, env: any, self: any) => {
+		md.renderer.rules[ruleName] = (
+			tokens: any,
+			idx: number,
+			options: any,
+			env: any,
+			self: any
+		) => {
 			const token = tokens[idx];
 			if (token.map && token.map.length) {
 				token.attrSet('data-line', this.firstLine + token.map[0]);
@@ -141,9 +164,13 @@ export class MarkdownEngine {
 				if (!uri.scheme && uri.path && !uri.fragment) {
 					// Assume it must be a file
 					if (uri.path[0] === '/') {
-						uri = vscode.Uri.file(path.join(vscode.workspace.rootPath || '', uri.path));
+						uri = vscode.Uri.file(
+							path.join(vscode.workspace.rootPath || '', uri.path)
+						);
 					} else {
-						uri = vscode.Uri.file(path.join(path.dirname(this.currentDocument.path), uri.path));
+						uri = vscode.Uri.file(
+							path.join(path.dirname(this.currentDocument.path), uri.path)
+						);
 					}
 					return normalizeLink(uri.toString(true));
 				}

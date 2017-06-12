@@ -2,15 +2,34 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
-import { getLanguageService as getHTMLLanguageService, DocumentContext } from 'vscode-html-languageservice';
 import {
-	CompletionItem, Location, SignatureHelp, Definition, TextEdit, TextDocument, Diagnostic, DocumentLink, Range,
-	Hover, DocumentHighlight, CompletionList, Position, FormattingOptions, SymbolInformation
+	getLanguageService as getHTMLLanguageService,
+	DocumentContext
+} from 'vscode-html-languageservice';
+import {
+	CompletionItem,
+	Location,
+	SignatureHelp,
+	Definition,
+	TextEdit,
+	TextDocument,
+	Diagnostic,
+	DocumentLink,
+	Range,
+	Hover,
+	DocumentHighlight,
+	CompletionList,
+	Position,
+	FormattingOptions,
+	SymbolInformation
 } from 'vscode-languageserver-types';
 
-import { getLanguageModelCache, LanguageModelCache } from '../languageModelCache';
+import {
+	getLanguageModelCache,
+	LanguageModelCache
+} from '../languageModelCache';
 import { getDocumentRegions, HTMLDocumentRegions } from './embeddedSupport';
 import { getCSSMode } from './cssMode';
 import { getJavascriptMode } from './javascriptMode';
@@ -23,13 +42,26 @@ export interface LanguageMode {
 	doComplete?: (document: TextDocument, position: Position) => CompletionList;
 	doResolve?: (document: TextDocument, item: CompletionItem) => CompletionItem;
 	doHover?: (document: TextDocument, position: Position) => Hover;
-	doSignatureHelp?: (document: TextDocument, position: Position) => SignatureHelp;
-	findDocumentHighlight?: (document: TextDocument, position: Position) => DocumentHighlight[];
+	doSignatureHelp?: (
+		document: TextDocument,
+		position: Position
+	) => SignatureHelp;
+	findDocumentHighlight?: (
+		document: TextDocument,
+		position: Position
+	) => DocumentHighlight[];
 	findDocumentSymbols?: (document: TextDocument) => SymbolInformation[];
-	findDocumentLinks?: (document: TextDocument, documentContext: DocumentContext) => DocumentLink[];
+	findDocumentLinks?: (
+		document: TextDocument,
+		documentContext: DocumentContext
+	) => DocumentLink[];
 	findDefinition?: (document: TextDocument, position: Position) => Definition;
 	findReferences?: (document: TextDocument, position: Position) => Location[];
-	format?: (document: TextDocument, range: Range, options: FormattingOptions) => TextEdit[];
+	format?: (
+		document: TextDocument,
+		range: Range,
+		options: FormattingOptions
+	) => TextEdit[];
 	findColorSymbols?: (document: TextDocument) => Range[];
 	onDocumentRemoved(document: TextDocument): void;
 	dispose(): void;
@@ -50,10 +82,13 @@ export interface LanguageModeRange extends Range {
 	attributeValue?: boolean;
 }
 
-export function getLanguageModes(supportedLanguages: { [languageId: string]: boolean; }): LanguageModes {
-
+export function getLanguageModes(supportedLanguages: {
+	[languageId: string]: boolean;
+}): LanguageModes {
 	var htmlLanguageService = getHTMLLanguageService();
-	let documentRegions = getLanguageModelCache<HTMLDocumentRegions>(10, 60, document => getDocumentRegions(htmlLanguageService, document));
+	let documentRegions = getLanguageModelCache<
+		HTMLDocumentRegions
+	>(10, 60, document => getDocumentRegions(htmlLanguageService, document));
 
 	let modelCaches: LanguageModelCache<any>[] = [];
 	modelCaches.push(documentRegions);
@@ -67,8 +102,13 @@ export function getLanguageModes(supportedLanguages: { [languageId: string]: boo
 		modes['javascript'] = getJavascriptMode(documentRegions);
 	}
 	return {
-		getModeAtPosition(document: TextDocument, position: Position): LanguageMode {
-			let languageId = documentRegions.get(document).getLanguageAtPosition(position);
+		getModeAtPosition(
+			document: TextDocument,
+			position: Position
+		): LanguageMode {
+			let languageId = documentRegions
+				.get(document)
+				.getLanguageAtPosition(position);
 			if (languageId) {
 				return modes[languageId];
 			}
@@ -86,7 +126,9 @@ export function getLanguageModes(supportedLanguages: { [languageId: string]: boo
 		},
 		getAllModesInDocument(document: TextDocument): LanguageMode[] {
 			let result = [];
-			for (let languageId of documentRegions.get(document).getLanguagesInDocument()) {
+			for (let languageId of documentRegions
+				.get(document)
+				.getLanguagesInDocument()) {
 				let mode = modes[languageId];
 				if (mode) {
 					result.push(mode);

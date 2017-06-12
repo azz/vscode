@@ -10,7 +10,6 @@ function expand(text: string): string {
 }
 
 class MockOcticonLabel {
-
 	private _container: HTMLElement;
 
 	constructor(container: HTMLElement) {
@@ -23,7 +22,6 @@ class MockOcticonLabel {
 		innerHTML = expand(innerHTML);
 		this._container.innerHTML = innerHTML;
 	}
-
 }
 
 var mock: typeof octiconLabel = {

@@ -2,14 +2,24 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import Event from 'vs/base/common/event';
 import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
-import { ICommonCodeEditor, ICommonDiffEditor, isCommonCodeEditor, isCommonDiffEditor, IDecorationRenderOptions, IModelDecorationOptions, IModel } from 'vs/editor/common/editorCommon';
+import {
+	ICommonCodeEditor,
+	ICommonDiffEditor,
+	isCommonCodeEditor,
+	isCommonDiffEditor,
+	IDecorationRenderOptions,
+	IModelDecorationOptions,
+	IModel
+} from 'vs/editor/common/editorCommon';
 import { IEditor } from 'vs/platform/editor/common/editor';
 
-export var ICodeEditorService = createDecorator<ICodeEditorService>('codeEditorService');
+export var ICodeEditorService = createDecorator<ICodeEditorService>(
+	'codeEditorService'
+);
 
 export interface ICodeEditorService {
 	_serviceBrand: any;
@@ -35,9 +45,16 @@ export interface ICodeEditorService {
 	 */
 	getFocusedCodeEditor(): ICommonCodeEditor;
 
-	registerDecorationType(key: string, options: IDecorationRenderOptions, parentTypeKey?: string): void;
+	registerDecorationType(
+		key: string,
+		options: IDecorationRenderOptions,
+		parentTypeKey?: string
+	): void;
 	removeDecorationType(key: string): void;
-	resolveDecorationOptions(typeKey: string, writable: boolean): IModelDecorationOptions;
+	resolveDecorationOptions(
+		typeKey: string,
+		writable: boolean
+	): IModelDecorationOptions;
 
 	setTransientModelProperty(model: IModel, key: string, value: any): void;
 	getTransientModelProperty(model: IModel, key: string): any;
@@ -46,7 +63,9 @@ export interface ICodeEditorService {
 /**
  * Uses `editor.getControl()` and returns either a `codeEditor` or a `diffEditor` or nothing.
  */
-export function getCodeOrDiffEditor(editor: IEditor): { codeEditor: ICommonCodeEditor; diffEditor: ICommonDiffEditor } {
+export function getCodeOrDiffEditor(
+	editor: IEditor
+): { codeEditor: ICommonCodeEditor; diffEditor: ICommonDiffEditor } {
 	if (editor) {
 		let control = editor.getControl();
 		if (control) {
@@ -76,5 +95,7 @@ export function getCodeOrDiffEditor(editor: IEditor): { codeEditor: ICommonCodeE
  */
 export function getCodeEditor(editor: IEditor): ICommonCodeEditor {
 	let r = getCodeOrDiffEditor(editor);
-	return r.codeEditor || (r.diffEditor && r.diffEditor.getModifiedEditor()) || null;
+	return (
+		r.codeEditor || (r.diffEditor && r.diffEditor.getModifiedEditor()) || null
+	);
 }

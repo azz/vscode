@@ -3,11 +3,17 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
-import { IColorTheme, ITokenColorizationSetting } from 'vs/workbench/services/themes/common/workbenchThemeService';
+import {
+	IColorTheme,
+	ITokenColorizationSetting
+} from 'vs/workbench/services/themes/common/workbenchThemeService';
 
-export function findMatchingThemeRule(theme: IColorTheme, scopes: string[]): ThemeRule {
+export function findMatchingThemeRule(
+	theme: IColorTheme,
+	scopes: string[]
+): ThemeRule {
 	for (let i = scopes.length - 1; i >= 0; i--) {
 		let parentScopes = scopes.slice(0, i);
 		let scope = scopes[i];
@@ -19,7 +25,11 @@ export function findMatchingThemeRule(theme: IColorTheme, scopes: string[]): The
 	return null;
 }
 
-function findMatchingThemeRule2(theme: IColorTheme, scope: string, parentScopes: string[]): ThemeRule {
+function findMatchingThemeRule2(
+	theme: IColorTheme,
+	scope: string,
+	parentScopes: string[]
+): ThemeRule {
 	let result: ThemeRule = null;
 
 	// Loop backwards, to ensure the last most specific rule wins
@@ -64,11 +74,19 @@ export class ThemeRule {
 		this.settings = settings;
 		let rawSelectorPieces = this.rawSelector.split(/ /);
 		this.scope = rawSelectorPieces[rawSelectorPieces.length - 1];
-		this.parentScopes = rawSelectorPieces.slice(0, rawSelectorPieces.length - 1);
+		this.parentScopes = rawSelectorPieces.slice(
+			0,
+			rawSelectorPieces.length - 1
+		);
 	}
 
 	public matches(scope: string, parentScopes: string[]): boolean {
-		return ThemeRule._matches(this.scope, this.parentScopes, scope, parentScopes);
+		return ThemeRule._matches(
+			this.scope,
+			this.parentScopes,
+			scope,
+			parentScopes
+		);
 	}
 
 	private static _cmp(a: ThemeRule, b: ThemeRule): number {
@@ -104,18 +122,26 @@ export class ThemeRule {
 	}
 
 	public isMoreSpecific(other: ThemeRule): boolean {
-		return (ThemeRule._cmp(this, other) > 0);
+		return ThemeRule._cmp(this, other) > 0;
 	}
 
 	private static _matchesOne(selectorScope: string, scope: string): boolean {
 		let selectorPrefix = selectorScope + '.';
-		if (selectorScope === scope || scope.substring(0, selectorPrefix.length) === selectorPrefix) {
+		if (
+			selectorScope === scope ||
+			scope.substring(0, selectorPrefix.length) === selectorPrefix
+		) {
 			return true;
 		}
 		return false;
 	}
 
-	private static _matches(selectorScope: string, selectorParentScopes: string[], scope: string, parentScopes: string[]): boolean {
+	private static _matches(
+		selectorScope: string,
+		selectorParentScopes: string[],
+		scope: string,
+		parentScopes: string[]
+	): boolean {
 		if (!this._matchesOne(selectorScope, scope)) {
 			return false;
 		}
@@ -123,7 +149,12 @@ export class ThemeRule {
 		let selectorParentIndex = selectorParentScopes.length - 1;
 		let parentIndex = parentScopes.length - 1;
 		while (selectorParentIndex >= 0 && parentIndex >= 0) {
-			if (this._matchesOne(selectorParentScopes[selectorParentIndex], parentScopes[parentIndex])) {
+			if (
+				this._matchesOne(
+					selectorParentScopes[selectorParentIndex],
+					parentScopes[parentIndex]
+				)
+			) {
 				selectorParentIndex--;
 			}
 			parentIndex--;

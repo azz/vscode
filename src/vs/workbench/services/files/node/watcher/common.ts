@@ -3,10 +3,14 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import uri from 'vs/base/common/uri';
-import { FileChangeType, FileChangesEvent, isParent } from 'vs/platform/files/common/files';
+import {
+	FileChangeType,
+	FileChangesEvent,
+	isParent
+} from 'vs/platform/files/common/files';
 import { isLinux } from 'vs/base/common/platform';
 
 export interface IRawFileChange {
@@ -14,22 +18,24 @@ export interface IRawFileChange {
 	path: string;
 }
 
-export function toFileChangesEvent(changes: IRawFileChange[]): FileChangesEvent {
-
+export function toFileChangesEvent(
+	changes: IRawFileChange[]
+): FileChangesEvent {
 	// map to file changes event that talks about URIs
-	return new FileChangesEvent(changes.map((c) => {
-		return {
-			type: c.type,
-			resource: uri.file(c.path)
-		};
-	}));
+	return new FileChangesEvent(
+		changes.map(c => {
+			return {
+				type: c.type,
+				resource: uri.file(c.path)
+			};
+		})
+	);
 }
 
 /**
  * Given events that occurred, applies some rules to normalize the events
  */
 export function normalize(changes: IRawFileChange[]): IRawFileChange[] {
-
 	// Build deltas
 	let normalizer = new EventNormalizer();
 	for (let i = 0; i < changes.length; i++) {
@@ -50,7 +56,6 @@ class EventNormalizer {
 	}
 
 	public processEvent(event: IRawFileChange): void {
-
 		// Event path already exists
 		let existingEvent = this.mapPathToChange[event.path];
 		if (existingEvent) {
@@ -58,28 +63,29 @@ class EventNormalizer {
 			let newChangeType = event.type;
 
 			// ignore CREATE followed by DELETE in one go
-			if (currentChangeType === FileChangeType.ADDED && newChangeType === FileChangeType.DELETED) {
+			if (
+				currentChangeType === FileChangeType.ADDED &&
+				newChangeType === FileChangeType.DELETED
+			) {
 				delete this.mapPathToChange[event.path];
 				this.normalized.splice(this.normalized.indexOf(existingEvent), 1);
-			}
-
-			// flatten DELETE followed by CREATE into CHANGE
-			else if (currentChangeType === FileChangeType.DELETED && newChangeType === FileChangeType.ADDED) {
+			} else if (
+				currentChangeType === FileChangeType.DELETED &&
+				newChangeType === FileChangeType.ADDED
+			) {
+				// flatten DELETE followed by CREATE into CHANGE
 				existingEvent.type = FileChangeType.UPDATED;
-			}
-
-			// Do nothing. Keep the created event
-			else if (currentChangeType === FileChangeType.ADDED && newChangeType === FileChangeType.UPDATED) {
-			}
-
-			// Otherwise apply change type
-			else {
+			} else if (
+				currentChangeType === FileChangeType.ADDED &&
+				newChangeType === FileChangeType.UPDATED
+			) {
+				// Do nothing. Keep the created event
+			} else {
+				// Otherwise apply change type
 				existingEvent.type = newChangeType;
 			}
-		}
-
-		// Otherwise Store
-		else {
+		} else {
+			// Otherwise Store
 			this.normalized.push(event);
 			this.mapPathToChange[event.path] = event;
 		}
@@ -96,24 +102,30 @@ class EventNormalizer {
 		// 1.) split ADD/CHANGE and DELETED events
 		// 2.) sort short deleted paths to the top
 		// 3.) for each DELETE, check if there is a deleted parent and ignore the event in that case
-		return this.normalized.filter(e => {
-			if (e.type !== 2) {
-				addedChangeEvents.push(e);
-				return false; // remove ADD / CHANGE
-			}
+		return this.normalized
+			.filter(e => {
+				if (e.type !== 2) {
+					addedChangeEvents.push(e);
+					return false; // remove ADD / CHANGE
+				}
 
-			return true; // keep DELETE
-		}).sort((e1, e2) => {
-			return e1.path.length - e2.path.length; // shortest path first
-		}).filter(e => {
-			if (deletedPaths.some(d => isParent(e.path, d, !isLinux /* ignorecase */))) {
-				return false; // DELETE is ignored if parent is deleted already
-			}
+				return true; // keep DELETE
+			})
+			.sort((e1, e2) => {
+				return e1.path.length - e2.path.length; // shortest path first
+			})
+			.filter(e => {
+				if (
+					deletedPaths.some(d => isParent(e.path, d, !isLinux /* ignorecase */))
+				) {
+					return false; // DELETE is ignored if parent is deleted already
+				}
 
-			// otherwise mark as deleted
-			deletedPaths.push(e.path);
+				// otherwise mark as deleted
+				deletedPaths.push(e.path);
 
-			return true;
-		}).concat(addedChangeEvents);
+				return true;
+			})
+			.concat(addedChangeEvents);
 	}
 }

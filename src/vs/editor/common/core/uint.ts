@@ -2,10 +2,9 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 export class Uint8Matrix {
-
 	private _data: Uint8Array;
 	private _rows: number;
 	private _cols: number;
@@ -60,9 +59,7 @@ export const enum Constants {
 	/**
 	 * Max unsigned integer that fits on 32 bits.
 	 */
-	MAX_UINT_32 = 4294967295, // 2^32 - 1
-
-
+	MAX_UINT_32 = 4294967295 // 2^32 - 1
 }
 
 export function toUint8(v: number): number {

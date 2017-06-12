@@ -3,22 +3,29 @@
 // Definitions by: Bart van der Schoor <https://github.com/Bartvds>
 // Definitions: https://github.com/borisyankov/DefinitelyTyped
 
-declare function Lazy(value: string): Lazy.StringLikeSequence;
-declare function Lazy<T>(value: T[]): Lazy.ArrayLikeSequence<T>;
-declare function Lazy(value: any[]): Lazy.ArrayLikeSequence<any>;
-declare function Lazy<T>(value: Object): Lazy.ObjectLikeSequence<T>;
-declare function Lazy(value: Object): Lazy.ObjectLikeSequence<any>;
+declare function Lazy(value: string): Lazy.StringLikeSequence
+declare function Lazy<T>(value: T[]): Lazy.ArrayLikeSequence<T>
+declare function Lazy(value: any[]): Lazy.ArrayLikeSequence<any>
+declare function Lazy<T>(value: Object): Lazy.ObjectLikeSequence<T>
+declare function Lazy(value: Object): Lazy.ObjectLikeSequence<any>
 
-declare module Lazy {
+declare namespace Lazy {
 	function strict(): StrictLazy;
-	function generate<T>(generatorFn: GeneratorCallback<T>, length?: number): GeneratedSequence<T>;
+	function generate<T>(
+		generatorFn: GeneratorCallback<T>,
+		length?: number
+	): GeneratedSequence<T>;
 	function range(to: number): GeneratedSequence<number>;
-	function range(from: number, to: number, step?: number): GeneratedSequence<number>;
+	function range(
+		from: number,
+		to: number,
+		step?: number
+	): GeneratedSequence<number>;
 	function repeat<T>(value: T, count?: number): GeneratedSequence<T>;
 	function on<T>(eventType: string): Sequence<T>;
 	function readFile(path: string): StringLikeSequence;
 	function makeHttpRequest(path: string): StringLikeSequence;
-	
+
 	interface StrictLazy {
 		(value: string): StringLikeSequence;
 		<T>(value: T[]): ArrayLikeSequence<T>;
@@ -26,7 +33,10 @@ declare module Lazy {
 		<T>(value: Object): ObjectLikeSequence<T>;
 		(value: Object): ObjectLikeSequence<any>;
 		strict(): StrictLazy;
-		generate<T>(generatorFn: GeneratorCallback<T>, length?: number): GeneratedSequence<T>;
+		generate<T>(
+			generatorFn: GeneratorCallback<T>,
+			length?: number
+		): GeneratedSequence<T>;
 		range(to: number): GeneratedSequence<number>;
 		range(from: number, to: number, step?: number): GeneratedSequence<number>;
 		repeat<T>(value: T, count?: number): GeneratedSequence<T>;
@@ -93,7 +103,9 @@ declare module Lazy {
 	}
 
 	interface GeneratedSequence<T> extends Sequence<T> {
-		new(generatorFn: GeneratorCallback<T>, length: number): GeneratedSequence<T>;
+		new (generatorFn: GeneratorCallback<T>, length: number): GeneratedSequence<
+			T
+		>;
 		length(): number;
 	}
 
@@ -109,7 +121,7 @@ declare module Lazy {
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-	module Sequence {
+	namespace Sequence {
 		function define(methodName: string[], overrides: Object): Function;
 	}
 
@@ -189,7 +201,7 @@ declare module Lazy {
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-	module ArrayLikeSequence {
+	namespace ArrayLikeSequence {
 		function define(methodName: string[], overrides: Object): Function;
 	}
 
@@ -211,7 +223,7 @@ declare module Lazy {
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-	module ObjectLikeSequence {
+	namespace ObjectLikeSequence {
 		function define(methodName: string[], overrides: Object): Function;
 	}
 
@@ -234,7 +246,7 @@ declare module Lazy {
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-	module StringLikeSequence {
+	namespace StringLikeSequence {
 		function define(methodName: string[], overrides: Object): Function;
 	}
 
@@ -270,4 +282,3 @@ declare module Lazy {
 declare module 'lazy.js' {
 	export = Lazy;
 }
-

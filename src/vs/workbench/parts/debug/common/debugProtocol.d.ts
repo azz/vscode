@@ -6,8 +6,7 @@
 /** Declaration module describing the VS Code debug protocol.
 	Auto-generated from json schema. Do not edit manually.
 */
-declare module DebugProtocol {
-
+declare namespace DebugProtocol {
 	/** Base class of requests, responses, and events. */
 	export interface ProtocolMessage {
 		/** Sequence number. */
@@ -203,7 +202,7 @@ declare module DebugProtocol {
 		/** List of arguments. The first argument is the command to run. */
 		args: string[];
 		/** Environment key-value pairs that are added to the default environment. */
-		env?: { [key: string]: string; };
+		env?: { [key: string]: string };
 	}
 
 	/** Response to Initialize request. */
@@ -265,12 +264,10 @@ declare module DebugProtocol {
 	/** Arguments for 'configurationDone' request.
 		The configurationDone request has no standardized attributes.
 	*/
-	export interface ConfigurationDoneArguments {
-	}
+	export interface ConfigurationDoneArguments {}
 
 	/** Response to 'configurationDone' request. This is just an acknowledgement, so no body field is required. */
-	export interface ConfigurationDoneResponse extends Response {
-	}
+	export interface ConfigurationDoneResponse extends Response {}
 
 	/** Launch request; value of command field is 'launch'. */
 	export interface LaunchRequest extends Request {
@@ -285,8 +282,7 @@ declare module DebugProtocol {
 	}
 
 	/** Response to 'launch' request. This is just an acknowledgement, so no body field is required. */
-	export interface LaunchResponse extends Response {
-	}
+	export interface LaunchResponse extends Response {}
 
 	/** Attach request; value of command field is 'attach'. */
 	export interface AttachRequest extends Request {
@@ -297,12 +293,10 @@ declare module DebugProtocol {
 	/** Arguments for 'attach' request.
 		The attach request has no standardized attributes.
 	*/
-	export interface AttachRequestArguments {
-	}
+	export interface AttachRequestArguments {}
 
 	/** Response to 'attach' request. This is just an acknowledgement, so no body field is required. */
-	export interface AttachResponse extends Response {
-	}
+	export interface AttachResponse extends Response {}
 
 	/** Restart request; value of command field is 'restart'.
 		Restarts a debug session. If the capability 'supportsRestartRequest' is missing or has the value false,
@@ -318,12 +312,10 @@ declare module DebugProtocol {
 	/** Arguments for 'restart' request.
 		The restart request has no standardized attributes.
 	*/
-	export interface RestartArguments {
-	}
+	export interface RestartArguments {}
 
 	/** Response to 'restart' request. This is just an acknowledgement, so no body field is required. */
-	export interface RestartResponse extends Response {
-	}
+	export interface RestartResponse extends Response {}
 
 	/** Disconnect request; value of command field is 'disconnect'. */
 	export interface DisconnectRequest extends Request {
@@ -341,8 +333,7 @@ declare module DebugProtocol {
 	}
 
 	/** Response to 'disconnect' request. This is just an acknowledgement, so no body field is required. */
-	export interface DisconnectResponse extends Response {
-	}
+	export interface DisconnectResponse extends Response {}
 
 	/** SetBreakpoints request; value of command field is 'setBreakpoints'.
 		Sets multiple breakpoints for a single source and clears all previous breakpoints in that source.
@@ -422,8 +413,7 @@ declare module DebugProtocol {
 	}
 
 	/** Response to 'setExceptionBreakpoints' request. This is just an acknowledgement, so no body field is required. */
-	export interface SetExceptionBreakpointsResponse extends Response {
-	}
+	export interface SetExceptionBreakpointsResponse extends Response {}
 
 	/** Continue request; value of command field is 'continue'.
 		The request starts the debuggee to run again.
@@ -463,8 +453,7 @@ declare module DebugProtocol {
 	}
 
 	/** Response to 'next' request. This is just an acknowledgement, so no body field is required. */
-	export interface NextResponse extends Response {
-	}
+	export interface NextResponse extends Response {}
 
 	/** StepIn request; value of command field is 'stepIn'.
 		The request starts the debuggee to step into a function/method if possible.
@@ -488,8 +477,7 @@ declare module DebugProtocol {
 	}
 
 	/** Response to 'stepIn' request. This is just an acknowledgement, so no body field is required. */
-	export interface StepInResponse extends Response {
-	}
+	export interface StepInResponse extends Response {}
 
 	/** StepOut request; value of command field is 'stepOut'.
 		The request starts the debuggee to run again for one step.
@@ -507,8 +495,7 @@ declare module DebugProtocol {
 	}
 
 	/** Response to 'stepOut' request. This is just an acknowledgement, so no body field is required. */
-	export interface StepOutResponse extends Response {
-	}
+	export interface StepOutResponse extends Response {}
 
 	/** StepBack request; value of command field is 'stepBack'.
 		The request starts the debuggee to run one step backwards.
@@ -526,8 +513,7 @@ declare module DebugProtocol {
 	}
 
 	/** Response to 'stepBack' request. This is just an acknowledgement, so no body field is required. */
-	export interface StepBackResponse extends Response {
-	}
+	export interface StepBackResponse extends Response {}
 
 	/** ReverseContinue request; value of command field is 'reverseContinue'.
 		The request starts the debuggee to run backward. Clients should only call this request if the capability supportsStepBack is true.
@@ -544,8 +530,7 @@ declare module DebugProtocol {
 	}
 
 	/** Response to 'reverseContinue' request. This is just an acknowledgement, so no body field is required. */
-	export interface ReverseContinueResponse extends Response {
-	}
+	export interface ReverseContinueResponse extends Response {}
 
 	/** RestartFrame request; value of command field is 'restartFrame'.
 		The request restarts execution of the specified stackframe.
@@ -563,8 +548,7 @@ declare module DebugProtocol {
 	}
 
 	/** Response to 'restartFrame' request. This is just an acknowledgement, so no body field is required. */
-	export interface RestartFrameResponse extends Response {
-	}
+	export interface RestartFrameResponse extends Response {}
 
 	/** Goto request; value of command field is 'goto'.
 		The request sets the location where the debuggee will continue to run.
@@ -586,8 +570,7 @@ declare module DebugProtocol {
 	}
 
 	/** Response to 'goto' request. This is just an acknowledgement, so no body field is required. */
-	export interface GotoResponse extends Response {
-	}
+	export interface GotoResponse extends Response {}
 
 	/** Pause request; value of command field is 'pause'.
 		The request suspenses the debuggee.
@@ -605,8 +588,7 @@ declare module DebugProtocol {
 	}
 
 	/** Response to 'pause' request. This is just an acknowledgement, so no body field is required. */
-	export interface PauseResponse extends Response {
-	}
+	export interface PauseResponse extends Response {}
 
 	/** StackTrace request; value of command field is 'stackTrace'. The request returns a stacktrace from the current execution state. */
 	export interface StackTraceRequest extends Request {
@@ -1009,7 +991,7 @@ declare module DebugProtocol {
 		*/
 		format: string;
 		/** An object used as a dictionary for looking up the variables in the format string. */
-		variables?: { [key: string]: string; };
+		variables?: { [key: string]: string };
 		/** If true send to telemetry. */
 		sendTelemetry?: boolean;
 		/** If true show user. */
@@ -1272,7 +1254,26 @@ declare module DebugProtocol {
 	}
 
 	/** Some predefined types for the CompletionItem. Please note that not all clients have specific icons for all of them. */
-	export type CompletionItemType = 'method' | 'function' | 'constructor' | 'field' | 'variable' | 'class' | 'interface' | 'module' | 'property' | 'unit' | 'value' | 'enum' | 'keyword' | 'snippet' | 'text' | 'color' | 'file' | 'reference' | 'customcolor';
+	export type CompletionItemType =
+		| 'method'
+		| 'function'
+		| 'constructor'
+		| 'field'
+		| 'variable'
+		| 'class'
+		| 'interface'
+		| 'module'
+		| 'property'
+		| 'unit'
+		| 'value'
+		| 'enum'
+		| 'keyword'
+		| 'snippet'
+		| 'text'
+		| 'color'
+		| 'file'
+		| 'reference'
+		| 'customcolor';
 
 	/** Names of checksum algorithms that may be supported by a debug adapter. */
 	export type ChecksumAlgorithm = 'MD5' | 'SHA1' | 'SHA256' | 'timestamp';
@@ -1321,7 +1322,11 @@ declare module DebugProtocol {
 		unhandled: breaks when excpetion unhandled,
 		userUnhandled: breaks if the exception is not handled by user code.
 	*/
-	export type ExceptionBreakMode = 'never' | 'always' | 'unhandled' | 'userUnhandled';
+	export type ExceptionBreakMode =
+		| 'never'
+		| 'always'
+		| 'unhandled'
+		| 'userUnhandled';
 
 	/** An ExceptionPathSegment represents a segment in a path that is used to match leafs or nodes in a tree of exceptions. If a segment consists of more than one name, it matches the names provided if 'negate' is false or missing or it matches anything except the names provided if 'negate' is true. */
 	export interface ExceptionPathSegment {
@@ -1347,4 +1352,3 @@ declare module DebugProtocol {
 		innerException?: ExceptionDetails[];
 	}
 }
-

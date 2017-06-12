@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import { Action } from 'vs/base/common/actions';
@@ -12,9 +12,8 @@ import { IWindowService } from 'vs/platform/windows/common/windows';
 import { ITelemetryData } from 'vs/platform/telemetry/common/telemetry';
 
 export class OpenFolderAction extends Action {
-
 	static ID = 'workbench.action.files.openFolder';
-	static LABEL = nls.localize('openFolder', "Open Folder...");
+	static LABEL = nls.localize('openFolder', 'Open Folder...');
 
 	constructor(
 		id: string,
@@ -30,9 +29,8 @@ export class OpenFolderAction extends Action {
 }
 
 export class OpenFileFolderAction extends Action {
-
 	static ID = 'workbench.action.files.openFileFolder';
-	static LABEL = nls.localize('openFileFolder', "Open...");
+	static LABEL = nls.localize('openFileFolder', 'Open...');
 
 	constructor(
 		id: string,

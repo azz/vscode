@@ -3,14 +3,15 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
 
-export const IClipboardService = createDecorator<IClipboardService>('clipboardService');
+export const IClipboardService = createDecorator<IClipboardService>(
+	'clipboardService'
+);
 
 export interface IClipboardService {
-
 	_serviceBrand: any;
 
 	/**

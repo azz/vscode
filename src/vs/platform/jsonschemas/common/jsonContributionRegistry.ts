@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { IJSONSchema } from 'vs/base/common/jsonSchema';
 import platform = require('vs/platform/platform');
@@ -18,7 +18,6 @@ export interface ISchemaContributions {
 }
 
 export interface IJSONContributionRegistry {
-
 	/**
 	 * Register a schema to the registry.
 	 */
@@ -32,13 +31,12 @@ export interface IJSONContributionRegistry {
 	/**
 	 * Adds a change listener
 	 */
-	addRegistryChangedListener(callback: (e: IJSONContributionRegistryEvent) => void): IDisposable;
-
+	addRegistryChangedListener(
+		callback: (e: IJSONContributionRegistryEvent) => void
+	): IDisposable;
 }
 
-export interface IJSONContributionRegistryEvent {
-
-}
+export interface IJSONContributionRegistryEvent {}
 
 function normalizeId(id: string) {
 	if (id.length > 0 && id.charAt(id.length - 1) === '#') {
@@ -46,8 +44,6 @@ function normalizeId(id: string) {
 	}
 	return id;
 }
-
-
 
 class JSONContributionRegistry implements IJSONContributionRegistry {
 	private schemasById: { [id: string]: IJSONSchema };
@@ -58,21 +54,25 @@ class JSONContributionRegistry implements IJSONContributionRegistry {
 		this.eventEmitter = new EventEmitter();
 	}
 
-	public addRegistryChangedListener(callback: (e: IJSONContributionRegistryEvent) => void): IDisposable {
+	public addRegistryChangedListener(
+		callback: (e: IJSONContributionRegistryEvent) => void
+	): IDisposable {
 		return this.eventEmitter.addListener('registryChanged', callback);
 	}
 
-	public registerSchema(uri: string, unresolvedSchemaContent: IJSONSchema): void {
+	public registerSchema(
+		uri: string,
+		unresolvedSchemaContent: IJSONSchema
+	): void {
 		this.schemasById[normalizeId(uri)] = unresolvedSchemaContent;
 		this.eventEmitter.emit('registryChanged', {});
 	}
 
 	public getSchemaContributions(): ISchemaContributions {
 		return {
-			schemas: this.schemasById,
+			schemas: this.schemasById
 		};
 	}
-
 }
 
 const jsonContributionRegistry = new JSONContributionRegistry();

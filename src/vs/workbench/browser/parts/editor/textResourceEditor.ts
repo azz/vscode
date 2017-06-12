@@ -2,14 +2,19 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import nls = require('vs/nls');
 import types = require('vs/base/common/types');
 import { ICodeEditor } from 'vs/editor/browser/editorBrowser';
 import { IEditorOptions } from 'vs/editor/common/config/editorOptions';
-import { TextEditorOptions, EditorModel, EditorInput, EditorOptions } from 'vs/workbench/common/editor';
+import {
+	TextEditorOptions,
+	EditorModel,
+	EditorInput,
+	EditorOptions
+} from 'vs/workbench/common/editor';
 import { ResourceEditorInput } from 'vs/workbench/common/editor/resourceEditorInput';
 import { BaseTextEditorModel } from 'vs/workbench/common/editor/textEditorModel';
 import { UntitledEditorInput } from 'vs/workbench/common/editor/untitledEditorInput';
@@ -22,14 +27,13 @@ import { IThemeService } from 'vs/platform/theme/common/themeService';
 import { IEditorGroupService } from 'vs/workbench/services/group/common/groupService';
 import { IModeService } from 'vs/editor/common/services/modeService';
 import { ITextFileService } from 'vs/workbench/services/textfile/common/textfiles';
-import { once } from "vs/base/common/event";
+import { once } from 'vs/base/common/event';
 
 /**
  * An editor implementation that is capable of showing the contents of resource inputs. Uses
  * the TextEditor widget to show the contents.
  */
 export class TextResourceEditor extends BaseTextEditor {
-
 	public static ID = 'workbench.editors.textResourceEditor';
 
 	constructor(
@@ -42,7 +46,17 @@ export class TextResourceEditor extends BaseTextEditor {
 		@IModeService modeService: IModeService,
 		@ITextFileService textFileService: ITextFileService
 	) {
-		super(TextResourceEditor.ID, telemetryService, instantiationService, storageService, configurationService, themeService, modeService, textFileService, editorGroupService);
+		super(
+			TextResourceEditor.ID,
+			telemetryService,
+			instantiationService,
+			storageService,
+			configurationService,
+			themeService,
+			modeService,
+			textFileService,
+			editorGroupService
+		);
 	}
 
 	public getTitle(): string {
@@ -50,7 +64,7 @@ export class TextResourceEditor extends BaseTextEditor {
 			return this.input.getName();
 		}
 
-		return nls.localize('textEditor', "Text Editor");
+		return nls.localize('textEditor', 'Text Editor');
 	}
 
 	public setInput(input: EditorInput, options?: EditorOptions): TPromise<void> {
@@ -62,7 +76,6 @@ export class TextResourceEditor extends BaseTextEditor {
 
 		// Same Input
 		if (!forceOpen && input.matches(oldInput)) {
-
 			// TextOptions (avoiding instanceof here for a reason, do not change!)
 			const textOptions = <TextEditorOptions>options;
 			if (textOptions && types.isFunction(textOptions.apply)) {
@@ -77,7 +90,6 @@ export class TextResourceEditor extends BaseTextEditor {
 
 		// Different Input (Reload)
 		return input.resolve(true).then((resolvedModel: EditorModel) => {
-
 			// Assert Model instance
 			if (!(resolvedModel instanceof BaseTextEditorModel)) {
 				return TPromise.wrapError<void>('Unable to open file as text');
@@ -109,8 +121,13 @@ export class TextResourceEditor extends BaseTextEditor {
 	}
 
 	protected restoreViewState(input: EditorInput) {
-		if (input instanceof UntitledEditorInput || input instanceof ResourceEditorInput) {
-			const viewState = this.loadTextEditorViewState(input.getResource().toString());
+		if (
+			input instanceof UntitledEditorInput ||
+			input instanceof ResourceEditorInput
+		) {
+			const viewState = this.loadTextEditorViewState(
+				input.getResource().toString()
+			);
 			if (viewState) {
 				this.getControl().restoreViewState(viewState);
 			}
@@ -132,9 +149,24 @@ export class TextResourceEditor extends BaseTextEditor {
 		let ariaLabel: string;
 		const inputName = input && input.getName();
 		if (isReadonly) {
-			ariaLabel = inputName ? nls.localize('readonlyEditorWithInputAriaLabel', "{0}. Readonly text editor.", inputName) : nls.localize('readonlyEditorAriaLabel', "Readonly text editor.");
+			ariaLabel = inputName
+				? nls.localize(
+						'readonlyEditorWithInputAriaLabel',
+						'{0}. Readonly text editor.',
+						inputName
+					)
+				: nls.localize('readonlyEditorAriaLabel', 'Readonly text editor.');
 		} else {
-			ariaLabel = inputName ? nls.localize('untitledFileEditorWithInputAriaLabel', "{0}. Untitled file text editor.", inputName) : nls.localize('untitledFileEditorAriaLabel', "Untitled file text editor.");
+			ariaLabel = inputName
+				? nls.localize(
+						'untitledFileEditorWithInputAriaLabel',
+						'{0}. Untitled file text editor.',
+						inputName
+					)
+				: nls.localize(
+						'untitledFileEditorAriaLabel',
+						'Untitled file text editor.'
+					);
 		}
 
 		return ariaLabel;
@@ -149,12 +181,14 @@ export class TextResourceEditor extends BaseTextEditor {
 
 		if (model) {
 			const lastLine = model.getLineCount();
-			codeEditor.revealPosition({ lineNumber: lastLine, column: model.getLineMaxColumn(lastLine) });
+			codeEditor.revealPosition({
+				lineNumber: lastLine,
+				column: model.getLineMaxColumn(lastLine)
+			});
 		}
 	}
 
 	public clearInput(): void {
-
 		// Keep editor view state in settings to restore when coming back
 		this.saveTextEditorViewStateForInput(this.input);
 
@@ -165,7 +199,6 @@ export class TextResourceEditor extends BaseTextEditor {
 	}
 
 	public shutdown(): void {
-
 		// Save View State (only for untitled)
 		if (this.input instanceof UntitledEditorInput) {
 			this.saveTextEditorViewStateForInput(this.input);
@@ -176,7 +209,10 @@ export class TextResourceEditor extends BaseTextEditor {
 	}
 
 	protected saveTextEditorViewStateForInput(input: EditorInput): void {
-		if (!(input instanceof UntitledEditorInput) && !(input instanceof ResourceEditorInput)) {
+		if (
+			!(input instanceof UntitledEditorInput) &&
+			!(input instanceof ResourceEditorInput)
+		) {
 			return; // only enabled for untitled and resource inputs
 		}
 
@@ -185,10 +221,8 @@ export class TextResourceEditor extends BaseTextEditor {
 		// Clear view state if input is disposed
 		if (input.isDisposed()) {
 			super.clearTextEditorViewState([key]);
-		}
-
-		// Otherwise save it
-		else {
+		} else {
+			// Otherwise save it
 			super.saveTextEditorViewState(key);
 
 			// Make sure to clean up when the input gets disposed

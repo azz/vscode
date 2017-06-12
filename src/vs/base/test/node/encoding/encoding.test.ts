@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import assert = require('assert');
 
@@ -37,7 +37,7 @@ suite('Encoding', () => {
 		}, done);
 	});
 
-	test('detectBOM ANSI', function (done: (err?: any) => void) {
+	test('detectBOM ANSI', function(done: (err?: any) => void) {
 		const file = require.toUrl('./fixtures/some_ansi.css');
 
 		encoding.detectEncodingByBOM(file).then((encoding: string) => {
@@ -46,7 +46,7 @@ suite('Encoding', () => {
 		}, done);
 	});
 
-	test('detectBOM ANSI', function (done: (err?: any) => void) {
+	test('detectBOM ANSI', function(done: (err?: any) => void) {
 		const file = require.toUrl('./fixtures/empty.txt');
 
 		encoding.detectEncodingByBOM(file).then((encoding: string) => {

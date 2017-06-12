@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { cloneAndChange } from 'vs/base/common/objects';
 import { IExtensionManifest } from 'vs/platform/extensionManagement/common/extensionManagement';
@@ -14,7 +14,10 @@ export interface ITranslations {
 	[key: string]: string;
 }
 
-export function localizeManifest(manifest: IExtensionManifest, translations: ITranslations): IExtensionManifest {
+export function localizeManifest(
+	manifest: IExtensionManifest,
+	translations: ITranslations
+): IExtensionManifest {
 	const patcher = value => {
 		if (typeof value !== 'string') {
 			return undefined;

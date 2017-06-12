@@ -2,12 +2,17 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { Position } from 'vs/editor/common/core/position';
 import { CharCode } from 'vs/base/common/charCode';
 import * as strings from 'vs/base/common/strings';
-import { ICommand, TextModelResolvedOptions, IConfiguration, IModel } from 'vs/editor/common/editorCommon';
+import {
+	ICommand,
+	TextModelResolvedOptions,
+	IConfiguration,
+	IModel
+} from 'vs/editor/common/editorCommon';
 import { TextModel } from 'vs/editor/common/model/textModel';
 import { Selection, ISelection } from 'vs/editor/common/core/selection';
 import { Range } from 'vs/editor/common/core/range';
@@ -40,9 +45,17 @@ export interface ICursors {
 	getColumnSelectData(): IColumnSelectData;
 	setColumnSelectData(columnSelectData: IColumnSelectData): void;
 
-	setStates(source: string, reason: CursorChangeReason, states: CursorState[]): void;
+	setStates(
+		source: string,
+		reason: CursorChangeReason,
+		states: CursorState[]
+	): void;
 	reveal(horizontal: boolean, target: RevealTarget): void;
-	revealRange(revealHorizontal: boolean, viewRange: Range, verticalType: VerticalRevealType): void;
+	revealRange(
+		revealHorizontal: boolean,
+		viewRange: Range,
+		verticalType: VerticalRevealType
+	): void;
 
 	scrollTo(desiredScrollTop: number): void;
 }
@@ -67,17 +80,17 @@ export class CursorConfiguration {
 	public readonly autoClosingPairsOpen: CharacterMap;
 	public readonly autoClosingPairsClose: CharacterMap;
 	public readonly surroundingPairs: CharacterMap;
-	public readonly electricChars: { [key: string]: boolean; };
+	public readonly electricChars: { [key: string]: boolean };
 
 	public static shouldRecreate(e: IConfigurationChangedEvent): boolean {
 		return (
-			e.layoutInfo
-			|| e.wordSeparators
-			|| e.emptySelectionClipboard
-			|| e.autoClosingBrackets
-			|| e.useTabStops
-			|| e.lineHeight
-			|| e.readOnly
+			e.layoutInfo ||
+			e.wordSeparators ||
+			e.emptySelectionClipboard ||
+			e.autoClosingBrackets ||
+			e.useTabStops ||
+			e.lineHeight ||
+			e.readOnly
 		);
 	}
 
@@ -105,25 +118,34 @@ export class CursorConfiguration {
 		this.surroundingPairs = {};
 		this.electricChars = {};
 
-		let electricChars = CursorConfiguration._getElectricCharacters(languageIdentifier);
+		let electricChars = CursorConfiguration._getElectricCharacters(
+			languageIdentifier
+		);
 		if (electricChars) {
 			for (let i = 0; i < electricChars.length; i++) {
 				this.electricChars[electricChars[i]] = true;
 			}
 		}
 
-		let autoClosingPairs = CursorConfiguration._getAutoClosingPairs(languageIdentifier);
+		let autoClosingPairs = CursorConfiguration._getAutoClosingPairs(
+			languageIdentifier
+		);
 		if (autoClosingPairs) {
 			for (let i = 0; i < autoClosingPairs.length; i++) {
-				this.autoClosingPairsOpen[autoClosingPairs[i].open] = autoClosingPairs[i].close;
-				this.autoClosingPairsClose[autoClosingPairs[i].close] = autoClosingPairs[i].open;
+				this.autoClosingPairsOpen[autoClosingPairs[i].open] =
+					autoClosingPairs[i].close;
+				this.autoClosingPairsClose[autoClosingPairs[i].close] =
+					autoClosingPairs[i].open;
 			}
 		}
 
-		let surroundingPairs = CursorConfiguration._getSurroundingPairs(languageIdentifier);
+		let surroundingPairs = CursorConfiguration._getSurroundingPairs(
+			languageIdentifier
+		);
 		if (surroundingPairs) {
 			for (let i = 0; i < surroundingPairs.length; i++) {
-				this.surroundingPairs[surroundingPairs[i].open] = surroundingPairs[i].close;
+				this.surroundingPairs[surroundingPairs[i].open] =
+					surroundingPairs[i].close;
 			}
 		}
 	}
@@ -132,27 +154,39 @@ export class CursorConfiguration {
 		return TextModel.normalizeIndentation(str, this.tabSize, this.insertSpaces);
 	}
 
-	private static _getElectricCharacters(languageIdentifier: LanguageIdentifier): string[] {
+	private static _getElectricCharacters(
+		languageIdentifier: LanguageIdentifier
+	): string[] {
 		try {
-			return LanguageConfigurationRegistry.getElectricCharacters(languageIdentifier.id);
+			return LanguageConfigurationRegistry.getElectricCharacters(
+				languageIdentifier.id
+			);
 		} catch (e) {
 			onUnexpectedError(e);
 			return null;
 		}
 	}
 
-	private static _getAutoClosingPairs(languageIdentifier: LanguageIdentifier): IAutoClosingPair[] {
+	private static _getAutoClosingPairs(
+		languageIdentifier: LanguageIdentifier
+	): IAutoClosingPair[] {
 		try {
-			return LanguageConfigurationRegistry.getAutoClosingPairs(languageIdentifier.id);
+			return LanguageConfigurationRegistry.getAutoClosingPairs(
+				languageIdentifier.id
+			);
 		} catch (e) {
 			onUnexpectedError(e);
 			return null;
 		}
 	}
 
-	private static _getSurroundingPairs(languageIdentifier: LanguageIdentifier): IAutoClosingPair[] {
+	private static _getSurroundingPairs(
+		languageIdentifier: LanguageIdentifier
+	): IAutoClosingPair[] {
 		try {
-			return LanguageConfigurationRegistry.getSurroundingPairs(languageIdentifier.id);
+			return LanguageConfigurationRegistry.getSurroundingPairs(
+				languageIdentifier.id
+			);
 		} catch (e) {
 			onUnexpectedError(e);
 			return null;
@@ -189,29 +223,38 @@ export class SingleCursorState {
 		selectionStart: Range,
 		selectionStartLeftoverVisibleColumns: number,
 		position: Position,
-		leftoverVisibleColumns: number,
+		leftoverVisibleColumns: number
 	) {
 		this.selectionStart = selectionStart;
 		this.selectionStartLeftoverVisibleColumns = selectionStartLeftoverVisibleColumns;
 		this.position = position;
 		this.leftoverVisibleColumns = leftoverVisibleColumns;
-		this.selection = SingleCursorState._computeSelection(this.selectionStart, this.position);
+		this.selection = SingleCursorState._computeSelection(
+			this.selectionStart,
+			this.position
+		);
 	}
 
 	public equals(other: SingleCursorState) {
 		return (
-			this.selectionStartLeftoverVisibleColumns === other.selectionStartLeftoverVisibleColumns
-			&& this.leftoverVisibleColumns === other.leftoverVisibleColumns
-			&& this.position.equals(other.position)
-			&& this.selectionStart.equalsRange(other.selectionStart)
+			this.selectionStartLeftoverVisibleColumns ===
+				other.selectionStartLeftoverVisibleColumns &&
+			this.leftoverVisibleColumns === other.leftoverVisibleColumns &&
+			this.position.equals(other.position) &&
+			this.selectionStart.equalsRange(other.selectionStart)
 		);
 	}
 
 	public hasSelection(): boolean {
-		return (!this.selection.isEmpty() || !this.selectionStart.isEmpty());
+		return !this.selection.isEmpty() || !this.selectionStart.isEmpty();
 	}
 
-	public move(inSelectionMode: boolean, lineNumber: number, column: number, leftoverVisibleColumns: number): SingleCursorState {
+	public move(
+		inSelectionMode: boolean,
+		lineNumber: number,
+		column: number,
+		leftoverVisibleColumns: number
+	): SingleCursorState {
 		if (inSelectionMode) {
 			// move just position
 			return new SingleCursorState(
@@ -231,8 +274,14 @@ export class SingleCursorState {
 		}
 	}
 
-	private static _computeSelection(selectionStart: Range, position: Position): Selection {
-		let startLineNumber: number, startColumn: number, endLineNumber: number, endColumn: number;
+	private static _computeSelection(
+		selectionStart: Range,
+		position: Position
+	): Selection {
+		let startLineNumber: number,
+			startColumn: number,
+			endLineNumber: number,
+			endColumn: number;
 		if (selectionStart.isEmpty()) {
 			startLineNumber = selectionStart.startLineNumber;
 			startColumn = selectionStart.startColumn;
@@ -267,7 +316,11 @@ export class CursorContext {
 	public readonly viewModel: IViewModel;
 	public readonly config: CursorConfiguration;
 
-	constructor(configuration: IConfiguration, model: IModel, viewModel: IViewModel) {
+	constructor(
+		configuration: IConfiguration,
+		model: IModel,
+		viewModel: IViewModel
+	) {
 		this.model = model;
 		this.viewModel = viewModel;
 		this.config = new CursorConfiguration(
@@ -278,28 +331,48 @@ export class CursorContext {
 		);
 	}
 
-	public validateViewPosition(viewPosition: Position, modelPosition: Position): Position {
-		return this.viewModel.coordinatesConverter.validateViewPosition(viewPosition, modelPosition);
+	public validateViewPosition(
+		viewPosition: Position,
+		modelPosition: Position
+	): Position {
+		return this.viewModel.coordinatesConverter.validateViewPosition(
+			viewPosition,
+			modelPosition
+		);
 	}
 
 	public validateViewRange(viewRange: Range, expectedModelRange: Range): Range {
-		return this.viewModel.coordinatesConverter.validateViewRange(viewRange, expectedModelRange);
+		return this.viewModel.coordinatesConverter.validateViewRange(
+			viewRange,
+			expectedModelRange
+		);
 	}
 
 	public convertViewRangeToModelRange(viewRange: Range): Range {
-		return this.viewModel.coordinatesConverter.convertViewRangeToModelRange(viewRange);
+		return this.viewModel.coordinatesConverter.convertViewRangeToModelRange(
+			viewRange
+		);
 	}
 
-	public convertViewPositionToModelPosition(lineNumber: number, column: number): Position {
-		return this.viewModel.coordinatesConverter.convertViewPositionToModelPosition(new Position(lineNumber, column));
+	public convertViewPositionToModelPosition(
+		lineNumber: number,
+		column: number
+	): Position {
+		return this.viewModel.coordinatesConverter.convertViewPositionToModelPosition(
+			new Position(lineNumber, column)
+		);
 	}
 
 	public convertModelPositionToViewPosition(modelPosition: Position): Position {
-		return this.viewModel.coordinatesConverter.convertModelPositionToViewPosition(modelPosition);
+		return this.viewModel.coordinatesConverter.convertModelPositionToViewPosition(
+			modelPosition
+		);
 	}
 
 	public convertModelRangeToViewRange(modelRange: Range): Range {
-		return this.viewModel.coordinatesConverter.convertModelRangeToViewRange(modelRange);
+		return this.viewModel.coordinatesConverter.convertModelRangeToViewRange(
+			modelRange
+		);
 	}
 
 	public getScrollTop(): number {
@@ -312,7 +385,9 @@ export class CursorContext {
 
 	public getCompletelyVisibleModelRange(): Range {
 		const viewRange = this.viewModel.getCompletelyVisibleViewRange();
-		return this.viewModel.coordinatesConverter.convertViewRangeToModelRange(viewRange);
+		return this.viewModel.coordinatesConverter.convertViewRangeToModelRange(
+			viewRange
+		);
 	}
 
 	public getCompletelyVisibleViewRangeAtScrollTop(scrollTop: number): Range {
@@ -320,12 +395,18 @@ export class CursorContext {
 	}
 
 	public getCompletelyVisibleModelRangeAtScrollTop(scrollTop: number): Range {
-		const viewRange = this.viewModel.getCompletelyVisibleViewRangeAtScrollTop(scrollTop);
-		return this.viewModel.coordinatesConverter.convertViewRangeToModelRange(viewRange);
+		const viewRange = this.viewModel.getCompletelyVisibleViewRangeAtScrollTop(
+			scrollTop
+		);
+		return this.viewModel.coordinatesConverter.convertViewRangeToModelRange(
+			viewRange
+		);
 	}
 
 	public getVerticalOffsetForViewLine(viewLineNumber: number): number {
-		return this.viewModel.viewLayout.getVerticalOffsetForLineNumber(viewLineNumber);
+		return this.viewModel.viewLayout.getVerticalOffsetForLineNumber(
+			viewLineNumber
+		);
 	}
 }
 
@@ -346,13 +427,22 @@ export class CursorState {
 		const positionLineNumber = modelSelection.positionLineNumber;
 		const positionColumn = modelSelection.positionColumn;
 		const modelState = new SingleCursorState(
-			new Range(selectionStartLineNumber, selectionStartColumn, selectionStartLineNumber, selectionStartColumn), 0,
-			new Position(positionLineNumber, positionColumn), 0
+			new Range(
+				selectionStartLineNumber,
+				selectionStartColumn,
+				selectionStartLineNumber,
+				selectionStartColumn
+			),
+			0,
+			new Position(positionLineNumber, positionColumn),
+			0
 		);
 		return CursorState.fromModelState(modelState);
 	}
 
-	public static fromModelSelections(modelSelections: ISelection[]): CursorState[] {
+	public static fromModelSelections(
+		modelSelections: ISelection[]
+	): CursorState[] {
 		let states: CursorState[] = [];
 		for (let i = 0, len = modelSelections.length; i < len; i++) {
 			states[i] = this.fromModelSelection(modelSelections[i]);
@@ -360,44 +450,74 @@ export class CursorState {
 		return states;
 	}
 
-	public static ensureInEditableRange(context: CursorContext, states: CursorState[]): CursorState[] {
+	public static ensureInEditableRange(
+		context: CursorContext,
+		states: CursorState[]
+	): CursorState[] {
 		const model = context.model;
 		if (!model.hasEditableRange()) {
 			return states;
 		}
 
 		const modelEditableRange = model.getEditableRange();
-		const viewEditableRange = context.convertModelRangeToViewRange(modelEditableRange);
+		const viewEditableRange = context.convertModelRangeToViewRange(
+			modelEditableRange
+		);
 
 		let result: CursorState[] = [];
 		for (let i = 0, len = states.length; i < len; i++) {
 			const state = states[i];
 
 			if (state.modelState) {
-				const newModelState = CursorState._ensureInEditableRange(state.modelState, modelEditableRange);
-				result[i] = newModelState ? CursorState.fromModelState(newModelState) : state;
+				const newModelState = CursorState._ensureInEditableRange(
+					state.modelState,
+					modelEditableRange
+				);
+				result[i] = newModelState
+					? CursorState.fromModelState(newModelState)
+					: state;
 			} else {
-				const newViewState = CursorState._ensureInEditableRange(state.viewState, viewEditableRange);
-				result[i] = newViewState ? CursorState.fromViewState(newViewState) : state;
+				const newViewState = CursorState._ensureInEditableRange(
+					state.viewState,
+					viewEditableRange
+				);
+				result[i] = newViewState
+					? CursorState.fromViewState(newViewState)
+					: state;
 			}
 		}
 		return result;
 	}
 
-	private static _ensureInEditableRange(state: SingleCursorState, editableRange: Range): SingleCursorState {
+	private static _ensureInEditableRange(
+		state: SingleCursorState,
+		editableRange: Range
+	): SingleCursorState {
 		const position = state.position;
 
-		if (position.lineNumber < editableRange.startLineNumber || (position.lineNumber === editableRange.startLineNumber && position.column < editableRange.startColumn)) {
+		if (
+			position.lineNumber < editableRange.startLineNumber ||
+			(position.lineNumber === editableRange.startLineNumber &&
+				position.column < editableRange.startColumn)
+		) {
 			return new SingleCursorState(
-				state.selectionStart, state.selectionStartLeftoverVisibleColumns,
-				new Position(editableRange.startLineNumber, editableRange.startColumn), 0
+				state.selectionStart,
+				state.selectionStartLeftoverVisibleColumns,
+				new Position(editableRange.startLineNumber, editableRange.startColumn),
+				0
 			);
 		}
 
-		if (position.lineNumber > editableRange.endLineNumber || (position.lineNumber === editableRange.endLineNumber && position.column > editableRange.endColumn)) {
+		if (
+			position.lineNumber > editableRange.endLineNumber ||
+			(position.lineNumber === editableRange.endLineNumber &&
+				position.column > editableRange.endColumn)
+		) {
 			return new SingleCursorState(
-				state.selectionStart, state.selectionStartLeftoverVisibleColumns,
-				new Position(editableRange.endLineNumber, editableRange.endColumn), 0
+				state.selectionStart,
+				state.selectionStartLeftoverVisibleColumns,
+				new Position(editableRange.endLineNumber, editableRange.endColumn),
+				0
 			);
 		}
 
@@ -413,7 +533,10 @@ export class CursorState {
 	}
 
 	public equals(other: CursorState): boolean {
-		return (this.viewState.equals(other.viewState) && this.modelState.equals(other.viewState));
+		return (
+			this.viewState.equals(other.viewState) &&
+			this.modelState.equals(other.viewState)
+		);
 	}
 }
 
@@ -441,8 +564,11 @@ export class EditOperationResult {
  * Common operations that work and make sense both on the model and on the view model.
  */
 export class CursorColumns {
-
-	public static isLowSurrogate(model: ICursorSimpleModel, lineNumber: number, charOffset: number): boolean {
+	public static isLowSurrogate(
+		model: ICursorSimpleModel,
+		lineNumber: number,
+		charOffset: number
+	): boolean {
 		let lineContent = model.getLineContent(lineNumber);
 		if (charOffset < 0 || charOffset >= lineContent.length) {
 			return false;
@@ -450,7 +576,11 @@ export class CursorColumns {
 		return strings.isLowSurrogate(lineContent.charCodeAt(charOffset));
 	}
 
-	public static isHighSurrogate(model: ICursorSimpleModel, lineNumber: number, charOffset: number): boolean {
+	public static isHighSurrogate(
+		model: ICursorSimpleModel,
+		lineNumber: number,
+		charOffset: number
+	): boolean {
 		let lineContent = model.getLineContent(lineNumber);
 		if (charOffset < 0 || charOffset >= lineContent.length) {
 			return false;
@@ -458,11 +588,19 @@ export class CursorColumns {
 		return strings.isHighSurrogate(lineContent.charCodeAt(charOffset));
 	}
 
-	public static isInsideSurrogatePair(model: ICursorSimpleModel, lineNumber: number, column: number): boolean {
+	public static isInsideSurrogatePair(
+		model: ICursorSimpleModel,
+		lineNumber: number,
+		column: number
+	): boolean {
 		return this.isHighSurrogate(model, lineNumber, column - 2);
 	}
 
-	public static visibleColumnFromColumn(lineContent: string, column: number, tabSize: number): number {
+	public static visibleColumnFromColumn(
+		lineContent: string,
+		column: number,
+		tabSize: number
+	): number {
 		let endOffset = lineContent.length;
 		if (endOffset > column - 1) {
 			endOffset = column - 1;
@@ -480,11 +618,23 @@ export class CursorColumns {
 		return result;
 	}
 
-	public static visibleColumnFromColumn2(config: CursorConfiguration, model: ICursorSimpleModel, position: Position): number {
-		return this.visibleColumnFromColumn(model.getLineContent(position.lineNumber), position.column, config.tabSize);
+	public static visibleColumnFromColumn2(
+		config: CursorConfiguration,
+		model: ICursorSimpleModel,
+		position: Position
+	): number {
+		return this.visibleColumnFromColumn(
+			model.getLineContent(position.lineNumber),
+			position.column,
+			config.tabSize
+		);
 	}
 
-	public static columnFromVisibleColumn(lineContent: string, visibleColumn: number, tabSize: number): number {
+	public static columnFromVisibleColumn(
+		lineContent: string,
+		visibleColumn: number,
+		tabSize: number
+	): number {
 		if (visibleColumn <= 0) {
 			return 1;
 		}
@@ -519,8 +669,17 @@ export class CursorColumns {
 		return lineLength + 1;
 	}
 
-	public static columnFromVisibleColumn2(config: CursorConfiguration, model: ICursorSimpleModel, lineNumber: number, visibleColumn: number): number {
-		let result = this.columnFromVisibleColumn(model.getLineContent(lineNumber), visibleColumn, config.tabSize);
+	public static columnFromVisibleColumn2(
+		config: CursorConfiguration,
+		model: ICursorSimpleModel,
+		lineNumber: number,
+		visibleColumn: number
+	): number {
+		let result = this.columnFromVisibleColumn(
+			model.getLineContent(lineNumber),
+			visibleColumn,
+			config.tabSize
+		);
 
 		let minColumn = model.getLineMinColumn(lineNumber);
 		if (result < minColumn) {

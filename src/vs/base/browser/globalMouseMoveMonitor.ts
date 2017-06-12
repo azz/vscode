@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { Disposable, IDisposable, dispose } from 'vs/base/common/lifecycle';
 import * as dom from 'vs/base/browser/dom';
@@ -27,7 +27,10 @@ export interface IOnStopCallback {
 	(): void;
 }
 
-export function standardMouseMoveMerger(lastEvent: IStandardMouseMoveEventData, currentEvent: MouseEvent): IStandardMouseMoveEventData {
+export function standardMouseMoveMerger(
+	lastEvent: IStandardMouseMoveEventData,
+	currentEvent: MouseEvent
+): IStandardMouseMoveEventData {
 	let ev = new StandardMouseEvent(currentEvent);
 	ev.preventDefault();
 	return {
@@ -38,7 +41,6 @@ export function standardMouseMoveMerger(lastEvent: IStandardMouseMoveEventData, 
 }
 
 export class GlobalMouseMoveMonitor<R> extends Disposable {
-
 	private hooks: IDisposable[];
 	private mouseMoveEventMerger: IEventMerger<R>;
 	private mouseMoveCallback: IMouseMoveCallback<R>;
@@ -94,34 +96,63 @@ export class GlobalMouseMoveMonitor<R> extends Disposable {
 
 		let windowChain = IframeUtils.getSameOriginWindowChain();
 		for (let i = 0; i < windowChain.length; i++) {
-			this.hooks.push(dom.addDisposableThrottledListener(windowChain[i].window.document, 'mousemove',
-				(data: R) => this.mouseMoveCallback(data),
-				(lastEvent: R, currentEvent: MouseEvent) => this.mouseMoveEventMerger(lastEvent, currentEvent)
-			));
-			this.hooks.push(dom.addDisposableListener(windowChain[i].window.document, 'mouseup', (e: MouseEvent) => this.stopMonitoring(true)));
+			this.hooks.push(
+				dom.addDisposableThrottledListener(
+					windowChain[i].window.document,
+					'mousemove',
+					(data: R) => this.mouseMoveCallback(data),
+					(lastEvent: R, currentEvent: MouseEvent) =>
+						this.mouseMoveEventMerger(lastEvent, currentEvent)
+				)
+			);
+			this.hooks.push(
+				dom.addDisposableListener(
+					windowChain[i].window.document,
+					'mouseup',
+					(e: MouseEvent) => this.stopMonitoring(true)
+				)
+			);
 		}
 
 		if (IframeUtils.hasDifferentOriginAncestor()) {
 			let lastSameOriginAncestor = windowChain[windowChain.length - 1];
 			// We might miss a mouse up if it happens outside the iframe
 			// This one is for Chrome
-			this.hooks.push(dom.addDisposableListener(lastSameOriginAncestor.window.document, 'mouseout', (browserEvent: MouseEvent) => {
-				let e = new StandardMouseEvent(browserEvent);
-				if (e.target.tagName.toLowerCase() === 'html') {
-					this.stopMonitoring(true);
-				}
-			}));
+			this.hooks.push(
+				dom.addDisposableListener(
+					lastSameOriginAncestor.window.document,
+					'mouseout',
+					(browserEvent: MouseEvent) => {
+						let e = new StandardMouseEvent(browserEvent);
+						if (e.target.tagName.toLowerCase() === 'html') {
+							this.stopMonitoring(true);
+						}
+					}
+				)
+			);
 			// This one is for FF
-			this.hooks.push(dom.addDisposableListener(lastSameOriginAncestor.window.document, 'mouseover', (browserEvent: MouseEvent) => {
-				let e = new StandardMouseEvent(browserEvent);
-				if (e.target.tagName.toLowerCase() === 'html') {
-					this.stopMonitoring(true);
-				}
-			}));
+			this.hooks.push(
+				dom.addDisposableListener(
+					lastSameOriginAncestor.window.document,
+					'mouseover',
+					(browserEvent: MouseEvent) => {
+						let e = new StandardMouseEvent(browserEvent);
+						if (e.target.tagName.toLowerCase() === 'html') {
+							this.stopMonitoring(true);
+						}
+					}
+				)
+			);
 			// This one is for IE
-			this.hooks.push(dom.addDisposableListener(lastSameOriginAncestor.window.document.body, 'mouseleave', (browserEvent: MouseEvent) => {
-				this.stopMonitoring(true);
-			}));
+			this.hooks.push(
+				dom.addDisposableListener(
+					lastSameOriginAncestor.window.document.body,
+					'mouseleave',
+					(browserEvent: MouseEvent) => {
+						this.stopMonitoring(true);
+					}
+				)
+			);
 		}
 	}
 }

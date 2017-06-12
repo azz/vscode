@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import assert = require('assert');
 import os = require('os');
@@ -18,38 +18,68 @@ import { EnvironmentService } from 'vs/platform/environment/node/environmentServ
 import { parseArgs } from 'vs/platform/environment/node/argv';
 import extfs = require('vs/base/node/extfs');
 import uuid = require('vs/base/common/uuid');
-import { IConfigurationRegistry, Extensions as ConfigurationExtensions } from 'vs/platform/configuration/common/configurationRegistry';
+import {
+	IConfigurationRegistry,
+	Extensions as ConfigurationExtensions
+} from 'vs/platform/configuration/common/configurationRegistry';
 import { WorkspaceConfigurationService } from 'vs/workbench/services/configuration/node/configurationService';
 import URI from 'vs/base/common/uri';
-import { FileChangeType, FileChangesEvent } from 'vs/platform/files/common/files';
+import {
+	FileChangeType,
+	FileChangesEvent
+} from 'vs/platform/files/common/files';
 
 class SettingsTestEnvironmentService extends EnvironmentService {
-
-	constructor(args: ParsedArgs, _execPath: string, private customAppSettingsHome) {
+	constructor(
+		args: ParsedArgs,
+		_execPath: string,
+		private customAppSettingsHome
+	) {
 		super(args, _execPath);
 	}
 
-	get appSettingsPath(): string { return this.customAppSettingsHome; }
+	get appSettingsPath(): string {
+		return this.customAppSettingsHome;
+	}
 }
 
 suite('WorkspaceConfigurationService - Node', () => {
-
-	function createWorkspace(callback: (workspaceDir: string, globalSettingsFile: string, cleanUp: (callback: () => void) => void) => void): void {
+	function createWorkspace(
+		callback: (
+			workspaceDir: string,
+			globalSettingsFile: string,
+			cleanUp: (callback: () => void) => void
+		) => void
+	): void {
 		const id = uuid.generateUuid();
 		const parentDir = path.join(os.tmpdir(), 'vsctests', id);
 		const workspaceDir = path.join(parentDir, 'workspaceconfig', id);
 		const workspaceSettingsDir = path.join(workspaceDir, '.vscode');
 		const globalSettingsFile = path.join(workspaceDir, 'config.json');
 
-		extfs.mkdirp(workspaceSettingsDir, 493, (error) => {
-			callback(workspaceDir, globalSettingsFile, (callback) => extfs.del(parentDir, os.tmpdir(), () => { }, callback));
+		extfs.mkdirp(workspaceSettingsDir, 493, error => {
+			callback(workspaceDir, globalSettingsFile, callback =>
+				extfs.del(parentDir, os.tmpdir(), () => {}, callback)
+			);
 		});
 	}
 
-	function createService(workspaceDir: string, globalSettingsFile: string): TPromise<WorkspaceConfigurationService> {
-		const workspaceContextService = new WorkspaceContextService({ resource: URI.file(workspaceDir) });
-		const environmentService = new SettingsTestEnvironmentService(parseArgs(process.argv), process.execPath, globalSettingsFile);
-		const service = new WorkspaceConfigurationService(workspaceContextService, environmentService);
+	function createService(
+		workspaceDir: string,
+		globalSettingsFile: string
+	): TPromise<WorkspaceConfigurationService> {
+		const workspaceContextService = new WorkspaceContextService({
+			resource: URI.file(workspaceDir)
+		});
+		const environmentService = new SettingsTestEnvironmentService(
+			parseArgs(process.argv),
+			process.execPath,
+			globalSettingsFile
+		);
+		const service = new WorkspaceConfigurationService(
+			workspaceContextService,
+			environmentService
+		);
 
 		return service.initialize().then(() => service);
 	}
@@ -59,18 +89,20 @@ suite('WorkspaceConfigurationService - Node', () => {
 			workspace: {
 				service: {
 					testSetting: string;
-				}
+				};
 			};
 		}
 
-		const configurationRegistry = <IConfigurationRegistry>Registry.as(ConfigurationExtensions.Configuration);
+		const configurationRegistry = <IConfigurationRegistry>Registry.as(
+			ConfigurationExtensions.Configuration
+		);
 		configurationRegistry.registerConfiguration({
-			'id': '_test_workspace',
-			'type': 'object',
-			'properties': {
+			id: '_test_workspace',
+			type: 'object',
+			properties: {
 				'workspace.service.testSetting': {
-					'type': 'string',
-					'default': 'isSet'
+					type: 'string',
+					default: 'isSet'
 				}
 			}
 		});
@@ -90,10 +122,15 @@ suite('WorkspaceConfigurationService - Node', () => {
 	test('globals', (done: () => void) => {
 		createWorkspace((workspaceDir, globalSettingsFile, cleanUp) => {
 			return createService(workspaceDir, globalSettingsFile).then(service => {
-				fs.writeFileSync(globalSettingsFile, '{ "testworkbench.editor.tabs": true }');
+				fs.writeFileSync(
+					globalSettingsFile,
+					'{ "testworkbench.editor.tabs": true }'
+				);
 
 				service.reloadConfiguration().then(() => {
-					const config = service.getConfiguration<{ testworkbench: { editor: { tabs: boolean } } }>();
+					const config = service.getConfiguration<{
+						testworkbench: { editor: { tabs: boolean } };
+					}>();
 					assert.equal(config.testworkbench.editor.tabs, true);
 
 					service.dispose();
@@ -107,11 +144,16 @@ suite('WorkspaceConfigurationService - Node', () => {
 	test('reload configuration emits events', (done: () => void) => {
 		createWorkspace((workspaceDir, globalSettingsFile, cleanUp) => {
 			return createService(workspaceDir, globalSettingsFile).then(service => {
-				fs.writeFileSync(globalSettingsFile, '{ "testworkbench.editor.tabs": true }');
+				fs.writeFileSync(
+					globalSettingsFile,
+					'{ "testworkbench.editor.tabs": true }'
+				);
 
 				return service.initialize().then(() => {
 					service.onDidUpdateConfiguration(event => {
-						const config = service.getConfiguration<{ testworkbench: { editor: { tabs: boolean } } }>();
+						const config = service.getConfiguration<{
+							testworkbench: { editor: { tabs: boolean } };
+						}>();
 						assert.equal(config.testworkbench.editor.tabs, false);
 
 						service.dispose();
@@ -119,12 +161,14 @@ suite('WorkspaceConfigurationService - Node', () => {
 						cleanUp(done);
 					});
 
-					fs.writeFileSync(globalSettingsFile, '{ "testworkbench.editor.tabs": false }');
+					fs.writeFileSync(
+						globalSettingsFile,
+						'{ "testworkbench.editor.tabs": false }'
+					);
 
 					// this has to trigger the event since the config changes
 					service.reloadConfiguration().done();
 				});
-
 			});
 		});
 	});
@@ -134,25 +178,30 @@ suite('WorkspaceConfigurationService - Node', () => {
 			workspace: {
 				service: {
 					testSetting: string;
-				}
+				};
 			};
 		}
 
-		const configurationRegistry = <IConfigurationRegistry>Registry.as(ConfigurationExtensions.Configuration);
+		const configurationRegistry = <IConfigurationRegistry>Registry.as(
+			ConfigurationExtensions.Configuration
+		);
 		configurationRegistry.registerConfiguration({
-			'id': '_test_workspace',
-			'type': 'object',
-			'properties': {
+			id: '_test_workspace',
+			type: 'object',
+			properties: {
 				'workspace.service.testSetting': {
-					'type': 'string',
-					'default': 'isSet'
+					type: 'string',
+					default: 'isSet'
 				}
 			}
 		});
 
 		createWorkspace((workspaceDir, globalSettingsFile, cleanUp) => {
 			return createService(workspaceDir, globalSettingsFile).then(service => {
-				fs.writeFileSync(globalSettingsFile, '{ "workspace.service.testSetting": "isChanged" }');
+				fs.writeFileSync(
+					globalSettingsFile,
+					'{ "workspace.service.testSetting": "isChanged" }'
+				);
 
 				service.reloadConfiguration().then(() => {
 					const config = service.getConfiguration<ITestSetting>();
@@ -169,10 +218,15 @@ suite('WorkspaceConfigurationService - Node', () => {
 	test('workspace settings', (done: () => void) => {
 		createWorkspace((workspaceDir, globalSettingsFile, cleanUp) => {
 			return createService(workspaceDir, globalSettingsFile).then(service => {
-				fs.writeFileSync(path.join(workspaceDir, '.vscode', 'settings.json'), '{ "testworkbench.editor.icons": true }');
+				fs.writeFileSync(
+					path.join(workspaceDir, '.vscode', 'settings.json'),
+					'{ "testworkbench.editor.icons": true }'
+				);
 
 				service.reloadConfiguration().then(() => {
-					const config = service.getConfiguration<{ testworkbench: { editor: { icons: boolean } } }>();
+					const config = service.getConfiguration<{
+						testworkbench: { editor: { icons: boolean } };
+					}>();
 					assert.equal(config.testworkbench.editor.icons, true);
 
 					service.dispose();
@@ -186,11 +240,22 @@ suite('WorkspaceConfigurationService - Node', () => {
 	test('workspace settings override user settings', (done: () => void) => {
 		createWorkspace((workspaceDir, globalSettingsFile, cleanUp) => {
 			return createService(workspaceDir, globalSettingsFile).then(service => {
-				fs.writeFileSync(globalSettingsFile, '{ "testworkbench.editor.icons": false, "testworkbench.other.setting": true }');
-				fs.writeFileSync(path.join(workspaceDir, '.vscode', 'settings.json'), '{ "testworkbench.editor.icons": true }');
+				fs.writeFileSync(
+					globalSettingsFile,
+					'{ "testworkbench.editor.icons": false, "testworkbench.other.setting": true }'
+				);
+				fs.writeFileSync(
+					path.join(workspaceDir, '.vscode', 'settings.json'),
+					'{ "testworkbench.editor.icons": true }'
+				);
 
 				service.reloadConfiguration().then(() => {
-					const config = service.getConfiguration<{ testworkbench: { editor: { icons: boolean }, other: { setting: string } } }>();
+					const config = service.getConfiguration<{
+						testworkbench: {
+							editor: { icons: boolean };
+							other: { setting: string };
+						};
+					}>();
 					assert.equal(config.testworkbench.editor.icons, true);
 					assert.equal(config.testworkbench.other.setting, true);
 
@@ -204,13 +269,24 @@ suite('WorkspaceConfigurationService - Node', () => {
 
 	test('workspace change triggers event', (done: () => void) => {
 		createWorkspace((workspaceDir, globalSettingsFile, cleanUp) => {
-			const workspaceContextService = new WorkspaceContextService({ resource: URI.file(workspaceDir) });
-			const environmentService = new SettingsTestEnvironmentService(parseArgs(process.argv), process.execPath, globalSettingsFile);
-			const service = new WorkspaceConfigurationService(workspaceContextService, environmentService);
+			const workspaceContextService = new WorkspaceContextService({
+				resource: URI.file(workspaceDir)
+			});
+			const environmentService = new SettingsTestEnvironmentService(
+				parseArgs(process.argv),
+				process.execPath,
+				globalSettingsFile
+			);
+			const service = new WorkspaceConfigurationService(
+				workspaceContextService,
+				environmentService
+			);
 
 			return service.initialize().then(() => {
 				service.onDidUpdateConfiguration(event => {
-					const config = service.getConfiguration<{ testworkbench: { editor: { icons: boolean } } }>();
+					const config = service.getConfiguration<{
+						testworkbench: { editor: { icons: boolean } };
+					}>();
 					assert.equal(config.testworkbench.editor.icons, true);
 					assert.equal(event.config.testworkbench.editor.icons, true);
 
@@ -219,29 +295,59 @@ suite('WorkspaceConfigurationService - Node', () => {
 					cleanUp(done);
 				});
 
-				const settingsFile = path.join(workspaceDir, '.vscode', 'settings.json');
-				fs.writeFileSync(settingsFile, '{ "testworkbench.editor.icons": true }');
+				const settingsFile = path.join(
+					workspaceDir,
+					'.vscode',
+					'settings.json'
+				);
+				fs.writeFileSync(
+					settingsFile,
+					'{ "testworkbench.editor.icons": true }'
+				);
 
-				const event = new FileChangesEvent([{ resource: URI.file(settingsFile), type: FileChangeType.ADDED }]);
+				const event = new FileChangesEvent([
+					{ resource: URI.file(settingsFile), type: FileChangeType.ADDED }
+				]);
 				service.handleWorkspaceFileEvents(event);
 			});
 		});
 	});
 
-	test('workspace reload should triggers event if content changed', (done: () => void) => {
+	test('workspace reload should triggers event if content changed', (
+		done: () => void
+	) => {
 		createWorkspace((workspaceDir, globalSettingsFile, cleanUp) => {
-			const workspaceContextService = new WorkspaceContextService({ resource: URI.file(workspaceDir) });
-			const environmentService = new SettingsTestEnvironmentService(parseArgs(process.argv), process.execPath, globalSettingsFile);
-			const service = new WorkspaceConfigurationService(workspaceContextService, environmentService);
+			const workspaceContextService = new WorkspaceContextService({
+				resource: URI.file(workspaceDir)
+			});
+			const environmentService = new SettingsTestEnvironmentService(
+				parseArgs(process.argv),
+				process.execPath,
+				globalSettingsFile
+			);
+			const service = new WorkspaceConfigurationService(
+				workspaceContextService,
+				environmentService
+			);
 
 			return service.initialize().then(() => {
-				const settingsFile = path.join(workspaceDir, '.vscode', 'settings.json');
-				fs.writeFileSync(settingsFile, '{ "testworkbench.editor.icons": true }');
+				const settingsFile = path.join(
+					workspaceDir,
+					'.vscode',
+					'settings.json'
+				);
+				fs.writeFileSync(
+					settingsFile,
+					'{ "testworkbench.editor.icons": true }'
+				);
 
 				const target = sinon.stub();
 				service.onDidUpdateConfiguration(event => target());
 
-				fs.writeFileSync(settingsFile, '{ "testworkbench.editor.icons": false }');
+				fs.writeFileSync(
+					settingsFile,
+					'{ "testworkbench.editor.icons": false }'
+				);
 
 				service.reloadConfiguration().done(() => {
 					assert.ok(target.calledOnce);
@@ -253,15 +359,33 @@ suite('WorkspaceConfigurationService - Node', () => {
 		});
 	});
 
-	test('workspace reload should not trigger event if nothing changed', (done: () => void) => {
+	test('workspace reload should not trigger event if nothing changed', (
+		done: () => void
+	) => {
 		createWorkspace((workspaceDir, globalSettingsFile, cleanUp) => {
-			const workspaceContextService = new WorkspaceContextService({ resource: URI.file(workspaceDir) });
-			const environmentService = new SettingsTestEnvironmentService(parseArgs(process.argv), process.execPath, globalSettingsFile);
-			const service = new WorkspaceConfigurationService(workspaceContextService, environmentService);
+			const workspaceContextService = new WorkspaceContextService({
+				resource: URI.file(workspaceDir)
+			});
+			const environmentService = new SettingsTestEnvironmentService(
+				parseArgs(process.argv),
+				process.execPath,
+				globalSettingsFile
+			);
+			const service = new WorkspaceConfigurationService(
+				workspaceContextService,
+				environmentService
+			);
 
 			return service.initialize().then(() => {
-				const settingsFile = path.join(workspaceDir, '.vscode', 'settings.json');
-				fs.writeFileSync(settingsFile, '{ "testworkbench.editor.icons": true }');
+				const settingsFile = path.join(
+					workspaceDir,
+					'.vscode',
+					'settings.json'
+				);
+				fs.writeFileSync(
+					settingsFile,
+					'{ "testworkbench.editor.icons": true }'
+				);
 
 				service.reloadConfiguration().done(() => {
 					const target = sinon.stub();
@@ -278,11 +402,22 @@ suite('WorkspaceConfigurationService - Node', () => {
 		});
 	});
 
-	test('workspace reload should not trigger event if there is no model', (done: () => void) => {
+	test('workspace reload should not trigger event if there is no model', (
+		done: () => void
+	) => {
 		createWorkspace((workspaceDir, globalSettingsFile, cleanUp) => {
-			const workspaceContextService = new WorkspaceContextService({ resource: URI.file(workspaceDir) });
-			const environmentService = new SettingsTestEnvironmentService(parseArgs(process.argv), process.execPath, globalSettingsFile);
-			const service = new WorkspaceConfigurationService(workspaceContextService, environmentService);
+			const workspaceContextService = new WorkspaceContextService({
+				resource: URI.file(workspaceDir)
+			});
+			const environmentService = new SettingsTestEnvironmentService(
+				parseArgs(process.argv),
+				process.execPath,
+				globalSettingsFile
+			);
+			const service = new WorkspaceConfigurationService(
+				workspaceContextService,
+				environmentService
+			);
 
 			return service.initialize().then(() => {
 				const target = sinon.stub();
@@ -296,16 +431,17 @@ suite('WorkspaceConfigurationService - Node', () => {
 		});
 	});
 
-
 	test('lookup', (done: () => void) => {
-		const configurationRegistry = <IConfigurationRegistry>Registry.as(ConfigurationExtensions.Configuration);
+		const configurationRegistry = <IConfigurationRegistry>Registry.as(
+			ConfigurationExtensions.Configuration
+		);
 		configurationRegistry.registerConfiguration({
-			'id': '_test',
-			'type': 'object',
-			'properties': {
+			id: '_test',
+			type: 'object',
+			properties: {
 				'workspaceLookup.service.testSetting': {
-					'type': 'string',
-					'default': 'isSet'
+					type: 'string',
+					default: 'isSet'
 				}
 			}
 		});
@@ -324,7 +460,10 @@ suite('WorkspaceConfigurationService - Node', () => {
 				assert.ok(!res.user);
 				assert.ok(!res.workspace);
 
-				fs.writeFileSync(globalSettingsFile, '{ "workspaceLookup.service.testSetting": true }');
+				fs.writeFileSync(
+					globalSettingsFile,
+					'{ "workspaceLookup.service.testSetting": true }'
+				);
 
 				return service.reloadConfiguration().then(() => {
 					res = service.lookup('workspaceLookup.service.testSetting');
@@ -333,8 +472,15 @@ suite('WorkspaceConfigurationService - Node', () => {
 					assert.equal(res.value, true);
 					assert.ok(!res.workspace);
 
-					const settingsFile = path.join(workspaceDir, '.vscode', 'settings.json');
-					fs.writeFileSync(settingsFile, '{ "workspaceLookup.service.testSetting": 55 }');
+					const settingsFile = path.join(
+						workspaceDir,
+						'.vscode',
+						'settings.json'
+					);
+					fs.writeFileSync(
+						settingsFile,
+						'{ "workspaceLookup.service.testSetting": 55 }'
+					);
 
 					return service.reloadConfiguration().then(() => {
 						res = service.lookup('workspaceLookup.service.testSetting');
@@ -347,22 +493,22 @@ suite('WorkspaceConfigurationService - Node', () => {
 
 						cleanUp(done);
 					});
-
 				});
-
 			});
 		});
 	});
 
 	test('keys', (done: () => void) => {
-		const configurationRegistry = <IConfigurationRegistry>Registry.as(ConfigurationExtensions.Configuration);
+		const configurationRegistry = <IConfigurationRegistry>Registry.as(
+			ConfigurationExtensions.Configuration
+		);
 		configurationRegistry.registerConfiguration({
-			'id': '_test',
-			'type': 'object',
-			'properties': {
+			id: '_test',
+			type: 'object',
+			properties: {
 				'workspaceLookup.service.testSetting': {
-					'type': 'string',
-					'default': 'isSet'
+					type: 'string',
+					default: 'isSet'
 				}
 			}
 		});
@@ -379,38 +525,84 @@ suite('WorkspaceConfigurationService - Node', () => {
 				assert.ok(!contains(keys.user, 'something.missing'));
 				assert.ok(!contains(keys.workspace, 'something.missing'));
 
-				assert.ok(contains(keys.default, 'workspaceLookup.service.testSetting'));
+				assert.ok(
+					contains(keys.default, 'workspaceLookup.service.testSetting')
+				);
 				assert.ok(!contains(keys.user, 'workspaceLookup.service.testSetting'));
-				assert.ok(!contains(keys.workspace, 'workspaceLookup.service.testSetting'));
+				assert.ok(
+					!contains(keys.workspace, 'workspaceLookup.service.testSetting')
+				);
 
-				fs.writeFileSync(globalSettingsFile, '{ "workspaceLookup.service.testSetting": true }');
+				fs.writeFileSync(
+					globalSettingsFile,
+					'{ "workspaceLookup.service.testSetting": true }'
+				);
 
 				return service.reloadConfiguration().then(() => {
 					keys = service.keys();
 
-					assert.ok(contains(keys.default, 'workspaceLookup.service.testSetting'));
+					assert.ok(
+						contains(keys.default, 'workspaceLookup.service.testSetting')
+					);
 					assert.ok(contains(keys.user, 'workspaceLookup.service.testSetting'));
-					assert.ok(!contains(keys.workspace, 'workspaceLookup.service.testSetting'));
+					assert.ok(
+						!contains(keys.workspace, 'workspaceLookup.service.testSetting')
+					);
 
-					const settingsFile = path.join(workspaceDir, '.vscode', 'settings.json');
-					fs.writeFileSync(settingsFile, '{ "workspaceLookup.service.testSetting": 55 }');
+					const settingsFile = path.join(
+						workspaceDir,
+						'.vscode',
+						'settings.json'
+					);
+					fs.writeFileSync(
+						settingsFile,
+						'{ "workspaceLookup.service.testSetting": 55 }'
+					);
 
 					return service.reloadConfiguration().then(() => {
 						keys = service.keys();
 
-						assert.ok(contains(keys.default, 'workspaceLookup.service.testSetting'));
-						assert.ok(contains(keys.user, 'workspaceLookup.service.testSetting'));
-						assert.ok(contains(keys.workspace, 'workspaceLookup.service.testSetting'));
+						assert.ok(
+							contains(keys.default, 'workspaceLookup.service.testSetting')
+						);
+						assert.ok(
+							contains(keys.user, 'workspaceLookup.service.testSetting')
+						);
+						assert.ok(
+							contains(keys.workspace, 'workspaceLookup.service.testSetting')
+						);
 
-						const settingsFile = path.join(workspaceDir, '.vscode', 'tasks.json');
-						fs.writeFileSync(settingsFile, '{ "workspaceLookup.service.taskTestSetting": 55 }');
+						const settingsFile = path.join(
+							workspaceDir,
+							'.vscode',
+							'tasks.json'
+						);
+						fs.writeFileSync(
+							settingsFile,
+							'{ "workspaceLookup.service.taskTestSetting": 55 }'
+						);
 
 						return service.reloadConfiguration().then(() => {
 							keys = service.keys();
 
-							assert.ok(!contains(keys.default, 'tasks.workspaceLookup.service.taskTestSetting'));
-							assert.ok(!contains(keys.user, 'tasks.workspaceLookup.service.taskTestSetting'));
-							assert.ok(contains(keys.workspace, 'tasks.workspaceLookup.service.taskTestSetting'));
+							assert.ok(
+								!contains(
+									keys.default,
+									'tasks.workspaceLookup.service.taskTestSetting'
+								)
+							);
+							assert.ok(
+								!contains(
+									keys.user,
+									'tasks.workspaceLookup.service.taskTestSetting'
+								)
+							);
+							assert.ok(
+								contains(
+									keys.workspace,
+									'tasks.workspaceLookup.service.taskTestSetting'
+								)
+							);
 
 							service.dispose();
 
@@ -423,14 +615,16 @@ suite('WorkspaceConfigurationService - Node', () => {
 	});
 
 	test('values', (done: () => void) => {
-		const configurationRegistry = <IConfigurationRegistry>Registry.as(ConfigurationExtensions.Configuration);
+		const configurationRegistry = <IConfigurationRegistry>Registry.as(
+			ConfigurationExtensions.Configuration
+		);
 		configurationRegistry.registerConfiguration({
-			'id': '_test',
-			'type': 'object',
-			'properties': {
+			id: '_test',
+			type: 'object',
+			properties: {
 				'workspaceLookup.service.testSetting': {
-					'type': 'string',
-					'default': 'isSet'
+					type: 'string',
+					default: 'isSet'
 				}
 			}
 		});
@@ -443,7 +637,10 @@ suite('WorkspaceConfigurationService - Node', () => {
 				assert.ok(value);
 				assert.equal(value.default, 'isSet');
 
-				fs.writeFileSync(globalSettingsFile, '{ "workspaceLookup.service.testSetting": true }');
+				fs.writeFileSync(
+					globalSettingsFile,
+					'{ "workspaceLookup.service.testSetting": true }'
+				);
 
 				return service.reloadConfiguration().then(() => {
 					values = service.values();
@@ -452,8 +649,15 @@ suite('WorkspaceConfigurationService - Node', () => {
 					assert.ok(value);
 					assert.equal(value.user, true);
 
-					const settingsFile = path.join(workspaceDir, '.vscode', 'settings.json');
-					fs.writeFileSync(settingsFile, '{ "workspaceLookup.service.testSetting": 55 }');
+					const settingsFile = path.join(
+						workspaceDir,
+						'.vscode',
+						'settings.json'
+					);
+					fs.writeFileSync(
+						settingsFile,
+						'{ "workspaceLookup.service.testSetting": 55 }'
+					);
 
 					return service.reloadConfiguration().then(() => {
 						values = service.values();

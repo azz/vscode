@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { binarySearch } from 'vs/base/common/arrays';
 import { globals } from 'vs/base/common/platform';
@@ -18,7 +18,7 @@ interface ErrorEvent {
 	filename?: string;
 	line?: number;
 	column?: number;
-	error?: { name: string; message: string; };
+	error?: { name: string; message: string };
 
 	count?: number;
 }
@@ -35,7 +35,6 @@ namespace ErrorEvent {
 }
 
 export default class ErrorTelemetry {
-
 	public static ERROR_FLUSH_TIMEOUT: number = 5 * 1000;
 
 	private _telemetryService: ITelemetryService;
@@ -44,12 +43,17 @@ export default class ErrorTelemetry {
 	private _buffer: ErrorEvent[] = [];
 	private _disposables: IDisposable[] = [];
 
-	constructor(telemetryService: ITelemetryService, flushDelay = ErrorTelemetry.ERROR_FLUSH_TIMEOUT) {
+	constructor(
+		telemetryService: ITelemetryService,
+		flushDelay = ErrorTelemetry.ERROR_FLUSH_TIMEOUT
+	) {
 		this._telemetryService = telemetryService;
 		this._flushDelay = flushDelay;
 
 		// (1) check for unexpected but handled errors
-		const unbind = Errors.errorHandler.addListener((err) => this._onErrorEvent(err));
+		const unbind = Errors.errorHandler.addListener(err =>
+			this._onErrorEvent(err)
+		);
 		this._disposables.push(toDisposable(unbind));
 
 		// (2) check for uncaught global errors
@@ -58,17 +62,25 @@ export default class ErrorTelemetry {
 		if (typeof globals.onerror === 'function') {
 			oldOnError = globals.onerror;
 		}
-		globals.onerror = function (message: string, filename: string, line: number, column?: number, e?: any) {
+		globals.onerror = function(
+			message: string,
+			filename: string,
+			line: number,
+			column?: number,
+			e?: any
+		) {
 			that._onUncaughtError(message, filename, line, column, e);
 			if (oldOnError) {
 				oldOnError.apply(this, arguments);
 			}
 		};
-		this._disposables.push(toDisposable(function () {
-			if (oldOnError) {
-				globals.onerror = oldOnError;
-			}
-		}));
+		this._disposables.push(
+			toDisposable(function() {
+				if (oldOnError) {
+					globals.onerror = oldOnError;
+				}
+			})
+		);
 	}
 
 	dispose() {
@@ -78,7 +90,6 @@ export default class ErrorTelemetry {
 	}
 
 	private _onErrorEvent(err: any): void {
-
 		if (!err) {
 			return;
 		}
@@ -100,8 +111,13 @@ export default class ErrorTelemetry {
 		this._enqueue({ message, stack });
 	}
 
-	private _onUncaughtError(message: string, filename: string, line: number, column?: number, err?: any): void {
-
+	private _onUncaughtError(
+		message: string,
+		filename: string,
+		line: number,
+		column?: number,
+		err?: any
+	): void {
 		let data: ErrorEvent = {
 			stack: message,
 			message,
@@ -115,7 +131,7 @@ export default class ErrorTelemetry {
 			data.error = { name, message };
 			if (stack) {
 				data.stack = Array.isArray(err.stack)
-					? err.stack = err.stack.join('\n')
+					? (err.stack = err.stack.join('\n'))
 					: err.stack;
 			}
 		}
@@ -124,7 +140,6 @@ export default class ErrorTelemetry {
 	}
 
 	private _enqueue(e: ErrorEvent): void {
-
 		const idx = binarySearch(this._buffer, e, ErrorEvent.compare);
 		if (idx < 0) {
 			e.count = 1;

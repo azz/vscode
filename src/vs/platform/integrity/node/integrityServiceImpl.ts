@@ -2,19 +2,26 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as nls from 'vs/nls';
 import * as fs from 'fs';
 import * as crypto from 'crypto';
 import { TPromise } from 'vs/base/common/winjs.base';
-import { IIntegrityService, IntegrityTestResult, ChecksumPair } from 'vs/platform/integrity/common/integrity';
+import {
+	IIntegrityService,
+	IntegrityTestResult,
+	ChecksumPair
+} from 'vs/platform/integrity/common/integrity';
 import { IMessageService } from 'vs/platform/message/common/message';
 import product from 'vs/platform/node/product';
 import URI from 'vs/base/common/uri';
 import Severity from 'vs/base/common/severity';
 import { Action } from 'vs/base/common/actions';
-import { IStorageService, StorageScope } from 'vs/platform/storage/common/storage';
+import {
+	IStorageService,
+	StorageScope
+} from 'vs/platform/storage/common/storage';
 
 interface IStorageData {
 	dontShowPrompt: boolean;
@@ -33,7 +40,10 @@ class IntegrityStorage {
 	}
 
 	private _read(): IStorageData {
-		let jsonValue = this._storageService.get(IntegrityStorage.KEY, StorageScope.GLOBAL);
+		let jsonValue = this._storageService.get(
+			IntegrityStorage.KEY,
+			StorageScope.GLOBAL
+		);
 		if (!jsonValue) {
 			return null;
 		}
@@ -50,12 +60,15 @@ class IntegrityStorage {
 
 	public set(data: IStorageData): void {
 		this._value = data;
-		this._storageService.store(IntegrityStorage.KEY, JSON.stringify(this._value), StorageScope.GLOBAL);
+		this._storageService.store(
+			IntegrityStorage.KEY,
+			JSON.stringify(this._value),
+			StorageScope.GLOBAL
+		);
 	}
 }
 
 export class IntegrityServiceImpl implements IIntegrityService {
-
 	public _serviceBrand: any;
 
 	private _messageService: IMessageService;
@@ -82,13 +95,17 @@ export class IntegrityServiceImpl implements IIntegrityService {
 
 	private _prompt(): void {
 		const storedData = this._storage.get();
-		if (storedData && storedData.dontShowPrompt && storedData.commit === product.commit) {
+		if (
+			storedData &&
+			storedData.dontShowPrompt &&
+			storedData.commit === product.commit
+		) {
 			// Do not prompt
 			return;
 		}
 		const okAction = new Action(
 			'integrity.ok',
-			nls.localize('integrity.ok', "OK"),
+			nls.localize('integrity.ok', 'OK'),
 			null,
 			true,
 			() => TPromise.as(true)
@@ -108,7 +125,7 @@ export class IntegrityServiceImpl implements IIntegrityService {
 		);
 		const moreInfoAction = new Action(
 			'integrity.moreInfo',
-			nls.localize('integrity.moreInfo', "More information"),
+			nls.localize('integrity.moreInfo', 'More information'),
 			null,
 			true,
 			() => {
@@ -119,7 +136,11 @@ export class IntegrityServiceImpl implements IIntegrityService {
 		);
 
 		this._messageService.show(Severity.Warning, {
-			message: nls.localize('integrity.prompt', "Your {0} installation appears to be corrupt. Please reinstall.", product.nameShort),
+			message: nls.localize(
+				'integrity.prompt',
+				'Your {0} installation appears to be corrupt. Please reinstall.',
+				product.nameShort
+			),
 			actions: [okAction, moreInfoAction, dontShowAgainAction]
 		});
 	}
@@ -132,11 +153,15 @@ export class IntegrityServiceImpl implements IIntegrityService {
 		const expectedChecksums = product.checksums || {};
 
 		return TPromise.timeout(10000).then(() => {
-			let asyncResults: TPromise<ChecksumPair>[] = Object.keys(expectedChecksums).map((filename) => {
+			let asyncResults: TPromise<ChecksumPair>[] = Object.keys(
+				expectedChecksums
+			).map(filename => {
 				return this._resolve(filename, expectedChecksums[filename]);
 			});
 
-			return TPromise.join(asyncResults).then<IntegrityTestResult>((allResults) => {
+			return TPromise.join(asyncResults).then<
+				IntegrityTestResult
+			>(allResults => {
 				let isPure = true;
 				for (let i = 0, len = allResults.length; isPure && i < len; i++) {
 					if (!allResults[i].isPure) {
@@ -160,7 +185,13 @@ export class IntegrityServiceImpl implements IIntegrityService {
 				if (err) {
 					return e(err);
 				}
-				c(IntegrityServiceImpl._createChecksumPair(fileUri, this._computeChecksum(buff), expected));
+				c(
+					IntegrityServiceImpl._createChecksumPair(
+						fileUri,
+						this._computeChecksum(buff),
+						expected
+					)
+				);
 			});
 		});
 	}
@@ -175,12 +206,16 @@ export class IntegrityServiceImpl implements IIntegrityService {
 		return hash;
 	}
 
-	private static _createChecksumPair(uri: URI, actual: string, expected: string): ChecksumPair {
+	private static _createChecksumPair(
+		uri: URI,
+		actual: string,
+		expected: string
+	): ChecksumPair {
 		return {
 			uri: uri,
 			actual: actual,
 			expected: expected,
-			isPure: (actual === expected)
+			isPure: actual === expected
 		};
 	}
 }

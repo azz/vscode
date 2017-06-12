@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as nls from 'vs/nls';
 import { alert } from 'vs/base/browser/ui/aria/aria';
@@ -11,16 +11,36 @@ import URI from 'vs/base/common/uri';
 import { TPromise } from 'vs/base/common/winjs.base';
 import { IEditorService } from 'vs/platform/editor/common/editor';
 import { optional } from 'vs/platform/instantiation/common/instantiation';
-import { CommandsRegistry, ICommandHandler } from 'vs/platform/commands/common/commands';
-import { IContextKeyService, ContextKeyExpr } from 'vs/platform/contextkey/common/contextkey';
+import {
+	CommandsRegistry,
+	ICommandHandler
+} from 'vs/platform/commands/common/commands';
+import {
+	IContextKeyService,
+	ContextKeyExpr
+} from 'vs/platform/contextkey/common/contextkey';
 import { KeybindingsRegistry } from 'vs/platform/keybinding/common/keybindingsRegistry';
 import { Position, IPosition } from 'vs/editor/common/core/position';
 import { Range } from 'vs/editor/common/core/range';
 import * as editorCommon from 'vs/editor/common/editorCommon';
-import { editorAction, ServicesAccessor, EditorAction, CommonEditorRegistry, commonEditorContribution } from 'vs/editor/common/editorCommonExtensions';
+import {
+	editorAction,
+	ServicesAccessor,
+	EditorAction,
+	CommonEditorRegistry,
+	commonEditorContribution
+} from 'vs/editor/common/editorCommonExtensions';
 import { Location, ReferenceProviderRegistry } from 'vs/editor/common/modes';
-import { IPeekViewService, PeekContext, getOuterEditor } from 'vs/editor/contrib/zoneWidget/browser/peekViewWidget';
-import { ReferencesController, RequestOptions, ctxReferenceSearchVisible } from './referencesController';
+import {
+	IPeekViewService,
+	PeekContext,
+	getOuterEditor
+} from 'vs/editor/contrib/zoneWidget/browser/peekViewWidget';
+import {
+	ReferencesController,
+	RequestOptions,
+	ctxReferenceSearchVisible
+} from './referencesController';
 import { ReferencesModel } from './referencesModel';
 import { asWinJsPromise } from 'vs/base/common/async';
 import { onUnexpectedExternalError } from 'vs/base/common/errors';
@@ -28,13 +48,19 @@ import { EditorContextKeys } from 'vs/editor/common/editorContextKeys';
 
 const defaultReferenceSearchOptions: RequestOptions = {
 	getMetaTitle(model) {
-		return model.references.length > 1 && nls.localize('meta.titleReference', " – {0} references", model.references.length);
+		return (
+			model.references.length > 1 &&
+			nls.localize(
+				'meta.titleReference',
+				' – {0} references',
+				model.references.length
+			)
+		);
 	}
 };
 
 @commonEditorContribution
 export class ReferenceController implements editorCommon.IEditorContribution {
-
 	private static ID = 'editor.contrib.referenceController';
 
 	constructor(
@@ -47,8 +73,7 @@ export class ReferenceController implements editorCommon.IEditorContribution {
 		}
 	}
 
-	public dispose(): void {
-	}
+	public dispose(): void {}
 
 	public getId(): string {
 		return ReferenceController.ID;
@@ -57,16 +82,16 @@ export class ReferenceController implements editorCommon.IEditorContribution {
 
 @editorAction
 export class ReferenceAction extends EditorAction {
-
 	constructor() {
 		super({
 			id: 'editor.action.referenceSearch.trigger',
-			label: nls.localize('references.action.label', "Find All References"),
+			label: nls.localize('references.action.label', 'Find All References'),
 			alias: 'Find All References',
 			precondition: ContextKeyExpr.and(
 				EditorContextKeys.hasReferenceProvider,
 				PeekContext.notInPeekEditor,
-				EditorContextKeys.isInEmbeddedEditor.toNegated()),
+				EditorContextKeys.isInEmbeddedEditor.toNegated()
+			),
 			kbOpts: {
 				kbExpr: EditorContextKeys.textFocus,
 				primary: KeyMod.Shift | KeyCode.F12
@@ -78,14 +103,20 @@ export class ReferenceAction extends EditorAction {
 		});
 	}
 
-	public run(accessor: ServicesAccessor, editor: editorCommon.ICommonCodeEditor): void {
+	public run(
+		accessor: ServicesAccessor,
+		editor: editorCommon.ICommonCodeEditor
+	): void {
 		let controller = ReferencesController.get(editor);
 		if (!controller) {
 			return;
 		}
 		let range = editor.getSelection();
 		let model = editor.getModel();
-		let references = provideReferences(model, range.getStartPosition()).then(references => {
+		let references = provideReferences(
+			model,
+			range.getStartPosition()
+		).then(references => {
 			const model = new ReferencesModel(references);
 			alert(model.getAriaMessage());
 			return model;
@@ -94,8 +125,11 @@ export class ReferenceAction extends EditorAction {
 	}
 }
 
-let findReferencesCommand: ICommandHandler = (accessor: ServicesAccessor, resource: URI, position: IPosition) => {
-
+let findReferencesCommand: ICommandHandler = (
+	accessor: ServicesAccessor,
+	resource: URI,
+	position: IPosition
+) => {
 	if (!(resource instanceof URI)) {
 		throw new Error('illegal argument, uri');
 	}
@@ -104,7 +138,6 @@ let findReferencesCommand: ICommandHandler = (accessor: ServicesAccessor, resour
 	}
 
 	return accessor.get(IEditorService).openEditor({ resource }).then(editor => {
-
 		let control = editor.getControl();
 		if (!editorCommon.isCommonCodeEditor(control)) {
 			return undefined;
@@ -115,50 +148,88 @@ let findReferencesCommand: ICommandHandler = (accessor: ServicesAccessor, resour
 			return undefined;
 		}
 
-		let references = provideReferences(control.getModel(), Position.lift(position)).then(references => new ReferencesModel(references));
-		let range = new Range(position.lineNumber, position.column, position.lineNumber, position.column);
-		return TPromise.as(controller.toggleWidget(range, references, defaultReferenceSearchOptions));
+		let references = provideReferences(
+			control.getModel(),
+			Position.lift(position)
+		).then(references => new ReferencesModel(references));
+		let range = new Range(
+			position.lineNumber,
+			position.column,
+			position.lineNumber,
+			position.column
+		);
+		return TPromise.as(
+			controller.toggleWidget(range, references, defaultReferenceSearchOptions)
+		);
 	});
 };
 
-let showReferencesCommand: ICommandHandler = (accessor: ServicesAccessor, resource: URI, position: IPosition, references: Location[]) => {
+let showReferencesCommand: ICommandHandler = (
+	accessor: ServicesAccessor,
+	resource: URI,
+	position: IPosition,
+	references: Location[]
+) => {
 	if (!(resource instanceof URI)) {
 		throw new Error('illegal argument, uri expected');
 	}
 
-	return accessor.get(IEditorService).openEditor({ resource: resource }).then(editor => {
+	return accessor
+		.get(IEditorService)
+		.openEditor({ resource: resource })
+		.then(editor => {
+			let control = editor.getControl();
+			if (!editorCommon.isCommonCodeEditor(control)) {
+				return undefined;
+			}
 
-		let control = editor.getControl();
-		if (!editorCommon.isCommonCodeEditor(control)) {
-			return undefined;
-		}
+			let controller = ReferencesController.get(control);
+			if (!controller) {
+				return undefined;
+			}
 
-		let controller = ReferencesController.get(control);
-		if (!controller) {
-			return undefined;
-		}
-
-		return TPromise.as(controller.toggleWidget(
-			new Range(position.lineNumber, position.column, position.lineNumber, position.column),
-			TPromise.as(new ReferencesModel(references)),
-			defaultReferenceSearchOptions)).then(() => true);
-	});
+			return TPromise.as(
+				controller.toggleWidget(
+					new Range(
+						position.lineNumber,
+						position.column,
+						position.lineNumber,
+						position.column
+					),
+					TPromise.as(new ReferencesModel(references)),
+					defaultReferenceSearchOptions
+				)
+			).then(() => true);
+		});
 };
-
-
 
 // register commands
 
-CommandsRegistry.registerCommand('editor.action.findReferences', findReferencesCommand);
+CommandsRegistry.registerCommand(
+	'editor.action.findReferences',
+	findReferencesCommand
+);
 
 CommandsRegistry.registerCommand('editor.action.showReferences', {
 	handler: showReferencesCommand,
 	description: {
 		description: 'Show references at a position in a file',
 		args: [
-			{ name: 'uri', description: 'The text document in which to show references', constraint: URI },
-			{ name: 'position', description: 'The position at which to show', constraint: Position.isIPosition },
-			{ name: 'locations', description: 'An array of locations.', constraint: Array },
+			{
+				name: 'uri',
+				description: 'The text document in which to show references',
+				constraint: URI
+			},
+			{
+				name: 'position',
+				description: 'The position at which to show',
+				constraint: Position.isIPosition
+			},
+			{
+				name: 'locations',
+				description: 'An array of locations.',
+				constraint: Array
+			}
 		]
 	}
 });
@@ -182,7 +253,10 @@ KeybindingsRegistry.registerCommandAndKeybindingRule({
 	weight: CommonEditorRegistry.commandWeight(50),
 	primary: KeyCode.Escape,
 	secondary: [KeyMod.Shift | KeyCode.Escape],
-	when: ContextKeyExpr.and(ctxReferenceSearchVisible, ContextKeyExpr.not('config.editor.stablePeek')),
+	when: ContextKeyExpr.and(
+		ctxReferenceSearchVisible,
+		ContextKeyExpr.not('config.editor.stablePeek')
+	),
 	handler: closeActiveReferenceSearch
 });
 
@@ -191,25 +265,37 @@ KeybindingsRegistry.registerCommandAndKeybindingRule({
 	weight: CommonEditorRegistry.commandWeight(-101),
 	primary: KeyCode.Escape,
 	secondary: [KeyMod.Shift | KeyCode.Escape],
-	when: ContextKeyExpr.and(PeekContext.inPeekEditor, ContextKeyExpr.not('config.editor.stablePeek')),
+	when: ContextKeyExpr.and(
+		PeekContext.inPeekEditor,
+		ContextKeyExpr.not('config.editor.stablePeek')
+	),
 	handler: closeActiveReferenceSearch
 });
 
-
-export function provideReferences(model: editorCommon.IReadOnlyModel, position: Position): TPromise<Location[]> {
-
+export function provideReferences(
+	model: editorCommon.IReadOnlyModel,
+	position: Position
+): TPromise<Location[]> {
 	// collect references from all providers
 	const promises = ReferenceProviderRegistry.ordered(model).map(provider => {
-		return asWinJsPromise((token) => {
-			return provider.provideReferences(model, position, { includeDeclaration: true }, token);
-		}).then(result => {
-			if (Array.isArray(result)) {
-				return <Location[]>result;
+		return asWinJsPromise(token => {
+			return provider.provideReferences(
+				model,
+				position,
+				{ includeDeclaration: true },
+				token
+			);
+		}).then(
+			result => {
+				if (Array.isArray(result)) {
+					return <Location[]>result;
+				}
+				return undefined;
+			},
+			err => {
+				onUnexpectedExternalError(err);
 			}
-			return undefined;
-		}, err => {
-			onUnexpectedExternalError(err);
-		});
+		);
 	});
 
 	return TPromise.join(promises).then(references => {
@@ -223,4 +309,7 @@ export function provideReferences(model: editorCommon.IReadOnlyModel, position: 
 	});
 }
 
-CommonEditorRegistry.registerDefaultLanguageCommand('_executeReferenceProvider', provideReferences);
+CommonEditorRegistry.registerDefaultLanguageCommand(
+	'_executeReferenceProvider',
+	provideReferences
+);

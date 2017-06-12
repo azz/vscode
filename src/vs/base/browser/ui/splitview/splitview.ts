@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./splitview';
 import lifecycle = require('vs/base/common/lifecycle');
@@ -65,7 +65,6 @@ interface IState {
 }
 
 export abstract class View extends ee.EventEmitter implements IView {
-
 	size: number;
 	protected _sizing: ViewSizing;
 	protected _fixedSize: number;
@@ -75,15 +74,31 @@ export abstract class View extends ee.EventEmitter implements IView {
 		super();
 
 		this.size = 0;
-		this._sizing = types.isUndefined(opts.sizing) ? ViewSizing.Flexible : opts.sizing;
+		this._sizing = types.isUndefined(opts.sizing)
+			? ViewSizing.Flexible
+			: opts.sizing;
 		this._fixedSize = types.isUndefined(opts.fixedSize) ? 22 : opts.fixedSize;
-		this._minimumSize = types.isUndefined(opts.minimumSize) ? 22 : opts.minimumSize;
+		this._minimumSize = types.isUndefined(opts.minimumSize)
+			? 22
+			: opts.minimumSize;
 	}
 
-	get sizing(): ViewSizing { return this._sizing; }
-	get fixedSize(): number { return this._fixedSize; }
-	get minimumSize(): number { return this.sizing === ViewSizing.Fixed ? this.fixedSize : this._minimumSize; }
-	get maximumSize(): number { return this.sizing === ViewSizing.Fixed ? this.fixedSize : Number.POSITIVE_INFINITY; }
+	get sizing(): ViewSizing {
+		return this._sizing;
+	}
+	get fixedSize(): number {
+		return this._fixedSize;
+	}
+	get minimumSize(): number {
+		return this.sizing === ViewSizing.Fixed
+			? this.fixedSize
+			: this._minimumSize;
+	}
+	get maximumSize(): number {
+		return this.sizing === ViewSizing.Fixed
+			? this.fixedSize
+			: Number.POSITIVE_INFINITY;
+	}
 
 	protected setFlexible(size?: number): void {
 		this._sizing = ViewSizing.Flexible;
@@ -116,7 +131,6 @@ const headerDefaultOpts = {
 };
 
 export abstract class HeaderView extends View {
-
 	private _headerSize: number;
 	private _showHeader: boolean;
 
@@ -130,11 +144,14 @@ export abstract class HeaderView extends View {
 	constructor(opts: IHeaderViewOptions) {
 		super(opts);
 
-		this._headerSize = types.isUndefined(opts.headerSize) ? 22 : opts.headerSize;
+		this._headerSize = types.isUndefined(opts.headerSize)
+			? 22
+			: opts.headerSize;
 		this._showHeader = this._headerSize > 0;
 
 		this.headerForeground = opts.headerForeground;
-		this.headerBackground = opts.headerBackground || headerDefaultOpts.headerBackground;
+		this.headerBackground =
+			opts.headerBackground || headerDefaultOpts.headerBackground;
 		this.headerHighContrastBorder = opts.headerHighContrastBorder;
 	}
 
@@ -152,13 +169,21 @@ export abstract class HeaderView extends View {
 
 	protected applyStyles(): void {
 		if (this.header) {
-			const headerForegroundColor = this.headerForeground ? this.headerForeground.toString() : null;
-			const headerBackgroundColor = this.headerBackground ? this.headerBackground.toString() : null;
-			const headerHighContrastBorderColor = this.headerHighContrastBorder ? this.headerHighContrastBorder.toString() : null;
+			const headerForegroundColor = this.headerForeground
+				? this.headerForeground.toString()
+				: null;
+			const headerBackgroundColor = this.headerBackground
+				? this.headerBackground.toString()
+				: null;
+			const headerHighContrastBorderColor = this.headerHighContrastBorder
+				? this.headerHighContrastBorder.toString()
+				: null;
 
 			this.header.style.color = headerForegroundColor;
 			this.header.style.backgroundColor = headerBackgroundColor;
-			this.header.style.borderTop = headerHighContrastBorderColor ? `1px solid ${headerHighContrastBorderColor}` : null;
+			this.header.style.borderTop = headerHighContrastBorderColor
+				? `1px solid ${headerHighContrastBorderColor}`
+				: null;
 		}
 	}
 
@@ -251,7 +276,6 @@ export enum CollapsibleState {
 }
 
 export abstract class AbstractCollapsibleView extends HeaderView {
-
 	protected state: CollapsibleState;
 
 	private ariaHeaderLabel: string;
@@ -268,7 +292,11 @@ export abstract class AbstractCollapsibleView extends HeaderView {
 		this.ariaHeaderLabel = opts.ariaHeaderLabel;
 
 		this.setBodySize(types.isUndefined(opts.bodySize) ? 22 : opts.bodySize);
-		this.changeState(types.isUndefined(opts.initialState) ? CollapsibleState.EXPANDED : opts.initialState);
+		this.changeState(
+			types.isUndefined(opts.initialState)
+				? CollapsibleState.EXPANDED
+				: opts.initialState
+		);
 	}
 
 	get previousSize(): number {
@@ -282,10 +310,17 @@ export abstract class AbstractCollapsibleView extends HeaderView {
 
 	private updateSize() {
 		if (this.viewSizing === ViewSizing.Fixed) {
-			this.setFixed(this.state === CollapsibleState.EXPANDED ? this._bodySize + this.headerSize : this.headerSize);
+			this.setFixed(
+				this.state === CollapsibleState.EXPANDED
+					? this._bodySize + this.headerSize
+					: this.headerSize
+			);
 		} else {
 			this._minimumSize = this._bodySize + this.headerSize;
-			this._previousSize = !this.previousSize || this._previousSize < this._minimumSize ? this._minimumSize : this._previousSize;
+			this._previousSize = !this.previousSize ||
+				this._previousSize < this._minimumSize
+				? this._minimumSize
+				: this._previousSize;
 			if (this.state === CollapsibleState.EXPANDED) {
 				this.setFlexible(this._previousSize || this._minimumSize);
 			} else {
@@ -307,31 +342,49 @@ export abstract class AbstractCollapsibleView extends HeaderView {
 		if (this.ariaHeaderLabel) {
 			this.header.setAttribute('aria-label', this.ariaHeaderLabel);
 		}
-		this.header.setAttribute('aria-expanded', String(this.state === CollapsibleState.EXPANDED));
-		this.headerKeyListener = dom.addDisposableListener(this.header, dom.EventType.KEY_DOWN, (e) => {
-			let event = new StandardKeyboardEvent(e);
-			let eventHandled = false;
-			if (event.equals(KeyCode.Enter) || event.equals(KeyCode.Space) || (event.equals(KeyCode.LeftArrow) && this.state === CollapsibleState.EXPANDED) || (event.equals(KeyCode.RightArrow) && this.state === CollapsibleState.COLLAPSED)) {
-				this.toggleExpansion();
-				eventHandled = true;
-			} else if (event.equals(KeyCode.Escape)) {
-				this.header.blur();
-				eventHandled = true;
-			} else if (event.equals(KeyCode.UpArrow)) {
-				this.emit('focusPrevious');
-				eventHandled = true;
-			} else if (event.equals(KeyCode.DownArrow)) {
-				this.emit('focusNext');
-				eventHandled = true;
-			}
+		this.header.setAttribute(
+			'aria-expanded',
+			String(this.state === CollapsibleState.EXPANDED)
+		);
+		this.headerKeyListener = dom.addDisposableListener(
+			this.header,
+			dom.EventType.KEY_DOWN,
+			e => {
+				let event = new StandardKeyboardEvent(e);
+				let eventHandled = false;
+				if (
+					event.equals(KeyCode.Enter) ||
+					event.equals(KeyCode.Space) ||
+					(event.equals(KeyCode.LeftArrow) &&
+						this.state === CollapsibleState.EXPANDED) ||
+					(event.equals(KeyCode.RightArrow) &&
+						this.state === CollapsibleState.COLLAPSED)
+				) {
+					this.toggleExpansion();
+					eventHandled = true;
+				} else if (event.equals(KeyCode.Escape)) {
+					this.header.blur();
+					eventHandled = true;
+				} else if (event.equals(KeyCode.UpArrow)) {
+					this.emit('focusPrevious');
+					eventHandled = true;
+				} else if (event.equals(KeyCode.DownArrow)) {
+					this.emit('focusNext');
+					eventHandled = true;
+				}
 
-			if (eventHandled) {
-				dom.EventHelper.stop(event, true);
+				if (eventHandled) {
+					dom.EventHelper.stop(event, true);
+				}
 			}
-		});
+		);
 
 		// Mouse access
-		this.headerClickListener = dom.addDisposableListener(this.header, dom.EventType.CLICK, () => this.toggleExpansion());
+		this.headerClickListener = dom.addDisposableListener(
+			this.header,
+			dom.EventType.CLICK,
+			() => this.toggleExpansion()
+		);
 
 		// Track state of focus in header so that other components can adjust styles based on that
 		// (for example show or hide actions based on the state of being focused or not)
@@ -400,7 +453,10 @@ export abstract class AbstractCollapsibleView extends HeaderView {
 		this.state = state;
 
 		if (this.header) {
-			this.header.setAttribute('aria-expanded', String(this.state === CollapsibleState.EXPANDED));
+			this.header.setAttribute(
+				'aria-expanded',
+				String(this.state === CollapsibleState.EXPANDED)
+			);
 		}
 
 		this.layoutHeader();
@@ -428,13 +484,12 @@ export abstract class AbstractCollapsibleView extends HeaderView {
 }
 
 class PlainView extends View {
-	render() { }
-	focus() { }
-	layout() { }
+	render() {}
+	focus() {}
+	layout() {}
 }
 
 class DeadView extends PlainView {
-
 	constructor(view: IView) {
 		super({ sizing: ViewSizing.Fixed, fixedSize: 0 });
 		this.size = view.size;
@@ -442,7 +497,6 @@ class DeadView extends PlainView {
 }
 
 class VoidView extends PlainView {
-
 	constructor() {
 		super({ sizing: ViewSizing.Fixed, minimumSize: 0, fixedSize: 0 });
 	}
@@ -460,9 +514,9 @@ function sum(arr: number[]): number {
 	return arr.reduce((a, b) => a + b);
 }
 
-export class SplitView implements
-	sash.IHorizontalSashLayoutProvider,
-	sash.IVerticalSashLayoutProvider {
+export class SplitView
+	implements sash.IHorizontalSashLayoutProvider,
+		sash.IVerticalSashLayoutProvider {
 	private orientation: Orientation;
 	private el: HTMLElement;
 	private size: number;
@@ -486,11 +540,16 @@ export class SplitView implements
 	constructor(container: HTMLElement, options?: IOptions) {
 		options = options || {};
 
-		this.orientation = types.isUndefined(options.orientation) ? Orientation.VERTICAL : options.orientation;
+		this.orientation = types.isUndefined(options.orientation)
+			? Orientation.VERTICAL
+			: options.orientation;
 
 		this.el = document.createElement('div');
 		dom.addClass(this.el, 'monaco-split-view');
-		dom.addClass(this.el, this.orientation === Orientation.VERTICAL ? 'vertical' : 'horizontal');
+		dom.addClass(
+			this.el,
+			this.orientation === Orientation.VERTICAL ? 'vertical' : 'horizontal'
+		);
 		container.appendChild(this.el);
 
 		this.size = null;
@@ -512,12 +571,18 @@ export class SplitView implements
 
 		if (this.orientation === Orientation.VERTICAL) {
 			this.measureContainerSize = () => dom.getContentHeight(container);
-			this.layoutViewElement = (viewElement, size) => viewElement.style.height = size + 'px';
-			this.eventWrapper = e => { return { start: e.startY, current: e.currentY }; };
+			this.layoutViewElement = (viewElement, size) =>
+				(viewElement.style.height = size + 'px');
+			this.eventWrapper = e => {
+				return { start: e.startY, current: e.currentY };
+			};
 		} else {
 			this.measureContainerSize = () => dom.getContentWidth(container);
-			this.layoutViewElement = (viewElement, size) => viewElement.style.width = size + 'px';
-			this.eventWrapper = e => { return { start: e.startX, current: e.currentX }; };
+			this.layoutViewElement = (viewElement, size) =>
+				(viewElement.style.width = size + 'px');
+			this.eventWrapper = e => {
+				return { start: e.startX, current: e.currentX };
+			};
 		}
 
 		// The void space exists to handle the case where all other views are fixed size
@@ -528,7 +593,11 @@ export class SplitView implements
 		return this._onFocus.event;
 	}
 
-	addView(view: IView, initialWeight: number = 1, index = this.views.length - 1): void {
+	addView(
+		view: IView,
+		initialWeight: number = 1,
+		index = this.views.length - 1
+	): void {
 		if (initialWeight <= 0) {
 			throw new Error('Initial weight must be a positive number.');
 		}
@@ -561,21 +630,45 @@ export class SplitView implements
 
 		// Add sash
 		if (this.views.length > 2) {
-			let s = new sash.Sash(this.el, this, { orientation: this.sashOrientation });
+			let s = new sash.Sash(this.el, this, {
+				orientation: this.sashOrientation
+			});
 			this.sashes.splice(index - 1, 0, s);
-			this.sashesListeners.push(s.addListener('start', e => this.onSashStart(s, this.eventWrapper(e))));
-			this.sashesListeners.push(s.addListener('change', e => this.onSashChange(s, this.eventWrapper(e))));
+			this.sashesListeners.push(
+				s.addListener('start', e => this.onSashStart(s, this.eventWrapper(e)))
+			);
+			this.sashesListeners.push(
+				s.addListener('change', e => this.onSashChange(s, this.eventWrapper(e)))
+			);
 		}
 
-		this.viewChangeListeners.splice(index, 0, view.addListener('change', size => this.onViewChange(view, size)));
+		this.viewChangeListeners.splice(
+			index,
+			0,
+			view.addListener('change', size => this.onViewChange(view, size))
+		);
 		this.onViewChange(view, view.minimumSize);
 
 		let viewFocusTracker = dom.trackFocus(viewElement);
 		this.viewFocusListeners.splice(index, 0, viewFocusTracker);
 		viewFocusTracker.addFocusListener(() => this._onFocus.fire(view));
 
-		this.viewFocusPreviousListeners.splice(index, 0, view.addListener('focusPrevious', () => index > 0 && this.views[index - 1].focus()));
-		this.viewFocusNextListeners.splice(index, 0, view.addListener('focusNext', () => index < this.views.length && this.views[index + 1].focus()));
+		this.viewFocusPreviousListeners.splice(
+			index,
+			0,
+			view.addListener(
+				'focusPrevious',
+				() => index > 0 && this.views[index - 1].focus()
+			)
+		);
+		this.viewFocusNextListeners.splice(
+			index,
+			0,
+			view.addListener(
+				'focusNext',
+				() => index < this.views.length && this.views[index + 1].focus()
+			)
+		);
 	}
 
 	updateWeight(view: IView, weight: number) {
@@ -642,9 +735,21 @@ export class SplitView implements
 		let expands = this.views.map(v => v.maximumSize - v.size);
 
 		if (size < this.size) {
-			this.expandCollapse(Math.min(diff, sum(collapses)), collapses, expands, up, []);
+			this.expandCollapse(
+				Math.min(diff, sum(collapses)),
+				collapses,
+				expands,
+				up,
+				[]
+			);
 		} else if (size > this.size) {
-			this.expandCollapse(Math.min(diff, sum(expands)), collapses, expands, [], up);
+			this.expandCollapse(
+				Math.min(diff, sum(expands)),
+				collapses,
+				expands,
+				[],
+				up
+			);
 		}
 
 		this.size = size;
@@ -684,16 +789,34 @@ export class SplitView implements
 		}
 
 		if (diff < 0) {
-			this.expandCollapse(Math.min(-diff, this.state.maxUp), this.state.collapses, this.state.expands, this.state.up, this.state.down);
+			this.expandCollapse(
+				Math.min(-diff, this.state.maxUp),
+				this.state.collapses,
+				this.state.expands,
+				this.state.up,
+				this.state.down
+			);
 		} else {
-			this.expandCollapse(Math.min(diff, this.state.maxDown), this.state.collapses, this.state.expands, this.state.down, this.state.up);
+			this.expandCollapse(
+				Math.min(diff, this.state.maxDown),
+				this.state.collapses,
+				this.state.expands,
+				this.state.down,
+				this.state.up
+			);
 		}
 
 		this.layoutViews();
 	}
 
 	// Main algorithm
-	private expandCollapse(collapse: number, collapses: number[], expands: number[], collapseIndexes: number[], expandIndexes: number[]): void {
+	private expandCollapse(
+		collapse: number,
+		collapses: number[],
+		expands: number[],
+		collapseIndexes: number[],
+		expandIndexes: number[]
+	): void {
 		let totalCollapse = collapse;
 		let totalExpand = totalCollapse;
 
@@ -735,7 +858,8 @@ export class SplitView implements
 		// Leftover
 		let index = this.getLastFlexibleViewIndex();
 		if (index >= 0) {
-			this.views[index].size += this.size - this.views.reduce((t, v) => t + v.size, 0);
+			this.views[index].size +=
+				this.size - this.views.reduce((t, v) => t + v.size, 0);
 		}
 
 		// Layout
@@ -769,20 +893,31 @@ export class SplitView implements
 
 		// Update sashes enablement
 		let previous = false;
-		let collapsesDown = this.views.map(v => previous = (v.size - v.minimumSize > 0) || previous);
+		let collapsesDown = this.views.map(
+			v => (previous = v.size - v.minimumSize > 0 || previous)
+		);
 
 		previous = false;
-		let expandsDown = this.views.map(v => previous = (v.maximumSize - v.size > 0) || previous);
+		let expandsDown = this.views.map(
+			v => (previous = v.maximumSize - v.size > 0 || previous)
+		);
 
 		let reverseViews = this.views.slice().reverse();
 		previous = false;
-		let collapsesUp = reverseViews.map(v => previous = (v.size - v.minimumSize > 0) || previous).reverse();
+		let collapsesUp = reverseViews
+			.map(v => (previous = v.size - v.minimumSize > 0 || previous))
+			.reverse();
 
 		previous = false;
-		let expandsUp = reverseViews.map(v => previous = (v.maximumSize - v.size > 0) || previous).reverse();
+		let expandsUp = reverseViews
+			.map(v => (previous = v.maximumSize - v.size > 0 || previous))
+			.reverse();
 
 		this.sashes.forEach((s, i) => {
-			if ((collapsesDown[i] && expandsUp[i + 1]) || (expandsDown[i] && collapsesUp[i + 1])) {
+			if (
+				(collapsesDown[i] && expandsUp[i + 1]) ||
+				(expandsDown[i] && collapsesUp[i + 1])
+			) {
 				s.enable();
 			} else {
 				s.disable();
@@ -824,14 +959,19 @@ export class SplitView implements
 			collapse = Math.min(downUp.reduce((t, i) => t + expands[i], 0), diff);
 			collapseIndexes = [index];
 			expandIndexes = downUp;
-
 		} else {
 			collapse = Math.min(downUp.reduce((t, i) => t + collapses[i], 0), diff);
 			collapseIndexes = downUp;
 			expandIndexes = [index];
 		}
 
-		this.expandCollapse(collapse, collapses, expands, collapseIndexes, expandIndexes);
+		this.expandCollapse(
+			collapse,
+			collapses,
+			expands,
+			collapseIndexes,
+			expandIndexes
+		);
 		this.layoutViews();
 	}
 
@@ -854,7 +994,9 @@ export class SplitView implements
 	}
 
 	private areAllViewsFixed(): boolean {
-		return this.views.every((v, i) => v.sizing === ViewSizing.Fixed || i === this.views.length - 1);
+		return this.views.every(
+			(v, i) => v.sizing === ViewSizing.Fixed || i === this.views.length - 1
+		);
 	}
 
 	getVerticalSashLeft(sash: sash.Sash): number {

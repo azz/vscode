@@ -3,12 +3,16 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { IHTMLContentElement } from 'vs/base/common/htmlContent';
 import { IKeyboardMapper } from 'vs/workbench/services/keybinding/common/keyboardMapper';
-import { Keybinding, ResolvedKeybinding, SimpleKeybinding } from 'vs/base/common/keyCodes';
+import {
+	Keybinding,
+	ResolvedKeybinding,
+	SimpleKeybinding
+} from 'vs/base/common/keyCodes';
 import { TPromise } from 'vs/base/common/winjs.base';
 import { readFile, writeFile } from 'vs/base/node/pfs';
 import { OperatingSystem } from 'vs/base/common/platform';
@@ -33,37 +37,66 @@ function toIResolvedKeybinding(kb: ResolvedKeybinding): IResolvedKeybinding {
 		userSettingsLabel: kb.getUserSettingsLabel(),
 		isWYSIWYG: kb.isWYSIWYG(),
 		isChord: kb.isChord(),
-		dispatchParts: kb.getDispatchParts(),
+		dispatchParts: kb.getDispatchParts()
 	};
 }
 
-export function assertResolveKeybinding(mapper: IKeyboardMapper, keybinding: Keybinding, expected: IResolvedKeybinding[]): void {
-	let actual: IResolvedKeybinding[] = mapper.resolveKeybinding(keybinding).map(toIResolvedKeybinding);
+export function assertResolveKeybinding(
+	mapper: IKeyboardMapper,
+	keybinding: Keybinding,
+	expected: IResolvedKeybinding[]
+): void {
+	let actual: IResolvedKeybinding[] = mapper
+		.resolveKeybinding(keybinding)
+		.map(toIResolvedKeybinding);
 	assert.deepEqual(actual, expected);
 }
 
-export function assertResolveKeyboardEvent(mapper: IKeyboardMapper, keyboardEvent: IKeyboardEvent, expected: IResolvedKeybinding): void {
-	let actual = toIResolvedKeybinding(mapper.resolveKeyboardEvent(keyboardEvent));
+export function assertResolveKeyboardEvent(
+	mapper: IKeyboardMapper,
+	keyboardEvent: IKeyboardEvent,
+	expected: IResolvedKeybinding
+): void {
+	let actual = toIResolvedKeybinding(
+		mapper.resolveKeyboardEvent(keyboardEvent)
+	);
 	assert.deepEqual(actual, expected);
 }
 
-export function assertResolveUserBinding(mapper: IKeyboardMapper, firstPart: SimpleKeybinding | ScanCodeBinding, chordPart: SimpleKeybinding | ScanCodeBinding, expected: IResolvedKeybinding[]): void {
-	let actual: IResolvedKeybinding[] = mapper.resolveUserBinding(firstPart, chordPart).map(toIResolvedKeybinding);
+export function assertResolveUserBinding(
+	mapper: IKeyboardMapper,
+	firstPart: SimpleKeybinding | ScanCodeBinding,
+	chordPart: SimpleKeybinding | ScanCodeBinding,
+	expected: IResolvedKeybinding[]
+): void {
+	let actual: IResolvedKeybinding[] = mapper
+		.resolveUserBinding(firstPart, chordPart)
+		.map(toIResolvedKeybinding);
 	assert.deepEqual(actual, expected);
 }
 
-function _htmlPieces(pieces: string[], OS: OperatingSystem): IHTMLContentElement[] {
+function _htmlPieces(
+	pieces: string[],
+	OS: OperatingSystem
+): IHTMLContentElement[] {
 	let children: IHTMLContentElement[] = [];
 	for (let i = 0, len = pieces.length; i < len; i++) {
 		if (i !== 0 && OS !== OperatingSystem.Macintosh) {
 			children.push({ tagName: 'span', text: '+' });
 		}
-		children.push({ tagName: 'span', className: 'monaco-kbkey', text: pieces[i] });
+		children.push({
+			tagName: 'span',
+			className: 'monaco-kbkey',
+			text: pieces[i]
+		});
 	}
 	return children;
 }
 
-export function simpleHTMLLabel(pieces: string[], OS: OperatingSystem): IHTMLContentElement {
+export function simpleHTMLLabel(
+	pieces: string[],
+	OS: OperatingSystem
+): IHTMLContentElement {
 	return {
 		tagName: 'span',
 		className: 'monaco-kb',
@@ -71,7 +104,11 @@ export function simpleHTMLLabel(pieces: string[], OS: OperatingSystem): IHTMLCon
 	};
 }
 
-export function chordHTMLLabel(firstPart: string[], chordPart: string[], OS: OperatingSystem): IHTMLContentElement {
+export function chordHTMLLabel(
+	firstPart: string[],
+	chordPart: string[],
+	OS: OperatingSystem
+): IHTMLContentElement {
 	return {
 		tagName: 'span',
 		className: 'monaco-kb',
@@ -84,21 +121,30 @@ export function chordHTMLLabel(firstPart: string[], chordPart: string[], OS: Ope
 }
 
 export function readRawMapping<T>(file: string): TPromise<T> {
-	return readFile(require.toUrl(`vs/workbench/services/keybinding/test/${file}.js`)).then((buff) => {
+	return readFile(
+		require.toUrl(`vs/workbench/services/keybinding/test/${file}.js`)
+	).then(buff => {
 		let contents = buff.toString();
 		let func = new Function('define', contents);
 		let rawMappings: T = null;
-		func(function (value: T) {
+		func(function(value: T) {
 			rawMappings = value;
 		});
 		return rawMappings;
 	});
 }
 
-export function assertMapping(writeFileIfDifferent: boolean, mapper: IKeyboardMapper, file: string, done: (err?: any) => void): void {
-	const filePath = require.toUrl(`vs/workbench/services/keybinding/test/${file}`);
+export function assertMapping(
+	writeFileIfDifferent: boolean,
+	mapper: IKeyboardMapper,
+	file: string,
+	done: (err?: any) => void
+): void {
+	const filePath = require.toUrl(
+		`vs/workbench/services/keybinding/test/${file}`
+	);
 
-	readFile(filePath).then((buff) => {
+	readFile(filePath).then(buff => {
 		let expected = buff.toString();
 		const actual = mapper.dumpDebugInfo();
 		if (actual !== expected && writeFileIfDifferent) {

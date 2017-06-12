@@ -4,12 +4,15 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { SpectronApplication } from '../spectron/application';
-import { CommonActions } from "./common";
+import { CommonActions } from './common';
 
 export class Git {
 	private readonly bodyVarSelector = '.view-lines>:nth-child(6) .mtk11';
 
-	constructor(private spectron: SpectronApplication, private commonActions: CommonActions) {
+	constructor(
+		private spectron: SpectronApplication,
+		private commonActions: CommonActions
+	) {
 		// noop
 	}
 
@@ -18,11 +21,18 @@ export class Git {
 	}
 
 	public getScmIconChanges(): Promise<any> {
-		return this.spectron.waitFor(this.spectron.client.getText, 'div[id="workbench.parts.activitybar"] .badge.scm-viewlet-label .badge-content');
+		return this.spectron.waitFor(
+			this.spectron.client.getText,
+			'div[id="workbench.parts.activitybar"] .badge.scm-viewlet-label .badge-content'
+		);
 	}
 
 	public async verifyScmChange(fileName: string): Promise<any> {
-		let el = await this.spectron.client.element(`div[class="monaco-icon-label file-icon ${fileName}-name-file-icon ${this.commonActions.getExtensionSelector(fileName)}"]`);
+		let el = await this.spectron.client.element(
+			`div[class="monaco-icon-label file-icon ${fileName}-name-file-icon ${this.commonActions.getExtensionSelector(
+				fileName
+			)}"]`
+		);
 		if (el.status === 0) {
 			return el;
 		}
@@ -31,28 +41,45 @@ export class Git {
 	}
 
 	public getOriginalAppJsBodyVarName(): Promise<any> {
-		return this.spectron.waitFor(this.spectron.client.getText, `.editor.original ${this.bodyVarSelector}`);
+		return this.spectron.waitFor(
+			this.spectron.client.getText,
+			`.editor.original ${this.bodyVarSelector}`
+		);
 	}
 
 	public getModifiedAppJsBodyVarName(): Promise<any> {
-		return this.spectron.waitFor(this.spectron.client.getText, `.editor.modified ${this.bodyVarSelector}`);
+		return this.spectron.waitFor(
+			this.spectron.client.getText,
+			`.editor.modified ${this.bodyVarSelector}`
+		);
 	}
 
 	public async stageFile(fileName: string): Promise<any> {
-		await this.spectron.client.moveToObject(`div[class="monaco-icon-label file-icon ${fileName}-name-file-icon ${this.commonActions.getExtensionSelector(fileName)}"`);
+		await this.spectron.client.moveToObject(
+			`div[class="monaco-icon-label file-icon ${fileName}-name-file-icon ${this.commonActions.getExtensionSelector(
+				fileName
+			)}"`
+		);
 		await this.spectron.wait();
 		await this.spectron.client.click('.action-label.icon.contrib-cmd-icon-4');
 		return this.spectron.wait();
 	}
 
 	public async unstageFile(fileName: string): Promise<any> {
-		await this.spectron.client.moveToObject(`div[class="monaco-icon-label file-icon ${fileName}-name-file-icon ${this.commonActions.getExtensionSelector(fileName)}"`);
+		await this.spectron.client.moveToObject(
+			`div[class="monaco-icon-label file-icon ${fileName}-name-file-icon ${this.commonActions.getExtensionSelector(
+				fileName
+			)}"`
+		);
 		await this.spectron.client.click('.action-label.icon.contrib-cmd-icon-6');
 		return this.spectron.wait();
 	}
 
 	public getStagedCount(): Promise<any> {
-		return this.spectron.waitFor(this.spectron.client.getText, '.scm-status.show-file-icons .monaco-list-rows>:nth-child(1) .monaco-count-badge');
+		return this.spectron.waitFor(
+			this.spectron.client.getText,
+			'.scm-status.show-file-icons .monaco-list-rows>:nth-child(1) .monaco-count-badge'
+		);
 	}
 
 	public focusOnCommitBox(): Promise<any> {

@@ -2,10 +2,14 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { IMouseEvent } from 'vs/base/browser/mouseEvent';
-import { GlobalMouseMoveMonitor, IStandardMouseMoveEventData, standardMouseMoveMerger } from 'vs/base/browser/globalMouseMoveMonitor';
+import {
+	GlobalMouseMoveMonitor,
+	IStandardMouseMoveEventData,
+	standardMouseMoveMerger
+} from 'vs/base/browser/globalMouseMoveMonitor';
 import { Widget } from 'vs/base/browser/ui/widget';
 import { TimeoutTimer, IntervalTimer } from 'vs/base/common/async';
 
@@ -28,13 +32,14 @@ export interface ScrollbarArrowOptions {
 }
 
 export class ScrollbarArrow extends Widget {
-
 	private _onActivate: () => void;
 	public bgDomNode: HTMLElement;
 	public domNode: HTMLElement;
 	private _mousedownRepeatTimer: IntervalTimer;
 	private _mousedownScheduleRepeatTimer: TimeoutTimer;
-	private _mouseMoveMonitor: GlobalMouseMoveMonitor<IStandardMouseMoveEventData>;
+	private _mouseMoveMonitor: GlobalMouseMoveMonitor<
+		IStandardMouseMoveEventData
+	>;
 
 	constructor(opts: ScrollbarArrowOptions) {
 		super();
@@ -76,9 +81,11 @@ export class ScrollbarArrow extends Widget {
 			this.domNode.style.right = opts.right + 'px';
 		}
 
-		this._mouseMoveMonitor = this._register(new GlobalMouseMoveMonitor<IStandardMouseMoveEventData>());
-		this.onmousedown(this.bgDomNode, (e) => this._arrowMouseDown(e));
-		this.onmousedown(this.domNode, (e) => this._arrowMouseDown(e));
+		this._mouseMoveMonitor = this._register(
+			new GlobalMouseMoveMonitor<IStandardMouseMoveEventData>()
+		);
+		this.onmousedown(this.bgDomNode, e => this._arrowMouseDown(e));
+		this.onmousedown(this.domNode, e => this._arrowMouseDown(e));
 
 		this._mousedownRepeatTimer = this._register(new IntervalTimer());
 		this._mousedownScheduleRepeatTimer = this._register(new TimeoutTimer());
@@ -86,7 +93,10 @@ export class ScrollbarArrow extends Widget {
 
 	private _arrowMouseDown(e: IMouseEvent): void {
 		let scheduleRepeater = () => {
-			this._mousedownRepeatTimer.cancelAndSet(() => this._onActivate(), 1000 / 24);
+			this._mousedownRepeatTimer.cancelAndSet(
+				() => this._onActivate(),
+				1000 / 24
+			);
 		};
 
 		this._onActivate();

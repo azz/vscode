@@ -5,9 +5,13 @@
 
 import * as assert from 'assert';
 
-import { SpectronApplication, LATEST_PATH, WORKSPACE_PATH } from "../spectron/application";
+import {
+	SpectronApplication,
+	LATEST_PATH,
+	WORKSPACE_PATH
+} from '../spectron/application';
 import { CommonActions } from '../areas/common';
-import { Search } from "../areas/search";
+import { Search } from '../areas/search';
 
 let app: SpectronApplication;
 let common: CommonActions;
@@ -16,18 +20,23 @@ export function testSearch() {
 	context('Search', () => {
 		let search: Search;
 
-		beforeEach(async function () {
-			app = new SpectronApplication(LATEST_PATH, this.currentTest.fullTitle(), (this.currentTest as any).currentRetry(), [WORKSPACE_PATH]);
+		beforeEach(async function() {
+			app = new SpectronApplication(
+				LATEST_PATH,
+				this.currentTest.fullTitle(),
+				(this.currentTest as any).currentRetry(),
+				[WORKSPACE_PATH]
+			);
 			common = new CommonActions(app);
 			search = new Search(app);
 
 			return await app.start();
 		});
-		afterEach(async function () {
+		afterEach(async function() {
 			return await app.stop();
 		});
 
-		it('searches for body & checks for correct result number', async function () {
+		it('searches for body & checks for correct result number', async function() {
 			const s = search;
 			await s.openSearchViewlet();
 			await s.searchFor('body');
@@ -35,7 +44,7 @@ export function testSearch() {
 			assert.equal(result, '7 results in 4 files');
 		});
 
-		it('searches only for *.js files & checks for correct result number', async function () {
+		it('searches only for *.js files & checks for correct result number', async function() {
 			const s = search;
 			await s.openSearchViewlet();
 			await s.searchFor('body');
@@ -45,7 +54,7 @@ export function testSearch() {
 			assert.equal(results, '4 results in 1 file');
 		});
 
-		it('dismisses result & checks for correct result number', async function () {
+		it('dismisses result & checks for correct result number', async function() {
 			const s = search;
 			await s.openSearchViewlet();
 			await s.searchFor('body');
@@ -56,7 +65,7 @@ export function testSearch() {
 			assert.equal(result, '3 results in 3 files');
 		});
 
-		it('replaces first search result with a replace term', async function () {
+		it('replaces first search result with a replace term', async function() {
 			const s = search;
 			await s.openSearchViewlet();
 			await s.searchFor('body');

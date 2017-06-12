@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import URI from 'vs/base/common/uri';
 import platform = require('vs/base/common/platform');
@@ -12,7 +12,6 @@ import { endsWith, ltrim } from 'vs/base/common/strings';
 import { isEqualOrParent, isEqual } from 'vs/platform/files/common/files';
 
 export interface ILabelProvider {
-
 	/**
 	 * Given an element returns a label for it to display in the UI.
 	 */
@@ -29,7 +28,11 @@ export interface IUserHomeProvider {
 	userHome: string;
 }
 
-export function getPathLabel(resource: URI | string, basePathProvider?: URI | string | IWorkspaceProvider, userHomeProvider?: IUserHomeProvider): string {
+export function getPathLabel(
+	resource: URI | string,
+	basePathProvider?: URI | string | IWorkspaceProvider,
+	userHomeProvider?: IUserHomeProvider
+): string {
 	const absolutePath = getPath(resource);
 	if (!absolutePath) {
 		return null;
@@ -37,16 +40,25 @@ export function getPathLabel(resource: URI | string, basePathProvider?: URI | st
 
 	const basepath = basePathProvider && getPath(basePathProvider);
 
-	if (basepath && isEqualOrParent(absolutePath, basepath, !platform.isLinux /* ignorecase */)) {
+	if (
+		basepath &&
+		isEqualOrParent(absolutePath, basepath, !platform.isLinux /* ignorecase */)
+	) {
 		if (isEqual(basepath, absolutePath, !platform.isLinux /* ignorecase */)) {
 			return ''; // no label if pathes are identical
 		}
 
-		return normalize(ltrim(absolutePath.substr(basepath.length), nativeSep), true);
+		return normalize(
+			ltrim(absolutePath.substr(basepath.length), nativeSep),
+			true
+		);
 	}
 
 	if (platform.isWindows && absolutePath && absolutePath[1] === ':') {
-		return normalize(absolutePath.charAt(0).toUpperCase() + absolutePath.slice(1), true); // convert c:\something => C:\something
+		return normalize(
+			absolutePath.charAt(0).toUpperCase() + absolutePath.slice(1),
+			true
+		); // convert c:\something => C:\something
 	}
 
 	let res = normalize(absolutePath, true);
@@ -75,7 +87,11 @@ function getPath(arg1: URI | string | IWorkspaceProvider): string {
 }
 
 export function tildify(path: string, userHome: string): string {
-	if (path && (platform.isMacintosh || platform.isLinux) && isEqualOrParent(path, userHome, !platform.isLinux /* ignorecase */)) {
+	if (
+		path &&
+		(platform.isMacintosh || platform.isLinux) &&
+		isEqualOrParent(path, userHome, !platform.isLinux /* ignorecase */)
+	) {
 		path = `~${path.substr(userHome.length)}`;
 	}
 
@@ -145,22 +161,46 @@ export function shorten(paths: string[]): string[] {
 
 		// pick the first shortest subpath found
 		const segments: string[] = path.split(nativeSep);
-		for (let subpathLength = 1; match && subpathLength <= segments.length; subpathLength++) {
-			for (let start = segments.length - subpathLength; match && start >= 0; start--) {
+		for (
+			let subpathLength = 1;
+			match && subpathLength <= segments.length;
+			subpathLength++
+		) {
+			for (
+				let start = segments.length - subpathLength;
+				match && start >= 0;
+				start--
+			) {
 				match = false;
-				let subpath = segments.slice(start, start + subpathLength).join(nativeSep);
+				let subpath = segments
+					.slice(start, start + subpathLength)
+					.join(nativeSep);
 
 				// that is unique to any other path
-				for (let otherPathIndex = 0; !match && otherPathIndex < paths.length; otherPathIndex++) {
-
+				for (
+					let otherPathIndex = 0;
+					!match && otherPathIndex < paths.length;
+					otherPathIndex++
+				) {
 					// suffix subpath treated specially as we consider no match 'x' and 'x/...'
-					if (otherPathIndex !== pathIndex && paths[otherPathIndex] && paths[otherPathIndex].indexOf(subpath) > -1) {
-						const isSubpathEnding: boolean = (start + subpathLength === segments.length);
+					if (
+						otherPathIndex !== pathIndex &&
+						paths[otherPathIndex] &&
+						paths[otherPathIndex].indexOf(subpath) > -1
+					) {
+						const isSubpathEnding: boolean =
+							start + subpathLength === segments.length;
 
 						// Adding separator as prefix for subpath, such that 'endsWith(src, trgt)' considers subpath as directory name instead of plain string.
 						// prefix is not added when either subpath is root directory or path[otherPathIndex] does not have multiple directories.
-						const subpathWithSep: string = (start > 0 && paths[otherPathIndex].indexOf(nativeSep) > -1) ? nativeSep + subpath : subpath;
-						const isOtherPathEnding: boolean = endsWith(paths[otherPathIndex], subpathWithSep);
+						const subpathWithSep: string = start > 0 &&
+							paths[otherPathIndex].indexOf(nativeSep) > -1
+							? nativeSep + subpath
+							: subpath;
+						const isOtherPathEnding: boolean = endsWith(
+							paths[otherPathIndex],
+							subpathWithSep
+						);
 
 						match = !isSubpathEnding || isOtherPathEnding;
 					}
@@ -232,7 +272,10 @@ interface ISegment {
  * @param value string to which templating is applied
  * @param values the values of the templates to use
  */
-export function template(template: string, values: { [key: string]: string | ISeparator } = Object.create(null)): string {
+export function template(
+	template: string,
+	values: { [key: string]: string | ISeparator } = Object.create(null)
+): string {
 	const segments: ISegment[] = [];
 
 	let inVariable = false;
@@ -249,10 +292,8 @@ export function template(template: string, values: { [key: string]: string | ISe
 
 			curVal = '';
 			inVariable = true;
-		}
-
-		// End of variable
-		else if (char === '}' && inVariable) {
+		} else if (char === '}' && inVariable) {
+			// End of variable
 			const resolved = values[curVal];
 
 			// Variable
@@ -260,10 +301,8 @@ export function template(template: string, values: { [key: string]: string | ISe
 				if (resolved.length) {
 					segments.push({ value: resolved, type: Type.VARIABLE });
 				}
-			}
-
-			// Separator
-			else if (resolved) {
+			} else if (resolved) {
+				// Separator
 				const prevSegment = segments[segments.length - 1];
 				if (!prevSegment || prevSegment.type !== Type.SEPARATOR) {
 					segments.push({ value: resolved.label, type: Type.SEPARATOR }); // prevent duplicate separators
@@ -272,10 +311,8 @@ export function template(template: string, values: { [key: string]: string | ISe
 
 			curVal = '';
 			inVariable = false;
-		}
-
-		// Text or Variable Name
-		else {
+		} else {
+			// Text or Variable Name
 			curVal += char;
 		}
 	}
@@ -285,17 +322,24 @@ export function template(template: string, values: { [key: string]: string | ISe
 		segments.push({ value: curVal, type: Type.TEXT });
 	}
 
-	return segments.filter((segment, index) => {
+	return segments
+		.filter((segment, index) => {
+			// Only keep separator if we have values to the left and right
+			if (segment.type === Type.SEPARATOR) {
+				const left = segments[index - 1];
+				const right = segments[index + 1];
 
-		// Only keep separator if we have values to the left and right
-		if (segment.type === Type.SEPARATOR) {
-			const left = segments[index - 1];
-			const right = segments[index + 1];
+				return [left, right].every(
+					segment =>
+						segment &&
+						segment.type === Type.VARIABLE &&
+						segment.value.length > 0
+				);
+			}
 
-			return [left, right].every(segment => segment && segment.type === Type.VARIABLE && segment.value.length > 0);
-		}
-
-		// accept any TEXT and VARIABLE
-		return true;
-	}).map(segment => segment.value).join('');
+			// accept any TEXT and VARIABLE
+			return true;
+		})
+		.map(segment => segment.value)
+		.join('');
 }

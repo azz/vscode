@@ -2,14 +2,13 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { CharacterClassifier } from 'vs/editor/common/core/characterClassifier';
 import { CharCode } from 'vs/base/common/charCode';
 
 suite('CharacterClassifier', () => {
-
 	test('works', () => {
 		let classifier = new CharacterClassifier<number>(0);
 
@@ -35,5 +34,4 @@ suite('CharacterClassifier', () => {
 		assert.equal(classifier.get(1000), 3);
 		assert.equal(classifier.get(2000), 0);
 	});
-
 });

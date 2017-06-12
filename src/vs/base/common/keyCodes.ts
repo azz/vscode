@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { OperatingSystem } from 'vs/base/common/platform';
 
@@ -178,12 +178,12 @@ export const enum KeyCode {
 	NUMPAD_8 = 101, // VK_NUMPAD8, 0x68, Numeric keypad 8 key
 	NUMPAD_9 = 102, // VK_NUMPAD9, 0x69, Numeric keypad 9 key
 
-	NUMPAD_MULTIPLY = 103,	// VK_MULTIPLY, 0x6A, Multiply key
-	NUMPAD_ADD = 104,		// VK_ADD, 0x6B, Add key
-	NUMPAD_SEPARATOR = 105,	// VK_SEPARATOR, 0x6C, Separator key
-	NUMPAD_SUBTRACT = 106,	// VK_SUBTRACT, 0x6D, Subtract key
-	NUMPAD_DECIMAL = 107,	// VK_DECIMAL, 0x6E, Decimal key
-	NUMPAD_DIVIDE = 108,	// VK_DIVIDE, 0x6F,
+	NUMPAD_MULTIPLY = 103, // VK_MULTIPLY, 0x6A, Multiply key
+	NUMPAD_ADD = 104, // VK_ADD, 0x6B, Add key
+	NUMPAD_SEPARATOR = 105, // VK_SEPARATOR, 0x6C, Separator key
+	NUMPAD_SUBTRACT = 106, // VK_SUBTRACT, 0x6D, Subtract key
+	NUMPAD_DECIMAL = 107, // VK_DECIMAL, 0x6E, Decimal key
+	NUMPAD_DIVIDE = 108, // VK_DIVIDE, 0x6F,
 
 	/**
 	 * Cover all key codes when IME is processing input.
@@ -201,9 +201,8 @@ export const enum KeyCode {
 }
 
 class KeyCodeStrMap {
-
 	private _keyCodeToStr: string[];
-	private _strToKeyCode: { [str: string]: KeyCode; };
+	private _strToKeyCode: { [str: string]: KeyCode };
 
 	constructor() {
 		this._keyCodeToStr = [];
@@ -228,9 +227,13 @@ const uiMap = new KeyCodeStrMap();
 const userSettingsUSMap = new KeyCodeStrMap();
 const userSettingsGeneralMap = new KeyCodeStrMap();
 
-(function () {
-
-	function define(keyCode: KeyCode, uiLabel: string, usUserSettingsLabel: string = uiLabel, generalUserSettingsLabel: string = usUserSettingsLabel): void {
+(function() {
+	function define(
+		keyCode: KeyCode,
+		uiLabel: string,
+		usUserSettingsLabel: string = uiLabel,
+		generalUserSettingsLabel: string = usUserSettingsLabel
+	): void {
 		uiMap.define(keyCode, uiLabel);
 		userSettingsUSMap.define(keyCode, usUserSettingsLabel);
 		userSettingsGeneralMap.define(keyCode, generalUserSettingsLabel);
@@ -336,7 +339,7 @@ const userSettingsGeneralMap = new KeyCodeStrMap();
 	define(KeyCode.US_OPEN_SQUARE_BRACKET, '[', '[', 'OEM_4');
 	define(KeyCode.US_BACKSLASH, '\\', '\\', 'OEM_5');
 	define(KeyCode.US_CLOSE_SQUARE_BRACKET, ']', ']', 'OEM_6');
-	define(KeyCode.US_QUOTE, '\'', '\'', 'OEM_7');
+	define(KeyCode.US_QUOTE, "'", "'", 'OEM_7');
 	define(KeyCode.OEM_8, 'OEM_8');
 	define(KeyCode.OEM_102, 'OEM_102');
 
@@ -357,7 +360,6 @@ const userSettingsGeneralMap = new KeyCodeStrMap();
 	define(KeyCode.NUMPAD_SUBTRACT, 'NumPad_Subtract');
 	define(KeyCode.NUMPAD_DECIMAL, 'NumPad_Decimal');
 	define(KeyCode.NUMPAD_DIVIDE, 'NumPad_Divide');
-
 })();
 
 export namespace KeyCodeUtils {
@@ -375,7 +377,10 @@ export namespace KeyCodeUtils {
 		return userSettingsGeneralMap.keyCodeToStr(keyCode);
 	}
 	export function fromUserSettings(key: string): KeyCode {
-		return userSettingsUSMap.strToKeyCode(key) || userSettingsGeneralMap.strToKeyCode(key);
+		return (
+			userSettingsUSMap.strToKeyCode(key) ||
+			userSettingsGeneralMap.strToKeyCode(key)
+		);
 	}
 }
 
@@ -393,26 +398,29 @@ export namespace KeyCodeUtils {
  * ```
  */
 const enum BinaryKeybindingsMask {
-	CtrlCmd = (1 << 11) >>> 0,
-	Shift = (1 << 10) >>> 0,
-	Alt = (1 << 9) >>> 0,
-	WinCtrl = (1 << 8) >>> 0,
+	CtrlCmd = 1 << 11 >>> 0,
+	Shift = 1 << 10 >>> 0,
+	Alt = 1 << 9 >>> 0,
+	WinCtrl = 1 << 8 >>> 0,
 	KeyCode = 0x000000ff
 }
 
 export const enum KeyMod {
-	CtrlCmd = (1 << 11) >>> 0,
-	Shift = (1 << 10) >>> 0,
-	Alt = (1 << 9) >>> 0,
-	WinCtrl = (1 << 8) >>> 0,
+	CtrlCmd = 1 << 11 >>> 0,
+	Shift = 1 << 10 >>> 0,
+	Alt = 1 << 9 >>> 0,
+	WinCtrl = 1 << 8 >>> 0
 }
 
 export function KeyChord(firstPart: number, secondPart: number): number {
-	let chordPart = ((secondPart & 0x0000ffff) << 16) >>> 0;
+	let chordPart = (secondPart & 0x0000ffff) << 16 >>> 0;
 	return (firstPart | chordPart) >>> 0;
 }
 
-export function createKeybinding(keybinding: number, OS: OperatingSystem): Keybinding {
+export function createKeybinding(
+	keybinding: number,
+	OS: OperatingSystem
+): Keybinding {
 	if (keybinding === 0) {
 		return null;
 	}
@@ -421,22 +429,24 @@ export function createKeybinding(keybinding: number, OS: OperatingSystem): Keybi
 	if (chordPart !== 0) {
 		return new ChordKeybinding(
 			createSimpleKeybinding(firstPart, OS),
-			createSimpleKeybinding(chordPart, OS),
+			createSimpleKeybinding(chordPart, OS)
 		);
 	}
 	return createSimpleKeybinding(firstPart, OS);
 }
 
-export function createSimpleKeybinding(keybinding: number, OS: OperatingSystem): SimpleKeybinding {
+export function createSimpleKeybinding(
+	keybinding: number,
+	OS: OperatingSystem
+): SimpleKeybinding {
+	const ctrlCmd = keybinding & BinaryKeybindingsMask.CtrlCmd ? true : false;
+	const winCtrl = keybinding & BinaryKeybindingsMask.WinCtrl ? true : false;
 
-	const ctrlCmd = (keybinding & BinaryKeybindingsMask.CtrlCmd ? true : false);
-	const winCtrl = (keybinding & BinaryKeybindingsMask.WinCtrl ? true : false);
-
-	const ctrlKey = (OS === OperatingSystem.Macintosh ? winCtrl : ctrlCmd);
-	const shiftKey = (keybinding & BinaryKeybindingsMask.Shift ? true : false);
-	const altKey = (keybinding & BinaryKeybindingsMask.Alt ? true : false);
-	const metaKey = (OS === OperatingSystem.Macintosh ? ctrlCmd : winCtrl);
-	const keyCode = (keybinding & BinaryKeybindingsMask.KeyCode);
+	const ctrlKey = OS === OperatingSystem.Macintosh ? winCtrl : ctrlCmd;
+	const shiftKey = keybinding & BinaryKeybindingsMask.Shift ? true : false;
+	const altKey = keybinding & BinaryKeybindingsMask.Alt ? true : false;
+	const metaKey = OS === OperatingSystem.Macintosh ? ctrlCmd : winCtrl;
+	const keyCode = keybinding & BinaryKeybindingsMask.KeyCode;
 
 	return new SimpleKeybinding(ctrlKey, shiftKey, altKey, metaKey, keyCode);
 }
@@ -455,7 +465,13 @@ export class SimpleKeybinding {
 	public readonly metaKey: boolean;
 	public readonly keyCode: KeyCode;
 
-	constructor(ctrlKey: boolean, shiftKey: boolean, altKey: boolean, metaKey: boolean, keyCode: KeyCode) {
+	constructor(
+		ctrlKey: boolean,
+		shiftKey: boolean,
+		altKey: boolean,
+		metaKey: boolean,
+		keyCode: KeyCode
+	) {
 		this.ctrlKey = ctrlKey;
 		this.shiftKey = shiftKey;
 		this.altKey = altKey;
@@ -468,21 +484,21 @@ export class SimpleKeybinding {
 			return false;
 		}
 		return (
-			this.ctrlKey === other.ctrlKey
-			&& this.shiftKey === other.shiftKey
-			&& this.altKey === other.altKey
-			&& this.metaKey === other.metaKey
-			&& this.keyCode === other.keyCode
+			this.ctrlKey === other.ctrlKey &&
+			this.shiftKey === other.shiftKey &&
+			this.altKey === other.altKey &&
+			this.metaKey === other.metaKey &&
+			this.keyCode === other.keyCode
 		);
 	}
 
 	public isModifierKey(): boolean {
 		return (
-			this.keyCode === KeyCode.Unknown
-			|| this.keyCode === KeyCode.Ctrl
-			|| this.keyCode === KeyCode.Meta
-			|| this.keyCode === KeyCode.Alt
-			|| this.keyCode === KeyCode.Shift
+			this.keyCode === KeyCode.Unknown ||
+			this.keyCode === KeyCode.Ctrl ||
+			this.keyCode === KeyCode.Meta ||
+			this.keyCode === KeyCode.Alt ||
+			this.keyCode === KeyCode.Shift
 		);
 	}
 
@@ -491,10 +507,10 @@ export class SimpleKeybinding {
 	 */
 	public isDuplicateModifierCase(): boolean {
 		return (
-			(this.ctrlKey && this.keyCode === KeyCode.Ctrl)
-			|| (this.shiftKey && this.keyCode === KeyCode.Shift)
-			|| (this.altKey && this.keyCode === KeyCode.Alt)
-			|| (this.metaKey && this.keyCode === KeyCode.Meta)
+			(this.ctrlKey && this.keyCode === KeyCode.Ctrl) ||
+			(this.shiftKey && this.keyCode === KeyCode.Shift) ||
+			(this.altKey && this.keyCode === KeyCode.Alt) ||
+			(this.metaKey && this.keyCode === KeyCode.Meta)
 		);
 	}
 }
@@ -522,7 +538,14 @@ export class ResolvedKeybindingPart {
 	readonly keyLabel: string;
 	readonly keyAriaLabel: string;
 
-	constructor(ctrlKey: boolean, shiftKey: boolean, altKey: boolean, metaKey: boolean, kbLabel: string, kbAriaLabel: string) {
+	constructor(
+		ctrlKey: boolean,
+		shiftKey: boolean,
+		altKey: boolean,
+		metaKey: boolean,
+		kbLabel: string,
+		kbAriaLabel: string
+	) {
 		this.ctrlKey = ctrlKey;
 		this.shiftKey = shiftKey;
 		this.altKey = altKey;

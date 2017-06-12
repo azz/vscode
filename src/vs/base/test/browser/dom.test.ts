@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import * as dom from 'vs/base/browser/dom';
@@ -10,7 +10,6 @@ const $ = dom.$;
 
 suite('dom', () => {
 	test('hasClass', () => {
-
 		let element = document.createElement('div');
 		element.className = 'foobar boo far';
 
@@ -23,7 +22,6 @@ suite('dom', () => {
 	});
 
 	test('removeClass', () => {
-
 		let element = document.createElement('div');
 		element.className = 'foobar boo far';
 
@@ -55,7 +53,7 @@ suite('dom', () => {
 		assert.equal(element.className, '');
 	});
 
-	test('removeClass should consider hyphens', function () {
+	test('removeClass should consider hyphens', function() {
 		let element = document.createElement('div');
 
 		dom.addClass(element, 'foo-bar');
@@ -85,7 +83,7 @@ suite('dom', () => {
 	//	}
 	//});
 
-	test('safeStringify', function () {
+	test('safeStringify', function() {
 		let obj1 = {
 			friend: null
 		};
@@ -103,9 +101,7 @@ suite('dom', () => {
 		let circular = {
 			a: 42,
 			b: null,
-			c: [
-				obj1, obj2
-			],
+			c: [obj1, obj2],
 			d: null
 		};
 
@@ -130,7 +126,7 @@ suite('dom', () => {
 		});
 	});
 
-	test('safeStringify2', function () {
+	test('safeStringify2', function() {
 		let obj: any = {
 			a: null,
 			b: document.createElement('div'),

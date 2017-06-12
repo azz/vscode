@@ -5,9 +5,14 @@
 
 import * as assert from 'assert';
 
-import { SpectronApplication, LATEST_PATH, WORKSPACE_PATH, EXTENSIONS_DIR } from "../spectron/application";
+import {
+	SpectronApplication,
+	LATEST_PATH,
+	WORKSPACE_PATH,
+	EXTENSIONS_DIR
+} from '../spectron/application';
 import { CommonActions } from '../areas/common';
-import { Extensions } from "../areas/extensions";
+import { Extensions } from '../areas/extensions';
 
 var dns = require('dns');
 
@@ -23,20 +28,25 @@ export async function testExtensions() {
 	context('Extensions', () => {
 		let extensions: Extensions;
 
-		beforeEach(async function () {
-			app = new SpectronApplication(LATEST_PATH, this.currentTest.fullTitle(), (this.currentTest as any).currentRetry(), [WORKSPACE_PATH, `--extensions-dir=${EXTENSIONS_DIR}`]);
+		beforeEach(async function() {
+			app = new SpectronApplication(
+				LATEST_PATH,
+				this.currentTest.fullTitle(),
+				(this.currentTest as any).currentRetry(),
+				[WORKSPACE_PATH, `--extensions-dir=${EXTENSIONS_DIR}`]
+			);
 			common = new CommonActions(app);
 			extensions = new Extensions(app, common);
 			await common.removeDirectory(EXTENSIONS_DIR);
 
 			return await app.start();
 		});
-		afterEach(async function () {
+		afterEach(async function() {
 			await app.stop();
 			return await common.removeDirectory(EXTENSIONS_DIR);
 		});
 
-		it(`installs 'vscode-icons' extension and verifies reload is prompted`, async function () {
+		it(`installs 'vscode-icons' extension and verifies reload is prompted`, async function() {
 			await extensions.openExtensionsViewlet();
 			await extensions.searchForExtension('vscode-icons');
 			await app.wait();
@@ -45,7 +55,7 @@ export async function testExtensions() {
 			assert.ok(await extensions.getFirstReloadText());
 		});
 
-		it(`installs an extension and checks if it works on restart`, async function () {
+		it(`installs an extension and checks if it works on restart`, async function() {
 			await extensions.openExtensionsViewlet();
 			await extensions.searchForExtension('vscode-icons');
 			await app.wait();
@@ -65,7 +75,7 @@ export async function testExtensions() {
 
 function networkAttached(): Promise<boolean> {
 	return new Promise((res, rej) => {
-		dns.resolve('marketplace.visualstudio.com', (err) => {
+		dns.resolve('marketplace.visualstudio.com', err => {
 			err ? res(false) : res(true);
 		});
 	});

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import assert = require('assert');
 
@@ -11,7 +11,11 @@ import assert = require('assert');
  * Executes the given function (fn) over the given array of items (list) in parallel and returns the resulting errors and results as
  * array to the callback (callback). The resulting errors and results are evaluated by calling the provided callback function.
  */
-export function parallel<T, E>(list: T[], fn: (item: T, callback: (err: Error, result: E) => void) => void, callback: (err: Error[], result: E[]) => void): void {
+export function parallel<T, E>(
+	list: T[],
+	fn: (item: T, callback: (err: Error, result: E) => void) => void,
+	callback: (err: Error[], result: E[]) => void
+): void {
 	let results = new Array(list.length);
 	let errors = new Array<Error>(list.length);
 	let didErrorOccur = false;
@@ -44,17 +48,49 @@ export function parallel<T, E>(list: T[], fn: (item: T, callback: (err: Error, r
  * array to the callback (callback). The resulting errors and results are evaluated by calling the provided callback function. The first param can
  * either be a function that returns an array of results to loop in async fashion or be an array of items already.
  */
-export function loop<T, E>(param: (callback: (error: Error, result: T[]) => void) => void, fn: (item: T, callback: (error: Error, result: E) => void, index: number, total: number) => void, callback: (error: Error, result: E[]) => void): void;
-export function loop<T, E>(param: T[], fn: (item: T, callback: (error: Error, result: E) => void, index: number, total: number) => void, callback: (error: Error, result: E[]) => void): void;
-export function loop<E>(param: any, fn: (item: any, callback: (error: Error, result: E) => void, index: number, total: number) => void, callback: (error: Error, result: E[]) => void): void {
-
+export function loop<T, E>(
+	param: (callback: (error: Error, result: T[]) => void) => void,
+	fn: (
+		item: T,
+		callback: (error: Error, result: E) => void,
+		index: number,
+		total: number
+	) => void,
+	callback: (error: Error, result: E[]) => void
+): void;
+export function loop<T, E>(
+	param: T[],
+	fn: (
+		item: T,
+		callback: (error: Error, result: E) => void,
+		index: number,
+		total: number
+	) => void,
+	callback: (error: Error, result: E[]) => void
+): void;
+export function loop<E>(
+	param: any,
+	fn: (
+		item: any,
+		callback: (error: Error, result: E) => void,
+		index: number,
+		total: number
+	) => void,
+	callback: (error: Error, result: E[]) => void
+): void {
 	// Assert
 	assert.ok(param, 'Missing first parameter');
-	assert.ok(typeof (fn) === 'function', 'Second parameter must be a function that is called for each element');
-	assert.ok(typeof (callback) === 'function', 'Third parameter must be a function that is called on error and success');
+	assert.ok(
+		typeof fn === 'function',
+		'Second parameter must be a function that is called for each element'
+	);
+	assert.ok(
+		typeof callback === 'function',
+		'Third parameter must be a function that is called on error and success'
+	);
 
 	// Param is function, execute to retrieve array
-	if (typeof (param) === 'function') {
+	if (typeof param === 'function') {
 		try {
 			param((error: Error, result: E[]) => {
 				if (error) {
@@ -66,50 +102,47 @@ export function loop<E>(param: any, fn: (item: any, callback: (error: Error, res
 		} catch (error) {
 			callback(error, null);
 		}
-	}
-
-	// Expect the param to be an array and loop over it
-	else {
+	} else {
+		// Expect the param to be an array and loop over it
 		let results: E[] = [];
 
-		let looper: (i: number) => void = function (i: number): void {
-
+		let looper: (i: number) => void = function(i: number): void {
 			// Still work to do
 			if (i < param.length) {
-
 				// Execute function on array element
 				try {
-					fn(param[i], (error: any, result: E) => {
-
-						// A method might only send a boolean value as return value (e.g. fs.exists), support this case gracefully
-						if (error === true || error === false) {
-							result = error;
-							error = null;
-						}
-
-						// Quit looping on error
-						if (error) {
-							callback(error, null);
-						}
-
-						// Otherwise push result on stack and continue looping
-						else {
-							if (result) { //Could be that provided function is not returning a result
-								results.push(result);
+					fn(
+						param[i],
+						(error: any, result: E) => {
+							// A method might only send a boolean value as return value (e.g. fs.exists), support this case gracefully
+							if (error === true || error === false) {
+								result = error;
+								error = null;
 							}
 
-							process.nextTick(() => {
-								looper(i + 1);
-							});
-						}
-					}, i, param.length);
+							// Quit looping on error
+							if (error) {
+								callback(error, null);
+							} else {
+								// Otherwise push result on stack and continue looping
+								if (result) {
+									//Could be that provided function is not returning a result
+									results.push(result);
+								}
+
+								process.nextTick(() => {
+									looper(i + 1);
+								});
+							}
+						},
+						i,
+						param.length
+					);
 				} catch (error) {
 					callback(error, null);
 				}
-			}
-
-			// Done looping, pass back results too callback function
-			else {
+			} else {
+				// Done looping, pass back results too callback function
 				callback(null, results);
 			}
 		};
@@ -119,49 +152,54 @@ export function loop<E>(param: any, fn: (item: any, callback: (error: Error, res
 	}
 }
 
-function Sequence(sequences: { (...param: any[]): void; }[]): void {
-
+function Sequence(sequences: { (...param: any[]): void }[]): void {
 	// Assert
-	assert.ok(sequences.length > 1, 'Need at least one error handler and one function to process sequence');
-	sequences.forEach((sequence) => {
-		assert.ok(typeof (sequence) === 'function');
+	assert.ok(
+		sequences.length > 1,
+		'Need at least one error handler and one function to process sequence'
+	);
+	sequences.forEach(sequence => {
+		assert.ok(typeof sequence === 'function');
 	});
 
 	// Execute in Loop
 	let errorHandler = sequences.splice(0, 1)[0]; //Remove error handler
 	let sequenceResult: any = null;
 
-	loop(sequences, (sequence, clb) => {
-		let sequenceFunction = function (error: any, result: any): void {
+	loop(
+		sequences,
+		(sequence, clb) => {
+			let sequenceFunction = function(error: any, result: any): void {
+				// A method might only send a boolean value as return value (e.g. fs.exists), support this case gracefully
+				if (error === true || error === false) {
+					result = error;
+					error = null;
+				}
 
-			// A method might only send a boolean value as return value (e.g. fs.exists), support this case gracefully
-			if (error === true || error === false) {
-				result = error;
-				error = null;
-			}
+				// Handle Error and Result
+				if (error) {
+					clb(error, null);
+				} else {
+					sequenceResult = result; //Remember result of sequence
+					clb(null, null); //Don't pass on result to Looper as we are not aggregating it
+				}
+			};
 
-			// Handle Error and Result
-			if (error) {
+			// We call the sequence function setting "this" to be the callback we define here
+			// and we pass in the "sequenceResult" as first argument. Doing all this avoids having
+			// to pass in a callback to the sequence because the callback is already "this".
+			try {
+				sequence.call(sequenceFunction, sequenceResult);
+			} catch (error) {
 				clb(error, null);
-			} else {
-				sequenceResult = result; //Remember result of sequence
-				clb(null, null); //Don't pass on result to Looper as we are not aggregating it
 			}
-		};
-
-		// We call the sequence function setting "this" to be the callback we define here
-		// and we pass in the "sequenceResult" as first argument. Doing all this avoids having
-		// to pass in a callback to the sequence because the callback is already "this".
-		try {
-			sequence.call(sequenceFunction, sequenceResult);
-		} catch (error) {
-			clb(error, null);
+		},
+		(error, result) => {
+			if (error) {
+				errorHandler(error);
+			}
 		}
-	}, (error, result) => {
-		if (error) {
-			errorHandler(error);
-		}
-	});
+	);
 }
 
 /**
@@ -182,8 +220,13 @@ function Sequence(sequences: { (...param: any[]): void; }[]): void {
  * 		}
  * 	);
  */
-export function sequence(errorHandler: (error: Error) => void, ...sequences: Function[]): void;
+export function sequence(
+	errorHandler: (error: Error) => void,
+	...sequences: Function[]
+): void;
 export function sequence(sequences: Function[]): void;
 export function sequence(sequences: any): void {
-	Sequence((Array.isArray(sequences)) ? sequences : Array.prototype.slice.call(arguments));
+	Sequence(
+		Array.isArray(sequences) ? sequences : Array.prototype.slice.call(arguments)
+	);
 }

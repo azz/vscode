@@ -3,13 +3,31 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
-import { EditorStacksModel, EditorGroup, EditorCloseEvent } from 'vs/workbench/common/editor/editorStacksModel';
-import { EditorInput, IFileEditorInput, IEditorIdentifier, IEditorGroup, IStacksModelChangeEvent, IEditorRegistry, Extensions as EditorExtensions, IEditorInputFactory, IEditorCloseEvent } from 'vs/workbench/common/editor';
+import {
+	EditorStacksModel,
+	EditorGroup,
+	EditorCloseEvent
+} from 'vs/workbench/common/editor/editorStacksModel';
+import {
+	EditorInput,
+	IFileEditorInput,
+	IEditorIdentifier,
+	IEditorGroup,
+	IStacksModelChangeEvent,
+	IEditorRegistry,
+	Extensions as EditorExtensions,
+	IEditorInputFactory,
+	IEditorCloseEvent
+} from 'vs/workbench/common/editor';
 import URI from 'vs/base/common/uri';
-import { TestStorageService, TestLifecycleService, TestContextService } from 'vs/workbench/test/workbenchTestServices';
+import {
+	TestStorageService,
+	TestLifecycleService,
+	TestContextService
+} from 'vs/workbench/test/workbenchTestServices';
 import { TestConfigurationService } from 'vs/platform/configuration/test/common/testConfigurationService';
 import { TestInstantiationService } from 'vs/platform/instantiation/test/common/instantiationServiceMock';
 import { IConfigurationService } from 'vs/platform/configuration/common/configuration';
@@ -32,9 +50,10 @@ function create(): EditorStacksModel {
 	inst.stub(ITelemetryService, NullTelemetryService);
 
 	const config = new TestConfigurationService();
-	config.setUserConfiguration('workbench', { editor: { openPositioning: 'right' } });
+	config.setUserConfiguration('workbench', {
+		editor: { openPositioning: 'right' }
+	});
 	inst.stub(IConfigurationService, config);
-
 
 	return inst.createInstance(EditorStacksModel, true);
 }
@@ -111,8 +130,12 @@ class TestEditorInput extends EditorInput {
 	constructor(public id: string) {
 		super();
 	}
-	public getTypeId() { return 'testEditorInput'; }
-	public resolve() { return null; }
+	public getTypeId() {
+		return 'testEditorInput';
+	}
+	public resolve() {
+		return null;
+	}
 
 	public matches(other: TestEditorInput): boolean {
 		return other && this.id === other.id && other instanceof TestEditorInput;
@@ -131,51 +154,66 @@ class NonSerializableTestEditorInput extends EditorInput {
 	constructor(public id: string) {
 		super();
 	}
-	public getTypeId() { return 'testEditorInput-nonSerializable'; }
-	public resolve() { return null; }
+	public getTypeId() {
+		return 'testEditorInput-nonSerializable';
+	}
+	public resolve() {
+		return null;
+	}
 
 	public matches(other: TestEditorInput): boolean {
-		return other && this.id === other.id && other instanceof NonSerializableTestEditorInput;
+		return (
+			other &&
+			this.id === other.id &&
+			other instanceof NonSerializableTestEditorInput
+		);
 	}
 }
 
 class TestFileEditorInput extends EditorInput implements IFileEditorInput {
-
 	constructor(public id: string, private resource: URI) {
 		super();
 	}
-	public getTypeId() { return 'testFileEditorInput'; }
-	public resolve() { return null; }
+	public getTypeId() {
+		return 'testFileEditorInput';
+	}
+	public resolve() {
+		return null;
+	}
 
 	public matches(other: TestEditorInput): boolean {
-		return other && this.id === other.id && other instanceof TestFileEditorInput;
+		return (
+			other && this.id === other.id && other instanceof TestFileEditorInput
+		);
 	}
 
-
-	public setEncoding(encoding: string) {
-	}
+	public setEncoding(encoding: string) {}
 
 	public getEncoding(): string {
 		return null;
 	}
 
-	public setPreferredEncoding(encoding: string) {
-	}
+	public setPreferredEncoding(encoding: string) {}
 
 	public getResource(): URI {
 		return this.resource;
 	}
 
-	public setForceOpenAsBinary(): void {
-	}
+	public setForceOpenAsBinary(): void {}
 }
 
-function input(id = String(index++), nonSerializable?: boolean, resource?: URI): EditorInput {
+function input(
+	id = String(index++),
+	nonSerializable?: boolean,
+	resource?: URI
+): EditorInput {
 	if (resource) {
 		return new TestFileEditorInput(id, resource);
 	}
 
-	return nonSerializable ? new NonSerializableTestEditorInput(id) : new TestEditorInput(id);
+	return nonSerializable
+		? new NonSerializableTestEditorInput(id)
+		: new TestEditorInput(id);
 }
 
 interface ISerializedTestInput {
@@ -183,8 +221,7 @@ interface ISerializedTestInput {
 }
 
 class TestEditorInputFactory implements IEditorInputFactory {
-
-	constructor() { }
+	constructor() {}
 
 	public serialize(editorInput: EditorInput): string {
 		let testEditorInput = <TestEditorInput>editorInput;
@@ -195,22 +232,26 @@ class TestEditorInputFactory implements IEditorInputFactory {
 		return JSON.stringify(testInput);
 	}
 
-	public deserialize(instantiationService: IInstantiationService, serializedEditorInput: string): EditorInput {
+	public deserialize(
+		instantiationService: IInstantiationService,
+		serializedEditorInput: string
+	): EditorInput {
 		let testInput: ISerializedTestInput = JSON.parse(serializedEditorInput);
 
 		return new TestEditorInput(testInput.id);
 	}
 }
 
-(<IEditorRegistry>Registry.as(EditorExtensions.Editors)).registerEditorInputFactory('testEditorInput', TestEditorInputFactory);
+(<IEditorRegistry>Registry.as(
+	EditorExtensions.Editors
+)).registerEditorInputFactory('testEditorInput', TestEditorInputFactory);
 
 suite('Editor Stacks Model', () => {
-
 	teardown(() => {
 		index = 1;
 	});
 
-	test('Groups - Basic', function () {
+	test('Groups - Basic', function() {
 		const model = create();
 		const events = modelListener(model);
 
@@ -272,7 +313,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(model.groups.length, 0);
 	});
 
-	test('Groups - Close Group sends move event for others to the right', function () {
+	test('Groups - Close Group sends move event for others to the right', function() {
 		const model = create();
 		const events = modelListener(model);
 
@@ -287,7 +328,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(events.moved.length, 2);
 	});
 
-	test('Groups - Move Groups', function () {
+	test('Groups - Move Groups', function() {
 		const model = create();
 		const events = modelListener(model);
 
@@ -300,7 +341,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(group2, events.renamed[0]);
 	});
 
-	test('Groups - Position of Group', function () {
+	test('Groups - Position of Group', function() {
 		const model = create();
 
 		const group1 = model.openGroup('first');
@@ -312,7 +353,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(Position.THREE, model.positionOfGroup(group3));
 	});
 
-	test('Groups - Rename Group', function () {
+	test('Groups - Rename Group', function() {
 		const model = create();
 
 		const group1 = model.openGroup('first');
@@ -335,7 +376,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(model.groups[2], group1);
 	});
 
-	test('Groups - Move Group sends move events for all moved groups', function () {
+	test('Groups - Move Group sends move events for all moved groups', function() {
 		const model = create();
 		let events = modelListener(model);
 
@@ -367,7 +408,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(events.moved.length, 2);
 	});
 
-	test('Groups - Event Aggregation', function () {
+	test('Groups - Event Aggregation', function() {
 		const model = create();
 
 		let groupEvents: IStacksModelChangeEvent[] = [];
@@ -401,7 +442,7 @@ suite('Editor Stacks Model', () => {
 		assert.ok(groupEvents.length > count);
 	});
 
-	test('Groups - Open group but do not set active', function () {
+	test('Groups - Open group but do not set active', function() {
 		const model = create();
 		const events = modelListener(model);
 
@@ -413,7 +454,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(events.activated[0], group1);
 	});
 
-	test('Groups - Group Identifiers', function () {
+	test('Groups - Group Identifiers', function() {
 		const model = create();
 
 		const group1 = model.openGroup('first');
@@ -438,7 +479,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(model.getGroup(group3.id), null);
 	});
 
-	test('Groups - Open Group at Index', function () {
+	test('Groups - Open Group at Index', function() {
 		const model = create();
 
 		const group1 = model.openGroup('first', false, 2);
@@ -450,7 +491,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(model.groups[2], group1);
 	});
 
-	test('Groups - Close All Groups except active', function () {
+	test('Groups - Close All Groups except active', function() {
 		const model = create();
 
 		model.openGroup('first');
@@ -463,7 +504,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(model.activeGroup, group3);
 	});
 
-	test('Groups - Close All Groups except inactive', function () {
+	test('Groups - Close All Groups except inactive', function() {
 		const model = create();
 
 		model.openGroup('first');
@@ -476,7 +517,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(model.activeGroup, group2);
 	});
 
-	test('Stack - One Editor', function () {
+	test('Stack - One Editor', function() {
 		const model = create();
 		const group = model.openGroup('group');
 		const events = groupListener(group);
@@ -588,7 +629,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(events.closed[3].editor, input4);
 	});
 
-	test('Stack - Multiple Editors - Pinned and Active', function () {
+	test('Stack - Multiple Editors - Pinned and Active', function() {
 		const model = create();
 		const group = model.openGroup('group');
 		const events = groupListener(group);
@@ -630,7 +671,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(group.count, 0);
 	});
 
-	test('Stack - Multiple Editors - Preview editor moves to the side of the active one', function () {
+	test('Stack - Multiple Editors - Preview editor moves to the side of the active one', function() {
 		const model = create();
 		const group = model.openGroup('group');
 
@@ -650,7 +691,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(input4, group.getEditors()[2]);
 	});
 
-	test('Stack - Multiple Editors - Pinned and Active (DEFAULT_OPEN_EDITOR_DIRECTION = Direction.LEFT)', function () {
+	test('Stack - Multiple Editors - Pinned and Active (DEFAULT_OPEN_EDITOR_DIRECTION = Direction.LEFT)', function() {
 		let inst = new TestInstantiationService();
 		inst.stub(IStorageService, new TestStorageService());
 		inst.stub(ILifecycleService, new TestLifecycleService());
@@ -659,8 +700,9 @@ suite('Editor Stacks Model', () => {
 
 		const config = new TestConfigurationService();
 		inst.stub(IConfigurationService, config);
-		config.setUserConfiguration('workbench', { editor: { openPositioning: 'left' } });
-
+		config.setUserConfiguration('workbench', {
+			editor: { openPositioning: 'left' }
+		});
 
 		const model = inst.createInstance(EditorStacksModel, true);
 
@@ -686,7 +728,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(group.count, 0);
 	});
 
-	test('Stack - Multiple Editors - Pinned and Not Active', function () {
+	test('Stack - Multiple Editors - Pinned and Not Active', function() {
 		const model = create();
 		const group = model.openGroup('group');
 
@@ -721,7 +763,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(mru[2], input3);
 	});
 
-	test('Stack - Multiple Editors - Preview gets overwritten', function () {
+	test('Stack - Multiple Editors - Preview gets overwritten', function() {
 		const model = create();
 		const group = model.openGroup('group');
 		const events = groupListener(group);
@@ -753,7 +795,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(mru.length, 1);
 	});
 
-	test('Stack - Multiple Editors - set active', function () {
+	test('Stack - Multiple Editors - set active', function() {
 		const model = create();
 		const group = model.openGroup('group');
 		const events = groupListener(group);
@@ -789,7 +831,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(mru[2], input2);
 	});
 
-	test('Stack - Multiple Editors - pin and unpin', function () {
+	test('Stack - Multiple Editors - pin and unpin', function() {
 		const model = create();
 		const group = model.openGroup('group');
 		const events = groupListener(group);
@@ -841,7 +883,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(group.count, 1);
 	});
 
-	test('Stack - Multiple Editors - closing picks next from MRU list', function () {
+	test('Stack - Multiple Editors - closing picks next from MRU list', function() {
 		const model = create();
 		const group = model.openGroup('group');
 		const events = groupListener(group);
@@ -891,7 +933,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(group.count, 0);
 	});
 
-	test('Stack - Multiple Editors - move editor', function () {
+	test('Stack - Multiple Editors - move editor', function() {
 		const model = create();
 		const group = model.openGroup('group');
 		const events = groupListener(group);
@@ -935,7 +977,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(group.getEditors()[4], input5);
 	});
 
-	test('Stack - Multiple Editors - move editor across groups', function () {
+	test('Stack - Multiple Editors - move editor across groups', function() {
 		const model = create();
 
 		const group1 = model.openGroup('group1');
@@ -959,7 +1001,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(group1.getEditors()[2], g1_input2);
 	});
 
-	test('Stack - Multiple Editors - move editor across groups (input already exists in group 1)', function () {
+	test('Stack - Multiple Editors - move editor across groups (input already exists in group 1)', function() {
 		const model = create();
 
 		const group1 = model.openGroup('group1');
@@ -985,7 +1027,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(group1.getEditors()[2], g1_input3);
 	});
 
-	test('Stack - Multiple Editors - Pinned & Non Active', function () {
+	test('Stack - Multiple Editors - Pinned & Non Active', function() {
 		const model = create();
 		const group = model.openGroup('group');
 
@@ -1017,7 +1059,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(group.count, 3);
 	});
 
-	test('Stack - Multiple Editors - Close Others, Close Left, Close Right', function () {
+	test('Stack - Multiple Editors - Close Others, Close Left, Close Right', function() {
 		const model = create();
 		const group = model.openGroup('group');
 
@@ -1073,7 +1115,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(group.getEditors()[2], input3);
 	});
 
-	test('Stack - Multiple Editors - real user example', function () {
+	test('Stack - Multiple Editors - real user example', function() {
 		const model = create();
 		const group = model.openGroup('group');
 
@@ -1186,7 +1228,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(group.previewEditor, null);
 	});
 
-	test('Stack - Single Group, Single Editor - persist', function () {
+	test('Stack - Single Group, Single Editor - persist', function() {
 		let inst = new TestInstantiationService();
 
 		inst.stub(IStorageService, new TestStorageService());
@@ -1196,10 +1238,14 @@ suite('Editor Stacks Model', () => {
 		inst.stub(ITelemetryService, NullTelemetryService);
 
 		const config = new TestConfigurationService();
-		config.setUserConfiguration('workbench', { editor: { openPositioning: 'right' } });
+		config.setUserConfiguration('workbench', {
+			editor: { openPositioning: 'right' }
+		});
 		inst.stub(IConfigurationService, config);
 
-		(<IEditorRegistry>Registry.as(EditorExtensions.Editors)).setInstantiationService(inst);
+		(<IEditorRegistry>Registry.as(
+			EditorExtensions.Editors
+		)).setInstantiationService(inst);
 
 		let model: EditorStacksModel = inst.createInstance(EditorStacksModel, true);
 		let group = model.openGroup('group');
@@ -1230,7 +1276,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(group.isActive(input1), true);
 	});
 
-	test('Stack - Multiple Groups, Multiple editors - persist', function () {
+	test('Stack - Multiple Groups, Multiple editors - persist', function() {
 		let inst = new TestInstantiationService();
 
 		inst.stub(IStorageService, new TestStorageService());
@@ -1240,11 +1286,14 @@ suite('Editor Stacks Model', () => {
 		inst.stub(ITelemetryService, NullTelemetryService);
 
 		const config = new TestConfigurationService();
-		config.setUserConfiguration('workbench', { editor: { openPositioning: 'right' } });
+		config.setUserConfiguration('workbench', {
+			editor: { openPositioning: 'right' }
+		});
 		inst.stub(IConfigurationService, config);
 
-
-		(<IEditorRegistry>Registry.as(EditorExtensions.Editors)).setInstantiationService(inst);
+		(<IEditorRegistry>Registry.as(
+			EditorExtensions.Editors
+		)).setInstantiationService(inst);
 
 		let model: EditorStacksModel = inst.createInstance(EditorStacksModel, true);
 
@@ -1313,7 +1362,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(group2.getEditors(true)[2].matches(g2_input3), true);
 	});
 
-	test('Stack - Single group, multiple editors - persist (some not persistable)', function () {
+	test('Stack - Single group, multiple editors - persist (some not persistable)', function() {
 		let inst = new TestInstantiationService();
 
 		inst.stub(IStorageService, new TestStorageService());
@@ -1323,11 +1372,14 @@ suite('Editor Stacks Model', () => {
 		inst.stub(ITelemetryService, NullTelemetryService);
 
 		const config = new TestConfigurationService();
-		config.setUserConfiguration('workbench', { editor: { openPositioning: 'right' } });
+		config.setUserConfiguration('workbench', {
+			editor: { openPositioning: 'right' }
+		});
 		inst.stub(IConfigurationService, config);
 
-
-		(<IEditorRegistry>Registry.as(EditorExtensions.Editors)).setInstantiationService(inst);
+		(<IEditorRegistry>Registry.as(
+			EditorExtensions.Editors
+		)).setInstantiationService(inst);
 
 		let model: EditorStacksModel = inst.createInstance(EditorStacksModel, true);
 
@@ -1345,7 +1397,10 @@ suite('Editor Stacks Model', () => {
 		assert.equal(group.activeEditor.matches(nonSerializableInput2), true);
 		assert.equal(group.previewEditor.matches(nonSerializableInput2), true);
 
-		assert.equal(group.getEditors(true)[0].matches(nonSerializableInput2), true);
+		assert.equal(
+			group.getEditors(true)[0].matches(nonSerializableInput2),
+			true
+		);
 		assert.equal(group.getEditors(true)[1].matches(serializableInput1), true);
 		assert.equal(group.getEditors(true)[2].matches(serializableInput2), true);
 
@@ -1364,7 +1419,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(group.getEditors(true)[1].matches(serializableInput2), true);
 	});
 
-	test('Stack - Multiple groups, multiple editors - persist (some not persistable, causes empty group)', function () {
+	test('Stack - Multiple groups, multiple editors - persist (some not persistable, causes empty group)', function() {
 		let inst = new TestInstantiationService();
 
 		inst.stub(IStorageService, new TestStorageService());
@@ -1374,11 +1429,14 @@ suite('Editor Stacks Model', () => {
 		inst.stub(ITelemetryService, NullTelemetryService);
 
 		const config = new TestConfigurationService();
-		config.setUserConfiguration('workbench', { editor: { openPositioning: 'right' } });
+		config.setUserConfiguration('workbench', {
+			editor: { openPositioning: 'right' }
+		});
 		inst.stub(IConfigurationService, config);
 
-
-		(<IEditorRegistry>Registry.as(EditorExtensions.Editors)).setInstantiationService(inst);
+		(<IEditorRegistry>Registry.as(
+			EditorExtensions.Editors
+		)).setInstantiationService(inst);
 
 		let model: EditorStacksModel = inst.createInstance(EditorStacksModel, true);
 
@@ -1407,7 +1465,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(group1.getEditors()[1].matches(serializableInput2), true);
 	});
 
-	test('Stack - Multiple groups, multiple editors - persist (ignore persisted when editors to open on startup)', function () {
+	test('Stack - Multiple groups, multiple editors - persist (ignore persisted when editors to open on startup)', function() {
 		let inst = new TestInstantiationService();
 
 		inst.stub(IStorageService, new TestStorageService());
@@ -1416,12 +1474,19 @@ suite('Editor Stacks Model', () => {
 		inst.stub(ITelemetryService, NullTelemetryService);
 
 		const config = new TestConfigurationService();
-		config.setUserConfiguration('workbench', { editor: { openPositioning: 'right' } });
+		config.setUserConfiguration('workbench', {
+			editor: { openPositioning: 'right' }
+		});
 		inst.stub(IConfigurationService, config);
 
-		(<IEditorRegistry>Registry.as(EditorExtensions.Editors)).setInstantiationService(inst);
+		(<IEditorRegistry>Registry.as(
+			EditorExtensions.Editors
+		)).setInstantiationService(inst);
 
-		let model: EditorStacksModel = inst.createInstance(EditorStacksModel, false);
+		let model: EditorStacksModel = inst.createInstance(
+			EditorStacksModel,
+			false
+		);
 
 		let group1 = model.openGroup('group1');
 		let group2 = model.openGroup('group1');
@@ -1443,7 +1508,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(model.groups.length, 0);
 	});
 
-	test('Stack - Multiple Editors - Navigation (across groups)', function () {
+	test('Stack - Multiple Editors - Navigation (across groups)', function() {
 		const model = create();
 
 		const group1 = model.openGroup('group1');
@@ -1468,7 +1533,10 @@ suite('Editor Stacks Model', () => {
 		model.setActive(group1);
 		group1.setActive(input1);
 
-		let previous = model.previous(true, false /* jump groups, do NOT cycle at start*/);
+		let previous = model.previous(
+			true,
+			false /* jump groups, do NOT cycle at start*/
+		);
 		assert.equal(previous, null);
 
 		previous = model.previous(true /* jump groups */);
@@ -1500,7 +1568,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(previous.editor, input3);
 	});
 
-	test('Stack - Multiple Editors - Navigation (in group)', function () {
+	test('Stack - Multiple Editors - Navigation (in group)', function() {
 		const model = create();
 
 		const group1 = model.openGroup('group1');
@@ -1525,7 +1593,10 @@ suite('Editor Stacks Model', () => {
 		model.setActive(group1);
 		group1.setActive(input1);
 
-		let previous = model.previous(false, false /* do NOT jump groups, do NOT cycle at start*/);
+		let previous = model.previous(
+			false,
+			false /* do NOT jump groups, do NOT cycle at start*/
+		);
 		assert.equal(previous, null);
 
 		previous = model.previous(false /* do NOT jump groups */);
@@ -1535,7 +1606,10 @@ suite('Editor Stacks Model', () => {
 		model.setActive(<EditorGroup>previous.group);
 		(<EditorGroup>previous.group).setActive(<EditorInput>previous.editor);
 
-		let next = model.next(false, false /* do NOT jump groups, do NOT cycle at end */);
+		let next = model.next(
+			false,
+			false /* do NOT jump groups, do NOT cycle at end */
+		);
 		assert.equal(next, null);
 
 		next = model.next(false /* do NOT jump groups */);
@@ -1557,7 +1631,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(previous.editor, input3);
 	});
 
-	test('Stack - Multiple Editors - Resources', function () {
+	test('Stack - Multiple Editors - Resources', function() {
 		const model = create();
 
 		const group1 = model.openGroup('group1');
@@ -1632,7 +1706,7 @@ suite('Editor Stacks Model', () => {
 		assert.ok(!model.isOpen(input3Resource));
 	});
 
-	test('Stack - Multiple Editors - Editor Dispose', function () {
+	test('Stack - Multiple Editors - Editor Dispose', function() {
 		const model = create();
 		const events = modelListener(model);
 
@@ -1675,7 +1749,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(events.disposed.length, 4);
 	});
 
-	test('Stack - Multiple Editors - Editor Disposed on Close', function () {
+	test('Stack - Multiple Editors - Editor Disposed on Close', function() {
 		const model = create();
 		const events = modelListener(model);
 
@@ -1744,7 +1818,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(input4.isDisposed(), true);
 	});
 
-	test('Stack - Multiple Editors - Editor Disposed on Close (Diff Editor)', function () {
+	test('Stack - Multiple Editors - Editor Disposed on Close (Diff Editor)', function() {
 		const model = create();
 
 		const group1 = model.openGroup('group1');
@@ -1752,7 +1826,12 @@ suite('Editor Stacks Model', () => {
 		const input1 = input();
 		const input2 = input();
 
-		const diffInput = new DiffEditorInput('name', 'description', input1, input2);
+		const diffInput = new DiffEditorInput(
+			'name',
+			'description',
+			input1,
+			input2
+		);
 
 		group1.openEditor(diffInput, { pinned: true, active: true });
 		group1.openEditor(input1, { pinned: true, active: true });
@@ -1764,7 +1843,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(input1.isDisposed(), false);
 	});
 
-	test('Stack - Multiple Editors - Editor Disposed on Close (same input, files)', function () {
+	test('Stack - Multiple Editors - Editor Disposed on Close (same input, files)', function() {
 		const model = create();
 
 		const group1 = model.openGroup('group1');
@@ -1782,7 +1861,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(input1.isDisposed(), true);
 	});
 
-	test('Stack - Multiple Editors - Editor Disposed on Close (same input, files, diff)', function () {
+	test('Stack - Multiple Editors - Editor Disposed on Close (same input, files, diff)', function() {
 		const model = create();
 
 		const group1 = model.openGroup('group1');
@@ -1791,7 +1870,12 @@ suite('Editor Stacks Model', () => {
 		const input1 = input(void 0, void 0, URI.file('/hello/world.txt'));
 		const input2 = input(void 0, void 0, URI.file('/hello/world_other.txt'));
 
-		const diffInput = new DiffEditorInput('name', 'description', input2, input1);
+		const diffInput = new DiffEditorInput(
+			'name',
+			'description',
+			input2,
+			input1
+		);
 
 		group1.openEditor(input1, { pinned: true, active: true });
 		group2.openEditor(diffInput, { pinned: true, active: true });
@@ -1807,7 +1891,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(diffInput.isDisposed(), true);
 	});
 
-	test('Stack - Multiple Editors - Editor Disposed on Close (same input, files, diff, close diff)', function () {
+	test('Stack - Multiple Editors - Editor Disposed on Close (same input, files, diff, close diff)', function() {
 		const model = create();
 
 		const group1 = model.openGroup('group1');
@@ -1816,7 +1900,12 @@ suite('Editor Stacks Model', () => {
 		const input1 = input(void 0, void 0, URI.file('/hello/world.txt'));
 		const input2 = input(void 0, void 0, URI.file('/hello/world_other.txt'));
 
-		const diffInput = new DiffEditorInput('name', 'description', input2, input1);
+		const diffInput = new DiffEditorInput(
+			'name',
+			'description',
+			input2,
+			input1
+		);
 
 		group1.openEditor(input1, { pinned: true, active: true });
 		group2.openEditor(diffInput, { pinned: true, active: true });
@@ -1830,7 +1919,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(input1.isDisposed(), true);
 	});
 
-	test('Stack - Multiple Editors - Editor Emits Dirty and Label Changed', function () {
+	test('Stack - Multiple Editors - Editor Emits Dirty and Label Changed', function() {
 		const model = create();
 
 		const group1 = model.openGroup('group1');
@@ -1881,7 +1970,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(labelChangeCounter, 2);
 	});
 
-	test('Groups - Model change events (structural vs state)', function () {
+	test('Groups - Model change events (structural vs state)', function() {
 		const model = create();
 		const events = modelListener(model);
 
@@ -1918,7 +2007,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(events.changed[5].editor, input1);
 	});
 
-	test('Preview tab does not have a stable position (https://github.com/Microsoft/vscode/issues/8245)', function () {
+	test('Preview tab does not have a stable position (https://github.com/Microsoft/vscode/issues/8245)', function() {
 		const model = create();
 
 		const group1 = model.openGroup('first');
@@ -1935,7 +2024,7 @@ suite('Editor Stacks Model', () => {
 		assert.equal(group1.indexOf(input3), 1);
 	});
 
-	test('Stack - Multiple Editors - find group based on input', function () {
+	test('Stack - Multiple Editors - find group based on input', function() {
 		const model = create();
 
 		const group1 = model.openGroup('group1');

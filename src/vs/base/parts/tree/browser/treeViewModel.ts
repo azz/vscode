@@ -14,9 +14,8 @@ export interface IViewItem {
 }
 
 export class HeightMap extends EventEmitter {
-
 	private heightMap: IViewItem[];
-	private indexes: { [item: string]: number; };
+	private indexes: { [item: string]: number };
 
 	constructor() {
 		super();
@@ -30,7 +29,10 @@ export class HeightMap extends EventEmitter {
 		return !last ? 0 : last.top + last.height;
 	}
 
-	public onInsertItems(iterator: IIterator<Item>, afterItemId: string = null): number {
+	public onInsertItems(
+		iterator: IIterator<Item>,
+		afterItemId: string = null
+	): number {
 		var item: Item;
 		var viewItem: IViewItem;
 		var i: number, j: number;
@@ -56,7 +58,7 @@ export class HeightMap extends EventEmitter {
 
 		var itemsToInsert: IViewItem[] = [];
 
-		while (item = iterator.next()) {
+		while ((item = iterator.next())) {
 			viewItem = this.createViewItem(item);
 			viewItem.top = totalSize + sizeDiff;
 			this.emit('viewItem:create', { item: viewItem.model });
@@ -97,7 +99,7 @@ export class HeightMap extends EventEmitter {
 		var i: number;
 		var sizeDiff = 0;
 
-		while (itemId = iterator.next()) {
+		while ((itemId = iterator.next())) {
 			i = this.indexes[itemId];
 			viewItem = this.heightMap[i];
 
@@ -134,7 +136,9 @@ export class HeightMap extends EventEmitter {
 	}
 
 	public onRefreshItemSet(items: Item[]): void {
-		var sortedItems = items.sort((a, b) => this.indexes[a.id] - this.indexes[b.id]);
+		var sortedItems = items.sort(
+			(a, b) => this.indexes[a.id] - this.indexes[b.id]
+		);
 		this.onRefreshItems(new ArrayIterator(sortedItems));
 	}
 
@@ -143,10 +147,11 @@ export class HeightMap extends EventEmitter {
 		var item: Item;
 		var viewItem: IViewItem;
 		var newHeight: number;
-		var i: number, j: number = null;
+		var i: number,
+			j: number = null;
 		var cummDiff = 0;
 
-		while (item = iterator.next()) {
+		while ((item = iterator.next())) {
 			i = this.indexes[item.id];
 
 			for (; cummDiff !== 0 && j !== null && j < i; j++) {
@@ -186,7 +191,11 @@ export class HeightMap extends EventEmitter {
 		return this.heightMap[this.indexAt(position)].model.id;
 	}
 
-	public withItemsInRange(start: number, end: number, fn: (item: string) => void): void {
+	public withItemsInRange(
+		start: number,
+		end: number,
+		fn: (item: string) => void
+	): void {
 		start = this.indexAt(start);
 		end = this.indexAt(end);
 		for (var i = start; i <= end; i++) {

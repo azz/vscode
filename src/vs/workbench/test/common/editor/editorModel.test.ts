@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { TestInstantiationService } from 'vs/platform/instantiation/test/common/instantiationServiceMock';
@@ -16,11 +16,10 @@ import { IConfigurationService } from 'vs/platform/configuration/common/configur
 import { TestConfigurationService } from 'vs/platform/configuration/test/common/testConfigurationService';
 import { ModelServiceImpl } from 'vs/editor/common/services/modelServiceImpl';
 
-class MyEditorModel extends EditorModel { }
-class MyTextEditorModel extends BaseTextEditorModel { }
+class MyEditorModel extends EditorModel {}
+class MyTextEditorModel extends BaseTextEditorModel {}
 
 suite('Workbench - EditorModel', () => {
-
 	let instantiationService: TestInstantiationService;
 	let modeService: IModeService;
 
@@ -29,7 +28,7 @@ suite('Workbench - EditorModel', () => {
 		modeService = instantiationService.stub(IModeService, ModeServiceImpl);
 	});
 
-	test('EditorModel', function (done) {
+	test('EditorModel', function(done) {
 		let counter = 0;
 
 		let m = new MyEditorModel();
@@ -39,31 +38,44 @@ suite('Workbench - EditorModel', () => {
 			counter++;
 		});
 
-		m.load().then(model => {
-			assert(model === m);
-			assert.strictEqual(m.isResolved(), true);
-			m.dispose();
-			assert.equal(counter, 1);
-		}).done(() => done());
+		m
+			.load()
+			.then(model => {
+				assert(model === m);
+				assert.strictEqual(m.isResolved(), true);
+				m.dispose();
+				assert.equal(counter, 1);
+			})
+			.done(() => done());
 	});
 
-	test('BaseTextEditorModel', function (done) {
+	test('BaseTextEditorModel', function(done) {
 		let modelService = stubModelService(instantiationService);
 
 		let m = new MyTextEditorModel(modelService, modeService);
-		m.load().then((model: any) => {
-			assert(model === m);
-			return model.createTextEditorModel('foo', null, 'text/plain').then(() => {
-				assert.strictEqual(m.isResolved(), true);
+		m
+			.load()
+			.then((model: any) => {
+				assert(model === m);
+				return model
+					.createTextEditorModel('foo', null, 'text/plain')
+					.then(() => {
+						assert.strictEqual(m.isResolved(), true);
+					});
+			})
+			.done(() => {
+				m.dispose();
+				done();
 			});
-		}).done(() => {
-			m.dispose();
-			done();
-		});
 	});
 
-	function stubModelService(instantiationService: TestInstantiationService): IModelService {
-		instantiationService.stub(IConfigurationService, new TestConfigurationService());
+	function stubModelService(
+		instantiationService: TestInstantiationService
+	): IModelService {
+		instantiationService.stub(
+			IConfigurationService,
+			new TestConfigurationService()
+		);
 		return instantiationService.createInstance(ModelServiceImpl);
 	}
 });

@@ -2,13 +2,12 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as viewEvents from 'vs/editor/common/view/viewEvents';
 import { Disposable } from 'vs/base/common/lifecycle';
 
 export class ViewEventHandler extends Disposable {
-
 	private _shouldRender: boolean;
 
 	constructor() {
@@ -34,13 +33,19 @@ export class ViewEventHandler extends Disposable {
 
 	// --- begin event handlers
 
-	public onConfigurationChanged(e: viewEvents.ViewConfigurationChangedEvent): boolean {
+	public onConfigurationChanged(
+		e: viewEvents.ViewConfigurationChangedEvent
+	): boolean {
 		return false;
 	}
-	public onCursorStateChanged(e: viewEvents.ViewCursorStateChangedEvent): boolean {
+	public onCursorStateChanged(
+		e: viewEvents.ViewCursorStateChangedEvent
+	): boolean {
 		return false;
 	}
-	public onDecorationsChanged(e: viewEvents.ViewDecorationsChangedEvent): boolean {
+	public onDecorationsChanged(
+		e: viewEvents.ViewDecorationsChangedEvent
+	): boolean {
 		return false;
 	}
 	public onFlushed(e: viewEvents.ViewFlushedEvent): boolean {
@@ -49,7 +54,9 @@ export class ViewEventHandler extends Disposable {
 	public onFocusChanged(e: viewEvents.ViewFocusChangedEvent): boolean {
 		return false;
 	}
-	public onLineMappingChanged(e: viewEvents.ViewLineMappingChangedEvent): boolean {
+	public onLineMappingChanged(
+		e: viewEvents.ViewLineMappingChangedEvent
+	): boolean {
 		return false;
 	}
 	public onLinesChanged(e: viewEvents.ViewLinesChangedEvent): boolean {
@@ -61,7 +68,9 @@ export class ViewEventHandler extends Disposable {
 	public onLinesInserted(e: viewEvents.ViewLinesInsertedEvent): boolean {
 		return false;
 	}
-	public onRevealRangeRequest(e: viewEvents.ViewRevealRangeRequestEvent): boolean {
+	public onRevealRangeRequest(
+		e: viewEvents.ViewRevealRangeRequestEvent
+	): boolean {
 		return false;
 	}
 	public onScrollChanged(e: viewEvents.ViewScrollChangedEvent): boolean {
@@ -70,7 +79,9 @@ export class ViewEventHandler extends Disposable {
 	public onTokensChanged(e: viewEvents.ViewTokensChangedEvent): boolean {
 		return false;
 	}
-	public onTokensColorsChanged(e: viewEvents.ViewTokensColorsChangedEvent): boolean {
+	public onTokensColorsChanged(
+		e: viewEvents.ViewTokensColorsChangedEvent
+	): boolean {
 		return false;
 	}
 	public onZonesChanged(e: viewEvents.ViewZonesChangedEvent): boolean {
@@ -83,14 +94,12 @@ export class ViewEventHandler extends Disposable {
 	// --- end event handlers
 
 	public handleEvents(events: viewEvents.ViewEvent[]): void {
-
 		let shouldRender = false;
 
 		for (let i = 0, len = events.length; i < len; i++) {
 			let e = events[i];
 
 			switch (e.type) {
-
 				case viewEvents.ViewEventType.ViewConfigurationChanged:
 					if (this.onConfigurationChanged(e)) {
 						shouldRender = true;
@@ -174,7 +183,6 @@ export class ViewEventHandler extends Disposable {
 						shouldRender = true;
 					}
 					break;
-
 
 				case viewEvents.ViewEventType.ViewThemeChanged:
 					if (this.onThemeChanged(e)) {

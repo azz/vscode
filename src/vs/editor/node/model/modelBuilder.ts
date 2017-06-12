@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { IStringStream } from 'vs/platform/files/common/files';
 import * as crypto from 'crypto';
@@ -17,7 +17,6 @@ export interface ModelBuilderResult {
 }
 
 class ModelLineBasedBuilder {
-
 	private hash: crypto.Hash;
 	private BOM: string;
 	private lines: string[];
@@ -45,7 +44,12 @@ class ModelLineBasedBuilder {
 		this.hash.update(lines.join('\n') + '\n');
 	}
 
-	public finish(length: number, carriageReturnCnt: number, containsRTL: boolean, isBasicASCII: boolean): ModelBuilderResult {
+	public finish(
+		length: number,
+		carriageReturnCnt: number,
+		containsRTL: boolean,
+		isBasicASCII: boolean
+	): ModelBuilderResult {
 		return {
 			hash: this.hash.digest('hex'),
 			value: {
@@ -54,7 +58,7 @@ class ModelLineBasedBuilder {
 				length,
 				containsRTL: containsRTL,
 				totalCRCount: carriageReturnCnt,
-				isBasicASCII,
+				isBasicASCII
 			}
 		};
 	}
@@ -69,7 +73,6 @@ export function computeHash(rawText: IRawTextSource): string {
 }
 
 export class ModelBuilder {
-
 	private leftoverPrevChunk: string;
 	private leftoverEndsInCR: boolean;
 	private totalCRCount: number;
@@ -78,16 +81,18 @@ export class ModelBuilder {
 	private containsRTL: boolean;
 	private isBasicASCII: boolean;
 
-	public static fromStringStream(stream: IStringStream): TPromise<ModelBuilderResult> {
+	public static fromStringStream(
+		stream: IStringStream
+	): TPromise<ModelBuilderResult> {
 		return new TPromise<ModelBuilderResult>((c, e, p) => {
 			let done = false;
 			let builder = new ModelBuilder();
 
-			stream.on('data', (chunk) => {
+			stream.on('data', chunk => {
 				builder.acceptChunk(chunk);
 			});
 
-			stream.on('error', (error) => {
+			stream.on('error', error => {
 				if (!done) {
 					done = true;
 					e(error);
@@ -117,7 +122,12 @@ export class ModelBuilder {
 		// Count how many \r are present in chunk to determine the majority EOL sequence
 		let chunkCarriageReturnCnt = 0;
 		let lastCarriageReturnIndex = -1;
-		while ((lastCarriageReturnIndex = chunk.indexOf('\r', lastCarriageReturnIndex + 1)) !== -1) {
+		while (
+			(lastCarriageReturnIndex = chunk.indexOf(
+				'\r',
+				lastCarriageReturnIndex + 1
+			)) !== -1
+		) {
 			chunkCarriageReturnCnt++;
 		}
 		this.totalCRCount += chunkCarriageReturnCnt;
@@ -168,6 +178,11 @@ export class ModelBuilder {
 			finalLines.push('');
 		}
 		this.lineBasedBuilder.acceptLines(finalLines);
-		return this.lineBasedBuilder.finish(this.totalLength, this.totalCRCount, this.containsRTL, this.isBasicASCII);
+		return this.lineBasedBuilder.finish(
+			this.totalLength,
+			this.totalCRCount,
+			this.containsRTL,
+			this.isBasicASCII
+		);
 	}
 }

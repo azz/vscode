@@ -5,7 +5,11 @@
 
 import { toObject, assign, getOrDefault } from 'vs/base/common/objects';
 import { IDisposable, dispose } from 'vs/base/common/lifecycle';
-import { Gesture, EventType as TouchEventType, GestureEvent } from 'vs/base/browser/touch';
+import {
+	Gesture,
+	EventType as TouchEventType,
+	GestureEvent
+} from 'vs/base/browser/touch';
 import * as DOM from 'vs/base/browser/dom';
 import { domEvent } from 'vs/base/browser/event';
 import { ScrollableElement } from 'vs/base/browser/ui/scrollbar/scrollableElement';
@@ -44,12 +48,11 @@ const DefaultOptions: IListViewOptions = {
 };
 
 export class ListView<T> implements IDisposable {
-
 	private items: IItem<T>[];
 	private itemId: number;
 	private rangeMap: RangeMap;
 	private cache: RowCache<T>;
-	private renderers: { [templateId: string]: IRenderer<T, any>; };
+	private renderers: { [templateId: string]: IRenderer<T, any> };
 	private lastRenderTop: number;
 	private lastRenderHeight: number;
 	private _domNode: HTMLElement;
@@ -85,7 +88,11 @@ export class ListView<T> implements IDisposable {
 			alwaysConsumeMouseWheel: true,
 			horizontal: ScrollbarVisibility.Hidden,
 			vertical: ScrollbarVisibility.Auto,
-			useShadows: getOrDefault(options, o => o.useShadows, DefaultOptions.useShadows)
+			useShadows: getOrDefault(
+				options,
+				o => o.useShadows,
+				DefaultOptions.useShadows
+			)
 		});
 
 		this._domNode.appendChild(this.scrollableElement.getDomNode());
@@ -94,7 +101,11 @@ export class ListView<T> implements IDisposable {
 		this.disposables = [this.rangeMap, this.gesture, this.scrollableElement];
 
 		this.scrollableElement.onScroll(this.onScroll, this, this.disposables);
-		domEvent(this.rowsContainer, TouchEventType.Change)(this.onTouchChange, this, this.disposables);
+		domEvent(this.rowsContainer, TouchEventType.Change)(
+			this.onTouchChange,
+			this,
+			this.disposables
+		);
 
 		this.layout();
 	}
@@ -104,7 +115,10 @@ export class ListView<T> implements IDisposable {
 	}
 
 	splice(start: number, deleteCount: number, elements: T[] = []): T[] {
-		const previousRenderRange = this.getRenderRange(this.lastRenderTop, this.lastRenderHeight);
+		const previousRenderRange = this.getRenderRange(
+			this.lastRenderTop,
+			this.lastRenderHeight
+		);
 		each(previousRenderRange, i => this.removeItemFromDOM(this.items[i]));
 
 		const inserted = elements.map<IItem<T>>(element => ({
@@ -119,7 +133,10 @@ export class ListView<T> implements IDisposable {
 
 		const deleted = this.items.splice(start, deleteCount, ...inserted);
 
-		const renderRange = this.getRenderRange(this.lastRenderTop, this.lastRenderHeight);
+		const renderRange = this.getRenderRange(
+			this.lastRenderTop,
+			this.lastRenderHeight
+		);
 		each(renderRange, i => this.insertItemInDOM(this.items[i], i));
 
 		const scrollHeight = this.getContentHeight();
@@ -172,16 +189,26 @@ export class ListView<T> implements IDisposable {
 	// Render
 
 	private render(renderTop: number, renderHeight: number): void {
-		const previousRenderRange = this.getRenderRange(this.lastRenderTop, this.lastRenderHeight);
+		const previousRenderRange = this.getRenderRange(
+			this.lastRenderTop,
+			this.lastRenderHeight
+		);
 		const renderRange = this.getRenderRange(renderTop, renderHeight);
 
 		const rangesToInsert = relativeComplement(renderRange, previousRenderRange);
 		const rangesToRemove = relativeComplement(previousRenderRange, renderRange);
 
-		rangesToInsert.forEach(range => each(range, i => this.insertItemInDOM(this.items[i], i)));
-		rangesToRemove.forEach(range => each(range, i => this.removeItemFromDOM(this.items[i])));
+		rangesToInsert.forEach(range =>
+			each(range, i => this.insertItemInDOM(this.items[i], i))
+		);
+		rangesToRemove.forEach(range =>
+			each(range, i => this.removeItemFromDOM(this.items[i]))
+		);
 
-		if (canUseTranslate3d() && !isWindows /* Windows: translate3d breaks subpixel-antialias (ClearType) unless a background is defined */) {
+		if (
+			canUseTranslate3d() &&
+			!isWindows /* Windows: translate3d breaks subpixel-antialias (ClearType) unless a background is defined */
+		) {
 			const transform = `translate3d(0px, -${renderTop}px, 0px)`;
 			this.rowsContainer.style.transform = transform;
 			this.rowsContainer.style.webkitTransform = transform;
@@ -239,15 +266,29 @@ export class ListView<T> implements IDisposable {
 
 	// Events
 
-	addListener(type: string, handler: (event: any) => void, useCapture?: boolean): IDisposable {
+	addListener(
+		type: string,
+		handler: (event: any) => void,
+		useCapture?: boolean
+	): IDisposable {
 		const userHandler = handler;
 		let domNode = this.domNode;
 
 		if (MouseEventTypes.indexOf(type) > -1) {
-			handler = e => this.fireScopedEvent(e, userHandler, this.getItemIndexFromMouseEvent(e));
+			handler = e =>
+				this.fireScopedEvent(
+					e,
+					userHandler,
+					this.getItemIndexFromMouseEvent(e)
+				);
 		} else if (type === TouchEventType.Tap) {
 			domNode = this.rowsContainer;
-			handler = e => this.fireScopedEvent(e, userHandler, this.getItemIndexFromGestureEvent(e));
+			handler = e =>
+				this.fireScopedEvent(
+					e,
+					userHandler,
+					this.getItemIndexFromGestureEvent(e)
+				);
 		}
 
 		return DOM.addDisposableListener(domNode, type, handler, useCapture);

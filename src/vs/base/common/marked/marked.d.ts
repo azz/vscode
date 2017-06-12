@@ -9,7 +9,7 @@
 // Definitions:https://github.com/borisyankov/DefinitelyTyped
 
 export interface MarkedStatic {
-    /**
+	/**
      * Compiles markdown to HTML.
      *
      * @param src String of markdown source to be compiled
@@ -18,7 +18,7 @@ export interface MarkedStatic {
      */
 	(src: string, callback: Function): string;
 
-    /**
+	/**
      * Compiles markdown to HTML.
      *
      * @param src String of markdown source to be compiled
@@ -28,13 +28,13 @@ export interface MarkedStatic {
      */
 	(src: string, options?: MarkedOptions, callback?: Function): string;
 
-    /**
+	/**
      * @param src String of markdown source to be compiled
      * @param options Hash of options
      */
 	lexer(src: string, options?: MarkedOptions): any[];
 
-    /**
+	/**
      * Compiles markdown to HTML.
      *
      * @param src String of markdown source to be compiled
@@ -43,7 +43,7 @@ export interface MarkedStatic {
      */
 	parse(src: string, callback: Function): string;
 
-    /**
+	/**
      * Compiles markdown to HTML.
      *
      * @param src String of markdown source to be compiled
@@ -53,12 +53,12 @@ export interface MarkedStatic {
      */
 	parse(src: string, options?: MarkedOptions, callback?: Function): string;
 
-    /**
+	/**
      * @param options Hash of options
      */
 	parser(src: any[], options?: MarkedOptions): string;
 
-    /**
+	/**
      * Sets the default options.
      *
      * @param options Hash of options

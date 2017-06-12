@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./media/notabstitle';
 import errors = require('vs/base/common/errors');
@@ -12,7 +12,10 @@ import DOM = require('vs/base/browser/dom');
 import { TitleControl } from 'vs/workbench/browser/parts/editor/titleControl';
 import { EditorLabel } from 'vs/workbench/browser/labels';
 import { Verbosity } from 'vs/platform/editor/common/editor';
-import { TAB_ACTIVE_FOREGROUND, TAB_UNFOCUSED_ACTIVE_FOREGROUND } from 'vs/workbench/common/theme';
+import {
+	TAB_ACTIVE_FOREGROUND,
+	TAB_UNFOCUSED_ACTIVE_FOREGROUND
+} from 'vs/workbench/common/theme';
 
 export class NoTabsTitleControl extends TitleControl {
 	private titleContainer: HTMLElement;
@@ -30,16 +33,44 @@ export class NoTabsTitleControl extends TitleControl {
 		this.titleContainer = parent;
 
 		// Pin on double click
-		this.toUnbind.push(DOM.addDisposableListener(this.titleContainer, DOM.EventType.DBLCLICK, (e: MouseEvent) => this.onTitleDoubleClick(e)));
+		this.toUnbind.push(
+			DOM.addDisposableListener(
+				this.titleContainer,
+				DOM.EventType.DBLCLICK,
+				(e: MouseEvent) => this.onTitleDoubleClick(e)
+			)
+		);
 
 		// Detect mouse click
-		this.toUnbind.push(DOM.addDisposableListener(this.titleContainer, DOM.EventType.CLICK, (e: MouseEvent) => this.onTitleClick(e)));
+		this.toUnbind.push(
+			DOM.addDisposableListener(
+				this.titleContainer,
+				DOM.EventType.CLICK,
+				(e: MouseEvent) => this.onTitleClick(e)
+			)
+		);
 
 		// Editor Label
-		this.editorLabel = this.instantiationService.createInstance(EditorLabel, this.titleContainer, void 0);
+		this.editorLabel = this.instantiationService.createInstance(
+			EditorLabel,
+			this.titleContainer,
+			void 0
+		);
 		this.toUnbind.push(this.editorLabel);
-		this.toUnbind.push(DOM.addDisposableListener(this.editorLabel.labelElement, DOM.EventType.CLICK, (e: MouseEvent) => this.onTitleLabelClick(e)));
-		this.toUnbind.push(DOM.addDisposableListener(this.editorLabel.descriptionElement, DOM.EventType.CLICK, (e: MouseEvent) => this.onTitleLabelClick(e)));
+		this.toUnbind.push(
+			DOM.addDisposableListener(
+				this.editorLabel.labelElement,
+				DOM.EventType.CLICK,
+				(e: MouseEvent) => this.onTitleLabelClick(e)
+			)
+		);
+		this.toUnbind.push(
+			DOM.addDisposableListener(
+				this.editorLabel.descriptionElement,
+				DOM.EventType.CLICK,
+				(e: MouseEvent) => this.onTitleLabelClick(e)
+			)
+		);
 
 		// Right Actions Container
 		const actionsContainer = document.createElement('div');
@@ -50,7 +81,18 @@ export class NoTabsTitleControl extends TitleControl {
 		this.createEditorActionsToolBar(actionsContainer);
 
 		// Context Menu
-		this.toUnbind.push(DOM.addDisposableListener(this.titleContainer, DOM.EventType.CONTEXT_MENU, (e: Event) => this.onContextMenu({ group: this.context, editor: this.context.activeEditor }, e, this.titleContainer)));
+		this.toUnbind.push(
+			DOM.addDisposableListener(
+				this.titleContainer,
+				DOM.EventType.CONTEXT_MENU,
+				(e: Event) =>
+					this.onContextMenu(
+						{ group: this.context, editor: this.context.activeEditor },
+						e,
+						this.titleContainer
+					)
+			)
+		);
 	}
 
 	private onTitleLabelClick(e: MouseEvent): void {
@@ -80,11 +122,17 @@ export class NoTabsTitleControl extends TitleControl {
 
 		// Close editor on middle mouse click
 		if (e.button === 1 /* Middle Button */) {
-			this.closeEditorAction.run({ group, editor: group.activeEditor }).done(null, errors.onUnexpectedError);
-		}
-
-		// Focus editor group unless click on toolbar
-		else if (this.stacks.groups.length === 1 && !DOM.isAncestor((e.target || e.srcElement) as HTMLElement, this.editorActionsToolbar.getContainer().getHTMLElement())) {
+			this.closeEditorAction
+				.run({ group, editor: group.activeEditor })
+				.done(null, errors.onUnexpectedError);
+		} else if (
+			this.stacks.groups.length === 1 &&
+			!DOM.isAncestor(
+				(e.target || e.srcElement) as HTMLElement,
+				this.editorActionsToolbar.getContainer().getHTMLElement()
+			)
+		) {
+			// Focus editor group unless click on toolbar
 			this.editorGroupService.focusGroup(group);
 		}
 	}
@@ -119,17 +167,24 @@ export class NoTabsTitleControl extends TitleControl {
 		// Editor Label
 		const resource = toResource(editor, { supportSideBySide: true });
 		const name = editor.getName() || '';
-		const description = isActive ? (editor.getDescription() || '') : '';
+		const description = isActive ? editor.getDescription() || '' : '';
 		let title = editor.getTitle(Verbosity.LONG);
 		if (description === title) {
 			title = ''; // dont repeat what is already shown
 		}
 
-		this.editorLabel.setLabel({ name, description, resource }, { title, italic: !isPinned, extraClasses: ['title-label'] });
+		this.editorLabel.setLabel(
+			{ name, description, resource },
+			{ title, italic: !isPinned, extraClasses: ['title-label'] }
+		);
 		if (isActive) {
-			this.editorLabel.element.style.color = this.getColor(TAB_ACTIVE_FOREGROUND);
+			this.editorLabel.element.style.color = this.getColor(
+				TAB_ACTIVE_FOREGROUND
+			);
 		} else {
-			this.editorLabel.element.style.color = this.getColor(TAB_UNFOCUSED_ACTIVE_FOREGROUND);
+			this.editorLabel.element.style.color = this.getColor(
+				TAB_UNFOCUSED_ACTIVE_FOREGROUND
+			);
 		}
 
 		// Update Editor Actions Toolbar

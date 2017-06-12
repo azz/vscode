@@ -2,14 +2,13 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { Selection } from 'vs/editor/common/core/selection';
 import * as editorCommon from 'vs/editor/common/editorCommon';
 import { Range } from 'vs/editor/common/core/range';
 
 export class InPlaceReplaceCommand implements editorCommon.ICommand {
-
 	private _editRange: Range;
 	private _originalSelection: Selection;
 	private _text: string;
@@ -20,11 +19,17 @@ export class InPlaceReplaceCommand implements editorCommon.ICommand {
 		this._text = text;
 	}
 
-	public getEditOperations(model: editorCommon.ITokenizedModel, builder: editorCommon.IEditOperationBuilder): void {
+	public getEditOperations(
+		model: editorCommon.ITokenizedModel,
+		builder: editorCommon.IEditOperationBuilder
+	): void {
 		builder.addTrackedEditOperation(this._editRange, this._text);
 	}
 
-	public computeCursorState(model: editorCommon.ITokenizedModel, helper: editorCommon.ICursorStateComputerData): Selection {
+	public computeCursorState(
+		model: editorCommon.ITokenizedModel,
+		helper: editorCommon.ICursorStateComputerData
+	): Selection {
 		var inverseEditOperations = helper.getInverseEditOperations();
 		var srcRange = inverseEditOperations[0].range;
 

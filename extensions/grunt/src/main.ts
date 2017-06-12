@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as path from 'path';
 import * as fs from 'fs';
@@ -23,12 +23,14 @@ export function activate(_context: vscode.ExtensionContext): void {
 	let pattern = path.join(workspaceRoot, 'Gruntfile.js');
 	let detectorPromise: Thenable<vscode.Task[]> | undefined = undefined;
 	let fileWatcher = vscode.workspace.createFileSystemWatcher(pattern);
-	fileWatcher.onDidChange(() => detectorPromise = undefined);
-	fileWatcher.onDidCreate(() => detectorPromise = undefined);
-	fileWatcher.onDidDelete(() => detectorPromise = undefined);
+	fileWatcher.onDidChange(() => (detectorPromise = undefined));
+	fileWatcher.onDidCreate(() => (detectorPromise = undefined));
+	fileWatcher.onDidDelete(() => (detectorPromise = undefined));
 
 	function onConfigurationChanged() {
-		let autoDetect = vscode.workspace.getConfiguration('grunt').get<AutoDetect>('autoDetect');
+		let autoDetect = vscode.workspace
+			.getConfiguration('grunt')
+			.get<AutoDetect>('autoDetect');
 		if (taskProvider && autoDetect === 'off') {
 			detectorPromise = undefined;
 			taskProvider.dispose();
@@ -56,13 +58,16 @@ export function deactivate(): void {
 
 function exists(file: string): Promise<boolean> {
 	return new Promise<boolean>((resolve, _reject) => {
-		fs.exists(file, (value) => {
+		fs.exists(file, value => {
 			resolve(value);
 		});
 	});
 }
 
-function exec(command: string, options: cp.ExecOptions): Promise<{ stdout: string; stderr: string }> {
+function exec(
+	command: string,
+	options: cp.ExecOptions
+): Promise<{ stdout: string; stderr: string }> {
 	return new Promise<{ stdout: string; stderr: string }>((resolve, reject) => {
 		cp.exec(command, options, (error, stdout, stderr) => {
 			if (error) {
@@ -94,9 +99,17 @@ async function getGruntTasks(): Promise<vscode.Task[]> {
 
 	let command: string;
 	let platform = process.platform;
-	if (platform === 'win32' && await exists(path.join(workspaceRoot!, 'node_modules', '.bin', 'grunt.cmd'))) {
+	if (
+		platform === 'win32' &&
+		(await exists(
+			path.join(workspaceRoot!, 'node_modules', '.bin', 'grunt.cmd')
+		))
+	) {
 		command = path.join('.', 'node_modules', '.bin', 'grunt.cmd');
-	} else if ((platform === 'linux' || platform === 'darwin') && await exists(path.join(workspaceRoot!, 'node_modules', '.bin', 'grunt'))) {
+	} else if (
+		(platform === 'linux' || platform === 'darwin') &&
+		(await exists(path.join(workspaceRoot!, 'node_modules', '.bin', 'grunt')))
+	) {
 		command = path.join('.', 'node_modules', '.bin', 'grunt');
 	} else {
 		command = 'grunt';
@@ -111,8 +124,14 @@ async function getGruntTasks(): Promise<vscode.Task[]> {
 		}
 		let result: vscode.Task[] = [];
 		if (stdout) {
-			let buildTask: { task: vscode.Task | undefined, rank: number } = { task: undefined, rank: 0 };
-			let testTask: { task: vscode.Task | undefined, rank: number } = { task: undefined, rank: 0 };
+			let buildTask: { task: vscode.Task | undefined; rank: number } = {
+				task: undefined,
+				rank: 0
+			};
+			let testTask: { task: vscode.Task | undefined; rank: number } = {
+				task: undefined,
+				rank: 0
+			};
 
 			// grunt lists tasks as follows (description is wrapped into a new line if too long):
 			// ...
@@ -153,11 +172,17 @@ async function getGruntTasks(): Promise<vscode.Task[]> {
 							let lowerCaseTaskName = taskName.toLowerCase();
 							if (lowerCaseTaskName === 'build') {
 								buildTask = { task, rank: 2 };
-							} else if (lowerCaseTaskName.indexOf('build') !== -1 && buildTask.rank < 1) {
+							} else if (
+								lowerCaseTaskName.indexOf('build') !== -1 &&
+								buildTask.rank < 1
+							) {
 								buildTask = { task, rank: 1 };
 							} else if (lowerCaseTaskName === 'test') {
 								testTask = { task, rank: 2 };
-							} else if (lowerCaseTaskName.indexOf('test') !== -1 && testTask.rank < 1) {
+							} else if (
+								lowerCaseTaskName.indexOf('test') !== -1 &&
+								testTask.rank < 1
+							) {
 								testTask = { task, rank: 1 };
 							}
 						}
@@ -180,7 +205,13 @@ async function getGruntTasks(): Promise<vscode.Task[]> {
 		if (err.stdout) {
 			channel.appendLine(err.stdout);
 		}
-		channel.appendLine(localize('execFailed', 'Auto detecting Grunt failed with error: {0}', err.error ? err.error.toString() : 'unknown'));
+		channel.appendLine(
+			localize(
+				'execFailed',
+				'Auto detecting Grunt failed with error: {0}',
+				err.error ? err.error.toString() : 'unknown'
+			)
+		);
 		channel.show(true);
 		return emptyTasks;
 	}

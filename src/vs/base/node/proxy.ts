@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { Url, parse as parseUrl } from 'url';
 import { isBoolean } from 'vs/base/common/types';
@@ -15,7 +15,13 @@ function getSystemProxyURI(requestURL: Url): string {
 	if (requestURL.protocol === 'http:') {
 		return process.env.HTTP_PROXY || process.env.http_proxy || null;
 	} else if (requestURL.protocol === 'https:') {
-		return process.env.HTTPS_PROXY || process.env.https_proxy || process.env.HTTP_PROXY || process.env.http_proxy || null;
+		return (
+			process.env.HTTPS_PROXY ||
+			process.env.https_proxy ||
+			process.env.HTTP_PROXY ||
+			process.env.http_proxy ||
+			null
+		);
 	}
 
 	return null;
@@ -26,7 +32,10 @@ export interface IOptions {
 	strictSSL?: boolean;
 }
 
-export function getProxyAgent(rawRequestURL: string, options: IOptions = {}): Agent {
+export function getProxyAgent(
+	rawRequestURL: string,
+	options: IOptions = {}
+): Agent {
 	const requestURL = parseUrl(rawRequestURL);
 	const proxyURL = options.proxyUrl || getSystemProxyURI(requestURL);
 
@@ -47,5 +56,7 @@ export function getProxyAgent(rawRequestURL: string, options: IOptions = {}): Ag
 		rejectUnauthorized: isBoolean(options.strictSSL) ? options.strictSSL : true
 	};
 
-	return requestURL.protocol === 'http:' ? new HttpProxyAgent(opts) : new HttpsProxyAgent(opts);
+	return requestURL.protocol === 'http:'
+		? new HttpProxyAgent(opts)
+		: new HttpsProxyAgent(opts);
 }

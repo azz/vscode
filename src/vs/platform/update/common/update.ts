@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import Event from 'vs/base/common/event';
 import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
@@ -47,7 +47,7 @@ export interface IUpdateService {
 	_serviceBrand: any;
 
 	readonly onError: Event<any>;
-	readonly onUpdateAvailable: Event<{ url: string; version: string; }>;
+	readonly onUpdateAvailable: Event<{ url: string; version: string }>;
 	readonly onUpdateNotAvailable: Event<boolean>;
 	readonly onUpdateReady: Event<IRawUpdate>;
 	readonly onStateChange: Event<State>;

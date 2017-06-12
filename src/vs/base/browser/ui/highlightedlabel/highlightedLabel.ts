@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { escape } from 'vs/base/common/strings';
 import { IDisposable } from 'vs/base/common/lifecycle';
@@ -16,7 +16,6 @@ export interface IHighlight {
 }
 
 export class HighlightedLabel implements IDisposable {
-
 	private domNode: HTMLElement;
 	private text: string;
 	private highlights: IHighlight[];
@@ -37,7 +36,11 @@ export class HighlightedLabel implements IDisposable {
 		if (!text) {
 			text = '';
 		}
-		if (this.didEverRender && this.text === text && objects.equals(this.highlights, highlights)) {
+		if (
+			this.didEverRender &&
+			this.text === text &&
+			objects.equals(this.highlights, highlights)
+		) {
 			return;
 		}
 
@@ -64,12 +67,18 @@ export class HighlightedLabel implements IDisposable {
 			}
 			if (pos < highlight.start) {
 				htmlContent.push('<span>');
-				htmlContent.push(expandOcticons(escape(this.text.substring(pos, highlight.start))));
+				htmlContent.push(
+					expandOcticons(escape(this.text.substring(pos, highlight.start)))
+				);
 				htmlContent.push('</span>');
 				pos = highlight.end;
 			}
 			htmlContent.push('<span class="highlight">');
-			htmlContent.push(expandOcticons(escape(this.text.substring(highlight.start, highlight.end))));
+			htmlContent.push(
+				expandOcticons(
+					escape(this.text.substring(highlight.start, highlight.end))
+				)
+			);
 			htmlContent.push('</span>');
 			pos = highlight.end;
 		}

@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { localize } from 'vs/nls';
 import { EventEmitter } from 'vs/base/common/eventEmitter';
@@ -15,11 +15,13 @@ import { defaultGenerator } from 'vs/base/common/idGenerator';
 import { TPromise } from 'vs/base/common/winjs.base';
 import { Range, IRange } from 'vs/editor/common/core/range';
 import { Location } from 'vs/editor/common/modes';
-import { ITextModelResolverService, ITextEditorModel } from 'vs/editor/common/services/resolverService';
+import {
+	ITextModelResolverService,
+	ITextEditorModel
+} from 'vs/editor/common/services/resolverService';
 import { Position } from 'vs/editor/common/core/position';
 
 export class OneReference {
-
 	private _id: string;
 
 	constructor(
@@ -65,21 +67,26 @@ export class OneReference {
 
 	public getAriaMessage(): string {
 		return localize(
-			'aria.oneReference', "symbol in {0} on line {1} at column {2}",
-			this.uri.fsPath, this.range.startLineNumber, this.range.startColumn
+			'aria.oneReference',
+			'symbol in {0} on line {1} at column {2}',
+			this.uri.fsPath,
+			this.range.startLineNumber,
+			this.range.startColumn
 		);
 	}
 }
 
 export class FilePreview implements IDisposable {
+	constructor(private _modelReference: IReference<ITextEditorModel>) {}
 
-	constructor(private _modelReference: IReference<ITextEditorModel>) {
-
+	private get _model() {
+		return this._modelReference.object.textEditorModel;
 	}
 
-	private get _model() { return this._modelReference.object.textEditorModel; }
-
-	public preview(range: IRange, n: number = 8): { before: string; inside: string; after: string } {
+	public preview(
+		range: IRange,
+		n: number = 8
+	): { before: string; inside: string; after: string } {
 		const model = this._model;
 
 		if (!model) {
@@ -87,9 +94,22 @@ export class FilePreview implements IDisposable {
 		}
 
 		const { startLineNumber, startColumn, endColumn } = range;
-		const word = model.getWordUntilPosition({ lineNumber: startLineNumber, column: startColumn - n });
-		const beforeRange = new Range(startLineNumber, word.startColumn, startLineNumber, startColumn);
-		const afterRange = new Range(startLineNumber, endColumn, startLineNumber, Number.MAX_VALUE);
+		const word = model.getWordUntilPosition({
+			lineNumber: startLineNumber,
+			column: startColumn - n
+		});
+		const beforeRange = new Range(
+			startLineNumber,
+			word.startColumn,
+			startLineNumber,
+			startColumn
+		);
+		const afterRange = new Range(
+			startLineNumber,
+			endColumn,
+			startLineNumber,
+			Number.MAX_VALUE
+		);
 
 		const ret = {
 			before: model.getValueInRange(beforeRange).replace(/^\s+/, strings.empty),
@@ -109,7 +129,6 @@ export class FilePreview implements IDisposable {
 }
 
 export class FileReferences implements IDisposable {
-
 	private _children: OneReference[];
 	private _preview: FilePreview;
 	private _resolved: boolean;
@@ -154,37 +173,49 @@ export class FileReferences implements IDisposable {
 	getAriaMessage(): string {
 		const len = this.children.length;
 		if (len === 1) {
-			return localize('aria.fileReferences.1', "1 symbol in {0}", this.uri.fsPath);
+			return localize(
+				'aria.fileReferences.1',
+				'1 symbol in {0}',
+				this.uri.fsPath
+			);
 		} else {
-			return localize('aria.fileReferences.N', "{0} symbols in {1}", len, this.uri.fsPath);
+			return localize(
+				'aria.fileReferences.N',
+				'{0} symbols in {1}',
+				len,
+				this.uri.fsPath
+			);
 		}
 	}
 
-	public resolve(textModelResolverService: ITextModelResolverService): TPromise<FileReferences> {
-
+	public resolve(
+		textModelResolverService: ITextModelResolverService
+	): TPromise<FileReferences> {
 		if (this._resolved) {
 			return TPromise.as(this);
 		}
 
-		return textModelResolverService.createModelReference(this._uri).then(modelReference => {
-			const model = modelReference.object;
+		return textModelResolverService.createModelReference(this._uri).then(
+			modelReference => {
+				const model = modelReference.object;
 
-			if (!model) {
-				modelReference.dispose();
-				throw new Error();
+				if (!model) {
+					modelReference.dispose();
+					throw new Error();
+				}
+
+				this._preview = new FilePreview(modelReference);
+				this._resolved = true;
+				return this;
+			},
+			err => {
+				// something wrong here
+				this._children = [];
+				this._resolved = true;
+				this._loadFailure = err;
+				return this;
 			}
-
-			this._preview = new FilePreview(modelReference);
-			this._resolved = true;
-			return this;
-
-		}, err => {
-			// something wrong here
-			this._children = [];
-			this._resolved = true;
-			this._loadFailure = err;
-			return this;
-		});
+		);
 	}
 
 	dispose(): void {
@@ -196,15 +227,15 @@ export class FileReferences implements IDisposable {
 }
 
 export class ReferencesModel implements IDisposable {
-
 	private _groups: FileReferences[] = [];
 	private _references: OneReference[] = [];
 	private _eventBus = new EventEmitter();
 
-	onDidChangeReferenceRange: Event<OneReference> = fromEventEmitter<OneReference>(this._eventBus, 'ref/changed');
+	onDidChangeReferenceRange: Event<OneReference> = fromEventEmitter<
+		OneReference
+	>(this._eventBus, 'ref/changed');
 
 	constructor(references: Location[]) {
-
 		// grouping and sorting
 		references.sort(ReferencesModel._compareReferences);
 
@@ -217,9 +248,13 @@ export class ReferencesModel implements IDisposable {
 			}
 
 			// append, check for equality first!
-			if (current.children.length === 0
-				|| !Range.equalsRange(ref.range, current.children[current.children.length - 1].range)) {
-
+			if (
+				current.children.length === 0 ||
+				!Range.equalsRange(
+					ref.range,
+					current.children[current.children.length - 1].range
+				)
+			) {
 				let oneRef = new OneReference(current, ref.range, this._eventBus);
 				this._references.push(oneRef);
 				current.children.push(oneRef);
@@ -241,18 +276,31 @@ export class ReferencesModel implements IDisposable {
 
 	getAriaMessage(): string {
 		if (this.empty) {
-			return localize('aria.result.0', "No results found");
+			return localize('aria.result.0', 'No results found');
 		} else if (this.references.length === 1) {
-			return localize('aria.result.1', "Found 1 symbol in {0}", this.references[0].uri.fsPath);
+			return localize(
+				'aria.result.1',
+				'Found 1 symbol in {0}',
+				this.references[0].uri.fsPath
+			);
 		} else if (this.groups.length === 1) {
-			return localize('aria.result.n1', "Found {0} symbols in {1}", this.references.length, this.groups[0].uri.fsPath);
+			return localize(
+				'aria.result.n1',
+				'Found {0} symbols in {1}',
+				this.references.length,
+				this.groups[0].uri.fsPath
+			);
 		} else {
-			return localize('aria.result.nm', "Found {0} symbols in {1} files", this.references.length, this.groups.length);
+			return localize(
+				'aria.result.nm',
+				'Found {0} symbols in {1} files',
+				this.references.length,
+				this.groups.length
+			);
 		}
 	}
 
 	public nextReference(reference: OneReference): OneReference {
-
 		var idx = reference.parent.children.indexOf(reference),
 			len = reference.parent.children.length,
 			totalLength = reference.parent.parent.groups.length;
@@ -268,26 +316,32 @@ export class ReferencesModel implements IDisposable {
 	}
 
 	public nearestReference(resource: URI, position: Position): OneReference {
-
-		const nearest = this._references.map((ref, idx) => {
-			return {
-				idx,
-				prefixLen: strings.commonPrefixLength(ref.uri.toString(), resource.toString()),
-				offsetDist: Math.abs(ref.range.startLineNumber - position.lineNumber) * 100 + Math.abs(ref.range.startColumn - position.column)
-			};
-		}).sort((a, b) => {
-			if (a.prefixLen > b.prefixLen) {
-				return -1;
-			} else if (a.prefixLen < b.prefixLen) {
-				return 1;
-			} else if (a.offsetDist < b.offsetDist) {
-				return -1;
-			} else if (a.offsetDist > b.offsetDist) {
-				return 1;
-			} else {
-				return 0;
-			}
-		})[0];
+		const nearest = this._references
+			.map((ref, idx) => {
+				return {
+					idx,
+					prefixLen: strings.commonPrefixLength(
+						ref.uri.toString(),
+						resource.toString()
+					),
+					offsetDist:
+						Math.abs(ref.range.startLineNumber - position.lineNumber) * 100 +
+							Math.abs(ref.range.startColumn - position.column)
+				};
+			})
+			.sort((a, b) => {
+				if (a.prefixLen > b.prefixLen) {
+					return -1;
+				} else if (a.prefixLen < b.prefixLen) {
+					return 1;
+				} else if (a.offsetDist < b.offsetDist) {
+					return -1;
+				} else if (a.offsetDist > b.offsetDist) {
+					return 1;
+				} else {
+					return 0;
+				}
+			})[0];
 
 		if (nearest) {
 			return this._references[nearest.idx];

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
 import { IEnvironmentService } from 'vs/platform/environment/common/environment';
@@ -17,15 +17,18 @@ export interface ILogService {
 }
 
 export class LogMainService implements ILogService {
-
 	_serviceBrand: any;
 
-	constructor( @IEnvironmentService private environmentService: IEnvironmentService) {
-	}
+	constructor(
+		@IEnvironmentService private environmentService: IEnvironmentService
+	) {}
 
 	public log(...args: any[]): void {
 		if (this.environmentService.verbose) {
-			console.log(`\x1b[93m[main ${new Date().toLocaleTimeString()}]\x1b[0m`, ...args);
+			console.log(
+				`\x1b[93m[main ${new Date().toLocaleTimeString()}]\x1b[0m`,
+				...args
+			);
 		}
 	}
 }

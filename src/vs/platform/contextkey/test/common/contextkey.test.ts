@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { ContextKeyExpr } from 'vs/platform/contextkey/common/contextkey';
@@ -16,7 +16,7 @@ function createContext(ctx: any) {
 }
 
 suite('ContextKeyExpr', () => {
-	test('ContextKeyExpr.equals', function () {
+	test('ContextKeyExpr.equals', function() {
 		let a = ContextKeyExpr.and(
 			ContextKeyExpr.has('a1'),
 			ContextKeyExpr.and(ContextKeyExpr.has('and.a')),
@@ -42,7 +42,7 @@ suite('ContextKeyExpr', () => {
 		assert(a.equals(b), 'expressions should be equal');
 	});
 
-	test('normalize', function () {
+	test('normalize', function() {
 		let key1IsTrue = ContextKeyExpr.equals('key1', true);
 		let key1IsNotFalse = ContextKeyExpr.notEquals('key1', false);
 		let key1IsFalse = ContextKeyExpr.equals('key1', false);
@@ -54,12 +54,12 @@ suite('ContextKeyExpr', () => {
 		assert.ok(key1IsNotTrue.normalize().equals(ContextKeyExpr.not('key1')));
 	});
 
-	test('evaluate', function () {
+	test('evaluate', function() {
 		/* tslint:disable:triple-equals */
 		let context = createContext({
-			'a': true,
-			'b': false,
-			'c': '5'
+			a: true,
+			b: false,
+			c: '5'
 		});
 		function testExpression(expr: string, expected: boolean): void {
 			let rules = ContextKeyExpr.deserialize(expr);
@@ -71,8 +71,8 @@ suite('ContextKeyExpr', () => {
 			testExpression(expr + ' != true', !value);
 			testExpression(expr + ' == false', !value);
 			testExpression(expr + ' != false', !!value);
-			testExpression(expr + ' == 5', value == <any>'5');
-			testExpression(expr + ' != 5', value != <any>'5');
+			testExpression(expr + ' == 5', value == (<any>'5'));
+			testExpression(expr + ' != 5', value != (<any>'5'));
 			testExpression('!' + expr, !value);
 		}
 

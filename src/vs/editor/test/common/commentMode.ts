@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { LanguageConfigurationRegistry } from 'vs/editor/common/modes/languageConfigurationRegistry';
 import { CommentRule } from 'vs/editor/common/modes/languageConfiguration';
@@ -14,8 +14,10 @@ export class CommentMode extends MockMode {
 
 	constructor(commentsConfig: CommentRule) {
 		super(CommentMode._id);
-		this._register(LanguageConfigurationRegistry.register(this.getLanguageIdentifier(), {
-			comments: commentsConfig
-		}));
+		this._register(
+			LanguageConfigurationRegistry.register(this.getLanguageIdentifier(), {
+				comments: commentsConfig
+			})
+		);
 	}
 }

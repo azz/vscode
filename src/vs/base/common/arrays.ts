@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 /**
  * Returns the last element of an array.
@@ -13,7 +13,11 @@ export function tail<T>(array: T[], n: number = 0): T {
 	return array[array.length - (1 + n)];
 }
 
-export function equals<T>(one: T[], other: T[], itemEquals: (a: T, b: T) => boolean = (a, b) => a === b): boolean {
+export function equals<T>(
+	one: T[],
+	other: T[],
+	itemEquals: (a: T, b: T) => boolean = (a, b) => a === b
+): boolean {
 	if (one.length !== other.length) {
 		return false;
 	}
@@ -27,7 +31,11 @@ export function equals<T>(one: T[], other: T[], itemEquals: (a: T, b: T) => bool
 	return true;
 }
 
-export function binarySearch<T>(array: T[], key: T, comparator: (op1: T, op2: T) => number): number {
+export function binarySearch<T>(
+	array: T[],
+	key: T,
+	comparator: (op1: T, op2: T) => number
+): number {
 	let low = 0,
 		high = array.length - 1;
 
@@ -51,7 +59,8 @@ export function binarySearch<T>(array: T[], key: T, comparator: (op1: T, op2: T)
  * @returns the least x for which p(x) is true or array.length if no element fullfills the given function.
  */
 export function findFirst<T>(array: T[], p: (x: T) => boolean): number {
-	let low = 0, high = array.length;
+	let low = 0,
+		high = array.length;
 	if (high === 0) {
 		return 0; // no children
 	}
@@ -71,7 +80,6 @@ export function findFirst<T>(array: T[], p: (x: T) => boolean): number {
  * creates n-objects in addition to sorting (log(n))
  */
 export function stableSort<T>(data: T[], compare: (a: T, b: T) => number): T[] {
-
 	let data2: { idx: number; e: T }[] = <any>data;
 
 	for (let idx = 0; idx < data2.length; idx++) {
@@ -114,8 +122,11 @@ export function groupBy<T>(data: T[], compare: (a: T, b: T) => number): T[][] {
  * @param after
  * @param compare
  */
-export function delta<T>(before: T[], after: T[], compare: (a: T, b: T) => number) {
-
+export function delta<T>(
+	before: T[],
+	after: T[],
+	compare: (a: T, b: T) => number
+) {
 	const removed: T[] = [];
 	const added: T[] = [];
 
@@ -163,7 +174,11 @@ export function delta<T>(before: T[], after: T[], compare: (a: T, b: T) => numbe
  * @param n The number of elements to return.
  * @return The first n elemnts from array when sorted with compare.
  */
-export function top<T>(array: T[], compare: (a: T, b: T) => number, n: number): T[] {
+export function top<T>(
+	array: T[],
+	compare: (a: T, b: T) => number,
+	n: number
+): T[] {
 	if (n === 0) {
 		return [];
 	}
@@ -216,8 +231,8 @@ export function distinct<T>(array: T[], keyFn?: (t: T) => string): T[] {
 		});
 	}
 
-	const seen: { [key: string]: boolean; } = Object.create(null);
-	return array.filter((elem) => {
+	const seen: { [key: string]: boolean } = Object.create(null);
+	return array.filter(elem => {
 		const key = keyFn(elem);
 		if (seen[key]) {
 			return false;
@@ -230,7 +245,7 @@ export function distinct<T>(array: T[], keyFn?: (t: T) => string): T[] {
 }
 
 export function uniqueFilter<T>(keyFn: (t: T) => string): (t: T) => boolean {
-	const seen: { [key: string]: boolean; } = Object.create(null);
+	const seen: { [key: string]: boolean } = Object.create(null);
 
 	return element => {
 		const key = keyFn(element);
@@ -256,15 +271,27 @@ export function firstIndex<T>(array: T[], fn: (item: T) => boolean): number {
 	return -1;
 }
 
-export function first<T>(array: T[], fn: (item: T) => boolean, notFoundValue: T = null): T {
+export function first<T>(
+	array: T[],
+	fn: (item: T) => boolean,
+	notFoundValue: T = null
+): T {
 	const index = firstIndex(array, fn);
 	return index < 0 ? notFoundValue : array[index];
 }
 
-export function commonPrefixLength<T>(one: T[], other: T[], equals: (a: T, b: T) => boolean = (a, b) => a === b): number {
+export function commonPrefixLength<T>(
+	one: T[],
+	other: T[],
+	equals: (a: T, b: T) => boolean = (a, b) => a === b
+): number {
 	let result = 0;
 
-	for (let i = 0, len = Math.min(one.length, other.length); i < len && equals(one[i], other[i]); i++) {
+	for (
+		let i = 0, len = Math.min(one.length, other.length);
+		i < len && equals(one[i], other[i]);
+		i++
+	) {
 		result++;
 	}
 
@@ -293,9 +320,20 @@ export function fill<T>(num: number, valueFn: () => T, arr: T[] = []): T[] {
 	return arr;
 }
 
-export function index<T>(array: T[], indexer: (t: T) => string): { [key: string]: T; };
-export function index<T, R>(array: T[], indexer: (t: T) => string, merger?: (t: T, r: R) => R): { [key: string]: R; };
-export function index<T, R>(array: T[], indexer: (t: T) => string, merger: (t: T, r: R) => R = t => t as any): { [key: string]: R; } {
+export function index<T>(
+	array: T[],
+	indexer: (t: T) => string
+): { [key: string]: T };
+export function index<T, R>(
+	array: T[],
+	indexer: (t: T) => string,
+	merger?: (t: T, r: R) => R
+): { [key: string]: R };
+export function index<T, R>(
+	array: T[],
+	indexer: (t: T) => string,
+	merger: (t: T, r: R) => R = t => t as any
+): { [key: string]: R } {
 	return array.reduce((r, t) => {
 		const key = indexer(t);
 		r[key] = merger(t, r[key]);

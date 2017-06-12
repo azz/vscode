@@ -3,17 +3,24 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./gotoLine';
 import * as nls from 'vs/nls';
-import { IContext, QuickOpenEntry, QuickOpenModel } from 'vs/base/parts/quickopen/browser/quickOpenModel';
+import {
+	IContext,
+	QuickOpenEntry,
+	QuickOpenModel
+} from 'vs/base/parts/quickopen/browser/quickOpenModel';
 import { IAutoFocus, Mode } from 'vs/base/parts/quickopen/common/quickOpen';
 import * as editorCommon from 'vs/editor/common/editorCommon';
 import { EditorContextKeys } from 'vs/editor/common/editorContextKeys';
 import { ICodeEditor, IDiffEditor } from 'vs/editor/browser/editorBrowser';
 import { BaseEditorQuickOpenAction, IDecorator } from './editorQuickOpen';
-import { editorAction, ServicesAccessor } from 'vs/editor/common/editorCommonExtensions';
+import {
+	editorAction,
+	ServicesAccessor
+} from 'vs/editor/common/editorCommonExtensions';
 import { KeyCode, KeyMod } from 'vs/base/common/keyCodes';
 import { Position } from 'vs/editor/common/core/position';
 import { Range } from 'vs/editor/common/core/range';
@@ -25,12 +32,15 @@ interface ParseResult {
 }
 
 export class GotoLineEntry extends QuickOpenEntry {
-
 	private _parseResult: ParseResult;
 	private decorator: IDecorator;
 	private editor: editorCommon.IEditor;
 
-	constructor(line: string, editor: editorCommon.IEditor, decorator: IDecorator) {
+	constructor(
+		line: string,
+		editor: editorCommon.IEditor,
+		decorator: IDecorator
+	) {
 		super();
 
 		this.editor = editor;
@@ -38,10 +48,11 @@ export class GotoLineEntry extends QuickOpenEntry {
 		this._parseResult = this._parseInput(line);
 	}
 
-
 	private _parseInput(line: string): ParseResult {
-
-		let numbers = line.split(',').map(part => parseInt(part, 10)).filter(part => !isNaN(part)),
+		let numbers = line
+				.split(',')
+				.map(part => parseInt(part, 10))
+				.filter(part => !isNaN(part)),
 			position: Position;
 
 		if (numbers.length === 0) {
@@ -64,14 +75,35 @@ export class GotoLineEntry extends QuickOpenEntry {
 
 		if (isValid) {
 			if (position.column && position.column > 1) {
-				label = nls.localize('gotoLineLabelValidLineAndColumn', "Go to line {0} and character {1}", position.lineNumber, position.column);
+				label = nls.localize(
+					'gotoLineLabelValidLineAndColumn',
+					'Go to line {0} and character {1}',
+					position.lineNumber,
+					position.column
+				);
 			} else {
-				label = nls.localize('gotoLineLabelValidLine', "Go to line {0}", position.lineNumber, position.column);
+				label = nls.localize(
+					'gotoLineLabelValidLine',
+					'Go to line {0}',
+					position.lineNumber,
+					position.column
+				);
 			}
-		} else if (position.lineNumber < 1 || position.lineNumber > model.getLineCount()) {
-			label = nls.localize('gotoLineLabelEmptyWithLineLimit', "Type a line number between 1 and {0} to navigate to", model.getLineCount());
+		} else if (
+			position.lineNumber < 1 ||
+			position.lineNumber > model.getLineCount()
+		) {
+			label = nls.localize(
+				'gotoLineLabelEmptyWithLineLimit',
+				'Type a line number between 1 and {0} to navigate to',
+				model.getLineCount()
+			);
 		} else {
-			label = nls.localize('gotoLineLabelEmptyWithLineAndColumnLimit', "Type a character between 1 and {0} to navigate to", model.getLineMaxColumn(position.lineNumber));
+			label = nls.localize(
+				'gotoLineLabelEmptyWithLineAndColumnLimit',
+				'Type a character between 1 and {0} to navigate to',
+				model.getLineMaxColumn(position.lineNumber)
+			);
 		}
 
 		return {
@@ -86,7 +118,11 @@ export class GotoLineEntry extends QuickOpenEntry {
 	}
 
 	public getAriaLabel(): string {
-		return nls.localize('gotoLineAriaLabel', "Go to line {0}", this._parseResult.label);
+		return nls.localize(
+			'gotoLineAriaLabel',
+			'Go to line {0}',
+			this._parseResult.label
+		);
 	}
 
 	public run(mode: Mode, context: IContext): boolean {
@@ -98,7 +134,6 @@ export class GotoLineEntry extends QuickOpenEntry {
 	}
 
 	public runOpen(): boolean {
-
 		// No-op if range is not valid
 		if (!this._parseResult.isValid) {
 			return false;
@@ -114,7 +149,6 @@ export class GotoLineEntry extends QuickOpenEntry {
 	}
 
 	public runPreview(): boolean {
-
 		// No-op if range is not valid
 		if (!this._parseResult.isValid) {
 			this.decorator.clearDecorations();
@@ -143,25 +177,35 @@ export class GotoLineEntry extends QuickOpenEntry {
 
 @editorAction
 export class GotoLineAction extends BaseEditorQuickOpenAction {
-
 	constructor() {
-		super(nls.localize('gotoLineActionInput', "Type a line number, followed by an optional colon and a character number to navigate to"), {
-			id: 'editor.action.gotoLine',
-			label: nls.localize('GotoLineAction.label', "Go to Line..."),
-			alias: 'Go to Line...',
-			precondition: null,
-			kbOpts: {
-				kbExpr: EditorContextKeys.focus,
-				primary: KeyMod.CtrlCmd | KeyCode.KEY_G,
-				mac: { primary: KeyMod.WinCtrl | KeyCode.KEY_G }
+		super(
+			nls.localize(
+				'gotoLineActionInput',
+				'Type a line number, followed by an optional colon and a character number to navigate to'
+			),
+			{
+				id: 'editor.action.gotoLine',
+				label: nls.localize('GotoLineAction.label', 'Go to Line...'),
+				alias: 'Go to Line...',
+				precondition: null,
+				kbOpts: {
+					kbExpr: EditorContextKeys.focus,
+					primary: KeyMod.CtrlCmd | KeyCode.KEY_G,
+					mac: { primary: KeyMod.WinCtrl | KeyCode.KEY_G }
+				}
 			}
-		});
+		);
 	}
 
-	public run(accessor: ServicesAccessor, editor: editorCommon.ICommonCodeEditor): void {
+	public run(
+		accessor: ServicesAccessor,
+		editor: editorCommon.ICommonCodeEditor
+	): void {
 		this._show(this.getController(editor), {
 			getModel: (value: string): QuickOpenModel => {
-				return new QuickOpenModel([new GotoLineEntry(value, editor, this.getController(editor))]);
+				return new QuickOpenModel([
+					new GotoLineEntry(value, editor, this.getController(editor))
+				]);
 			},
 
 			getAutoFocus: (searchValue: string): IAutoFocus => {

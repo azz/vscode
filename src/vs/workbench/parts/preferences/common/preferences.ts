@@ -51,16 +51,19 @@ export interface IPreferencesEditorModel<T> {
 	dispose(): void;
 }
 
-export interface ISettingsEditorModel extends IPreferencesEditorModel<ISetting> {
+export interface ISettingsEditorModel
+	extends IPreferencesEditorModel<ISetting> {
 	settingsGroups: ISettingsGroup[];
 	groupsTerms: string[];
 	filterSettings(filter: string): IFilterResult;
 }
 
-export interface IKeybindingsEditorModel<T> extends IPreferencesEditorModel<T> {
-}
+export interface IKeybindingsEditorModel<T>
+	extends IPreferencesEditorModel<T> {}
 
-export const IPreferencesService = createDecorator<IPreferencesService>('preferencesService');
+export const IPreferencesService = createDecorator<IPreferencesService>(
+	'preferencesService'
+);
 
 export interface IPreferencesService {
 	_serviceBrand: any;
@@ -70,7 +73,9 @@ export interface IPreferencesService {
 	workspaceSettingsResource: URI;
 	defaultKeybindingsResource: URI;
 
-	createPreferencesEditorModel<T>(uri: URI): TPromise<IPreferencesEditorModel<T>>;
+	createPreferencesEditorModel<T>(
+		uri: URI
+	): TPromise<IPreferencesEditorModel<T>>;
 
 	openSettings(): TPromise<IEditor>;
 	switchSettings(): TPromise<void>;
@@ -81,9 +86,7 @@ export interface IPreferencesService {
 	configureSettingsForLanguage(language: string): void;
 }
 
-
 export interface IKeybindingsEditor extends IEditor {
-
 	activeKeybindingEntry: IKeybindingItemEntry;
 
 	search(filter: string): void;
@@ -94,14 +97,29 @@ export interface IKeybindingsEditor extends IEditor {
 	showConflicts(keybindingEntry: IKeybindingItemEntry): TPromise<any>;
 }
 
-export const CONTEXT_SETTINGS_EDITOR = new RawContextKey<boolean>('inSettingsEditor', false);
-export const CONTEXT_KEYBINDINGS_EDITOR = new RawContextKey<boolean>('inKeybindings', false);
-export const CONTEXT_KEYBINDING_FOCUS = new RawContextKey<boolean>('keybindingFocus', false);
+export const CONTEXT_SETTINGS_EDITOR = new RawContextKey<boolean>(
+	'inSettingsEditor',
+	false
+);
+export const CONTEXT_KEYBINDINGS_EDITOR = new RawContextKey<boolean>(
+	'inKeybindings',
+	false
+);
+export const CONTEXT_KEYBINDING_FOCUS = new RawContextKey<boolean>(
+	'keybindingFocus',
+	false
+);
 
 export const SETTINGS_EDITOR_COMMAND_SEARCH = 'settings.action.search';
-export const KEYBINDINGS_EDITOR_COMMAND_SEARCH = 'keybindings.editor.searchKeybindings';
-export const KEYBINDINGS_EDITOR_COMMAND_DEFINE = 'keybindings.editor.defineKeybinding';
-export const KEYBINDINGS_EDITOR_COMMAND_REMOVE = 'keybindings.editor.removeKeybinding';
-export const KEYBINDINGS_EDITOR_COMMAND_RESET = 'keybindings.editor.resetKeybinding';
-export const KEYBINDINGS_EDITOR_COMMAND_COPY = 'keybindings.editor.copyKeybindingEntry';
-export const KEYBINDINGS_EDITOR_COMMAND_SHOW_CONFLICTS = 'keybindings.editor.showConflicts';
+export const KEYBINDINGS_EDITOR_COMMAND_SEARCH =
+	'keybindings.editor.searchKeybindings';
+export const KEYBINDINGS_EDITOR_COMMAND_DEFINE =
+	'keybindings.editor.defineKeybinding';
+export const KEYBINDINGS_EDITOR_COMMAND_REMOVE =
+	'keybindings.editor.removeKeybinding';
+export const KEYBINDINGS_EDITOR_COMMAND_RESET =
+	'keybindings.editor.resetKeybinding';
+export const KEYBINDINGS_EDITOR_COMMAND_COPY =
+	'keybindings.editor.copyKeybindingEntry';
+export const KEYBINDINGS_EDITOR_COMMAND_SHOW_CONFLICTS =
+	'keybindings.editor.showConflicts';

@@ -10,11 +10,22 @@ import { TPromise } from 'vs/base/common/winjs.base';
 import { IAction } from 'vs/base/common/actions';
 import { IActionItem } from 'vs/base/browser/ui/actionbar/actionbar';
 import { ComposedViewsViewlet } from 'vs/workbench/parts/views/browser/views';
-import { IDebugService, VIEWLET_ID, State } from 'vs/workbench/parts/debug/common/debug';
-import { StartAction, ToggleReplAction, ConfigureAction } from 'vs/workbench/parts/debug/browser/debugActions';
+import {
+	IDebugService,
+	VIEWLET_ID,
+	State
+} from 'vs/workbench/parts/debug/common/debug';
+import {
+	StartAction,
+	ToggleReplAction,
+	ConfigureAction
+} from 'vs/workbench/parts/debug/browser/debugActions';
 import { StartDebugActionItem } from 'vs/workbench/parts/debug/browser/debugActionItems';
 import { IInstantiationService } from 'vs/platform/instantiation/common/instantiation';
-import { IProgressService, IProgressRunner } from 'vs/platform/progress/common/progress';
+import {
+	IProgressService,
+	IProgressRunner
+} from 'vs/platform/progress/common/progress';
 import { IWorkspaceContextService } from 'vs/platform/workspace/common/workspace';
 import { ITelemetryService } from 'vs/platform/telemetry/common/telemetry';
 import { IStorageService } from 'vs/platform/storage/common/storage';
@@ -23,7 +34,6 @@ import { ViewLocation } from 'vs/workbench/parts/views/browser/viewsRegistry';
 import { IContextKeyService } from 'vs/platform/contextkey/common/contextkey';
 
 export class DebugViewlet extends ComposedViewsViewlet {
-
 	private actions: IAction[];
 	private startDebugActionItem: StartDebugActionItem;
 	private progressRunner: IProgressRunner;
@@ -38,15 +48,31 @@ export class DebugViewlet extends ComposedViewsViewlet {
 		@IThemeService themeService: IThemeService,
 		@IContextKeyService contextKeyService: IContextKeyService
 	) {
-		super(VIEWLET_ID, ViewLocation.Debug, `${VIEWLET_ID}.state`, telemetryService, storageService, instantiationService, themeService, contextService, contextKeyService);
+		super(
+			VIEWLET_ID,
+			ViewLocation.Debug,
+			`${VIEWLET_ID}.state`,
+			telemetryService,
+			storageService,
+			instantiationService,
+			themeService,
+			contextService,
+			contextKeyService
+		);
 
 		this.progressRunner = null;
 
-		this._register(this.debugService.onDidChangeState(state => this.onDebugServiceStateChange(state)));
+		this._register(
+			this.debugService.onDidChangeState(state =>
+				this.onDebugServiceStateChange(state)
+			)
+		);
 	}
 
 	public create(parent: Builder): TPromise<void> {
-		return super.create(parent).then(() => DOM.addClass(this.viewletContainer, 'debug-viewlet'));
+		return super
+			.create(parent)
+			.then(() => DOM.addClass(this.viewletContainer, 'debug-viewlet'));
 	}
 
 	public focus(): void {
@@ -64,11 +90,31 @@ export class DebugViewlet extends ComposedViewsViewlet {
 	public getActions(): IAction[] {
 		if (!this.actions) {
 			this.actions = [];
-			this.actions.push(this.instantiationService.createInstance(StartAction, StartAction.ID, StartAction.LABEL));
+			this.actions.push(
+				this.instantiationService.createInstance(
+					StartAction,
+					StartAction.ID,
+					StartAction.LABEL
+				)
+			);
 			if (this.contextService.hasWorkspace()) {
-				this.actions.push(this.instantiationService.createInstance(ConfigureAction, ConfigureAction.ID, ConfigureAction.LABEL));
+				this.actions.push(
+					this.instantiationService.createInstance(
+						ConfigureAction,
+						ConfigureAction.ID,
+						ConfigureAction.LABEL
+					)
+				);
 			}
-			this.actions.push(this._register(this.instantiationService.createInstance(ToggleReplAction, ToggleReplAction.ID, ToggleReplAction.LABEL)));
+			this.actions.push(
+				this._register(
+					this.instantiationService.createInstance(
+						ToggleReplAction,
+						ToggleReplAction.ID,
+						ToggleReplAction.LABEL
+					)
+				)
+			);
 		}
 
 		return this.actions;
@@ -80,7 +126,11 @@ export class DebugViewlet extends ComposedViewsViewlet {
 
 	public getActionItem(action: IAction): IActionItem {
 		if (action.id === StartAction.ID && this.contextService.hasWorkspace()) {
-			this.startDebugActionItem = this.instantiationService.createInstance(StartDebugActionItem, null, action);
+			this.startDebugActionItem = this.instantiationService.createInstance(
+				StartDebugActionItem,
+				null,
+				action
+			);
 			return this.startDebugActionItem;
 		}
 

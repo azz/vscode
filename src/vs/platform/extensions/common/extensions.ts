@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import Severity from 'vs/base/common/severity';
 import { TPromise } from 'vs/base/common/winjs.base';
@@ -22,11 +22,13 @@ export interface IExtensionDescription {
 		vscode: string;
 	};
 	readonly main?: string;
-	readonly contributes?: { [point: string]: any; };
+	readonly contributes?: { [point: string]: any };
 	enableProposedApi?: boolean;
 }
 
-export const IExtensionService = createDecorator<IExtensionService>('extensionService');
+export const IExtensionService = createDecorator<IExtensionService>(
+	'extensionService'
+);
 
 export interface IMessage {
 	type: Severity;
@@ -71,7 +73,9 @@ export interface IExtensionService {
 	/**
 	 * Read all contributions to an extension point.
 	 */
-	readExtensionPointContributions<T>(extPoint: IExtensionPoint<T>): TPromise<ExtensionPointContribution<T>[]>;
+	readExtensionPointContributions<T>(
+		extPoint: IExtensionPoint<T>
+	): TPromise<ExtensionPointContribution<T>[]>;
 
 	/**
 	 * Get information about extensions status.

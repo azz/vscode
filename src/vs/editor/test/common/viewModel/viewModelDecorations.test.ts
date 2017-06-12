@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { Range } from 'vs/editor/common/core/range';
@@ -11,9 +11,7 @@ import { MockCodeEditorCreationOptions } from 'vs/editor/test/common/mocks/mockC
 
 suite('ViewModelDecorations', () => {
 	test('getDecorationsViewportData', () => {
-		const text = [
-			'hello world, this is a buffer that will be wrapped'
-		];
+		const text = ['hello world, this is a buffer that will be wrapped'];
 		const opts: MockCodeEditorCreationOptions = {
 			wordWrap: 'wordWrapColumn',
 			wordWrapColumn: 13
@@ -40,7 +38,7 @@ suite('ViewModelDecorations', () => {
 			let dec13: string;
 			let dec14: string;
 			let dec15: string;
-			model.changeDecorations((accessor) => {
+			model.changeDecorations(accessor => {
 				let createOpts = (id: string) => {
 					return {
 						className: id,
@@ -53,46 +51,98 @@ suite('ViewModelDecorations', () => {
 				// VIEWPORT will be (1,14) -> (1,36)
 
 				// completely before viewport
-				dec1 = accessor.addDecoration(new Range(1, 2, 1, 3), createOpts('dec1'));
+				dec1 = accessor.addDecoration(
+					new Range(1, 2, 1, 3),
+					createOpts('dec1')
+				);
 				// starts before viewport, ends at viewport start
-				dec2 = accessor.addDecoration(new Range(1, 2, 1, 14), createOpts('dec2'));
+				dec2 = accessor.addDecoration(
+					new Range(1, 2, 1, 14),
+					createOpts('dec2')
+				);
 				// starts before viewport, ends inside viewport
-				dec3 = accessor.addDecoration(new Range(1, 2, 1, 15), createOpts('dec3'));
+				dec3 = accessor.addDecoration(
+					new Range(1, 2, 1, 15),
+					createOpts('dec3')
+				);
 				// starts before viewport, ends at viewport end
-				dec4 = accessor.addDecoration(new Range(1, 2, 1, 36), createOpts('dec4'));
+				dec4 = accessor.addDecoration(
+					new Range(1, 2, 1, 36),
+					createOpts('dec4')
+				);
 				// starts before viewport, ends after viewport
-				dec5 = accessor.addDecoration(new Range(1, 2, 1, 51), createOpts('dec5'));
+				dec5 = accessor.addDecoration(
+					new Range(1, 2, 1, 51),
+					createOpts('dec5')
+				);
 
 				// starts at viewport start, ends at viewport start
-				dec6 = accessor.addDecoration(new Range(1, 14, 1, 14), createOpts('dec6'));
+				dec6 = accessor.addDecoration(
+					new Range(1, 14, 1, 14),
+					createOpts('dec6')
+				);
 				// starts at viewport start, ends inside viewport
-				dec7 = accessor.addDecoration(new Range(1, 14, 1, 16), createOpts('dec7'));
+				dec7 = accessor.addDecoration(
+					new Range(1, 14, 1, 16),
+					createOpts('dec7')
+				);
 				// starts at viewport start, ends at viewport end
-				dec8 = accessor.addDecoration(new Range(1, 14, 1, 36), createOpts('dec8'));
+				dec8 = accessor.addDecoration(
+					new Range(1, 14, 1, 36),
+					createOpts('dec8')
+				);
 				// starts at viewport start, ends after viewport
-				dec9 = accessor.addDecoration(new Range(1, 14, 1, 51), createOpts('dec9'));
+				dec9 = accessor.addDecoration(
+					new Range(1, 14, 1, 51),
+					createOpts('dec9')
+				);
 
 				// starts inside viewport, ends inside viewport
-				dec10 = accessor.addDecoration(new Range(1, 16, 1, 18), createOpts('dec10'));
+				dec10 = accessor.addDecoration(
+					new Range(1, 16, 1, 18),
+					createOpts('dec10')
+				);
 				// starts inside viewport, ends at viewport end
-				dec11 = accessor.addDecoration(new Range(1, 16, 1, 36), createOpts('dec11'));
+				dec11 = accessor.addDecoration(
+					new Range(1, 16, 1, 36),
+					createOpts('dec11')
+				);
 				// starts inside viewport, ends after viewport
-				dec12 = accessor.addDecoration(new Range(1, 16, 1, 51), createOpts('dec12'));
+				dec12 = accessor.addDecoration(
+					new Range(1, 16, 1, 51),
+					createOpts('dec12')
+				);
 
 				// starts at viewport end, ends at viewport end
-				dec13 = accessor.addDecoration(new Range(1, 36, 1, 36), createOpts('dec13'));
+				dec13 = accessor.addDecoration(
+					new Range(1, 36, 1, 36),
+					createOpts('dec13')
+				);
 				// starts at viewport end, ends after viewport
-				dec14 = accessor.addDecoration(new Range(1, 36, 1, 51), createOpts('dec14'));
+				dec14 = accessor.addDecoration(
+					new Range(1, 36, 1, 51),
+					createOpts('dec14')
+				);
 
 				// starts after viewport, ends after viewport
-				dec15 = accessor.addDecoration(new Range(1, 40, 1, 51), createOpts('dec15'));
+				dec15 = accessor.addDecoration(
+					new Range(1, 40, 1, 51),
+					createOpts('dec15')
+				);
 			});
 
-			let actualDecorations = viewModel.getDecorationsInViewport(
-				new Range(2, viewModel.getLineMinColumn(2), 3, viewModel.getLineMaxColumn(3))
-			).map((dec) => {
-				return dec.source.id;
-			});
+			let actualDecorations = viewModel
+				.getDecorationsInViewport(
+					new Range(
+						2,
+						viewModel.getLineMinColumn(2),
+						3,
+						viewModel.getLineMaxColumn(3)
+					)
+				)
+				.map(dec => {
+					return dec.source.id;
+				});
 
 			assert.deepEqual(actualDecorations, [
 				dec2,
@@ -107,11 +157,16 @@ suite('ViewModelDecorations', () => {
 				dec11,
 				dec12,
 				dec13,
-				dec14,
+				dec14
 			]);
 
 			let inlineDecorations1 = viewModel.getViewLineRenderingData(
-				new Range(2, viewModel.getLineMinColumn(2), 3, viewModel.getLineMaxColumn(3)),
+				new Range(
+					2,
+					viewModel.getLineMinColumn(2),
+					3,
+					viewModel.getLineMaxColumn(3)
+				),
 				2
 			).inlineDecorations;
 
@@ -221,11 +276,16 @@ suite('ViewModelDecorations', () => {
 					range: new Range(2, 3, 2, 4),
 					inlineClassName: 'b-dec12',
 					insertsBeforeOrAfter: true
-				},
+				}
 			]);
 
 			let inlineDecorations2 = viewModel.getViewLineRenderingData(
-				new Range(2, viewModel.getLineMinColumn(2), 3, viewModel.getLineMaxColumn(3)),
+				new Range(
+					2,
+					viewModel.getLineMinColumn(2),
+					3,
+					viewModel.getLineMaxColumn(3)
+				),
 				3
 			).inlineDecorations;
 
@@ -260,15 +320,13 @@ suite('ViewModelDecorations', () => {
 					range: new Range(2, 3, 5, 8),
 					inlineClassName: 'i-dec12',
 					insertsBeforeOrAfter: false
-				},
+				}
 			]);
 		});
 	});
 
 	test('issue #17208: Problem scrolling in 1.8.0', () => {
-		const text = [
-			'hello world, this is a buffer that will be wrapped'
-		];
+		const text = ['hello world, this is a buffer that will be wrapped'];
 		const opts: MockCodeEditorCreationOptions = {
 			wordWrap: 'wordWrapColumn',
 			wordWrapColumn: 13
@@ -281,28 +339,40 @@ suite('ViewModelDecorations', () => {
 			assert.equal(viewModel.getLineContent(5), 'wrapped');
 
 			let dec1: string;
-			model.changeDecorations((accessor) => {
-				dec1 = accessor.addDecoration(
-					new Range(1, 50, 1, 51),
-					{
-						beforeContentClassName: 'dec1'
-					}
-				);
+			model.changeDecorations(accessor => {
+				dec1 = accessor.addDecoration(new Range(1, 50, 1, 51), {
+					beforeContentClassName: 'dec1'
+				});
 			});
 
 			let decorations = viewModel.getDecorationsInViewport(
-				new Range(2, viewModel.getLineMinColumn(2), 3, viewModel.getLineMaxColumn(3))
+				new Range(
+					2,
+					viewModel.getLineMinColumn(2),
+					3,
+					viewModel.getLineMaxColumn(3)
+				)
 			);
 			assert.deepEqual(decorations, []);
 
 			let inlineDecorations1 = viewModel.getViewLineRenderingData(
-				new Range(2, viewModel.getLineMinColumn(2), 3, viewModel.getLineMaxColumn(3)),
+				new Range(
+					2,
+					viewModel.getLineMinColumn(2),
+					3,
+					viewModel.getLineMaxColumn(3)
+				),
 				2
 			).inlineDecorations;
 			assert.deepEqual(inlineDecorations1, []);
 
 			let inlineDecorations2 = viewModel.getViewLineRenderingData(
-				new Range(2, viewModel.getLineMinColumn(2), 3, viewModel.getLineMaxColumn(3)),
+				new Range(
+					2,
+					viewModel.getLineMinColumn(2),
+					3,
+					viewModel.getLineMaxColumn(3)
+				),
 				3
 			).inlineDecorations;
 			assert.deepEqual(inlineDecorations2, []);

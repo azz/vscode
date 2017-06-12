@@ -2,11 +2,15 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import Event, { Emitter } from 'vs/base/common/event';
 import { dispose } from 'vs/base/common/lifecycle';
-import { MainContext, ExtHostDocumentsAndEditorsShape, IDocumentsAndEditorsDelta } from './extHost.protocol';
+import {
+	MainContext,
+	ExtHostDocumentsAndEditorsShape,
+	IDocumentsAndEditorsDelta
+} from './extHost.protocol';
 import { ExtHostDocumentData } from './extHostDocumentData';
 import { ExtHostTextEditor } from './extHostTextEditor';
 import { IThreadService } from 'vs/workbench/services/thread/common/threadService';
@@ -14,29 +18,33 @@ import * as assert from 'assert';
 import * as typeConverters from './extHostTypeConverters';
 
 export class ExtHostDocumentsAndEditors extends ExtHostDocumentsAndEditorsShape {
-
 	private _activeEditorId: string;
 	private readonly _editors = new Map<string, ExtHostTextEditor>();
 	private readonly _documents = new Map<string, ExtHostDocumentData>();
 
 	private readonly _onDidAddDocuments = new Emitter<ExtHostDocumentData[]>();
 	private readonly _onDidRemoveDocuments = new Emitter<ExtHostDocumentData[]>();
-	private readonly _onDidChangeVisibleTextEditors = new Emitter<ExtHostTextEditor[]>();
-	private readonly _onDidChangeActiveTextEditor = new Emitter<ExtHostTextEditor>();
+	private readonly _onDidChangeVisibleTextEditors = new Emitter<
+		ExtHostTextEditor[]
+	>();
+	private readonly _onDidChangeActiveTextEditor = new Emitter<
+		ExtHostTextEditor
+	>();
 
-	readonly onDidAddDocuments: Event<ExtHostDocumentData[]> = this._onDidAddDocuments.event;
-	readonly onDidRemoveDocuments: Event<ExtHostDocumentData[]> = this._onDidRemoveDocuments.event;
-	readonly onDidChangeVisibleTextEditors: Event<ExtHostTextEditor[]> = this._onDidChangeVisibleTextEditors.event;
-	readonly onDidChangeActiveTextEditor: Event<ExtHostTextEditor> = this._onDidChangeActiveTextEditor.event;
+	readonly onDidAddDocuments: Event<ExtHostDocumentData[]> = this
+		._onDidAddDocuments.event;
+	readonly onDidRemoveDocuments: Event<ExtHostDocumentData[]> = this
+		._onDidRemoveDocuments.event;
+	readonly onDidChangeVisibleTextEditors: Event<ExtHostTextEditor[]> = this
+		._onDidChangeVisibleTextEditors.event;
+	readonly onDidChangeActiveTextEditor: Event<ExtHostTextEditor> = this
+		._onDidChangeActiveTextEditor.event;
 
-	constructor(
-		@IThreadService private _threadService: IThreadService
-	) {
+	constructor(@IThreadService private _threadService: IThreadService) {
 		super();
 	}
 
 	$acceptDocumentsAndEditorsDelta(delta: IDocumentsAndEditorsDelta): void {
-
 		const removedDocuments: ExtHostDocumentData[] = [];
 		const addedDocuments: ExtHostDocumentData[] = [];
 		const removedEditors: ExtHostTextEditor[] = [];
@@ -51,7 +59,10 @@ export class ExtHostDocumentsAndEditors extends ExtHostDocumentsAndEditorsShape 
 
 		if (delta.addedDocuments) {
 			for (const data of delta.addedDocuments) {
-				assert.ok(!this._documents.has(data.url.toString()), `document '${data.url} already exists!'`);
+				assert.ok(
+					!this._documents.has(data.url.toString()),
+					`document '${data.url} already exists!'`
+				);
 
 				const documentData = new ExtHostDocumentData(
 					this._threadService.get(MainContext.MainThreadDocuments),
@@ -77,8 +88,14 @@ export class ExtHostDocumentsAndEditors extends ExtHostDocumentsAndEditorsShape 
 
 		if (delta.addedEditors) {
 			for (const data of delta.addedEditors) {
-				assert.ok(this._documents.has(data.document.toString()), `document '${data.document}' does not exist`);
-				assert.ok(!this._editors.has(data.id), `editor '${data.id}' already exists!`);
+				assert.ok(
+					this._documents.has(data.document.toString()),
+					`document '${data.document}' does not exist`
+				);
+				assert.ok(
+					!this._editors.has(data.id),
+					`editor '${data.id}' already exists!`
+				);
 
 				const documentData = this._documents.get(data.document.toString());
 				const editor = new ExtHostTextEditor(
@@ -94,7 +111,11 @@ export class ExtHostDocumentsAndEditors extends ExtHostDocumentsAndEditorsShape 
 		}
 
 		if (delta.newActiveEditor !== undefined) {
-			assert.ok(delta.newActiveEditor === null || this._editors.has(delta.newActiveEditor), `active editor '${delta.newActiveEditor}' does not exist`);
+			assert.ok(
+				delta.newActiveEditor === null ||
+					this._editors.has(delta.newActiveEditor),
+				`active editor '${delta.newActiveEditor}' does not exist`
+			);
 			this._activeEditorId = delta.newActiveEditor;
 		}
 

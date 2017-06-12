@@ -10,14 +10,21 @@ import errors = require('vs/base/common/errors');
 import { Registry } from 'vs/platform/platform';
 import { Dimension, Builder } from 'vs/base/browser/builder';
 import { Action } from 'vs/base/common/actions';
-import { ITree, IFocusEvent, ISelectionEvent } from 'vs/base/parts/tree/browser/tree';
+import {
+	ITree,
+	IFocusEvent,
+	ISelectionEvent
+} from 'vs/base/parts/tree/browser/tree';
 import { IViewletService } from 'vs/workbench/services/viewlet/browser/viewlet';
 import { IWorkbenchEditorService } from 'vs/workbench/services/editor/common/editorService';
 import { IViewlet } from 'vs/workbench/common/viewlet';
-import { Composite, CompositeDescriptor, CompositeRegistry } from 'vs/workbench/browser/composite';
+import {
+	Composite,
+	CompositeDescriptor,
+	CompositeRegistry
+} from 'vs/workbench/browser/composite';
 
 export abstract class Viewlet extends Composite implements IViewlet {
-
 	public getOptimalWidth(): number {
 		return null;
 	}
@@ -27,7 +34,6 @@ export abstract class Viewlet extends Composite implements IViewlet {
  * Helper subtype of viewlet for those that use a tree inside.
  */
 export abstract class ViewerViewlet extends Viewlet {
-
 	protected viewer: ITree;
 
 	private viewerContainer: Builder;
@@ -43,8 +49,14 @@ export abstract class ViewerViewlet extends Viewlet {
 		this.viewer = this.createViewer(this.viewerContainer);
 
 		// Eventing
-		this.toUnbind.push(this.viewer.addListener('selection', (e: ISelectionEvent) => this.onSelection(e)));
-		this.toUnbind.push(this.viewer.addListener('focus', (e: IFocusEvent) => this.onFocus(e)));
+		this.toUnbind.push(
+			this.viewer.addListener('selection', (e: ISelectionEvent) =>
+				this.onSelection(e)
+			)
+		);
+		this.toUnbind.push(
+			this.viewer.addListener('focus', (e: IFocusEvent) => this.onFocus(e))
+		);
 
 		return TPromise.as(null);
 	}
@@ -129,7 +141,6 @@ export abstract class ViewerViewlet extends Viewlet {
 	}
 
 	public dispose(): void {
-
 		// Dispose Viewer
 		if (this.viewer) {
 			this.viewer.dispose();
@@ -143,7 +154,6 @@ export abstract class ViewerViewlet extends Viewlet {
  * A viewlet descriptor is a leightweight descriptor of a viewlet in the workbench.
  */
 export class ViewletDescriptor extends CompositeDescriptor<Viewlet> {
-
 	constructor(
 		moduleId: string,
 		ctorName: string,
@@ -230,7 +240,6 @@ export class ToggleViewletAction extends Action {
 	}
 
 	public run(): TPromise<any> {
-
 		// Pass focus to viewlet if not open or focussed
 		if (this.otherViewletShowing() || !this.sidebarHasFocus()) {
 			return this.viewletService.openViewlet(this.viewletId, true);
@@ -255,26 +264,38 @@ export class ToggleViewletAction extends Action {
 		const activeViewlet = this.viewletService.getActiveViewlet();
 		const activeElement = document.activeElement;
 
-		return activeViewlet && activeElement && DOM.isAncestor(activeElement, (<Viewlet>activeViewlet).getContainer().getHTMLElement());
+		return (
+			activeViewlet &&
+			activeElement &&
+			DOM.isAncestor(
+				activeElement,
+				(<Viewlet>activeViewlet).getContainer().getHTMLElement()
+			)
+		);
 	}
 }
 
 // Collapse All action
 export class CollapseAction extends Action {
-
 	constructor(viewer: ITree, enabled: boolean, clazz: string) {
-		super('workbench.action.collapse', nls.localize('collapse', "Collapse All"), clazz, enabled, (context: any) => {
-			if (viewer.getHighlight()) {
-				return TPromise.as(null); // Global action disabled if user is in edit mode from another action
+		super(
+			'workbench.action.collapse',
+			nls.localize('collapse', 'Collapse All'),
+			clazz,
+			enabled,
+			(context: any) => {
+				if (viewer.getHighlight()) {
+					return TPromise.as(null); // Global action disabled if user is in edit mode from another action
+				}
+
+				viewer.collapseAll();
+				viewer.clearSelection();
+				viewer.clearFocus();
+				viewer.DOMFocus();
+				viewer.focusFirst();
+
+				return TPromise.as(null);
 			}
-
-			viewer.collapseAll();
-			viewer.clearSelection();
-			viewer.clearFocus();
-			viewer.DOMFocus();
-			viewer.focusFirst();
-
-			return TPromise.as(null);
-		});
+		);
 	}
 }

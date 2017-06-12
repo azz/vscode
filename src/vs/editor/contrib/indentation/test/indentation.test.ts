@@ -4,42 +4,58 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { Selection } from 'vs/editor/common/core/selection';
-import { IndentationToSpacesCommand, IndentationToTabsCommand } from 'vs/editor/contrib/indentation/common/indentation';
+import {
+	IndentationToSpacesCommand,
+	IndentationToTabsCommand
+} from 'vs/editor/contrib/indentation/common/indentation';
 import { testCommand } from 'vs/editor/test/common/commands/commandTestUtils';
 
-function testIndentationToSpacesCommand(lines: string[], selection: Selection, tabSize: number, expectedLines: string[], expectedSelection: Selection): void {
-	testCommand(lines, null, selection, (sel) => new IndentationToSpacesCommand(sel, tabSize), expectedLines, expectedSelection);
+function testIndentationToSpacesCommand(
+	lines: string[],
+	selection: Selection,
+	tabSize: number,
+	expectedLines: string[],
+	expectedSelection: Selection
+): void {
+	testCommand(
+		lines,
+		null,
+		selection,
+		sel => new IndentationToSpacesCommand(sel, tabSize),
+		expectedLines,
+		expectedSelection
+	);
 }
 
-function testIndentationToTabsCommand(lines: string[], selection: Selection, tabSize: number, expectedLines: string[], expectedSelection: Selection): void {
-	testCommand(lines, null, selection, (sel) => new IndentationToTabsCommand(sel, tabSize), expectedLines, expectedSelection);
+function testIndentationToTabsCommand(
+	lines: string[],
+	selection: Selection,
+	tabSize: number,
+	expectedLines: string[],
+	expectedSelection: Selection
+): void {
+	testCommand(
+		lines,
+		null,
+		selection,
+		sel => new IndentationToTabsCommand(sel, tabSize),
+		expectedLines,
+		expectedSelection
+	);
 }
 
 suite('Editor Contrib - Indentation to Spaces', () => {
-
-	test('single tabs only at start of line', function () {
+	test('single tabs only at start of line', function() {
 		testIndentationToSpacesCommand(
-			[
-				'first',
-				'second line',
-				'third line',
-				'\tfourth line',
-				'\tfifth'
-			],
+			['first', 'second line', 'third line', '\tfourth line', '\tfifth'],
 			new Selection(2, 3, 2, 3),
 			4,
-			[
-				'first',
-				'second line',
-				'third line',
-				'    fourth line',
-				'    fifth'
-			],
+			['first', 'second line', 'third line', '    fourth line', '    fifth'],
 			new Selection(2, 3, 2, 3)
 		);
 	});
 
-	test('multiple tabs at start of line', function () {
+	test('multiple tabs at start of line', function() {
 		testIndentationToSpacesCommand(
 			[
 				'\t\tfirst',
@@ -61,7 +77,7 @@ suite('Editor Contrib - Indentation to Spaces', () => {
 		);
 	});
 
-	test('multiple tabs', function () {
+	test('multiple tabs', function() {
 		testIndentationToSpacesCommand(
 			[
 				'\t\tfirst\t',
@@ -83,50 +99,29 @@ suite('Editor Contrib - Indentation to Spaces', () => {
 		);
 	});
 
-	test('empty lines', function () {
+	test('empty lines', function() {
 		testIndentationToSpacesCommand(
-			[
-				'\t\t\t',
-				'\t',
-				'\t\t'
-			],
+			['\t\t\t', '\t', '\t\t'],
 			new Selection(1, 4, 1, 4),
 			2,
-			[
-				'      ',
-				'  ',
-				'    '
-			],
+			['      ', '  ', '    '],
 			new Selection(1, 4, 1, 4)
 		);
 	});
 });
 
 suite('Editor Contrib - Indentation to Tabs', () => {
-
-	test('spaces only at start of line', function () {
+	test('spaces only at start of line', function() {
 		testIndentationToTabsCommand(
-			[
-				'    first',
-				'second line',
-				'    third line',
-				'fourth line',
-				'fifth'
-			],
+			['    first', 'second line', '    third line', 'fourth line', 'fifth'],
 			new Selection(2, 3, 2, 3),
 			4,
-			[
-				'\tfirst',
-				'second line',
-				'\tthird line',
-				'fourth line',
-				'fifth'
-			],
+			['\tfirst', 'second line', '\tthird line', 'fourth line', 'fifth'],
 			new Selection(2, 3, 2, 3)
 		);
 	});
 
-	test('multiple spaces at start of line', function () {
+	test('multiple spaces at start of line', function() {
 		testIndentationToTabsCommand(
 			[
 				'first',
@@ -148,7 +143,7 @@ suite('Editor Contrib - Indentation to Tabs', () => {
 		);
 	});
 
-	test('multiple spaces', function () {
+	test('multiple spaces', function() {
 		testIndentationToTabsCommand(
 			[
 				'      first   ',

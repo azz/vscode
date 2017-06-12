@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { HorizontalRange } from 'vs/editor/common/view/renderingContext';
 
@@ -21,13 +21,15 @@ class FloatHorizontalRange {
 		return `[${this.left},${this.width}]`;
 	}
 
-	public static compare(a: FloatHorizontalRange, b: FloatHorizontalRange): number {
+	public static compare(
+		a: FloatHorizontalRange,
+		b: FloatHorizontalRange
+	): number {
 		return a.left - b.left;
 	}
 }
 
 export class RangeUtil {
-
 	/**
 	 * Reusing the same range here
 	 * because IE is buggy and constantly freezes when using a large number
@@ -48,7 +50,13 @@ export class RangeUtil {
 		range.selectNodeContents(endNode);
 	}
 
-	private static _readClientRects(startElement: Node, startOffset: number, endElement: Node, endOffset: number, endNode: HTMLElement): ClientRectList {
+	private static _readClientRects(
+		startElement: Node,
+		startOffset: number,
+		endElement: Node,
+		endOffset: number,
+		endNode: HTMLElement
+	): ClientRectList {
 		let range = this._createRange();
 		try {
 			range.setStart(startElement, startOffset);
@@ -63,7 +71,9 @@ export class RangeUtil {
 		}
 	}
 
-	private static _mergeAdjacentRanges(ranges: FloatHorizontalRange[]): HorizontalRange[] {
+	private static _mergeAdjacentRanges(
+		ranges: FloatHorizontalRange[]
+	): HorizontalRange[] {
 		if (ranges.length === 1) {
 			// There is nothing to merge
 			return [new HorizontalRange(ranges[0].left, ranges[0].width)];
@@ -71,7 +81,8 @@ export class RangeUtil {
 
 		ranges.sort(FloatHorizontalRange.compare);
 
-		let result: HorizontalRange[] = [], resultLen = 0;
+		let result: HorizontalRange[] = [],
+			resultLen = 0;
 		let prevLeft = ranges[0].left;
 		let prevWidth = ranges[0].width;
 
@@ -80,7 +91,10 @@ export class RangeUtil {
 			const myLeft = range.left;
 			const myWidth = range.width;
 
-			if (prevLeft + prevWidth + 0.9 /* account for browser's rounding errors*/ >= myLeft) {
+			if (
+				prevLeft + prevWidth + 0.9 /* account for browser's rounding errors*/ >=
+				myLeft
+			) {
 				prevWidth = Math.max(prevWidth, myLeft + myWidth - prevLeft);
 			} else {
 				result[resultLen++] = new HorizontalRange(prevLeft, prevWidth);
@@ -94,7 +108,10 @@ export class RangeUtil {
 		return result;
 	}
 
-	private static _createHorizontalRangesFromClientRects(clientRects: ClientRectList, clientRectDeltaLeft: number): HorizontalRange[] {
+	private static _createHorizontalRangesFromClientRects(
+		clientRects: ClientRectList,
+		clientRectDeltaLeft: number
+	): HorizontalRange[] {
 		if (!clientRects || clientRects.length === 0) {
 			return null;
 		}
@@ -105,13 +122,24 @@ export class RangeUtil {
 		let result: FloatHorizontalRange[] = [];
 		for (let i = 0, len = clientRects.length; i < len; i++) {
 			const clientRect = clientRects[i];
-			result[i] = new FloatHorizontalRange(Math.max(0, clientRect.left - clientRectDeltaLeft), clientRect.width);
+			result[i] = new FloatHorizontalRange(
+				Math.max(0, clientRect.left - clientRectDeltaLeft),
+				clientRect.width
+			);
 		}
 
 		return this._mergeAdjacentRanges(result);
 	}
 
-	public static readHorizontalRanges(domNode: HTMLElement, startChildIndex: number, startOffset: number, endChildIndex: number, endOffset: number, clientRectDeltaLeft: number, endNode: HTMLElement): HorizontalRange[] {
+	public static readHorizontalRanges(
+		domNode: HTMLElement,
+		startChildIndex: number,
+		startOffset: number,
+		endChildIndex: number,
+		endOffset: number,
+		clientRectDeltaLeft: number,
+		endNode: HTMLElement
+	): HorizontalRange[] {
 		// Panic check
 		let min = 0;
 		let max = domNode.children.length - 1;
@@ -137,10 +165,22 @@ export class RangeUtil {
 			return null;
 		}
 
-		startOffset = Math.min(startElement.textContent.length, Math.max(0, startOffset));
+		startOffset = Math.min(
+			startElement.textContent.length,
+			Math.max(0, startOffset)
+		);
 		endOffset = Math.min(endElement.textContent.length, Math.max(0, endOffset));
 
-		let clientRects = this._readClientRects(startElement, startOffset, endElement, endOffset, endNode);
-		return this._createHorizontalRangesFromClientRects(clientRects, clientRectDeltaLeft);
+		let clientRects = this._readClientRects(
+			startElement,
+			startOffset,
+			endElement,
+			endOffset,
+			endNode
+		);
+		return this._createHorizontalRangesFromClientRects(
+			clientRects,
+			clientRectDeltaLeft
+		);
 	}
 }

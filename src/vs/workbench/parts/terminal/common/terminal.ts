@@ -2,12 +2,15 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import Event from 'vs/base/common/event';
 import platform = require('vs/base/common/platform');
 import { IDisposable } from 'vs/base/common/lifecycle';
-import { RawContextKey, ContextKeyExpr } from 'vs/platform/contextkey/common/contextkey';
+import {
+	RawContextKey,
+	ContextKeyExpr
+} from 'vs/platform/contextkey/common/contextkey';
 import { TPromise } from 'vs/base/common/winjs.base';
 import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
 
@@ -18,19 +21,28 @@ export const TERMINAL_SERVICE_ID = 'terminalService';
 export const TERMINAL_DEFAULT_RIGHT_CLICK_COPY_PASTE = platform.isWindows;
 
 /**  A context key that is set when the integrated terminal has focus. */
-export const KEYBINDING_CONTEXT_TERMINAL_FOCUS = new RawContextKey<boolean>('terminalFocus', undefined);
+export const KEYBINDING_CONTEXT_TERMINAL_FOCUS = new RawContextKey<boolean>(
+	'terminalFocus',
+	undefined
+);
 /**  A context key that is set when the integrated terminal does not have focus. */
 export const KEYBINDING_CONTEXT_TERMINAL_NOT_FOCUSED: ContextKeyExpr = KEYBINDING_CONTEXT_TERMINAL_FOCUS.toNegated();
 
 /** A keybinding context key that is set when the integrated terminal has text selected. */
-export const KEYBINDING_CONTEXT_TERMINAL_TEXT_SELECTED = new RawContextKey<boolean>('terminalTextSelected', undefined);
+export const KEYBINDING_CONTEXT_TERMINAL_TEXT_SELECTED = new RawContextKey<
+	boolean
+>('terminalTextSelected', undefined);
 /** A keybinding context key that is set when the integrated terminal does not have text selected. */
 export const KEYBINDING_CONTEXT_TERMINAL_TEXT_NOT_SELECTED: ContextKeyExpr = KEYBINDING_CONTEXT_TERMINAL_TEXT_SELECTED.toNegated();
 
-export const IS_WORKSPACE_SHELL_ALLOWED_STORAGE_KEY = 'terminal.integrated.isWorkspaceShellAllowed';
-export const NEVER_SUGGEST_SELECT_WINDOWS_SHELL_STORAGE_KEY = 'terminal.integrated.neverSuggestSelectWindowsShell';
+export const IS_WORKSPACE_SHELL_ALLOWED_STORAGE_KEY =
+	'terminal.integrated.isWorkspaceShellAllowed';
+export const NEVER_SUGGEST_SELECT_WINDOWS_SHELL_STORAGE_KEY =
+	'terminal.integrated.neverSuggestSelectWindowsShell';
 
-export const ITerminalService = createDecorator<ITerminalService>(TERMINAL_SERVICE_ID);
+export const ITerminalService = createDecorator<ITerminalService>(
+	TERMINAL_SERVICE_ID
+);
 
 export const TerminalCursorStyle = {
 	BLOCK: 'block',
@@ -130,12 +142,15 @@ export interface ITerminalService {
 	onActiveInstanceChanged: Event<string>;
 	onInstanceDisposed: Event<ITerminalInstance>;
 	onInstanceProcessIdReady: Event<ITerminalInstance>;
-	onInstanceData: Event<{ instance: ITerminalInstance, data: string }>;
+	onInstanceData: Event<{ instance: ITerminalInstance; data: string }>;
 	onInstancesChanged: Event<string>;
 	onInstanceTitleChanged: Event<string>;
 	terminalInstances: ITerminalInstance[];
 
-	createInstance(shell?: IShellLaunchConfig, wasNewTerminalAction?: boolean): ITerminalInstance;
+	createInstance(
+		shell?: IShellLaunchConfig,
+		wasNewTerminalAction?: boolean
+	): ITerminalInstance;
 	getInstanceFromId(terminalId: number): ITerminalInstance;
 	getInstanceLabels(): string[];
 	getActiveInstance(): ITerminalInstance;
@@ -147,7 +162,10 @@ export interface ITerminalService {
 
 	showPanel(focus?: boolean): TPromise<void>;
 	hidePanel(): void;
-	setContainers(panelContainer: HTMLElement, terminalContainer: HTMLElement): void;
+	setContainers(
+		panelContainer: HTMLElement,
+		terminalContainer: HTMLElement
+	): void;
 	updateConfig(): void;
 	selectDefaultWindowsShell(): TPromise<string>;
 	setWorkspaceShellAllowed(isAllowed: boolean): void;
@@ -206,7 +224,16 @@ export interface ITerminalInstance {
 	 * added to the DOM.
 	 * @return The ID of the new matcher, this can be used to deregister.
 	 */
-	registerLinkMatcher(regex: RegExp, handler: (url: string) => void, matchIndex?: number, validationCallback?: (uri: string, element: HTMLElement, callback: (isValid: boolean) => void) => void): number;
+	registerLinkMatcher(
+		regex: RegExp,
+		handler: (url: string) => void,
+		matchIndex?: number,
+		validationCallback?: (
+			uri: string,
+			element: HTMLElement,
+			callback: (isValid: boolean) => void
+		) => void
+	): number;
 
 	/**
 	 * Deregisters a link matcher if it has been registered.
@@ -294,7 +321,7 @@ export interface ITerminalInstance {
 	 *
 	 * @param dimension The dimensions of the container.
 	 */
-	layout(dimension: { width: number, height: number }): void;
+	layout(dimension: { width: number; height: number }): void;
 
 	/**
 	 * Sets whether the terminal instance's element is visible in the DOM.

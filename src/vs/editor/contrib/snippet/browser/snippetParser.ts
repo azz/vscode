@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { CharCode } from 'vs/base/common/charCode';
 
@@ -25,15 +25,13 @@ export interface Token {
 	len: number;
 }
 
-
 export class Scanner {
-
 	private static _table: { [ch: number]: TokenType } = {
 		[CharCode.DollarSign]: TokenType.Dollar,
 		[CharCode.Colon]: TokenType.Colon,
 		[CharCode.OpenCurlyBrace]: TokenType.CurlyOpen,
 		[CharCode.CloseCurlyBrace]: TokenType.CurlyClose,
-		[CharCode.Backslash]: TokenType.Backslash,
+		[CharCode.Backslash]: TokenType.Backslash
 	};
 
 	static isDigitCharacter(ch: number): boolean {
@@ -41,9 +39,11 @@ export class Scanner {
 	}
 
 	static isVariableCharacter(ch: number): boolean {
-		return ch === CharCode.Underline
-			|| (ch >= CharCode.a && ch <= CharCode.z)
-			|| (ch >= CharCode.A && ch <= CharCode.Z);
+		return (
+			ch === CharCode.Underline ||
+			(ch >= CharCode.a && ch <= CharCode.z) ||
+			(ch >= CharCode.A && ch <= CharCode.Z)
+		);
 	}
 
 	value: string;
@@ -63,7 +63,6 @@ export class Scanner {
 	}
 
 	next(): Token {
-
 		if (this.pos >= this.value.length) {
 			return { type: TokenType.EOF, pos: this.pos, len: 0 };
 		}
@@ -96,13 +95,12 @@ export class Scanner {
 		if (Scanner.isVariableCharacter(ch)) {
 			type = TokenType.VariableName;
 			do {
-				ch = this.value.charCodeAt(pos + (++len));
+				ch = this.value.charCodeAt(pos + ++len);
 			} while (Scanner.isVariableCharacter(ch) || Scanner.isDigitCharacter(ch));
 
 			this.pos += len;
 			return { type, pos, len };
 		}
-
 
 		// format
 		type = TokenType.Format;
@@ -110,10 +108,10 @@ export class Scanner {
 			len += 1;
 			ch = this.value.charCodeAt(pos + len);
 		} while (
-			!isNaN(ch)
-			&& typeof Scanner._table[ch] === 'undefined' // not static token
-			&& !Scanner.isDigitCharacter(ch) // not number
-			&& !Scanner.isVariableCharacter(ch) // not variable
+			!isNaN(ch) &&
+		typeof Scanner._table[ch] === 'undefined' && // not static token
+		!Scanner.isDigitCharacter(ch) && // not number
+			!Scanner.isVariableCharacter(ch) // not variable
 		);
 
 		this.pos += len;
@@ -170,7 +168,6 @@ export class Text extends Marker {
 }
 
 export class Placeholder extends Marker {
-
 	static compareByIndex(a: Placeholder, b: Placeholder): number {
 		if (a.index === b.index) {
 			return 0;
@@ -200,7 +197,6 @@ export class Placeholder extends Marker {
 }
 
 export class Variable extends Marker {
-
 	resolvedValue: string;
 
 	constructor(public name: string = '', children: Marker[]) {
@@ -221,7 +217,10 @@ export class Variable extends Marker {
 		return this.isDefined ? this.resolvedValue : Marker.toString(this.children);
 	}
 }
-export function walk(marker: Marker[], visitor: (marker: Marker) => boolean): void {
+export function walk(
+	marker: Marker[],
+	visitor: (marker: Marker) => boolean
+): void {
 	const stack = [...marker];
 	while (stack.length > 0) {
 		const marker = stack.shift();
@@ -236,7 +235,6 @@ export function walk(marker: Marker[], visitor: (marker: Marker) => boolean): vo
 }
 
 export class TextmateSnippet extends Marker {
-
 	private _placeholders: Placeholder[];
 
 	constructor(marker: Marker[]) {
@@ -326,13 +324,19 @@ export class TextmateSnippet extends Marker {
 }
 
 export class SnippetParser {
-
 	static escape(value: string): string {
 		return value.replace(/\$|}|\\/g, '\\$&');
 	}
 
-	static parse(template: string, enforceFinalTabstop?: boolean): TextmateSnippet {
-		const marker = new SnippetParser().parse(template, true, enforceFinalTabstop);
+	static parse(
+		template: string,
+		enforceFinalTabstop?: boolean
+	): TextmateSnippet {
+		const marker = new SnippetParser().parse(
+			template,
+			true,
+			enforceFinalTabstop
+		);
 		return new TextmateSnippet(marker);
 	}
 
@@ -340,12 +344,15 @@ export class SnippetParser {
 	private _token: Token;
 	private _prevToken: Token;
 
-
 	text(value: string): string {
 		return Marker.toString(this.parse(value));
 	}
 
-	parse(value: string, insertFinalTabstop?: boolean, enforceFinalTabstop?: boolean): Marker[] {
+	parse(
+		value: string,
+		insertFinalTabstop?: boolean,
+		enforceFinalTabstop?: boolean
+	): Marker[] {
 		const marker: Marker[] = [];
 
 		this._scanner.text(value);
@@ -356,8 +363,10 @@ export class SnippetParser {
 
 		// * fill in default for empty placeHolders
 		// * compact sibling Text markers
-		function walk(marker: Marker[], placeholderDefaultValues: Map<number, Marker[]>) {
-
+		function walk(
+			marker: Marker[],
+			placeholderDefaultValues: Map<number, Marker[]>
+		) {
 			for (let i = 0; i < marker.length; i++) {
 				const thisMarker = marker[i];
 
@@ -367,17 +376,21 @@ export class SnippetParser {
 					if (!placeholderDefaultValues.has(thisMarker.index)) {
 						placeholderDefaultValues.set(thisMarker.index, thisMarker.children);
 					} else if (thisMarker.children.length === 0) {
-						thisMarker.children = placeholderDefaultValues.get(thisMarker.index).slice(0);
+						thisMarker.children = placeholderDefaultValues
+							.get(thisMarker.index)
+							.slice(0);
 					}
 
 					if (thisMarker.children.length > 0) {
 						walk(thisMarker.children, placeholderDefaultValues);
 					}
-
 				} else if (thisMarker instanceof Variable) {
 					walk(thisMarker.children, placeholderDefaultValues);
-
-				} else if (i > 0 && thisMarker instanceof Text && marker[i - 1] instanceof Text) {
+				} else if (
+					i > 0 &&
+					thisMarker instanceof Text &&
+					marker[i - 1] instanceof Text
+				) {
 					(<Text>marker[i - 1]).string += (<Text>marker[i]).string;
 					marker.splice(i, 1);
 					i--;
@@ -390,7 +403,8 @@ export class SnippetParser {
 
 		if (
 			!placeholderDefaultValues.has(0) && // there is no final tabstop
-			(insertFinalTabstop && placeholderDefaultValues.size > 0 || enforceFinalTabstop)
+			((insertFinalTabstop && placeholderDefaultValues.size > 0) ||
+				enforceFinalTabstop)
 		) {
 			// the snippet uses placeholders but has no
 			// final tabstop defined -> insert at the end
@@ -429,13 +443,15 @@ export class SnippetParser {
 
 	private _parseTM(marker: Marker[]): boolean {
 		if (this._accept(TokenType.Dollar)) {
-
 			if (this._accept(TokenType.VariableName) || this._accept(TokenType.Int)) {
 				// $FOO, $123
 				const idOrName = this._scanner.tokenText(this._prevToken);
-				marker.push(/^\d+$/.test(idOrName) ? new Placeholder(Number(idOrName), []) : new Variable(idOrName, []));
+				marker.push(
+					/^\d+$/.test(idOrName)
+						? new Placeholder(Number(idOrName), [])
+						: new Variable(idOrName, [])
+				);
 				return true;
-
 			} else if (this._accept(TokenType.CurlyOpen)) {
 				// ${name:children}
 				let name: Marker[] = [];
@@ -443,7 +459,6 @@ export class SnippetParser {
 				let target = name;
 
 				while (true) {
-
 					if (target !== children && this._accept(TokenType.Colon)) {
 						target = children;
 						continue;
@@ -451,7 +466,11 @@ export class SnippetParser {
 
 					if (this._accept(TokenType.CurlyClose)) {
 						const idOrName = Marker.toString(name);
-						marker.push(/^\d+$/.test(idOrName) ? new Placeholder(Number(idOrName), children) : new Variable(idOrName, children));
+						marker.push(
+							/^\d+$/.test(idOrName)
+								? new Placeholder(Number(idOrName), children)
+								: new Variable(idOrName, children)
+						);
 						return true;
 					}
 
@@ -479,7 +498,11 @@ export class SnippetParser {
 
 	private _parseEscaped(marker: Marker[]): boolean {
 		if (this._accept(TokenType.Backslash)) {
-			if (this._accept(TokenType.Dollar) || this._accept(TokenType.CurlyClose) || this._accept(TokenType.Backslash)) {
+			if (
+				this._accept(TokenType.Dollar) ||
+				this._accept(TokenType.CurlyClose) ||
+				this._accept(TokenType.Backslash)
+			) {
 				// just consume them
 			}
 			marker.push(new Text(this._scanner.tokenText(this._prevToken)));

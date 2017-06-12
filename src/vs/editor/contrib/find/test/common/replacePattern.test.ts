@@ -2,13 +2,16 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
-import { parseReplaceString, ReplacePattern, ReplacePiece } from 'vs/editor/contrib/find/common/replacePattern';
+import {
+	parseReplaceString,
+	ReplacePattern,
+	ReplacePiece
+} from 'vs/editor/contrib/find/common/replacePattern';
 
 suite('Replace Pattern test', () => {
-
 	test('parse replace string', () => {
 		let testParse = (input: string, expectedPieces: ReplacePiece[]) => {
 			let actual = parseReplaceString(input);
@@ -47,35 +50,92 @@ suite('Replace Pattern test', () => {
 		// \ with back reference => no treatment
 		testParse('hello\\0', [ReplacePiece.staticValue('hello\\0')]);
 
-		testParse('hello$&', [ReplacePiece.staticValue('hello'), ReplacePiece.matchIndex(0)]);
-		testParse('hello$0', [ReplacePiece.staticValue('hello'), ReplacePiece.matchIndex(0)]);
-		testParse('hello$02', [ReplacePiece.staticValue('hello'), ReplacePiece.matchIndex(0), ReplacePiece.staticValue('2')]);
-		testParse('hello$1', [ReplacePiece.staticValue('hello'), ReplacePiece.matchIndex(1)]);
-		testParse('hello$2', [ReplacePiece.staticValue('hello'), ReplacePiece.matchIndex(2)]);
-		testParse('hello$9', [ReplacePiece.staticValue('hello'), ReplacePiece.matchIndex(9)]);
-		testParse('$9hello', [ReplacePiece.matchIndex(9), ReplacePiece.staticValue('hello')]);
+		testParse('hello$&', [
+			ReplacePiece.staticValue('hello'),
+			ReplacePiece.matchIndex(0)
+		]);
+		testParse('hello$0', [
+			ReplacePiece.staticValue('hello'),
+			ReplacePiece.matchIndex(0)
+		]);
+		testParse('hello$02', [
+			ReplacePiece.staticValue('hello'),
+			ReplacePiece.matchIndex(0),
+			ReplacePiece.staticValue('2')
+		]);
+		testParse('hello$1', [
+			ReplacePiece.staticValue('hello'),
+			ReplacePiece.matchIndex(1)
+		]);
+		testParse('hello$2', [
+			ReplacePiece.staticValue('hello'),
+			ReplacePiece.matchIndex(2)
+		]);
+		testParse('hello$9', [
+			ReplacePiece.staticValue('hello'),
+			ReplacePiece.matchIndex(9)
+		]);
+		testParse('$9hello', [
+			ReplacePiece.matchIndex(9),
+			ReplacePiece.staticValue('hello')
+		]);
 
-		testParse('hello$12', [ReplacePiece.staticValue('hello'), ReplacePiece.matchIndex(12)]);
-		testParse('hello$99', [ReplacePiece.staticValue('hello'), ReplacePiece.matchIndex(99)]);
-		testParse('hello$99a', [ReplacePiece.staticValue('hello'), ReplacePiece.matchIndex(99), ReplacePiece.staticValue('a')]);
-		testParse('hello$1a', [ReplacePiece.staticValue('hello'), ReplacePiece.matchIndex(1), ReplacePiece.staticValue('a')]);
-		testParse('hello$100', [ReplacePiece.staticValue('hello'), ReplacePiece.matchIndex(10), ReplacePiece.staticValue('0')]);
-		testParse('hello$100a', [ReplacePiece.staticValue('hello'), ReplacePiece.matchIndex(10), ReplacePiece.staticValue('0a')]);
-		testParse('hello$10a0', [ReplacePiece.staticValue('hello'), ReplacePiece.matchIndex(10), ReplacePiece.staticValue('a0')]);
+		testParse('hello$12', [
+			ReplacePiece.staticValue('hello'),
+			ReplacePiece.matchIndex(12)
+		]);
+		testParse('hello$99', [
+			ReplacePiece.staticValue('hello'),
+			ReplacePiece.matchIndex(99)
+		]);
+		testParse('hello$99a', [
+			ReplacePiece.staticValue('hello'),
+			ReplacePiece.matchIndex(99),
+			ReplacePiece.staticValue('a')
+		]);
+		testParse('hello$1a', [
+			ReplacePiece.staticValue('hello'),
+			ReplacePiece.matchIndex(1),
+			ReplacePiece.staticValue('a')
+		]);
+		testParse('hello$100', [
+			ReplacePiece.staticValue('hello'),
+			ReplacePiece.matchIndex(10),
+			ReplacePiece.staticValue('0')
+		]);
+		testParse('hello$100a', [
+			ReplacePiece.staticValue('hello'),
+			ReplacePiece.matchIndex(10),
+			ReplacePiece.staticValue('0a')
+		]);
+		testParse('hello$10a0', [
+			ReplacePiece.staticValue('hello'),
+			ReplacePiece.matchIndex(10),
+			ReplacePiece.staticValue('a0')
+		]);
 		testParse('hello$$', [ReplacePiece.staticValue('hello$')]);
 		testParse('hello$$0', [ReplacePiece.staticValue('hello$0')]);
 
 		testParse('hello$`', [ReplacePiece.staticValue('hello$`')]);
-		testParse('hello$\'', [ReplacePiece.staticValue('hello$\'')]);
+		testParse("hello$'", [ReplacePiece.staticValue("hello$'")]);
 	});
 
 	test('replace has JavaScript semantics', () => {
-		let testJSReplaceSemantics = (target: string, search: RegExp, replaceString: string, expected: string) => {
+		let testJSReplaceSemantics = (
+			target: string,
+			search: RegExp,
+			replaceString: string,
+			expected: string
+		) => {
 			let replacePattern = parseReplaceString(replaceString);
 			let m = search.exec(target);
 			let actual = replacePattern.buildReplaceString(m);
 
-			assert.deepEqual(actual, expected, `${target}.replace(${search}, ${replaceString})`);
+			assert.deepEqual(
+				actual,
+				expected,
+				`${target}.replace(${search}, ${replaceString})`
+			);
 		};
 
 		testJSReplaceSemantics('hi', /hi/, 'hello', 'hi'.replace(/hi/, 'hello'));
@@ -85,26 +145,75 @@ suite('Replace Pattern test', () => {
 		testJSReplaceSemantics('hi', /hi/, '\\\\n', 'hi'.replace(/hi/, '\\n'));
 
 		// implicit capture group 0
-		testJSReplaceSemantics('hi', /hi/, 'hello$&', 'hi'.replace(/hi/, 'hello$&'));
-		testJSReplaceSemantics('hi', /hi/, 'hello$0', 'hi'.replace(/hi/, 'hello$&'));
-		testJSReplaceSemantics('hi', /hi/, 'hello$&1', 'hi'.replace(/hi/, 'hello$&1'));
-		testJSReplaceSemantics('hi', /hi/, 'hello$01', 'hi'.replace(/hi/, 'hello$&1'));
+		testJSReplaceSemantics(
+			'hi',
+			/hi/,
+			'hello$&',
+			'hi'.replace(/hi/, 'hello$&')
+		);
+		testJSReplaceSemantics(
+			'hi',
+			/hi/,
+			'hello$0',
+			'hi'.replace(/hi/, 'hello$&')
+		);
+		testJSReplaceSemantics(
+			'hi',
+			/hi/,
+			'hello$&1',
+			'hi'.replace(/hi/, 'hello$&1')
+		);
+		testJSReplaceSemantics(
+			'hi',
+			/hi/,
+			'hello$01',
+			'hi'.replace(/hi/, 'hello$&1')
+		);
 
 		// capture groups have funny semantics in replace strings
 		// the replace string interprets $nn as a captured group only if it exists in the search regex
-		testJSReplaceSemantics('hi', /(hi)/, 'hello$10', 'hi'.replace(/(hi)/, 'hello$10'));
-		testJSReplaceSemantics('hi', /(hi)()()()()()()()()()/, 'hello$10', 'hi'.replace(/(hi)()()()()()()()()()/, 'hello$10'));
-		testJSReplaceSemantics('hi', /(hi)/, 'hello$100', 'hi'.replace(/(hi)/, 'hello$100'));
-		testJSReplaceSemantics('hi', /(hi)/, 'hello$20', 'hi'.replace(/(hi)/, 'hello$20'));
+		testJSReplaceSemantics(
+			'hi',
+			/(hi)/,
+			'hello$10',
+			'hi'.replace(/(hi)/, 'hello$10')
+		);
+		testJSReplaceSemantics(
+			'hi',
+			/(hi)()()()()()()()()()/,
+			'hello$10',
+			'hi'.replace(/(hi)()()()()()()()()()/, 'hello$10')
+		);
+		testJSReplaceSemantics(
+			'hi',
+			/(hi)/,
+			'hello$100',
+			'hi'.replace(/(hi)/, 'hello$100')
+		);
+		testJSReplaceSemantics(
+			'hi',
+			/(hi)/,
+			'hello$20',
+			'hi'.replace(/(hi)/, 'hello$20')
+		);
 	});
 
 	test('get replace string if given text is a complete match', () => {
-		function assertReplace(target: string, search: RegExp, replaceString: string, expected: string): void {
+		function assertReplace(
+			target: string,
+			search: RegExp,
+			replaceString: string,
+			expected: string
+		): void {
 			let replacePattern = parseReplaceString(replaceString);
 			let m = search.exec(target);
 			let actual = replacePattern.buildReplaceString(m);
 
-			assert.equal(actual, expected, `${target}.replace(${search}, ${replaceString}) === ${expected}`);
+			assert.equal(
+				actual,
+				expected,
+				`${target}.replace(${search}, ${replaceString}) === ${expected}`
+			);
 		}
 
 		assertReplace('bla', /bla/, 'hello', 'hello');
@@ -112,25 +221,69 @@ suite('Replace Pattern test', () => {
 		assertReplace('bla', /(bla)/, 'hello$0', 'hellobla');
 
 		let searchRegex = /let\s+(\w+)\s*=\s*require\s*\(\s*['"]([\w\.\-/]+)\s*['"]\s*\)\s*/;
-		assertReplace('let fs = require(\'fs\')', searchRegex, 'import * as $1 from \'$2\';', 'import * as fs from \'fs\';');
-		assertReplace('let something = require(\'fs\')', searchRegex, 'import * as $1 from \'$2\';', 'import * as something from \'fs\';');
-		assertReplace('let something = require(\'fs\')', searchRegex, 'import * as $1 from \'$1\';', 'import * as something from \'something\';');
-		assertReplace('let something = require(\'fs\')', searchRegex, 'import * as $2 from \'$1\';', 'import * as fs from \'something\';');
-		assertReplace('let something = require(\'fs\')', searchRegex, 'import * as $0 from \'$0\';', 'import * as let something = require(\'fs\') from \'let something = require(\'fs\')\';');
-		assertReplace('let fs = require(\'fs\')', searchRegex, 'import * as $1 from \'$2\';', 'import * as fs from \'fs\';');
+		assertReplace(
+			"let fs = require('fs')",
+			searchRegex,
+			"import * as $1 from '$2';",
+			"import * as fs from 'fs';"
+		);
+		assertReplace(
+			"let something = require('fs')",
+			searchRegex,
+			"import * as $1 from '$2';",
+			"import * as something from 'fs';"
+		);
+		assertReplace(
+			"let something = require('fs')",
+			searchRegex,
+			"import * as $1 from '$1';",
+			"import * as something from 'something';"
+		);
+		assertReplace(
+			"let something = require('fs')",
+			searchRegex,
+			"import * as $2 from '$1';",
+			"import * as fs from 'something';"
+		);
+		assertReplace(
+			"let something = require('fs')",
+			searchRegex,
+			"import * as $0 from '$0';",
+			"import * as let something = require('fs') from 'let something = require('fs')';"
+		);
+		assertReplace(
+			"let fs = require('fs')",
+			searchRegex,
+			"import * as $1 from '$2';",
+			"import * as fs from 'fs';"
+		);
 		assertReplace('for ()', /for(.*)/, 'cat$1', 'cat ()');
 
 		// issue #18111
-		assertReplace('HRESULT OnAmbientPropertyChange(DISPID   dispid);', /\b\s{3}\b/, ' ', ' ');
+		assertReplace(
+			'HRESULT OnAmbientPropertyChange(DISPID   dispid);',
+			/\b\s{3}\b/,
+			' ',
+			' '
+		);
 	});
 
 	test('get replace string if match is sub-string of the text', () => {
-		function assertReplace(target: string, search: RegExp, replaceString: string, expected: string): void {
+		function assertReplace(
+			target: string,
+			search: RegExp,
+			replaceString: string,
+			expected: string
+		): void {
 			let replacePattern = parseReplaceString(replaceString);
 			let m = search.exec(target);
 			let actual = replacePattern.buildReplaceString(m);
 
-			assert.equal(actual, expected, `${target}.replace(${search}, ${replaceString}) === ${expected}`);
+			assert.equal(
+				actual,
+				expected,
+				`${target}.replace(${search}, ${replaceString}) === ${expected}`
+			);
 		}
 		assertReplace('this is a bla text', /bla/, 'hello', 'hello');
 		assertReplace('this is a bla text', /this(?=.*bla)/, 'that', 'that');

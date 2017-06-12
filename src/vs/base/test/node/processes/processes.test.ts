@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import * as cp from 'child_process';
@@ -21,11 +21,15 @@ function fork(id: string): cp.ChildProcess {
 		})
 	};
 
-	return cp.fork(URI.parse(require.toUrl('bootstrap')).fsPath, ['--type=processTests'], opts);
+	return cp.fork(
+		URI.parse(require.toUrl('bootstrap')).fsPath,
+		['--type=processTests'],
+		opts
+	);
 }
 
 suite('Processes', () => {
-	test('buffered sending - simple data', function (done: () => void) {
+	test('buffered sending - simple data', function(done: () => void) {
 		if (process.env['VSCODE_PID']) {
 			return done(); // this test fails when run from within VS Code
 		}
@@ -61,7 +65,9 @@ suite('Processes', () => {
 		});
 	});
 
-	test('buffered sending - lots of data (potential deadlock on win32)', function (done: () => void) {
+	test('buffered sending - lots of data (potential deadlock on win32)', function(
+		done: () => void
+	) {
 		if (!platform.isWindows || process.env['VSCODE_PID']) {
 			return done(); // test is only relevant for Windows and seems to crash randomly on some Linux builds
 		}

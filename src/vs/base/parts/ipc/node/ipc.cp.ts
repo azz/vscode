@@ -11,12 +11,23 @@ import { clone, assign } from 'vs/base/common/objects';
 import { Emitter } from 'vs/base/common/event';
 import { fromEventEmitter } from 'vs/base/node/event';
 import { createQueuedSender } from 'vs/base/node/processes';
-import { ChannelServer as IPCServer, ChannelClient as IPCClient, IChannelClient, IChannel } from 'vs/base/parts/ipc/common/ipc';
+import {
+	ChannelServer as IPCServer,
+	ChannelClient as IPCClient,
+	IChannelClient,
+	IChannel
+} from 'vs/base/parts/ipc/common/ipc';
 
 export class Server extends IPCServer {
 	constructor() {
 		super({
-			send: r => { try { process.send(r); } catch (e) { /* not much to do */ } },
+			send: r => {
+				try {
+					process.send(r);
+				} catch (e) {
+					/* not much to do */
+				}
+			},
 			onMessage: fromEventEmitter(process, 'message', msg => msg)
 		});
 
@@ -25,7 +36,6 @@ export class Server extends IPCServer {
 }
 
 export interface IIPCOptions {
-
 	/**
 	 * A descriptive name for the server this connection is to. Used in logging.
 	 */
@@ -72,7 +82,6 @@ export interface IIPCOptions {
 }
 
 export class Client implements IChannelClient, IDisposable {
-
 	private disposeDelayer: Delayer<void>;
 	private activeRequests: Promise[];
 	private child: ChildProcess;
@@ -100,23 +109,28 @@ export class Client implements IChannelClient, IDisposable {
 
 		this.disposeDelayer.cancel();
 
-		const channel = this.channels[channelName] || (this.channels[channelName] = this.client.getChannel(channelName));
+		const channel =
+			this.channels[channelName] ||
+			(this.channels[channelName] = this.client.getChannel(channelName));
 		const request: Promise = channel.call(name, arg);
 
 		// Progress doesn't propagate across 'then', we need to create a promise wrapper
-		const result = new Promise((c, e, p) => {
-			request.then(c, e, p).done(() => {
-				if (!this.activeRequests) {
-					return;
-				}
+		const result = new Promise(
+			(c, e, p) => {
+				request.then(c, e, p).done(() => {
+					if (!this.activeRequests) {
+						return;
+					}
 
-				this.activeRequests.splice(this.activeRequests.indexOf(result), 1);
+					this.activeRequests.splice(this.activeRequests.indexOf(result), 1);
 
-				if (this.activeRequests.length === 0) {
-					this.disposeDelayer.trigger(() => this.disposeClient());
-				}
-			});
-		}, () => request.cancel());
+					if (this.activeRequests.length === 0) {
+						this.disposeDelayer.trigger(() => this.disposeClient());
+					}
+				});
+			},
+			() => request.cancel()
+		);
 
 		this.activeRequests.push(result);
 		return result;
@@ -127,7 +141,9 @@ export class Client implements IChannelClient, IDisposable {
 			const args = this.options && this.options.args ? this.options.args : [];
 			const forkOpts = Object.create(null);
 
-			forkOpts.env = assign(clone(process.env), { 'VSCODE_PARENT_PID': String(process.pid) });
+			forkOpts.env = assign(clone(process.env), {
+				VSCODE_PARENT_PID: String(process.pid)
+			});
 
 			if (this.options && this.options.env) {
 				forkOpts.env = assign(forkOpts.env, this.options.env);
@@ -142,7 +158,10 @@ export class Client implements IChannelClient, IDisposable {
 			}
 
 			if (this.options && typeof this.options.debugBrk === 'number') {
-				forkOpts.execArgv = ['--nolazy', '--debug-brk=' + this.options.debugBrk];
+				forkOpts.execArgv = [
+					'--nolazy',
+					'--debug-brk=' + this.options.debugBrk
+				];
 			}
 
 			this.child = fork(this.modulePath, args, forkOpts);
@@ -153,25 +172,30 @@ export class Client implements IChannelClient, IDisposable {
 			onRawMessage(msg => {
 				// Handle console logs specially
 				if (msg && msg.type === '__$console') {
-					let args = ['%c[IPC Library: ' + this.options.serverName + ']', 'color: darkgreen'];
+					let args = [
+						'%c[IPC Library: ' + this.options.serverName + ']',
+						'color: darkgreen'
+					];
 					try {
 						const parsed = JSON.parse(msg.arguments);
-						args = args.concat(Object.getOwnPropertyNames(parsed).map(o => parsed[o]));
+						args = args.concat(
+							Object.getOwnPropertyNames(parsed).map(o => parsed[o])
+						);
 					} catch (error) {
 						args.push(msg.arguments);
 					}
 
 					console[msg.severity].apply(console, args);
 					return null;
-				}
-
-				// Anything else goes to the outside
-				else {
+				} else {
+					// Anything else goes to the outside
 					onMessageEmitter.fire(msg);
 				}
 			});
 
-			const sender = this.options.useQueue ? createQueuedSender(this.child) : this.child;
+			const sender = this.options.useQueue
+				? createQueuedSender(this.child)
+				: this.child;
 			const send = r => this.child && this.child.connected && sender.send(r);
 			const onMessage = onMessageEmitter.event;
 			const protocol = { send, onMessage };
@@ -181,7 +205,11 @@ export class Client implements IChannelClient, IDisposable {
 			const onExit = () => this.disposeClient();
 			process.once('exit', onExit);
 
-			this.child.on('error', err => console.warn('IPC "' + this.options.serverName + '" errored with ' + err));
+			this.child.on('error', err =>
+				console.warn(
+					'IPC "' + this.options.serverName + '" errored with ' + err
+				)
+			);
 
 			this.child.on('exit', (code: any, signal: any) => {
 				process.removeListener('exit', onExit);
@@ -192,7 +220,12 @@ export class Client implements IChannelClient, IDisposable {
 				}
 
 				if (code !== 0 && signal !== 'SIGTERM') {
-					console.warn('IPC "' + this.options.serverName + '" crashed with exit code ' + code);
+					console.warn(
+						'IPC "' +
+							this.options.serverName +
+							'" crashed with exit code ' +
+							code
+					);
 					this.disposeDelayer.cancel();
 					this.disposeClient();
 				}

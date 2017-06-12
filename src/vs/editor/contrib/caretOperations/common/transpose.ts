@@ -2,23 +2,26 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as nls from 'vs/nls';
 import { KeyCode, KeyMod } from 'vs/base/common/keyCodes';
 import { Range } from 'vs/editor/common/core/range';
 import { ICommand, ICommonCodeEditor } from 'vs/editor/common/editorCommon';
 import { EditorContextKeys } from 'vs/editor/common/editorContextKeys';
-import { editorAction, EditorAction, ServicesAccessor } from 'vs/editor/common/editorCommonExtensions';
+import {
+	editorAction,
+	EditorAction,
+	ServicesAccessor
+} from 'vs/editor/common/editorCommonExtensions';
 import { ReplaceCommand } from 'vs/editor/common/commands/replaceCommand';
 
 @editorAction
 class TransposeLettersAction extends EditorAction {
-
 	constructor() {
 		super({
 			id: 'editor.action.transposeLetters',
-			label: nls.localize('transposeLetters.label', "Transpose Letters"),
+			label: nls.localize('transposeLetters.label', 'Transpose Letters'),
 			alias: 'Transpose Letters',
 			precondition: EditorContextKeys.writable,
 			kbOpts: {
@@ -57,9 +60,16 @@ class TransposeLettersAction extends EditorAction {
 			let charToTheLeft = lineContent.charAt(column - 2);
 			let charToTheRight = lineContent.charAt(column - 1);
 
-			let replaceRange = new Range(lineNumber, column - 1, lineNumber, column + 1);
+			let replaceRange = new Range(
+				lineNumber,
+				column - 1,
+				lineNumber,
+				column + 1
+			);
 
-			commands.push(new ReplaceCommand(replaceRange, charToTheRight + charToTheLeft));
+			commands.push(
+				new ReplaceCommand(replaceRange, charToTheRight + charToTheLeft)
+			);
 		}
 
 		if (commands.length > 0) {

@@ -3,15 +3,19 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
-import { BoundedMap, SimpleMap, TrieMap, ResourceMap } from 'vs/base/common/map';
+import {
+	BoundedMap,
+	SimpleMap,
+	TrieMap,
+	ResourceMap
+} from 'vs/base/common/map';
 import * as assert from 'assert';
 import URI from 'vs/base/common/uri';
 
 suite('Map', () => {
-
-	test('SimpleMap - basics', function () {
+	test('SimpleMap - basics', function() {
 		const map = new SimpleMap<string, any>();
 
 		assert.equal(map.size, 0);
@@ -72,7 +76,7 @@ suite('Map', () => {
 		assert.equal(res, 'bar');
 	});
 
-	test('BoundedMap - basics', function () {
+	test('BoundedMap - basics', function() {
 		const map = new BoundedMap<any>();
 
 		assert.equal(map.size, 0);
@@ -133,7 +137,7 @@ suite('Map', () => {
 		assert.equal(res, 'bar');
 	});
 
-	test('BoundedMap - serialization', function () {
+	test('BoundedMap - serialization', function() {
 		const map = new BoundedMap<any>(5);
 
 		map.set('1', 1);
@@ -163,7 +167,7 @@ suite('Map', () => {
 		assert.ok(!mapClone.get('1'));
 	});
 
-	test('BoundedMap - setLimit', function () {
+	test('BoundedMap - setLimit', function() {
 		const map = new BoundedMap<any>(5);
 
 		map.set('1', 1);
@@ -221,7 +225,7 @@ suite('Map', () => {
 		assert.equal(map.get('5'), date);
 	});
 
-	test('BoundedMap - bounded', function () {
+	test('BoundedMap - bounded', function() {
 		const map = new BoundedMap<number>(5);
 
 		assert.equal(0, map.size);
@@ -290,7 +294,7 @@ suite('Map', () => {
 		assert.equal(map.get('14'), 14);
 	});
 
-	test('BoundedMap - bounded with ratio', function () {
+	test('BoundedMap - bounded with ratio', function() {
 		const map = new BoundedMap<number>(6, 0.5);
 
 		assert.equal(0, map.size);
@@ -328,7 +332,7 @@ suite('Map', () => {
 		assert.equal(map.get('10'), 10);
 	});
 
-	test('BoundedMap - MRU order', function () {
+	test('BoundedMap - MRU order', function() {
 		const map = new BoundedMap<number>(3);
 
 		function peek(key) {
@@ -371,9 +375,7 @@ suite('Map', () => {
 		assert.ok(!map.has('4'));
 	});
 
-
-	test('TrieMap - basics', function () {
-
+	test('TrieMap - basics', function() {
 		const map = new TrieMap<number>(TrieMap.PathSplitter);
 
 		map.insert('/user/foo/bar', 1);
@@ -387,11 +389,9 @@ suite('Map', () => {
 		assert.equal(map.findSubstr('/user/foo/far/boo'), 2);
 		assert.equal(map.findSubstr('/user/foo/bar'), 1);
 		assert.equal(map.findSubstr('/user/foo/bar/far/boo'), 1);
-
 	});
 
-	test('TrieMap - lookup', function () {
-
+	test('TrieMap - lookup', function() {
 		const map = new TrieMap<number>(TrieMap.PathSplitter);
 		map.insert('/user/foo/bar', 1);
 		map.insert('/user/foo', 2);
@@ -404,8 +404,7 @@ suite('Map', () => {
 		assert.equal(map.lookUp('/user/foo/bar/boo'), undefined);
 	});
 
-	test('TrieMap - superstr', function () {
-
+	test('TrieMap - superstr', function() {
 		const map = new TrieMap<number>(TrieMap.PathSplitter);
 		map.insert('/user/foo/bar', 1);
 		map.insert('/user/foo', 2);
@@ -420,7 +419,7 @@ suite('Map', () => {
 		assert.equal(supMap.lookUp('user'), undefined);
 	});
 
-	test('ResourceMap - basics', function () {
+	test('ResourceMap - basics', function() {
 		const map = new ResourceMap<any>();
 
 		const resource1 = URI.parse('some://1');
@@ -499,7 +498,7 @@ suite('Map', () => {
 		assert.ok(map.has(resource2));
 	});
 
-	test('ResourceMap - files (do NOT ignorecase)', function () {
+	test('ResourceMap - files (do NOT ignorecase)', function() {
 		const map = new ResourceMap<any>();
 
 		const fileA = URI.parse('file://some/filea');
@@ -528,7 +527,7 @@ suite('Map', () => {
 		assert.equal(map.get(uncFile), 'true');
 	});
 
-	test('ResourceMap - files (ignorecase)', function () {
+	test('ResourceMap - files (ignorecase)', function() {
 		const map = new ResourceMap<any>(true);
 
 		const fileA = URI.parse('file://some/filea');

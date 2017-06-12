@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import errors = require('vs/base/common/errors');
@@ -18,23 +18,36 @@ import { getIconClasses } from 'vs/workbench/browser/labels';
 import { IModelService } from 'vs/editor/common/services/modelService';
 import { IWorkbenchThemeService } from 'vs/workbench/services/themes/common/workbenchThemeService';
 import { IAutoFocus } from 'vs/base/parts/quickopen/common/quickOpen';
-import { QuickOpenEntry, QuickOpenModel } from 'vs/base/parts/quickopen/browser/quickOpenModel';
-import { QuickOpenHandler, EditorQuickOpenEntry } from 'vs/workbench/browser/quickopen';
+import {
+	QuickOpenEntry,
+	QuickOpenModel
+} from 'vs/base/parts/quickopen/browser/quickOpenModel';
+import {
+	QuickOpenHandler,
+	EditorQuickOpenEntry
+} from 'vs/workbench/browser/quickopen';
 import { QueryBuilder } from 'vs/workbench/parts/search/common/searchQuery';
-import { EditorInput, IWorkbenchEditorConfiguration } from 'vs/workbench/common/editor';
+import {
+	EditorInput,
+	IWorkbenchEditorConfiguration
+} from 'vs/workbench/common/editor';
 import { IEditorGroupService } from 'vs/workbench/services/group/common/groupService';
 import { IResourceInput } from 'vs/platform/editor/common/editor';
 import { IWorkbenchEditorService } from 'vs/workbench/services/editor/common/editorService';
 import { IConfigurationService } from 'vs/platform/configuration/common/configuration';
 import { IInstantiationService } from 'vs/platform/instantiation/common/instantiation';
-import { IQueryOptions, ISearchService, ISearchStats, ISearchQuery } from 'vs/platform/search/common/search';
+import {
+	IQueryOptions,
+	ISearchService,
+	ISearchStats,
+	ISearchQuery
+} from 'vs/platform/search/common/search';
 import { IWorkspaceContextService } from 'vs/platform/workspace/common/workspace';
 import { IEnvironmentService } from 'vs/platform/environment/common/environment';
 import { IRange } from 'vs/editor/common/core/range';
 import { getOutOfWorkspaceEditorResources } from 'vs/workbench/parts/search/common/search';
 
 export class FileQuickOpenModel extends QuickOpenModel {
-
 	constructor(entries: QuickOpenEntry[], public stats?: ISearchStats) {
 		super(entries);
 	}
@@ -63,12 +76,16 @@ export class FileEntry extends EditorQuickOpenEntry {
 
 	public getLabelOptions(): IIconLabelOptions {
 		return {
-			extraClasses: getIconClasses(this.modelService, this.modeService, this.resource)
+			extraClasses: getIconClasses(
+				this.modelService,
+				this.modeService,
+				this.resource
+			)
 		};
 	}
 
 	public getAriaLabel(): string {
-		return nls.localize('entryAriaLabel', "{0}, file picker", this.getLabel());
+		return nls.localize('entryAriaLabel', '{0}, file picker', this.getLabel());
 	}
 
 	public getDescription(): string {
@@ -95,7 +112,9 @@ export class FileEntry extends EditorQuickOpenEntry {
 		const input: IResourceInput = {
 			resource: this.resource,
 			options: {
-				pinned: !this.configurationService.getConfiguration<IWorkbenchEditorConfiguration>().workbench.editor.enablePreviewFromQuickOpen
+				pinned: !this.configurationService.getConfiguration<
+					IWorkbenchEditorConfiguration
+				>().workbench.editor.enablePreviewFromQuickOpen
 			}
 		};
 
@@ -133,7 +152,10 @@ export class OpenFileHandler extends QuickOpenHandler {
 		this.options = options;
 	}
 
-	public getResults(searchValue: string, maxSortedResults?: number): TPromise<FileQuickOpenModel> {
+	public getResults(
+		searchValue: string,
+		maxSortedResults?: number
+	): TPromise<FileQuickOpenModel> {
 		searchValue = searchValue.trim();
 
 		// Respond directly to empty search
@@ -142,13 +164,26 @@ export class OpenFileHandler extends QuickOpenHandler {
 		}
 
 		// Do find results
-		return this.doFindResults(searchValue, this.cacheState.cacheKey, maxSortedResults);
+		return this.doFindResults(
+			searchValue,
+			this.cacheState.cacheKey,
+			maxSortedResults
+		);
 	}
 
-	private doFindResults(searchValue: string, cacheKey?: string, maxSortedResults?: number): TPromise<FileQuickOpenModel> {
+	private doFindResults(
+		searchValue: string,
+		cacheKey?: string,
+		maxSortedResults?: number
+	): TPromise<FileQuickOpenModel> {
 		const query: IQueryOptions = {
-			folderResources: this.contextService.hasWorkspace() ? [this.contextService.getWorkspace().resource] : [],
-			extraFileResources: getOutOfWorkspaceEditorResources(this.editorGroupService, this.contextService),
+			folderResources: this.contextService.hasWorkspace()
+				? [this.contextService.getWorkspace().resource]
+				: [],
+			extraFileResources: getOutOfWorkspaceEditorResources(
+				this.editorGroupService,
+				this.contextService
+			),
 			filePattern: searchValue,
 			cacheKey: cacheKey
 		};
@@ -159,23 +194,41 @@ export class OpenFileHandler extends QuickOpenHandler {
 		}
 
 		let iconClass: string;
-		if (this.options && this.options.forceUseIcons && !this.themeService.getFileIconTheme()) {
+		if (
+			this.options &&
+			this.options.forceUseIcons &&
+			!this.themeService.getFileIconTheme()
+		) {
 			iconClass = 'file'; // only use a generic file icon if we are forced to use an icon and have no icon theme set otherwise
 		}
 
-		return this.searchService.search(this.queryBuilder.file(query)).then((complete) => {
-			const results: QuickOpenEntry[] = [];
-			for (let i = 0; i < complete.results.length; i++) {
-				const fileMatch = complete.results[i];
+		return this.searchService
+			.search(this.queryBuilder.file(query))
+			.then(complete => {
+				const results: QuickOpenEntry[] = [];
+				for (let i = 0; i < complete.results.length; i++) {
+					const fileMatch = complete.results[i];
 
-				const label = paths.basename(fileMatch.resource.fsPath);
-				const description = labels.getPathLabel(paths.dirname(fileMatch.resource.fsPath), this.contextService, this.environmentService);
+					const label = paths.basename(fileMatch.resource.fsPath);
+					const description = labels.getPathLabel(
+						paths.dirname(fileMatch.resource.fsPath),
+						this.contextService,
+						this.environmentService
+					);
 
-				results.push(this.instantiationService.createInstance(FileEntry, fileMatch.resource, label, description, iconClass));
-			}
+					results.push(
+						this.instantiationService.createInstance(
+							FileEntry,
+							fileMatch.resource,
+							label,
+							description,
+							iconClass
+						)
+					);
+				}
 
-			return new FileQuickOpenModel(results, complete.stats);
-		});
+				return new FileQuickOpenModel(results, complete.stats);
+			});
 	}
 
 	public hasShortResponseTime(): boolean {
@@ -183,14 +236,24 @@ export class OpenFileHandler extends QuickOpenHandler {
 	}
 
 	public onOpen(): void {
-		this.cacheState = new CacheState(cacheKey => this.cacheQuery(cacheKey), query => this.searchService.search(query), cacheKey => this.searchService.clearCache(cacheKey), this.cacheState);
+		this.cacheState = new CacheState(
+			cacheKey => this.cacheQuery(cacheKey),
+			query => this.searchService.search(query),
+			cacheKey => this.searchService.clearCache(cacheKey),
+			this.cacheState
+		);
 		this.cacheState.load();
 	}
 
 	private cacheQuery(cacheKey: string): ISearchQuery {
 		const options: IQueryOptions = {
-			folderResources: this.contextService.hasWorkspace() ? [this.contextService.getWorkspace().resource] : [],
-			extraFileResources: getOutOfWorkspaceEditorResources(this.editorGroupService, this.contextService),
+			folderResources: this.contextService.hasWorkspace()
+				? [this.contextService.getWorkspace().resource]
+				: [],
+			extraFileResources: getOutOfWorkspaceEditorResources(
+				this.editorGroupService,
+				this.contextService
+			),
 			filePattern: '',
 			cacheKey: cacheKey,
 			maxResults: 0,
@@ -208,7 +271,7 @@ export class OpenFileHandler extends QuickOpenHandler {
 	}
 
 	public getGroupLabel(): string {
-		return nls.localize('searchResults', "search results");
+		return nls.localize('searchResults', 'search results');
 	}
 
 	public getAutoFocus(searchValue: string): IAutoFocus {
@@ -230,18 +293,24 @@ enum LoadingPhase {
  * Exported for testing.
  */
 export class CacheState {
-
 	private _cacheKey = defaultGenerator.nextId();
 	private query: ISearchQuery;
 
 	private loadingPhase = LoadingPhase.Created;
 	private promise: TPromise<void>;
 
-	constructor(cacheQuery: (cacheKey: string) => ISearchQuery, private doLoad: (query: ISearchQuery) => TPromise<any>, private doDispose: (cacheKey: string) => TPromise<void>, private previous: CacheState) {
+	constructor(
+		cacheQuery: (cacheKey: string) => ISearchQuery,
+		private doLoad: (query: ISearchQuery) => TPromise<any>,
+		private doDispose: (cacheKey: string) => TPromise<void>,
+		private previous: CacheState
+	) {
 		this.query = cacheQuery(this._cacheKey);
 		if (this.previous) {
 			const current = objects.assign({}, this.query, { cacheKey: null });
-			const previous = objects.assign({}, this.previous.query, { cacheKey: null });
+			const previous = objects.assign({}, this.previous.query, {
+				cacheKey: null
+			});
 			if (!objects.equals(current, previous)) {
 				this.previous.dispose();
 				this.previous = null;
@@ -250,7 +319,9 @@ export class CacheState {
 	}
 
 	public get cacheKey(): string {
-		return this.loadingPhase === LoadingPhase.Loaded || !this.previous ? this._cacheKey : this.previous.cacheKey;
+		return this.loadingPhase === LoadingPhase.Loaded || !this.previous
+			? this._cacheKey
+			: this.previous.cacheKey;
 	}
 
 	public get isLoaded(): boolean {
@@ -268,26 +339,30 @@ export class CacheState {
 			return;
 		}
 		this.loadingPhase = LoadingPhase.Loading;
-		this.promise = this.doLoad(this.query)
-			.then(() => {
+		this.promise = this.doLoad(this.query).then(
+			() => {
 				this.loadingPhase = LoadingPhase.Loaded;
 				if (this.previous) {
 					this.previous.dispose();
 					this.previous = null;
 				}
-			}, err => {
+			},
+			err => {
 				this.loadingPhase = LoadingPhase.Errored;
 				errors.onUnexpectedError(err);
-			});
+			}
+		);
 	}
 
 	public dispose(): void {
 		if (this.promise) {
-			this.promise.then(null, () => { })
+			this.promise
+				.then(null, () => {})
 				.then(() => {
 					this.loadingPhase = LoadingPhase.Disposed;
 					return this.doDispose(this._cacheKey);
-				}).then(null, err => {
+				})
+				.then(null, err => {
 					errors.onUnexpectedError(err);
 				});
 		} else {

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { EditorInput } from 'vs/workbench/common/editor';
@@ -20,8 +20,7 @@ class MyEditorInput extends EditorInput {
 }
 
 suite('Workbench - EditorInput', () => {
-
-	test('EditorInput', function () {
+	test('EditorInput', function() {
 		let counter = 0;
 		let input = new MyEditorInput();
 		let otherInput = new MyEditorInput();
@@ -40,7 +39,7 @@ suite('Workbench - EditorInput', () => {
 		assert.equal(counter, 1);
 	});
 
-	test('DiffEditorInput', function () {
+	test('DiffEditorInput', function() {
 		let counter = 0;
 		let input = new MyEditorInput();
 		input.onDispose(() => {
@@ -54,7 +53,12 @@ suite('Workbench - EditorInput', () => {
 			counter++;
 		});
 
-		let diffInput = new DiffEditorInput('name', 'description', input, otherInput);
+		let diffInput = new DiffEditorInput(
+			'name',
+			'description',
+			input,
+			otherInput
+		);
 
 		assert.equal(diffInput.originalInput, input);
 		assert.equal(diffInput.modifiedInput, otherInput);
@@ -66,12 +70,17 @@ suite('Workbench - EditorInput', () => {
 		assert.equal(counter, 0);
 	});
 
-	test('DiffEditorInput disposes when input inside disposes', function () {
+	test('DiffEditorInput disposes when input inside disposes', function() {
 		let counter = 0;
 		let input = new MyEditorInput();
 		let otherInput = new MyEditorInput();
 
-		let diffInput = new DiffEditorInput('name', 'description', input, otherInput);
+		let diffInput = new DiffEditorInput(
+			'name',
+			'description',
+			input,
+			otherInput
+		);
 		diffInput.onDispose(() => {
 			counter++;
 			assert(true);
@@ -82,7 +91,12 @@ suite('Workbench - EditorInput', () => {
 		input = new MyEditorInput();
 		otherInput = new MyEditorInput();
 
-		let diffInput2 = new DiffEditorInput('name', 'description', input, otherInput);
+		let diffInput2 = new DiffEditorInput(
+			'name',
+			'description',
+			input,
+			otherInput
+		);
 		diffInput2.onDispose(() => {
 			counter++;
 			assert(true);

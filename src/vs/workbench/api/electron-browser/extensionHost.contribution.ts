@@ -3,11 +3,18 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
-import { IWorkbenchContribution, IWorkbenchContributionsRegistry, Extensions as WorkbenchExtensions } from 'vs/workbench/common/contributions';
+import {
+	IWorkbenchContribution,
+	IWorkbenchContributionsRegistry,
+	Extensions as WorkbenchExtensions
+} from 'vs/workbench/common/contributions';
 import { Registry } from 'vs/platform/platform';
-import { IInstantiationService, IConstructorSignature0 } from 'vs/platform/instantiation/common/instantiation';
+import {
+	IInstantiationService,
+	IConstructorSignature0
+} from 'vs/platform/instantiation/common/instantiation';
 import { IThreadService } from 'vs/workbench/services/thread/common/threadService';
 import { MainContext, InstanceCollection } from '../node/extHost.protocol';
 import { IExtensionService } from 'vs/platform/extensions/common/extensions';
@@ -46,7 +53,6 @@ import { SaveParticipant } from './mainThreadSaveParticipant';
 import './mainThreadHeapService';
 
 export class ExtHostContribution implements IWorkbenchContribution {
-
 	constructor(
 		@IThreadService private threadService: IThreadService,
 		@IInstantiationService private instantiationService: IInstantiationService,
@@ -64,32 +70,74 @@ export class ExtHostContribution implements IWorkbenchContribution {
 			return this.instantiationService.createInstance(ctor);
 		};
 
-		const documentsAndEditors = this.instantiationService.createInstance(MainThreadDocumentsAndEditors);
+		const documentsAndEditors = this.instantiationService.createInstance(
+			MainThreadDocumentsAndEditors
+		);
 
 		// Addressable instances
 		const col = new InstanceCollection();
 		col.define(MainContext.MainThreadCommands).set(create(MainThreadCommands));
-		col.define(MainContext.MainThreadConfiguration).set(create(MainThreadConfiguration));
-		col.define(MainContext.MainThreadDiagnostics).set(create(MainThreadDiagnostics));
-		col.define(MainContext.MainThreadDocuments).set(this.instantiationService.createInstance(MainThreadDocuments, documentsAndEditors));
-		col.define(MainContext.MainThreadEditors).set(this.instantiationService.createInstance(MainThreadEditors, documentsAndEditors));
+		col
+			.define(MainContext.MainThreadConfiguration)
+			.set(create(MainThreadConfiguration));
+		col
+			.define(MainContext.MainThreadDiagnostics)
+			.set(create(MainThreadDiagnostics));
+		col
+			.define(MainContext.MainThreadDocuments)
+			.set(
+				this.instantiationService.createInstance(
+					MainThreadDocuments,
+					documentsAndEditors
+				)
+			);
+		col
+			.define(MainContext.MainThreadEditors)
+			.set(
+				this.instantiationService.createInstance(
+					MainThreadEditors,
+					documentsAndEditors
+				)
+			);
 		col.define(MainContext.MainThreadErrors).set(create(MainThreadErrors));
-		col.define(MainContext.MainThreadTreeViews).set(create(MainThreadTreeViews));
-		col.define(MainContext.MainThreadLanguageFeatures).set(create(MainThreadLanguageFeatures));
-		col.define(MainContext.MainThreadLanguages).set(create(MainThreadLanguages));
-		col.define(MainContext.MainThreadMessageService).set(create(MainThreadMessageService));
-		col.define(MainContext.MainThreadOutputService).set(create(MainThreadOutputService));
+		col
+			.define(MainContext.MainThreadTreeViews)
+			.set(create(MainThreadTreeViews));
+		col
+			.define(MainContext.MainThreadLanguageFeatures)
+			.set(create(MainThreadLanguageFeatures));
+		col
+			.define(MainContext.MainThreadLanguages)
+			.set(create(MainThreadLanguages));
+		col
+			.define(MainContext.MainThreadMessageService)
+			.set(create(MainThreadMessageService));
+		col
+			.define(MainContext.MainThreadOutputService)
+			.set(create(MainThreadOutputService));
 		col.define(MainContext.MainThreadProgress).set(create(MainThreadProgress));
-		col.define(MainContext.MainThreadQuickOpen).set(create(MainThreadQuickOpen));
-		col.define(MainContext.MainThreadStatusBar).set(create(MainThreadStatusBar));
+		col
+			.define(MainContext.MainThreadQuickOpen)
+			.set(create(MainThreadQuickOpen));
+		col
+			.define(MainContext.MainThreadStatusBar)
+			.set(create(MainThreadStatusBar));
 		col.define(MainContext.MainThreadStorage).set(create(MainThreadStorage));
-		col.define(MainContext.MainThreadTelemetry).set(create(MainThreadTelemetry));
-		col.define(MainContext.MainThreadTerminalService).set(create(MainThreadTerminalService));
-		col.define(MainContext.MainThreadWorkspace).set(create(MainThreadWorkspace));
+		col
+			.define(MainContext.MainThreadTelemetry)
+			.set(create(MainThreadTelemetry));
+		col
+			.define(MainContext.MainThreadTerminalService)
+			.set(create(MainThreadTerminalService));
+		col
+			.define(MainContext.MainThreadWorkspace)
+			.set(create(MainThreadWorkspace));
 		col.define(MainContext.MainThreadSCM).set(create(MainThreadSCM));
 		col.define(MainContext.MainThreadTask).set(create(MainThreadTask));
 		if (this.extensionService instanceof MainProcessExtensionService) {
-			col.define(MainContext.MainProcessExtensionService).set(<MainProcessExtensionService>this.extensionService);
+			col
+				.define(MainContext.MainProcessExtensionService)
+				.set(<MainProcessExtensionService>this.extensionService);
 		}
 		col.finish(true, this.threadService);
 
@@ -102,6 +150,6 @@ export class ExtHostContribution implements IWorkbenchContribution {
 }
 
 // Register File Tracker
-Registry.as<IWorkbenchContributionsRegistry>(WorkbenchExtensions.Workbench).registerWorkbenchContribution(
-	ExtHostContribution
-);
+Registry.as<IWorkbenchContributionsRegistry>(
+	WorkbenchExtensions.Workbench
+).registerWorkbenchContribution(ExtHostContribution);

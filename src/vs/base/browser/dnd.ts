@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { $ } from 'vs/base/browser/builder';
 import URI from 'vs/base/common/uri';
@@ -13,7 +13,6 @@ import URI from 'vs/base/common/uri';
  *  dragover event for 800ms. If the drag is aborted before, the callback will not be triggered.
  */
 export class DelayedDragHandler {
-
 	private timeout: number;
 
 	constructor(container: HTMLElement, callback: () => void) {
@@ -27,7 +26,9 @@ export class DelayedDragHandler {
 			}
 		});
 
-		$(container).on(['dragleave', 'drop', 'dragend'], () => this.clearDragTimeout());
+		$(container).on(['dragleave', 'drop', 'dragend'], () =>
+			this.clearDragTimeout()
+		);
 	}
 
 	private clearDragTimeout(): void {
@@ -47,10 +48,12 @@ export interface IDraggedResource {
 	isExternal: boolean;
 }
 
-export function extractResources(e: DragEvent, externalOnly?: boolean): IDraggedResource[] {
+export function extractResources(
+	e: DragEvent,
+	externalOnly?: boolean
+): IDraggedResource[] {
 	const resources: IDraggedResource[] = [];
 	if (e.dataTransfer.types.length > 0) {
-
 		// Check for in-app DND
 		if (!externalOnly) {
 			const rawData = e.dataTransfer.getData(e.dataTransfer.types[0]);
@@ -68,7 +71,10 @@ export function extractResources(e: DragEvent, externalOnly?: boolean): IDragged
 			for (let i = 0; i < e.dataTransfer.files.length; i++) {
 				if (e.dataTransfer.files[i] && e.dataTransfer.files[i].path) {
 					try {
-						resources.push({ resource: URI.file(e.dataTransfer.files[i].path), isExternal: true });
+						resources.push({
+							resource: URI.file(e.dataTransfer.files[i].path),
+							isExternal: true
+						});
 					} catch (error) {
 						// Invalid URI
 					}

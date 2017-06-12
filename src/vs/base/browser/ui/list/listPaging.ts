@@ -11,7 +11,8 @@ import { List, IListOptions } from './listWidget';
 import { IPagedModel } from 'vs/base/common/paging';
 import Event, { mapEvent } from 'vs/base/common/event';
 
-export interface IPagedRenderer<TElement, TTemplateData> extends IRenderer<TElement, TTemplateData> {
+export interface IPagedRenderer<TElement, TTemplateData>
+	extends IRenderer<TElement, TTemplateData> {
 	renderPlaceholder(index: number, templateData: TTemplateData): void;
 }
 
@@ -20,21 +21,27 @@ export interface ITemplateData<T> {
 	disposable: IDisposable;
 }
 
-class PagedRenderer<TElement, TTemplateData> implements IRenderer<number, ITemplateData<TTemplateData>> {
-
-	get templateId(): string { return this.renderer.templateId; }
+class PagedRenderer<TElement, TTemplateData>
+	implements IRenderer<number, ITemplateData<TTemplateData>> {
+	get templateId(): string {
+		return this.renderer.templateId;
+	}
 
 	constructor(
 		private renderer: IPagedRenderer<TElement, TTemplateData>,
 		private modelProvider: () => IPagedModel<TElement>
-	) { }
+	) {}
 
 	renderTemplate(container: HTMLElement): ITemplateData<TTemplateData> {
 		const data = this.renderer.renderTemplate(container);
-		return { data, disposable: { dispose: () => { } } };
+		return { data, disposable: { dispose: () => {} } };
 	}
 
-	renderElement(index: number, _: number, data: ITemplateData<TTemplateData>): void {
+	renderElement(
+		index: number,
+		_: number,
+		data: ITemplateData<TTemplateData>
+	): void {
 		data.disposable.dispose();
 
 		const model = this.modelProvider();
@@ -59,7 +66,6 @@ class PagedRenderer<TElement, TTemplateData> implements IRenderer<number, ITempl
 }
 
 export class PagedList<T> {
-
 	private list: List<number>;
 	private _model: IPagedModel<T>;
 
@@ -69,7 +75,9 @@ export class PagedList<T> {
 		renderers: IPagedRenderer<T, any>[],
 		options: IListOptions<any> = {} // TODO@Joao: should be IListOptions<T>
 	) {
-		const pagedRenderers = renderers.map(r => new PagedRenderer<T, ITemplateData<T>>(r, () => this.model));
+		const pagedRenderers = renderers.map(
+			r => new PagedRenderer<T, ITemplateData<T>>(r, () => this.model)
+		);
 		this.list = new List(container, delegate, pagedRenderers, options);
 	}
 
@@ -78,15 +86,24 @@ export class PagedList<T> {
 	}
 
 	get onFocusChange(): Event<IListEvent<T>> {
-		return mapEvent(this.list.onFocusChange, ({ elements, indexes }) => ({ elements: elements.map(e => this._model.get(e)), indexes }));
+		return mapEvent(this.list.onFocusChange, ({ elements, indexes }) => ({
+			elements: elements.map(e => this._model.get(e)),
+			indexes
+		}));
 	}
 
 	get onSelectionChange(): Event<IListEvent<T>> {
-		return mapEvent(this.list.onSelectionChange, ({ elements, indexes }) => ({ elements: elements.map(e => this._model.get(e)), indexes }));
+		return mapEvent(this.list.onSelectionChange, ({ elements, indexes }) => ({
+			elements: elements.map(e => this._model.get(e)),
+			indexes
+		}));
 	}
 
 	get onPin(): Event<IListEvent<T>> {
-		return mapEvent(this.list.onPin, ({ elements, indexes }) => ({ elements: elements.map(e => this._model.get(e)), indexes }));
+		return mapEvent(this.list.onPin, ({ elements, indexes }) => ({
+			elements: elements.map(e => this._model.get(e)),
+			indexes
+		}));
 	}
 
 	get model(): IPagedModel<T> {

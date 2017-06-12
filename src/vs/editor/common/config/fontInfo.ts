@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as platform from 'vs/base/common/platform';
 import { EditorZoom } from 'vs/editor/common/config/editorZoom';
@@ -59,14 +59,16 @@ export class BareFontInfo {
 	/**
 	 * @internal
 	 */
-	public static createFromRawSettings(opts: {
-		fontFamily?: string;
-		fontWeight?: string;
-		fontSize?: number | string;
-		lineHeight?: number | string;
-		letterSpacing?: number | string;
-	}, zoomLevel: number): BareFontInfo {
-
+	public static createFromRawSettings(
+		opts: {
+			fontFamily?: string;
+			fontWeight?: string;
+			fontSize?: number | string;
+			lineHeight?: number | string;
+			letterSpacing?: number | string;
+		},
+		zoomLevel: number
+	): BareFontInfo {
 		let fontFamily = _string(opts.fontFamily, EDITOR_FONT_DEFAULTS.fontFamily);
 		let fontWeight = _string(opts.fontWeight, EDITOR_FONT_DEFAULTS.fontWeight);
 
@@ -89,7 +91,7 @@ export class BareFontInfo {
 		let letterSpacing = safeParseFloat(opts.letterSpacing, 0);
 		letterSpacing = clamp(letterSpacing, -20, 20);
 
-		let editorZoomLevelMultiplier = 1 + (EditorZoom.getZoomLevel() * 0.1);
+		let editorZoomLevelMultiplier = 1 + EditorZoom.getZoomLevel() * 0.1;
 		fontSize *= editorZoomLevelMultiplier;
 		lineHeight *= editorZoomLevelMultiplier;
 
@@ -133,7 +135,19 @@ export class BareFontInfo {
 	 * @internal
 	 */
 	public getId(): string {
-		return this.zoomLevel + '-' + this.fontFamily + '-' + this.fontWeight + '-' + this.fontSize + '-' + this.lineHeight + '-' + this.letterSpacing;
+		return (
+			this.zoomLevel +
+			'-' +
+			this.fontFamily +
+			'-' +
+			this.fontWeight +
+			'-' +
+			this.fontSize +
+			'-' +
+			this.lineHeight +
+			'-' +
+			this.letterSpacing
+		);
 	}
 }
 
@@ -150,19 +164,22 @@ export class FontInfo extends BareFontInfo {
 	/**
 	 * @internal
 	 */
-	constructor(opts: {
-		zoomLevel: number;
-		fontFamily: string;
-		fontWeight: string;
-		fontSize: number;
-		lineHeight: number;
-		letterSpacing: number;
-		isMonospace: boolean;
-		typicalHalfwidthCharacterWidth: number;
-		typicalFullwidthCharacterWidth: number;
-		spaceWidth: number;
-		maxDigitWidth: number;
-	}, isTrusted: boolean) {
+	constructor(
+		opts: {
+			zoomLevel: number;
+			fontFamily: string;
+			fontWeight: string;
+			fontSize: number;
+			lineHeight: number;
+			letterSpacing: number;
+			isMonospace: boolean;
+			typicalHalfwidthCharacterWidth: number;
+			typicalFullwidthCharacterWidth: number;
+			spaceWidth: number;
+			maxDigitWidth: number;
+		},
+		isTrusted: boolean
+	) {
 		super(opts);
 		this.isTrusted = isTrusted;
 		this.isMonospace = opts.isMonospace;
@@ -177,15 +194,17 @@ export class FontInfo extends BareFontInfo {
 	 */
 	public equals(other: FontInfo): boolean {
 		return (
-			this.fontFamily === other.fontFamily
-			&& this.fontWeight === other.fontWeight
-			&& this.fontSize === other.fontSize
-			&& this.lineHeight === other.lineHeight
-			&& this.letterSpacing === other.letterSpacing
-			&& this.typicalHalfwidthCharacterWidth === other.typicalHalfwidthCharacterWidth
-			&& this.typicalFullwidthCharacterWidth === other.typicalFullwidthCharacterWidth
-			&& this.spaceWidth === other.spaceWidth
-			&& this.maxDigitWidth === other.maxDigitWidth
+			this.fontFamily === other.fontFamily &&
+			this.fontWeight === other.fontWeight &&
+			this.fontSize === other.fontSize &&
+			this.lineHeight === other.lineHeight &&
+			this.letterSpacing === other.letterSpacing &&
+			this.typicalHalfwidthCharacterWidth ===
+				other.typicalHalfwidthCharacterWidth &&
+			this.typicalFullwidthCharacterWidth ===
+				other.typicalFullwidthCharacterWidth &&
+			this.spaceWidth === other.spaceWidth &&
+			this.maxDigitWidth === other.maxDigitWidth
 		);
 	}
 }

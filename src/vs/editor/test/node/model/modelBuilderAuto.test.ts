@@ -2,17 +2,26 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
-import { testModelBuilder, testDifferentHash } from 'vs/editor/test/node/model/modelBuilder.test';
+import {
+	testModelBuilder,
+	testDifferentHash
+} from 'vs/editor/test/node/model/modelBuilder.test';
 import { CharCode } from 'vs/base/common/charCode';
 
 const GENERATE_TESTS = false;
 
 suite('ModelBuilder Auto Tests', () => {
-
 	test('auto1', () => {
-		testModelBuilder(['sarjniow', '\r', '\nbpb', 'ofb', '\njzldgxx', '\r\nkzwfjysng']);
+		testModelBuilder([
+			'sarjniow',
+			'\r',
+			'\nbpb',
+			'ofb',
+			'\njzldgxx',
+			'\r\nkzwfjysng'
+		]);
 	});
 
 	test('auto2', () => {
@@ -62,7 +71,6 @@ function generateRandomFile(): string {
 			}
 		}
 		lines.push(getRandomString(0, 10));
-
 	}
 	return lines.join('');
 }
@@ -74,7 +82,6 @@ function generateRandomChunks(file: string): string[] {
 	let maxOffset = file.length;
 
 	while (cnt > 0 && maxOffset > 0) {
-
 		let offset = getRandomInt(0, maxOffset);
 		result.unshift(file.substring(offset, maxOffset));
 		// let length = getRandomInt(0, maxOffset - offset);
@@ -95,7 +102,7 @@ function generateRandomChunks(file: string): string[] {
 	return result;
 }
 
-let HASH_TO_CONTENT: { [hash: string]: string; } = {};
+let HASH_TO_CONTENT: { [hash: string]: string } = {};
 
 function testRandomFile(file: string): boolean {
 	let tests = getRandomInt(5, 10);
@@ -133,6 +140,6 @@ if (GENERATE_TESTS) {
 			break;
 		}
 
-		console.log('------END NEW TEST: ' + (number++));
+		console.log('------END NEW TEST: ' + number++);
 	}
 }

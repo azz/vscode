@@ -3,9 +3,15 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
-import { append, $, addClass, removeClass, toggleClass } from 'vs/base/browser/dom';
+import {
+	append,
+	$,
+	addClass,
+	removeClass,
+	toggleClass
+} from 'vs/base/browser/dom';
 import { IDisposable, dispose } from 'vs/base/common/lifecycle';
 import { Action } from 'vs/base/common/actions';
 import { ActionBar } from 'vs/base/browser/ui/actionbar/actionbar';
@@ -15,10 +21,23 @@ import { IDelegate } from 'vs/base/browser/ui/list/list';
 import { IPagedRenderer } from 'vs/base/browser/ui/list/listPaging';
 import { once } from 'vs/base/common/event';
 import { domEvent } from 'vs/base/browser/event';
-import { IExtension, IExtensionsWorkbenchService } from 'vs/workbench/parts/extensions/common/extensions';
-import { InstallAction, UpdateAction, BuiltinStatusLabelAction, ManageExtensionAction, ReloadAction } from 'vs/workbench/parts/extensions/browser/extensionsActions';
+import {
+	IExtension,
+	IExtensionsWorkbenchService
+} from 'vs/workbench/parts/extensions/common/extensions';
+import {
+	InstallAction,
+	UpdateAction,
+	BuiltinStatusLabelAction,
+	ManageExtensionAction,
+	ReloadAction
+} from 'vs/workbench/parts/extensions/browser/extensionsActions';
 import { areSameExtensions } from 'vs/platform/extensionManagement/common/extensionManagementUtil';
-import { Label, RatingsWidget, InstallWidget } from 'vs/workbench/parts/extensions/browser/extensionsWidgets';
+import {
+	Label,
+	RatingsWidget,
+	InstallWidget
+} from 'vs/workbench/parts/extensions/browser/extensionsWidgets';
 import { EventType } from 'vs/base/common/events';
 import { IContextMenuService } from 'vs/platform/contextview/browser/contextView';
 import { IExtensionService } from 'vs/platform/extensions/common/extensions';
@@ -38,23 +57,29 @@ export interface ITemplateData {
 }
 
 export class Delegate implements IDelegate<IExtension> {
-	getHeight() { return 62; }
-	getTemplateId() { return 'extension'; }
+	getHeight() {
+		return 62;
+	}
+	getTemplateId() {
+		return 'extension';
+	}
 }
 
 const actionOptions = { icon: true, label: true };
 
 export class Renderer implements IPagedRenderer<IExtension, ITemplateData> {
-
 	constructor(
 		@IInstantiationService private instantiationService: IInstantiationService,
 		@IContextMenuService private contextMenuService: IContextMenuService,
 		@IMessageService private messageService: IMessageService,
-		@IExtensionsWorkbenchService private extensionsWorkbenchService: IExtensionsWorkbenchService,
+		@IExtensionsWorkbenchService
+		private extensionsWorkbenchService: IExtensionsWorkbenchService,
 		@IExtensionService private extensionService: IExtensionService
-	) { }
+	) {}
 
-	get templateId() { return 'extension'; }
+	get templateId() {
+		return 'extension';
+	}
 
 	renderTemplate(root: HTMLElement): ITemplateData {
 		const element = append(root, $('.extension'));
@@ -78,23 +103,70 @@ export class Renderer implements IPagedRenderer<IExtension, ITemplateData> {
 				return null;
 			}
 		});
-		actionbar.addListener(EventType.RUN, ({ error }) => error && this.messageService.show(Severity.Error, error));
+		actionbar.addListener(
+			EventType.RUN,
+			({ error }) => error && this.messageService.show(Severity.Error, error)
+		);
 
-		const versionWidget = this.instantiationService.createInstance(Label, version, e => e.version);
-		const installCountWidget = this.instantiationService.createInstance(InstallWidget, installCount, { small: true });
-		const ratingsWidget = this.instantiationService.createInstance(RatingsWidget, ratings, { small: true });
+		const versionWidget = this.instantiationService.createInstance(
+			Label,
+			version,
+			e => e.version
+		);
+		const installCountWidget = this.instantiationService.createInstance(
+			InstallWidget,
+			installCount,
+			{ small: true }
+		);
+		const ratingsWidget = this.instantiationService.createInstance(
+			RatingsWidget,
+			ratings,
+			{ small: true }
+		);
 
-		const builtinStatusAction = this.instantiationService.createInstance(BuiltinStatusLabelAction);
-		const installAction = this.instantiationService.createInstance(InstallAction);
+		const builtinStatusAction = this.instantiationService.createInstance(
+			BuiltinStatusLabelAction
+		);
+		const installAction = this.instantiationService.createInstance(
+			InstallAction
+		);
 		const updateAction = this.instantiationService.createInstance(UpdateAction);
 		const reloadAction = this.instantiationService.createInstance(ReloadAction);
-		const manageAction = this.instantiationService.createInstance(ManageExtensionAction);
+		const manageAction = this.instantiationService.createInstance(
+			ManageExtensionAction
+		);
 
-		actionbar.push([reloadAction, updateAction, installAction, builtinStatusAction, manageAction], actionOptions);
-		const disposables = [versionWidget, installCountWidget, ratingsWidget, builtinStatusAction, updateAction, reloadAction, manageAction, actionbar];
+		actionbar.push(
+			[
+				reloadAction,
+				updateAction,
+				installAction,
+				builtinStatusAction,
+				manageAction
+			],
+			actionOptions
+		);
+		const disposables = [
+			versionWidget,
+			installCountWidget,
+			ratingsWidget,
+			builtinStatusAction,
+			updateAction,
+			reloadAction,
+			manageAction,
+			actionbar
+		];
 
 		return {
-			root, element, icon, name, installCount, ratings, author, description, disposables,
+			root,
+			element,
+			icon,
+			name,
+			installCount,
+			ratings,
+			author,
+			description,
+			disposables,
 			extensionDisposables: [],
 			set extension(extension: IExtension) {
 				versionWidget.extension = extension;
@@ -123,24 +195,36 @@ export class Renderer implements IPagedRenderer<IExtension, ITemplateData> {
 		data.extension = null;
 	}
 
-	renderElement(extension: IExtension, index: number, data: ITemplateData): void {
+	renderElement(
+		extension: IExtension,
+		index: number,
+		data: ITemplateData
+	): void {
 		removeClass(data.element, 'loading');
 
 		data.extensionDisposables = dispose(data.extensionDisposables);
 
 		this.extensionService.getExtensions().then(enabledExtensions => {
-			const isExtensionRunning = enabledExtensions.some(e => areSameExtensions(e, extension));
-			const isInstalled = this.extensionsWorkbenchService.local.some(e => e.id === extension.id);
+			const isExtensionRunning = enabledExtensions.some(e =>
+				areSameExtensions(e, extension)
+			);
+			const isInstalled = this.extensionsWorkbenchService.local.some(
+				e => e.id === extension.id
+			);
 			toggleClass(data.element, 'disabled', isInstalled && !isExtensionRunning);
 		});
 
 		const onError = once(domEvent(data.icon, 'error'));
-		onError(() => data.icon.src = extension.iconUrlFallback, null, data.extensionDisposables);
+		onError(
+			() => (data.icon.src = extension.iconUrlFallback),
+			null,
+			data.extensionDisposables
+		);
 		data.icon.src = extension.iconUrl;
 
 		if (!data.icon.complete) {
 			data.icon.style.visibility = 'hidden';
-			data.icon.onload = () => data.icon.style.visibility = 'inherit';
+			data.icon.onload = () => (data.icon.style.visibility = 'inherit');
 		} else {
 			data.icon.style.visibility = 'inherit';
 		}

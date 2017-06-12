@@ -2,16 +2,19 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import vscode = require('vscode');
 import { TPromise, TValueCallback } from 'vs/base/common/winjs.base';
 import Event, { Emitter } from 'vs/base/common/event';
-import { ExtHostTerminalServiceShape, MainContext, MainThreadTerminalServiceShape } from './extHost.protocol';
+import {
+	ExtHostTerminalServiceShape,
+	MainContext,
+	MainThreadTerminalServiceShape
+} from './extHost.protocol';
 import { IThreadService } from 'vs/workbench/services/thread/common/threadService';
 
 export class ExtHostTerminal implements vscode.Terminal {
-
 	private _name: string;
 	private _id: number;
 	private _proxy: MainThreadTerminalServiceShape;
@@ -35,13 +38,15 @@ export class ExtHostTerminal implements vscode.Terminal {
 		this._pidPromise = new TPromise<number>(c => {
 			this._pidPromiseComplete = c;
 		});
-		this._proxy.$createTerminal(name, shellPath, shellArgs, waitOnExit).then((id) => {
-			this._id = id;
-			this._queuedRequests.forEach((r) => {
-				r.run(this._proxy, this._id);
+		this._proxy
+			.$createTerminal(name, shellPath, shellArgs, waitOnExit)
+			.then(id => {
+				this._id = id;
+				this._queuedRequests.forEach(r => {
+					r.run(this._proxy, this._id);
+				});
+				this._queuedRequests = [];
 			});
-			this._queuedRequests = [];
-		});
 	}
 
 	public get name(): string {
@@ -107,7 +112,6 @@ export class ExtHostTerminal implements vscode.Terminal {
 }
 
 export class ExtHostTerminalService implements ExtHostTerminalServiceShape {
-
 	private _onDidCloseTerminal: Emitter<vscode.Terminal>;
 	private _proxy: MainThreadTerminalServiceShape;
 	private _terminals: ExtHostTerminal[];
@@ -118,14 +122,25 @@ export class ExtHostTerminalService implements ExtHostTerminalServiceShape {
 		this._terminals = [];
 	}
 
-	public createTerminal(name?: string, shellPath?: string, shellArgs?: string[]): vscode.Terminal {
+	public createTerminal(
+		name?: string,
+		shellPath?: string,
+		shellArgs?: string[]
+	): vscode.Terminal {
 		let terminal = new ExtHostTerminal(this._proxy, name, shellPath, shellArgs);
 		this._terminals.push(terminal);
 		return terminal;
 	}
 
-	public createTerminalFromOptions(options: vscode.TerminalOptions): vscode.Terminal {
-		let terminal = new ExtHostTerminal(this._proxy, options.name, options.shellPath, options.shellArgs/*, options.waitOnExit*/);
+	public createTerminalFromOptions(
+		options: vscode.TerminalOptions
+	): vscode.Terminal {
+		let terminal = new ExtHostTerminal(
+			this._proxy,
+			options.name,
+			options.shellPath,
+			options.shellArgs /*, options.waitOnExit*/
+		);
 		this._terminals.push(terminal);
 		return terminal;
 	}
@@ -174,7 +189,6 @@ export class ExtHostTerminalService implements ExtHostTerminalServiceShape {
 }
 
 class ApiRequest {
-
 	private _callback: (...args: any[]) => void;
 	private _args: any[];
 

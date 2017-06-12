@@ -3,14 +3,20 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ITokenColorizationRule, IColorMap } from 'vs/workbench/services/themes/common/workbenchThemeService';
+import {
+	ITokenColorizationRule,
+	IColorMap
+} from 'vs/workbench/services/themes/common/workbenchThemeService';
 import { Color } from 'vs/base/common/color';
 import * as colorRegistry from 'vs/platform/theme/common/colorRegistry';
 
 import * as editorColorRegistry from 'vs/editor/common/view/editorColorRegistry';
 import * as wordHighlighter from 'vs/editor/contrib/wordHighlighter/common/wordHighlighter';
 import { ansiColorIdentifiers } from 'vs/workbench/parts/terminal/electron-browser/terminalColorRegistry';
-import { peekViewEditorMatchHighlight, peekViewResultsMatchHighlight } from 'vs/editor/contrib/referenceSearch/browser/referencesWidget';
+import {
+	peekViewEditorMatchHighlight,
+	peekViewResultsMatchHighlight
+} from 'vs/editor/contrib/referenceSearch/browser/referencesWidget';
 
 const settingToColorIdMapping: { [settingId: string]: string[] } = {};
 function addSettingMapping(settingId: string, colorId: string) {
@@ -21,7 +27,11 @@ function addSettingMapping(settingId: string, colorId: string) {
 	colorIds.push(colorId);
 }
 
-export function convertSettings(oldSettings: ITokenColorizationRule[], resultRules: ITokenColorizationRule[], resultColors: IColorMap): void {
+export function convertSettings(
+	oldSettings: ITokenColorizationRule[],
+	resultRules: ITokenColorizationRule[],
+	resultColors: IColorMap
+): void {
 	for (let rule of oldSettings) {
 		resultRules.push(rule);
 		if (!rule.scope) {
@@ -52,12 +62,18 @@ addSettingMapping('background', colorRegistry.editorBackground);
 addSettingMapping('foreground', colorRegistry.editorForeground);
 addSettingMapping('selection', colorRegistry.editorSelection);
 addSettingMapping('inactiveSelection', colorRegistry.editorInactiveSelection);
-addSettingMapping('selectionHighlightColor', colorRegistry.editorSelectionHighlight);
+addSettingMapping(
+	'selectionHighlightColor',
+	colorRegistry.editorSelectionHighlight
+);
 addSettingMapping('findMatchHighlight', colorRegistry.editorFindMatchHighlight);
 addSettingMapping('currentFindMatchHighlight', colorRegistry.editorFindMatch);
 addSettingMapping('hoverHighlight', colorRegistry.editorHoverHighlight);
 addSettingMapping('wordHighlight', wordHighlighter.editorWordHighlight);
-addSettingMapping('wordHighlightStrong', wordHighlighter.editorWordHighlightStrong);
+addSettingMapping(
+	'wordHighlightStrong',
+	wordHighlighter.editorWordHighlightStrong
+);
 addSettingMapping('findRangeHighlight', colorRegistry.editorFindRangeHighlight);
 addSettingMapping('findMatchHighlight', peekViewResultsMatchHighlight);
 addSettingMapping('referenceHighlight', peekViewEditorMatchHighlight);
@@ -67,12 +83,25 @@ addSettingMapping('caret', editorColorRegistry.editorCursor);
 addSettingMapping('invisibles', editorColorRegistry.editorWhitespaces);
 addSettingMapping('guide', editorColorRegistry.editorIndentGuides);
 
-const ansiColorMap = ['ansiBlack', 'ansiRed', 'ansiGreen', 'ansiYellow', 'ansiBlue', 'ansiMagenta', 'ansiCyan', 'ansiWhite',
-	'ansiBrightBlack', 'ansiBrightRed', 'ansiBrightGreen', 'ansiBrightYellow', 'ansiBrightBlue', 'ansiBrightMagenta', 'ansiBrightCyan', 'ansiBrightWhite'
+const ansiColorMap = [
+	'ansiBlack',
+	'ansiRed',
+	'ansiGreen',
+	'ansiYellow',
+	'ansiBlue',
+	'ansiMagenta',
+	'ansiCyan',
+	'ansiWhite',
+	'ansiBrightBlack',
+	'ansiBrightRed',
+	'ansiBrightGreen',
+	'ansiBrightYellow',
+	'ansiBrightBlue',
+	'ansiBrightMagenta',
+	'ansiBrightCyan',
+	'ansiBrightWhite'
 ];
 
 for (let i = 0; i < ansiColorIdentifiers.length; i++) {
 	addSettingMapping(ansiColorMap[i], ansiColorIdentifiers[i]);
 }
-
-

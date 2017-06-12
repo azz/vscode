@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { SpectronApplication } from "../spectron/application";
+import { SpectronApplication } from '../spectron/application';
 import { Util } from '../helpers/utilities';
 
 /**
@@ -27,8 +27,16 @@ export class CommonActions {
 	public async addSetting(setting: string, value: string): Promise<any> {
 		await this.spectron.command('workbench.action.openGlobalSettings');
 		await this.spectron.wait();
-		await this.spectron.client.leftClick('.editable-preferences-editor-container .view-lines', 1, 1, false);
-		await this.spectron.client.keys(['ArrowDown', 'NULL', 'ArrowDown', 'NULL'], false);
+		await this.spectron.client.leftClick(
+			'.editable-preferences-editor-container .view-lines',
+			1,
+			1,
+			false
+		);
+		await this.spectron.client.keys(
+			['ArrowDown', 'NULL', 'ArrowDown', 'NULL'],
+			false
+		);
 		await this.spectron.wait();
 		await this.spectron.client.keys(`"${setting}": "${value}"`);
 		await this.spectron.wait();
@@ -48,7 +56,9 @@ export class CommonActions {
 		await this.closeCurrentNotification(); // close any notification messages that could overlap tabs
 
 		let tabSelector = active ? '.tab.active' : 'div';
-		let el = await this.spectron.client.element(`.tabs-container ${tabSelector}[aria-label="${tabName}, tab"]`);
+		let el = await this.spectron.client.element(
+			`.tabs-container ${tabSelector}[aria-label="${tabName}, tab"]`
+		);
 		if (el.status === 0) {
 			return el;
 		}
@@ -58,7 +68,9 @@ export class CommonActions {
 
 	public async selectTab(tabName: string): Promise<any> {
 		await this.closeCurrentNotification(); // close any notification messages that could overlap tabs
-		return this.spectron.client.click(`.tabs-container div[aria-label="${tabName}, tab"]`);
+		return this.spectron.client.click(
+			`.tabs-container div[aria-label="${tabName}, tab"]`
+		);
 	}
 
 	public async openFirstMatchFile(fileName: string): Promise<any> {
@@ -76,7 +88,7 @@ export class CommonActions {
 	public type(text: string): Promise<any> {
 		let spectron = this.spectron;
 
-		return new Promise(function (res) {
+		return new Promise(function(res) {
 			let textSplit = text.split(' ');
 
 			async function type(i: number) {
@@ -111,12 +123,17 @@ export class CommonActions {
 	}
 
 	public async getQuickOpenElements(): Promise<number> {
-		const elements = await this.spectron.waitFor(this.spectron.client.elements, 'div[aria-label="Quick Picker"] .monaco-tree-rows.show-twisties .monaco-tree-row');
+		const elements = await this.spectron.waitFor(
+			this.spectron.client.elements,
+			'div[aria-label="Quick Picker"] .monaco-tree-rows.show-twisties .monaco-tree-row'
+		);
 		return elements.value.length;
 	}
 
 	public async openFile(fileName: string, explorer?: boolean): Promise<any> {
-		let selector = `div[class="monaco-icon-label file-icon ${fileName}-name-file-icon ${this.getExtensionSelector(fileName)}`;
+		let selector = `div[class="monaco-icon-label file-icon ${fileName}-name-file-icon ${this.getExtensionSelector(
+			fileName
+		)}`;
 		if (explorer) {
 			selector += ' explorer-item';
 		}

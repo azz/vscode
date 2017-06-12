@@ -40,7 +40,9 @@ export interface ParsedArgs {
 	'skip-getting-started'?: boolean;
 }
 
-export const IEnvironmentService = createDecorator<IEnvironmentService>('environmentService');
+export const IEnvironmentService = createDecorator<IEnvironmentService>(
+	'environmentService'
+);
 
 export interface IEnvironmentService {
 	_serviceBrand: any;
@@ -68,7 +70,7 @@ export interface IEnvironmentService {
 	extensionDevelopmentPath: string;
 	extensionTestsPath: string;
 
-	debugExtensionHost: { port: number; break: boolean; };
+	debugExtensionHost: { port: number; break: boolean };
 
 	logExtensionHostCommunication: boolean;
 
@@ -76,7 +78,7 @@ export interface IEnvironmentService {
 	verbose: boolean;
 	wait: boolean;
 	performance: boolean;
-	profileStartup: { prefix: string, dir: string } | undefined;
+	profileStartup: { prefix: string; dir: string } | undefined;
 
 	skipGettingStarted: boolean | undefined;
 

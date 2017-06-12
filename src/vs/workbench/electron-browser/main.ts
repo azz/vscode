@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import nls = require('vs/nls');
 import { TPromise } from 'vs/base/common/winjs.base';
@@ -18,7 +18,10 @@ import paths = require('vs/base/common/paths');
 import uri from 'vs/base/common/uri';
 import strings = require('vs/base/common/strings');
 import { IResourceInput } from 'vs/platform/editor/common/editor';
-import { IWorkspace, WorkspaceContextService } from 'vs/platform/workspace/common/workspace';
+import {
+	IWorkspace,
+	WorkspaceContextService
+} from 'vs/platform/workspace/common/workspace';
 import { WorkspaceConfigurationService } from 'vs/workbench/services/configuration/node/configurationService';
 import { ParsedArgs } from 'vs/platform/environment/common/environment';
 import { realpath, stat } from 'vs/base/node/pfs';
@@ -28,7 +31,7 @@ import gracefulFs = require('graceful-fs');
 import { IPath, IOpenFileRequest } from 'vs/workbench/electron-browser/common';
 import { IInitData } from 'vs/workbench/services/timer/common/timerService';
 import { TimerService } from 'vs/workbench/services/timer/node/timerService';
-import { KeyboardMapperFactory } from "vs/workbench/services/keybinding/electron-browser/keybindingService";
+import { KeyboardMapperFactory } from 'vs/workbench/services/keybinding/electron-browser/keybindingService';
 
 import { webFrame } from 'electron';
 
@@ -36,7 +39,6 @@ import fs = require('fs');
 gracefulFs.gracefulify(fs); // enable gracefulFs
 
 export interface IWindowConfiguration extends ParsedArgs, IOpenFileRequest {
-
 	/**
 	 * The physical keyboard is of ISO type (on OSX).
 	 */
@@ -47,7 +49,7 @@ export interface IWindowConfiguration extends ParsedArgs, IOpenFileRequest {
 	appRoot: string;
 	execPath: string;
 
-	userEnv: any; /* vs/code/electron-main/env/IProcessEnvironment*/
+	userEnv: any /* vs/code/electron-main/env/IProcessEnvironment*/;
 
 	workspacePath?: string;
 
@@ -56,7 +58,6 @@ export interface IWindowConfiguration extends ParsedArgs, IOpenFileRequest {
 }
 
 export function startup(configuration: IWindowConfiguration): TPromise<void> {
-
 	// Ensure others can listen to zoom level changes
 	browser.setZoomFactor(webFrame.getZoomFactor());
 
@@ -66,17 +67,34 @@ export function startup(configuration: IWindowConfiguration): TPromise<void> {
 
 	browser.setFullscreen(!!configuration.fullscreen);
 
-	KeyboardMapperFactory.INSTANCE._onKeyboardLayoutChanged(configuration.isISOKeyboard);
+	KeyboardMapperFactory.INSTANCE._onKeyboardLayoutChanged(
+		configuration.isISOKeyboard
+	);
 
-	browser.setAccessibilitySupport(configuration.accessibilitySupport ? platform.AccessibilitySupport.Enabled : platform.AccessibilitySupport.Disabled);
+	browser.setAccessibilitySupport(
+		configuration.accessibilitySupport
+			? platform.AccessibilitySupport.Enabled
+			: platform.AccessibilitySupport.Disabled
+	);
 
 	// Setup Intl
-	comparer.setFileNameComparer(new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' }));
+	comparer.setFileNameComparer(
+		new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' })
+	);
 
 	// Shell Options
-	const filesToOpen = configuration.filesToOpen && configuration.filesToOpen.length ? toInputs(configuration.filesToOpen) : null;
-	const filesToCreate = configuration.filesToCreate && configuration.filesToCreate.length ? toInputs(configuration.filesToCreate) : null;
-	const filesToDiff = configuration.filesToDiff && configuration.filesToDiff.length ? toInputs(configuration.filesToDiff) : null;
+	const filesToOpen = configuration.filesToOpen &&
+		configuration.filesToOpen.length
+		? toInputs(configuration.filesToOpen)
+		: null;
+	const filesToCreate = configuration.filesToCreate &&
+		configuration.filesToCreate.length
+		? toInputs(configuration.filesToCreate)
+		: null;
+	const filesToDiff = configuration.filesToDiff &&
+		configuration.filesToDiff.length
+		? toInputs(configuration.filesToDiff)
+		: null;
 	const shellOptions: IOptions = {
 		filesToOpen,
 		filesToCreate,
@@ -85,7 +103,6 @@ export function startup(configuration: IWindowConfiguration): TPromise<void> {
 
 	// Resolve workspace
 	return getWorkspace(configuration.workspacePath).then(workspace => {
-
 		// Open workbench
 		return openWorkbench(configuration, workspace, shellOptions);
 	});
@@ -121,38 +138,58 @@ function getWorkspace(workspacePath: string): TPromise<IWorkspace> {
 		return TPromise.as(null);
 	}
 
-	return realpath(workspacePath).then(realWorkspacePath => {
+	return realpath(workspacePath).then(
+		realWorkspacePath => {
+			// for some weird reason, node adds a trailing slash to UNC paths
+			// we never ever want trailing slashes as our workspace path unless
+			// someone opens root ("/").
+			// See also https://github.com/nodejs/io.js/issues/1765
+			if (
+				paths.isUNC(realWorkspacePath) &&
+				strings.endsWith(realWorkspacePath, paths.nativeSep)
+			) {
+				realWorkspacePath = strings.rtrim(realWorkspacePath, paths.nativeSep);
+			}
 
-		// for some weird reason, node adds a trailing slash to UNC paths
-		// we never ever want trailing slashes as our workspace path unless
-		// someone opens root ("/").
-		// See also https://github.com/nodejs/io.js/issues/1765
-		if (paths.isUNC(realWorkspacePath) && strings.endsWith(realWorkspacePath, paths.nativeSep)) {
-			realWorkspacePath = strings.rtrim(realWorkspacePath, paths.nativeSep);
+			const workspaceResource = uri.file(realWorkspacePath);
+			const folderName = path.basename(realWorkspacePath) || realWorkspacePath;
+
+			return stat(realWorkspacePath).then(folderStat => {
+				return <IWorkspace>{
+					resource: workspaceResource,
+					name: folderName,
+					uid: platform.isLinux
+						? folderStat.ino
+						: folderStat.birthtime.getTime() // On Linux, birthtime is ctime, so we cannot use it! We use the ino instead!
+				};
+			});
+		},
+		error => {
+			errors.onUnexpectedError(error);
+
+			return null; // treat invalid paths as empty workspace
 		}
-
-		const workspaceResource = uri.file(realWorkspacePath);
-		const folderName = path.basename(realWorkspacePath) || realWorkspacePath;
-
-		return stat(realWorkspacePath).then(folderStat => {
-			return <IWorkspace>{
-				'resource': workspaceResource,
-				'name': folderName,
-				'uid': platform.isLinux ? folderStat.ino : folderStat.birthtime.getTime() // On Linux, birthtime is ctime, so we cannot use it! We use the ino instead!
-			};
-		});
-	}, (error) => {
-		errors.onUnexpectedError(error);
-
-		return null; // treat invalid paths as empty workspace
-	});
+	);
 }
 
-function openWorkbench(environment: IWindowConfiguration, workspace: IWorkspace, options: IOptions): TPromise<void> {
-	const environmentService = new EnvironmentService(environment, environment.execPath);
+function openWorkbench(
+	environment: IWindowConfiguration,
+	workspace: IWorkspace,
+	options: IOptions
+): TPromise<void> {
+	const environmentService = new EnvironmentService(
+		environment,
+		environment.execPath
+	);
 	const contextService = new WorkspaceContextService(workspace);
-	const configurationService = new WorkspaceConfigurationService(contextService, environmentService);
-	const timerService = new TimerService((<any>window).MonacoEnvironment.timers as IInitData, !contextService.hasWorkspace());
+	const configurationService = new WorkspaceConfigurationService(
+		contextService,
+		environmentService
+	);
+	const timerService = new TimerService(
+		(<any>window).MonacoEnvironment.timers as IInitData,
+		!contextService.hasWorkspace()
+	);
 
 	// Since the configuration service is one of the core services that is used in so many places, we initialize it
 	// right before startup of the workbench shell to have its data ready for consumers
@@ -164,12 +201,16 @@ function openWorkbench(environment: IWindowConfiguration, workspace: IWorkspace,
 
 			// Open Shell
 			timerService.beforeWorkbenchOpen = Date.now();
-			const shell = new WorkbenchShell(document.body, {
-				configurationService,
-				contextService,
-				environmentService,
-				timerService
-			}, options);
+			const shell = new WorkbenchShell(
+				document.body,
+				{
+					configurationService,
+					contextService,
+					environmentService,
+					timerService
+				},
+				options
+			);
 			shell.open();
 
 			// Inform user about loading issues from the loader
@@ -186,8 +227,19 @@ function openWorkbench(environment: IWindowConfiguration, workspace: IWorkspace,
 
 function loaderError(err: Error): Error {
 	if (platform.isWeb) {
-		return new Error(nls.localize('loaderError', "Failed to load a required file. Either you are no longer connected to the internet or the server you are connected to is offline. Please refresh the browser to try again."));
+		return new Error(
+			nls.localize(
+				'loaderError',
+				'Failed to load a required file. Either you are no longer connected to the internet or the server you are connected to is offline. Please refresh the browser to try again.'
+			)
+		);
 	}
 
-	return new Error(nls.localize('loaderErrorNative', "Failed to load a required file. Please restart the application to try again. Details: {0}", JSON.stringify(err)));
+	return new Error(
+		nls.localize(
+			'loaderErrorNative',
+			'Failed to load a required file. Please restart the application to try again. Details: {0}',
+			JSON.stringify(err)
+		)
+	);
 }

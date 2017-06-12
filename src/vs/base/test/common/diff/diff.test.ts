@@ -2,18 +2,14 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
-
+('use strict');
 
 import * as assert from 'assert';
 import { LcsDiff, IDiffChange } from 'vs/base/common/diff/diff';
 import { LcsDiff2 } from 'vs/base/common/diff/diff2';
 
 class StringDiffSequence {
-
-	constructor(private source: string) {
-
-	}
+	constructor(private source: string) {}
 
 	getLength() {
 		return this.source.length;
@@ -42,7 +38,13 @@ function maskBasedSubstring(str: string, mask: boolean[]): string {
 	return r;
 }
 
-function assertAnswer(originalStr: string, modifiedStr: string, changes: IDiffChange[], answerStr: string, onlyLength: boolean = false): void {
+function assertAnswer(
+	originalStr: string,
+	modifiedStr: string,
+	changes: IDiffChange[],
+	answerStr: string,
+	onlyLength: boolean = false
+): void {
 	var originalMask = createArray(originalStr.length, true);
 	var modifiedMask = createArray(modifiedStr.length, true);
 
@@ -75,8 +77,17 @@ function assertAnswer(originalStr: string, modifiedStr: string, changes: IDiffCh
 	}
 }
 
-function lcsInnerTest(Algorithm: any, originalStr: string, modifiedStr: string, answerStr: string, onlyLength: boolean = false): void {
-	var diff = new Algorithm(new StringDiffSequence(originalStr), new StringDiffSequence(modifiedStr));
+function lcsInnerTest(
+	Algorithm: any,
+	originalStr: string,
+	modifiedStr: string,
+	answerStr: string,
+	onlyLength: boolean = false
+): void {
+	var diff = new Algorithm(
+		new StringDiffSequence(originalStr),
+		new StringDiffSequence(modifiedStr)
+	);
 	var changes = diff.ComputeDiff();
 	assertAnswer(originalStr, modifiedStr, changes, answerStr, onlyLength);
 }
@@ -89,10 +100,21 @@ function stringPower(str: string, power: number): string {
 	return r;
 }
 
-function lcsTest(Algorithm: any, originalStr: string, modifiedStr: string, answerStr: string) {
+function lcsTest(
+	Algorithm: any,
+	originalStr: string,
+	modifiedStr: string,
+	answerStr: string
+) {
 	lcsInnerTest(Algorithm, originalStr, modifiedStr, answerStr);
 	for (var i = 2; i <= 5; i++) {
-		lcsInnerTest(Algorithm, stringPower(originalStr, i), stringPower(modifiedStr, i), stringPower(answerStr, i), true);
+		lcsInnerTest(
+			Algorithm,
+			stringPower(originalStr, i),
+			stringPower(modifiedStr, i),
+			stringPower(answerStr, i),
+			true
+		);
 	}
 }
 
@@ -112,19 +134,19 @@ function lcsTests(Algorithm: any) {
 }
 
 suite('Diff', () => {
-	test('LcsDiff - different strings tests', function () {
+	test('LcsDiff - different strings tests', function() {
 		this.timeout(10000);
 		lcsTests(LcsDiff);
 	});
 
-	test('LcsDiff2 - different strings tests', function () {
+	test('LcsDiff2 - different strings tests', function() {
 		this.timeout(10000);
 		lcsTests(LcsDiff2);
 	});
 });
 
 suite('Diff - Ported from VS', () => {
-	test('using continue processing predicate to quit early', function () {
+	test('using continue processing predicate to quit early', function() {
 		var left = 'abcdef';
 		var right = 'abxxcyyydzzzzezzzzzzzzzzzzzzzzzzzzf';
 
@@ -132,17 +154,21 @@ suite('Diff - Ported from VS', () => {
 		// doesn't get there first.
 		var predicateCallCount = 0;
 
-		var diff = new LcsDiff(new StringDiffSequence(left), new StringDiffSequence(right), function (leftIndex, leftSequence, longestMatchSoFar) {
-			assert.equal(predicateCallCount, 0);
+		var diff = new LcsDiff(
+			new StringDiffSequence(left),
+			new StringDiffSequence(right),
+			function(leftIndex, leftSequence, longestMatchSoFar) {
+				assert.equal(predicateCallCount, 0);
 
-			predicateCallCount++;
+				predicateCallCount++;
 
-			assert.equal(leftSequence.getLength(), left.length);
-			assert.equal(leftIndex, 1);
+				assert.equal(leftSequence.getLength(), left.length);
+				assert.equal(leftIndex, 1);
 
-			// cancel processing
-			return false;
-		});
+				// cancel processing
+				return false;
+			}
+		);
 		var changes = diff.ComputeDiff();
 
 		assert.equal(predicateCallCount, 1);
@@ -150,57 +176,65 @@ suite('Diff - Ported from VS', () => {
 		// Doesn't include 'c', 'd', or 'e', since we quit on the first request
 		assertAnswer(left, right, changes, 'abf');
 
-
-
 		// Cancel after the first match ('c')
-		diff = new LcsDiff(new StringDiffSequence(left), new StringDiffSequence(right), function (leftIndex, leftSequence, longestMatchSoFar) {
-			assert(longestMatchSoFar <= 1); // We never see a match of length > 1
+		diff = new LcsDiff(
+			new StringDiffSequence(left),
+			new StringDiffSequence(right),
+			function(leftIndex, leftSequence, longestMatchSoFar) {
+				assert(longestMatchSoFar <= 1); // We never see a match of length > 1
 
-			// Continue processing as long as there hasn't been a match made.
-			return longestMatchSoFar < 1;
-		});
+				// Continue processing as long as there hasn't been a match made.
+				return longestMatchSoFar < 1;
+			}
+		);
 		changes = diff.ComputeDiff();
 
 		assertAnswer(left, right, changes, 'abcf');
 
-
-
 		// Cancel after the second match ('d')
-		diff = new LcsDiff(new StringDiffSequence(left), new StringDiffSequence(right), function (leftIndex, leftSequence, longestMatchSoFar) {
-			assert(longestMatchSoFar <= 2); // We never see a match of length > 2
+		diff = new LcsDiff(
+			new StringDiffSequence(left),
+			new StringDiffSequence(right),
+			function(leftIndex, leftSequence, longestMatchSoFar) {
+				assert(longestMatchSoFar <= 2); // We never see a match of length > 2
 
-			// Continue processing as long as there hasn't been a match made.
-			return longestMatchSoFar < 2;
-		});
+				// Continue processing as long as there hasn't been a match made.
+				return longestMatchSoFar < 2;
+			}
+		);
 		changes = diff.ComputeDiff();
 
 		assertAnswer(left, right, changes, 'abcdf');
-
-
 
 		// Cancel *one iteration* after the second match ('d')
 		var hitSecondMatch = false;
-		diff = new LcsDiff(new StringDiffSequence(left), new StringDiffSequence(right), function (leftIndex, leftSequence, longestMatchSoFar) {
-			assert(longestMatchSoFar <= 2); // We never see a match of length > 2
+		diff = new LcsDiff(
+			new StringDiffSequence(left),
+			new StringDiffSequence(right),
+			function(leftIndex, leftSequence, longestMatchSoFar) {
+				assert(longestMatchSoFar <= 2); // We never see a match of length > 2
 
-			var hitYet = hitSecondMatch;
-			hitSecondMatch = longestMatchSoFar > 1;
-			// Continue processing as long as there hasn't been a match made.
-			return !hitYet;
-		});
+				var hitYet = hitSecondMatch;
+				hitSecondMatch = longestMatchSoFar > 1;
+				// Continue processing as long as there hasn't been a match made.
+				return !hitYet;
+			}
+		);
 		changes = diff.ComputeDiff();
 
 		assertAnswer(left, right, changes, 'abcdf');
 
-
-
 		// Cancel after the third and final match ('e')
-		diff = new LcsDiff(new StringDiffSequence(left), new StringDiffSequence(right), function (leftIndex, leftSequence, longestMatchSoFar) {
-			assert(longestMatchSoFar <= 3); // We never see a match of length > 3
+		diff = new LcsDiff(
+			new StringDiffSequence(left),
+			new StringDiffSequence(right),
+			function(leftIndex, leftSequence, longestMatchSoFar) {
+				assert(longestMatchSoFar <= 3); // We never see a match of length > 3
 
-			// Continue processing as long as there hasn't been a match made.
-			return longestMatchSoFar < 3;
-		});
+				// Continue processing as long as there hasn't been a match made.
+				return longestMatchSoFar < 3;
+			}
+		);
 		changes = diff.ComputeDiff();
 
 		assertAnswer(left, right, changes, 'abcdef');

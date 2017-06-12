@@ -7,7 +7,6 @@ import Event, { Emitter } from 'vs/base/common/event';
 import * as debug from 'vs/workbench/parts/debug/common/debug';
 
 export class ViewModel implements debug.IViewModel {
-
 	private _focusedStackFrame: debug.IStackFrame;
 	private _focusedProcess: debug.IProcess;
 	private selectedExpression: debug.IExpression;
@@ -22,7 +21,9 @@ export class ViewModel implements debug.IViewModel {
 	constructor(private _selectedConfigurationName: string) {
 		this._onDidFocusStackFrame = new Emitter<debug.IStackFrame>();
 		this._onDidSelectExpression = new Emitter<debug.IExpression>();
-		this._onDidSelectFunctionBreakpoint = new Emitter<debug.IFunctionBreakpoint>();
+		this._onDidSelectFunctionBreakpoint = new Emitter<
+			debug.IFunctionBreakpoint
+		>();
 		this._onDidSelectConfigurationName = new Emitter<string>();
 		this.changedWorkbenchViewState = false;
 		this.multiProcessView = false;
@@ -37,14 +38,21 @@ export class ViewModel implements debug.IViewModel {
 	}
 
 	public get focusedThread(): debug.IThread {
-		return this._focusedStackFrame ? this._focusedStackFrame.thread : (this._focusedProcess ? this._focusedProcess.getAllThreads().pop() : null);
+		return this._focusedStackFrame
+			? this._focusedStackFrame.thread
+			: this._focusedProcess
+				? this._focusedProcess.getAllThreads().pop()
+				: null;
 	}
 
 	public get focusedStackFrame(): debug.IStackFrame {
 		return this._focusedStackFrame;
 	}
 
-	public setFocusedStackFrame(stackFrame: debug.IStackFrame, process: debug.IProcess): void {
+	public setFocusedStackFrame(
+		stackFrame: debug.IStackFrame,
+		process: debug.IProcess
+	): void {
 		this._focusedStackFrame = stackFrame;
 		this._focusedProcess = process;
 		this._onDidFocusStackFrame.fire(stackFrame);
@@ -71,7 +79,9 @@ export class ViewModel implements debug.IViewModel {
 		return this.selectedFunctionBreakpoint;
 	}
 
-	public setSelectedFunctionBreakpoint(functionBreakpoint: debug.IFunctionBreakpoint): void {
+	public setSelectedFunctionBreakpoint(
+		functionBreakpoint: debug.IFunctionBreakpoint
+	): void {
 		this.selectedFunctionBreakpoint = functionBreakpoint;
 		this._onDidSelectFunctionBreakpoint.fire(functionBreakpoint);
 	}

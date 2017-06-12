@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { Range } from 'vs/editor/common/core/range';
@@ -20,11 +20,7 @@ suite('Editor Model - Model Edit Operation', () => {
 
 	setup(() => {
 		var text =
-			LINE1 + '\r\n' +
-			LINE2 + '\n' +
-			LINE3 + '\n' +
-			LINE4 + '\r\n' +
-			LINE5;
+			LINE1 + '\r\n' + LINE2 + '\n' + LINE3 + '\n' + LINE4 + '\r\n' + LINE5;
 		model = Model.createFromString(text);
 	});
 
@@ -33,7 +29,13 @@ suite('Editor Model - Model Edit Operation', () => {
 		model = null;
 	});
 
-	function createSingleEditOp(text: string, positionLineNumber: number, positionColumn: number, selectionLineNumber: number = positionLineNumber, selectionColumn: number = positionColumn): IIdentifiedSingleEditOperation {
+	function createSingleEditOp(
+		text: string,
+		positionLineNumber: number,
+		positionColumn: number,
+		selectionLineNumber: number = positionLineNumber,
+		selectionColumn: number = positionColumn
+	): IIdentifiedSingleEditOperation {
 		var range = new Range(
 			selectionLineNumber,
 			selectionColumn,
@@ -52,7 +54,10 @@ suite('Editor Model - Model Edit Operation', () => {
 		};
 	}
 
-	function assertSingleEditOp(singleEditOp: IIdentifiedSingleEditOperation, editedLines: string[]) {
+	function assertSingleEditOp(
+		singleEditOp: IIdentifiedSingleEditOperation,
+		editedLines: string[]
+	) {
 		var editOp = [singleEditOp];
 
 		var inverseEditOp = model.applyEdits(editOp);
@@ -75,104 +80,80 @@ suite('Editor Model - Model Edit Operation', () => {
 	}
 
 	test('Insert inline', () => {
-		assertSingleEditOp(
-			createSingleEditOp('a', 1, 1),
-			[
-				'aMy First Line',
-				LINE2,
-				LINE3,
-				LINE4,
-				LINE5
-			]
-		);
+		assertSingleEditOp(createSingleEditOp('a', 1, 1), [
+			'aMy First Line',
+			LINE2,
+			LINE3,
+			LINE4,
+			LINE5
+		]);
 	});
 
 	test('Replace inline/inline 1', () => {
-		assertSingleEditOp(
-			createSingleEditOp(' incredibly awesome', 1, 3),
-			[
-				'My incredibly awesome First Line',
-				LINE2,
-				LINE3,
-				LINE4,
-				LINE5
-			]
-		);
+		assertSingleEditOp(createSingleEditOp(' incredibly awesome', 1, 3), [
+			'My incredibly awesome First Line',
+			LINE2,
+			LINE3,
+			LINE4,
+			LINE5
+		]);
 	});
 
 	test('Replace inline/inline 2', () => {
-		assertSingleEditOp(
-			createSingleEditOp(' with text at the end.', 1, 14),
-			[
-				'My First Line with text at the end.',
-				LINE2,
-				LINE3,
-				LINE4,
-				LINE5
-			]
-		);
+		assertSingleEditOp(createSingleEditOp(' with text at the end.', 1, 14), [
+			'My First Line with text at the end.',
+			LINE2,
+			LINE3,
+			LINE4,
+			LINE5
+		]);
 	});
 
 	test('Replace inline/inline 3', () => {
-		assertSingleEditOp(
-			createSingleEditOp('My new First Line.', 1, 1, 1, 14),
-			[
-				'My new First Line.',
-				LINE2,
-				LINE3,
-				LINE4,
-				LINE5
-			]
-		);
+		assertSingleEditOp(createSingleEditOp('My new First Line.', 1, 1, 1, 14), [
+			'My new First Line.',
+			LINE2,
+			LINE3,
+			LINE4,
+			LINE5
+		]);
 	});
 
 	test('Replace inline/multi line 1', () => {
-		assertSingleEditOp(
-			createSingleEditOp('My new First Line.', 1, 1, 3, 15),
-			[
-				'My new First Line.',
-				LINE4,
-				LINE5
-			]
-		);
+		assertSingleEditOp(createSingleEditOp('My new First Line.', 1, 1, 3, 15), [
+			'My new First Line.',
+			LINE4,
+			LINE5
+		]);
 	});
 
 	test('Replace inline/multi line 2', () => {
-		assertSingleEditOp(
-			createSingleEditOp('My new First Line.', 1, 2, 3, 15),
-			[
-				'MMy new First Line.',
-				LINE4,
-				LINE5
-			]
-		);
+		assertSingleEditOp(createSingleEditOp('My new First Line.', 1, 2, 3, 15), [
+			'MMy new First Line.',
+			LINE4,
+			LINE5
+		]);
 	});
 
 	test('Replace inline/multi line 3', () => {
-		assertSingleEditOp(
-			createSingleEditOp('My new First Line.', 1, 2, 3, 2),
-			[
-				'MMy new First Line.   Third Line',
-				LINE4,
-				LINE5
-			]
-		);
+		assertSingleEditOp(createSingleEditOp('My new First Line.', 1, 2, 3, 2), [
+			'MMy new First Line.   Third Line',
+			LINE4,
+			LINE5
+		]);
 	});
 
 	test('Replace muli line/multi line', () => {
-		assertSingleEditOp(
-			createSingleEditOp('1\n2\n3\n4\n', 1, 1),
-			[
-				'1',
-				'2',
-				'3',
-				'4',
-				LINE1,
-				LINE2,
-				LINE3,
-				LINE4,
-				LINE5
-			]
-		);
+		assertSingleEditOp(createSingleEditOp('1\n2\n3\n4\n', 1, 1), [
+			'1',
+			'2',
+			'3',
+			'4',
+			LINE1,
+			LINE2,
+			LINE3,
+			LINE4,
+			LINE5
+		]);
 	});
 });

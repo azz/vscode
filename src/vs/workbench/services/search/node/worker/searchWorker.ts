@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as fs from 'fs';
 import gracefulFs = require('graceful-fs');
@@ -15,10 +15,22 @@ import { TPromise } from 'vs/base/common/winjs.base';
 import { ISerializedFileMatch } from '../search';
 import * as baseMime from 'vs/base/common/mime';
 import { ILineMatch } from 'vs/platform/search/common/search';
-import { UTF16le, UTF16be, UTF8, UTF8_with_bom, encodingExists, decode, bomLength } from 'vs/base/node/encoding';
+import {
+	UTF16le,
+	UTF16be,
+	UTF8,
+	UTF8_with_bom,
+	encodingExists,
+	decode,
+	bomLength
+} from 'vs/base/node/encoding';
 import { detectMimeAndEncodingFromBuffer } from 'vs/base/node/mime';
 
-import { ISearchWorker, ISearchWorkerSearchArgs, ISearchWorkerSearchResult } from './searchWorkerIpc';
+import {
+	ISearchWorker,
+	ISearchWorkerSearchArgs,
+	ISearchWorkerSearchResult
+} from './searchWorkerIpc';
 
 interface ReadLinesOptions {
 	bufferLength: number;
@@ -76,15 +88,32 @@ export class SearchWorkerEngine {
 	/**
 	 * Searches some number of the given paths concurrently, and starts searches in other paths when those complete.
 	 */
-	searchBatch(args: ISearchWorkerSearchArgs): TPromise<ISearchWorkerSearchResult> {
-		const contentPattern = strings.createRegExp(args.pattern.pattern, args.pattern.isRegExp, { matchCase: args.pattern.isCaseSensitive, wholeWord: args.pattern.isWordMatch, multiline: false, global: true });
-		const fileEncoding = encodingExists(args.fileEncoding) ? args.fileEncoding : UTF8;
-		return this.nextSearch =
-			this.nextSearch.then(() => this._searchBatch(args, contentPattern, fileEncoding));
+	searchBatch(
+		args: ISearchWorkerSearchArgs
+	): TPromise<ISearchWorkerSearchResult> {
+		const contentPattern = strings.createRegExp(
+			args.pattern.pattern,
+			args.pattern.isRegExp,
+			{
+				matchCase: args.pattern.isCaseSensitive,
+				wholeWord: args.pattern.isWordMatch,
+				multiline: false,
+				global: true
+			}
+		);
+		const fileEncoding = encodingExists(args.fileEncoding)
+			? args.fileEncoding
+			: UTF8;
+		return (this.nextSearch = this.nextSearch.then(() =>
+			this._searchBatch(args, contentPattern, fileEncoding)
+		));
 	}
 
-
-	private _searchBatch(args: ISearchWorkerSearchArgs, contentPattern: RegExp, fileEncoding: string): TPromise<ISearchWorkerSearchResult> {
+	private _searchBatch(
+		args: ISearchWorkerSearchArgs,
+		contentPattern: RegExp,
+		fileEncoding: string
+	): TPromise<ISearchWorkerSearchResult> {
 		if (this.isCanceled) {
 			return TPromise.wrap<ISearchWorkerSearchResult>(null);
 		}
@@ -98,7 +127,12 @@ export class SearchWorkerEngine {
 
 			// Search in the given path, and when it's finished, search in the next path in absolutePaths
 			const startSearchInFile = (absolutePath: string): TPromise<void> => {
-				return this.searchInFile(absolutePath, contentPattern, fileEncoding, args.maxResults && (args.maxResults - result.numMatches)).then(fileResult => {
+				return this.searchInFile(
+					absolutePath,
+					contentPattern,
+					fileEncoding,
+					args.maxResults && args.maxResults - result.numMatches
+				).then(fileResult => {
 					// Finish early if search is canceled
 					if (this.isCanceled) {
 						return;
@@ -127,7 +161,12 @@ export class SearchWorkerEngine {
 		this.isCanceled = true;
 	}
 
-	private searchInFile(absolutePath: string, contentPattern: RegExp, fileEncoding: string, maxResults?: number): TPromise<IFileSearchResult> {
+	private searchInFile(
+		absolutePath: string,
+		contentPattern: RegExp,
+		fileEncoding: string,
+		maxResults?: number
+	): TPromise<IFileSearchResult> {
 		let fileMatch: FileMatch = null;
 		let limitReached = false;
 		let numMatches = 0;
@@ -137,7 +176,12 @@ export class SearchWorkerEngine {
 			let match = contentPattern.exec(line);
 
 			// Record all matches into file result
-			while (match !== null && match[0].length > 0 && !this.isCanceled && !limitReached) {
+			while (
+				match !== null &&
+				match[0].length > 0 &&
+				!this.isCanceled &&
+				!limitReached
+			) {
 				if (fileMatch === null) {
 					fileMatch = new FileMatch(absolutePath);
 				}
@@ -159,11 +203,19 @@ export class SearchWorkerEngine {
 		};
 
 		// Read lines buffered to support large files
-		return this.readlinesAsync(absolutePath, perLineCallback, { bufferLength: 8096, encoding: fileEncoding }).then(
-			() => fileMatch ? { match: fileMatch, limitReached, numMatches } : null);
+		return this.readlinesAsync(absolutePath, perLineCallback, {
+			bufferLength: 8096,
+			encoding: fileEncoding
+		}).then(
+			() => (fileMatch ? { match: fileMatch, limitReached, numMatches } : null)
+		);
 	}
 
-	private readlinesAsync(filename: string, perLineCallback: (line: string, lineNumber: number) => void, options: ReadLinesOptions): TPromise<void> {
+	private readlinesAsync(
+		filename: string,
+		perLineCallback: (line: string, lineNumber: number) => void,
+		options: ReadLinesOptions
+	): TPromise<void> {
 		return new TPromise<void>((resolve, reject) => {
 			fs.open(filename, 'r', null, (error: Error, fd: number) => {
 				if (error) {
@@ -175,114 +227,151 @@ export class SearchWorkerEngine {
 				let lineNumber = 0;
 				let lastBufferHadTrailingCR = false;
 
-				const readFile = (isFirstRead: boolean, clb: (error: Error) => void): void => {
+				const readFile = (
+					isFirstRead: boolean,
+					clb: (error: Error) => void
+				): void => {
 					if (this.isCanceled) {
 						return clb(null); // return early if canceled or limit reached
 					}
 
-					fs.read(fd, buffer, 0, buffer.length, null, (error: Error, bytesRead: number, buffer: NodeBuffer) => {
-						const decodeBuffer = (buffer: NodeBuffer, start: number, end: number): string => {
-							if (options.encoding === UTF8 || options.encoding === UTF8_with_bom) {
-								return buffer.toString(undefined, start, end); // much faster to use built in toString() when encoding is default
+					fs.read(
+						fd,
+						buffer,
+						0,
+						buffer.length,
+						null,
+						(error: Error, bytesRead: number, buffer: NodeBuffer) => {
+							const decodeBuffer = (
+								buffer: NodeBuffer,
+								start: number,
+								end: number
+							): string => {
+								if (
+									options.encoding === UTF8 ||
+									options.encoding === UTF8_with_bom
+								) {
+									return buffer.toString(undefined, start, end); // much faster to use built in toString() when encoding is default
+								}
+
+								return decode(buffer.slice(start, end), options.encoding);
+							};
+
+							const lineFinished = (offset: number): void => {
+								line += decodeBuffer(buffer, pos, i + offset);
+								perLineCallback(line, lineNumber);
+								line = '';
+								lineNumber++;
+								pos = i + offset;
+							};
+
+							if (error || bytesRead === 0 || this.isCanceled) {
+								return clb(error); // return early if canceled or limit reached or no more bytes to read
 							}
 
-							return decode(buffer.slice(start, end), options.encoding);
-						};
+							let crlfCharSize = 1;
+							let crBytes = [CR];
+							let lfBytes = [LF];
+							let pos = 0;
+							let i = 0;
 
-						const lineFinished = (offset: number): void => {
-							line += decodeBuffer(buffer, pos, i + offset);
-							perLineCallback(line, lineNumber);
-							line = '';
-							lineNumber++;
-							pos = i + offset;
-						};
+							// Detect encoding and mime when this is the beginning of the file
+							if (isFirstRead) {
+								const mimeAndEncoding = detectMimeAndEncodingFromBuffer(
+									{ buffer, bytesRead },
+									false
+								);
+								if (
+									mimeAndEncoding.mimes[mimeAndEncoding.mimes.length - 1] !==
+									baseMime.MIME_TEXT
+								) {
+									return clb(null); // skip files that seem binary
+								}
 
-						if (error || bytesRead === 0 || this.isCanceled) {
-							return clb(error); // return early if canceled or limit reached or no more bytes to read
-						}
+								// Check for BOM offset
+								switch (mimeAndEncoding.encoding) {
+									case UTF8:
+										pos = i = bomLength(UTF8);
+										options.encoding = UTF8;
+										break;
+									case UTF16be:
+										pos = i = bomLength(UTF16be);
+										options.encoding = UTF16be;
+										break;
+									case UTF16le:
+										pos = i = bomLength(UTF16le);
+										options.encoding = UTF16le;
+										break;
+								}
 
-						let crlfCharSize = 1;
-						let crBytes = [CR];
-						let lfBytes = [LF];
-						let pos = 0;
-						let i = 0;
-
-						// Detect encoding and mime when this is the beginning of the file
-						if (isFirstRead) {
-							const mimeAndEncoding = detectMimeAndEncodingFromBuffer({ buffer, bytesRead }, false);
-							if (mimeAndEncoding.mimes[mimeAndEncoding.mimes.length - 1] !== baseMime.MIME_TEXT) {
-								return clb(null); // skip files that seem binary
+								// when we are running with UTF16le/be, LF and CR are encoded as
+								// two bytes, like 0A 00 (LF) / 0D 00 (CR) for LE or flipped around
+								// for BE. We need to account for this when splitting the buffer into
+								// newlines, and when detecting a CRLF combo.
+								if (options.encoding === UTF16le) {
+									crlfCharSize = 2;
+									crBytes = [CR, 0x00];
+									lfBytes = [LF, 0x00];
+								} else if (options.encoding === UTF16be) {
+									crlfCharSize = 2;
+									crBytes = [0x00, CR];
+									lfBytes = [0x00, LF];
+								}
 							}
 
-							// Check for BOM offset
-							switch (mimeAndEncoding.encoding) {
-								case UTF8:
-									pos = i = bomLength(UTF8);
-									options.encoding = UTF8;
-									break;
-								case UTF16be:
-									pos = i = bomLength(UTF16be);
-									options.encoding = UTF16be;
-									break;
-								case UTF16le:
-									pos = i = bomLength(UTF16le);
-									options.encoding = UTF16le;
-									break;
+							if (lastBufferHadTrailingCR) {
+								if (
+									buffer[i] === lfBytes[0] &&
+									(lfBytes.length === 1 || buffer[i + 1] === lfBytes[1])
+								) {
+									lineFinished(1 * crlfCharSize);
+									i++;
+								} else {
+									lineFinished(0);
+								}
+
+								lastBufferHadTrailingCR = false;
 							}
 
-							// when we are running with UTF16le/be, LF and CR are encoded as
-							// two bytes, like 0A 00 (LF) / 0D 00 (CR) for LE or flipped around
-							// for BE. We need to account for this when splitting the buffer into
-							// newlines, and when detecting a CRLF combo.
-							if (options.encoding === UTF16le) {
-								crlfCharSize = 2;
-								crBytes = [CR, 0x00];
-								lfBytes = [LF, 0x00];
-							} else if (options.encoding === UTF16be) {
-								crlfCharSize = 2;
-								crBytes = [0x00, CR];
-								lfBytes = [0x00, LF];
-							}
-						}
-
-						if (lastBufferHadTrailingCR) {
-							if (buffer[i] === lfBytes[0] && (lfBytes.length === 1 || buffer[i + 1] === lfBytes[1])) {
-								lineFinished(1 * crlfCharSize);
-								i++;
-							} else {
-								lineFinished(0);
-							}
-
-							lastBufferHadTrailingCR = false;
-						}
-
-						/**
+							/**
 						 * This loop executes for every byte of every file in the workspace - it is highly performance-sensitive!
 						 * Hence the duplication in reading the buffer to avoid a function call. Previously a function call was not
 						 * being inlined by V8.
 						 */
-						for (; i < bytesRead; ++i) {
-							if (buffer[i] === lfBytes[0] && (lfBytes.length === 1 || buffer[i + 1] === lfBytes[1])) {
-								lineFinished(1 * crlfCharSize);
-							} else if (buffer[i] === crBytes[0] && (crBytes.length === 1 || buffer[i + 1] === crBytes[1])) { // CR (Carriage Return)
-								if (i + crlfCharSize === bytesRead) {
-									lastBufferHadTrailingCR = true;
-								} else if (buffer[i + crlfCharSize] === lfBytes[0] && (lfBytes.length === 1 || buffer[i + crlfCharSize + 1] === lfBytes[1])) {
-									lineFinished(2 * crlfCharSize);
-									i += 2 * crlfCharSize - 1;
-								} else {
+							for (; i < bytesRead; ++i) {
+								if (
+									buffer[i] === lfBytes[0] &&
+									(lfBytes.length === 1 || buffer[i + 1] === lfBytes[1])
+								) {
 									lineFinished(1 * crlfCharSize);
+								} else if (
+									buffer[i] === crBytes[0] &&
+									(crBytes.length === 1 || buffer[i + 1] === crBytes[1])
+								) {
+									// CR (Carriage Return)
+									if (i + crlfCharSize === bytesRead) {
+										lastBufferHadTrailingCR = true;
+									} else if (
+										buffer[i + crlfCharSize] === lfBytes[0] &&
+										(lfBytes.length === 1 ||
+											buffer[i + crlfCharSize + 1] === lfBytes[1])
+									) {
+										lineFinished(2 * crlfCharSize);
+										i += 2 * crlfCharSize - 1;
+									} else {
+										lineFinished(1 * crlfCharSize);
+									}
 								}
 							}
+
+							line += decodeBuffer(buffer, pos, bytesRead);
+
+							readFile(/*isFirstRead=*/ false, clb); // Continue reading
 						}
-
-						line += decodeBuffer(buffer, pos, bytesRead);
-
-						readFile(/*isFirstRead=*/false, clb); // Continue reading
-					});
+					);
 				};
 
-				readFile(/*isFirstRead=*/true, (error: Error) => {
+				readFile(/*isFirstRead=*/ true, (error: Error) => {
 					if (error) {
 						return resolve(null);
 					}

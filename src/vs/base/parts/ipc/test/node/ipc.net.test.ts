@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { TPromise } from 'vs/base/common/winjs.base';
@@ -12,7 +12,6 @@ import { EventEmitter } from 'events';
 import { Protocol } from 'vs/base/parts/ipc/node/ipc.net';
 
 class MockDuplex extends EventEmitter {
-
 	private _cache: Buffer[] = [];
 
 	readonly destroyed = false;
@@ -32,9 +31,7 @@ class MockDuplex extends EventEmitter {
 	}
 }
 
-
 suite('IPC, Socket Protocol', () => {
-
 	let stream: Socket;
 
 	setup(() => {
@@ -42,7 +39,6 @@ suite('IPC, Socket Protocol', () => {
 	});
 
 	test('read/write', () => {
-
 		const a = new Protocol(stream);
 		const b = new Protocol(stream);
 
@@ -65,9 +61,7 @@ suite('IPC, Socket Protocol', () => {
 		});
 	});
 
-
 	test('read/write, object data', () => {
-
 		const a = new Protocol(stream);
 		const b = new Protocol(stream);
 

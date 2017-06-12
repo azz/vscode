@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import paths = require('vs/base/common/paths');
@@ -10,21 +10,42 @@ import platform = require('vs/base/common/platform');
 
 suite('Paths', () => {
 	test('relative', () => {
-		assert.equal(paths.relative('/test/api/files/test', '/test/api/files/lib/foo'), '../lib/foo');
+		assert.equal(
+			paths.relative('/test/api/files/test', '/test/api/files/lib/foo'),
+			'../lib/foo'
+		);
 		assert.equal(paths.relative('far/boo', 'boo/far'), '../../boo/far');
 		assert.equal(paths.relative('far/boo', 'far/boo'), '');
 		assert.equal(paths.relative('far/boo', 'far/boo/bar/foo'), 'bar/foo');
 
 		if (platform.isWindows) {
-			assert.equal(paths.relative('C:\\test\\api\\files\\test', 'C:\\test\\api\\files\\lib\\foo'), '../lib/foo');
+			assert.equal(
+				paths.relative(
+					'C:\\test\\api\\files\\test',
+					'C:\\test\\api\\files\\lib\\foo'
+				),
+				'../lib/foo'
+			);
 			assert.equal(paths.relative('C:\\', 'C:\\vscode'), 'vscode');
-			assert.equal(paths.relative('C:\\', 'C:\\vscode\\foo.txt'), 'vscode/foo.txt');
+			assert.equal(
+				paths.relative('C:\\', 'C:\\vscode\\foo.txt'),
+				'vscode/foo.txt'
+			);
 		}
 
 		// // ignore trailing slashes
-		assert.equal(paths.relative('/test/api/files/test/', '/test/api/files/lib/foo'), '../lib/foo');
-		assert.equal(paths.relative('/test/api/files/test', '/test/api/files/lib/foo/'), '../lib/foo');
-		assert.equal(paths.relative('/test/api/files/test/', '/test/api/files/lib/foo/'), '../lib/foo');
+		assert.equal(
+			paths.relative('/test/api/files/test/', '/test/api/files/lib/foo'),
+			'../lib/foo'
+		);
+		assert.equal(
+			paths.relative('/test/api/files/test', '/test/api/files/lib/foo/'),
+			'../lib/foo'
+		);
+		assert.equal(
+			paths.relative('/test/api/files/test/', '/test/api/files/lib/foo/'),
+			'../lib/foo'
+		);
 		assert.equal(paths.relative('far/boo/', 'boo/far'), '../../boo/far');
 		assert.equal(paths.relative('far/boo/', 'boo/far/'), '../../boo/far');
 		assert.equal(paths.relative('far/boo/', 'far/boo'), '');
@@ -32,9 +53,27 @@ suite('Paths', () => {
 		assert.equal(paths.relative('far/boo/', 'far/boo/'), '');
 
 		if (platform.isWindows) {
-			assert.equal(paths.relative('C:\\test\\api\\files\\test\\', 'C:\\test\\api\\files\\lib\\foo'), '../lib/foo');
-			assert.equal(paths.relative('C:\\test\\api\\files\\test', 'C:\\test\\api\\files\\lib\\foo\\'), '../lib/foo');
-			assert.equal(paths.relative('C:\\test\\api\\files\\test\\', 'C:\\test\\api\\files\\lib\\foo\\'), '../lib/foo');
+			assert.equal(
+				paths.relative(
+					'C:\\test\\api\\files\\test\\',
+					'C:\\test\\api\\files\\lib\\foo'
+				),
+				'../lib/foo'
+			);
+			assert.equal(
+				paths.relative(
+					'C:\\test\\api\\files\\test',
+					'C:\\test\\api\\files\\lib\\foo\\'
+				),
+				'../lib/foo'
+			);
+			assert.equal(
+				paths.relative(
+					'C:\\test\\api\\files\\test\\',
+					'C:\\test\\api\\files\\lib\\foo\\'
+				),
+				'../lib/foo'
+			);
 		}
 	});
 
@@ -97,13 +136,21 @@ suite('Paths', () => {
 		assert.equal(paths.normalize(undefined), undefined);
 
 		// https://github.com/Microsoft/vscode/issues/7234
-		assert.equal(paths.join('/home/aeschli/workspaces/vscode/extensions/css', './syntaxes/css.plist'), '/home/aeschli/workspaces/vscode/extensions/css/syntaxes/css.plist');
+		assert.equal(
+			paths.join(
+				'/home/aeschli/workspaces/vscode/extensions/css',
+				'./syntaxes/css.plist'
+			),
+			'/home/aeschli/workspaces/vscode/extensions/css/syntaxes/css.plist'
+		);
 	});
 
 	test('getRootLength', () => {
-
 		assert.equal(paths.getRoot('/user/far'), '/');
-		assert.equal(paths.getRoot('\\\\server\\share\\some\\path'), '//server/share/');
+		assert.equal(
+			paths.getRoot('\\\\server\\share\\some\\path'),
+			'//server/share/'
+		);
 		assert.equal(paths.getRoot('//server/share/some/path'), '//server/share/');
 		assert.equal(paths.getRoot('//server/share'), '/');
 		assert.equal(paths.getRoot('//server'), '/');
@@ -114,7 +161,6 @@ suite('Paths', () => {
 		assert.equal(paths.getRoot('http://www/'), 'http://www/');
 		assert.equal(paths.getRoot('file:///foo'), 'file:///');
 		assert.equal(paths.getRoot('file://foo'), '');
-
 	});
 
 	test('basename', () => {
@@ -136,18 +182,45 @@ suite('Paths', () => {
 	test('join', () => {
 		assert.equal(paths.join('.', 'bar'), 'bar');
 		assert.equal(paths.join('../../foo/bar', '../../foo'), '../../foo');
-		assert.equal(paths.join('../../foo/bar', '../bar/foo'), '../../foo/bar/foo');
+		assert.equal(
+			paths.join('../../foo/bar', '../bar/foo'),
+			'../../foo/bar/foo'
+		);
 		assert.equal(paths.join('../foo/bar', '../bar/foo'), '../foo/bar/foo');
 		assert.equal(paths.join('/', 'bar'), '/bar');
-		assert.equal(paths.join('//server/far/boo', '../file.txt'), '//server/far/file.txt');
+		assert.equal(
+			paths.join('//server/far/boo', '../file.txt'),
+			'//server/far/file.txt'
+		);
 		assert.equal(paths.join('/foo/', '/bar'), '/foo/bar');
-		assert.equal(paths.join('\\\\server\\far\\boo', '../file.txt'), '//server/far/file.txt');
-		assert.equal(paths.join('\\\\server\\far\\boo', './file.txt'), '//server/far/boo/file.txt');
-		assert.equal(paths.join('\\\\server\\far\\boo', '.\\file.txt'), '//server/far/boo/file.txt');
-		assert.equal(paths.join('\\\\server\\far\\boo', 'file.txt'), '//server/far/boo/file.txt');
-		assert.equal(paths.join('file:///c/users/test', 'test'), 'file:///c/users/test/test');
-		assert.equal(paths.join('file://localhost/c$/GitDevelopment/express', './settings'), 'file://localhost/c$/GitDevelopment/express/settings'); // unc
-		assert.equal(paths.join('file://localhost/c$/GitDevelopment/express', '.settings'), 'file://localhost/c$/GitDevelopment/express/.settings'); // unc
+		assert.equal(
+			paths.join('\\\\server\\far\\boo', '../file.txt'),
+			'//server/far/file.txt'
+		);
+		assert.equal(
+			paths.join('\\\\server\\far\\boo', './file.txt'),
+			'//server/far/boo/file.txt'
+		);
+		assert.equal(
+			paths.join('\\\\server\\far\\boo', '.\\file.txt'),
+			'//server/far/boo/file.txt'
+		);
+		assert.equal(
+			paths.join('\\\\server\\far\\boo', 'file.txt'),
+			'//server/far/boo/file.txt'
+		);
+		assert.equal(
+			paths.join('file:///c/users/test', 'test'),
+			'file:///c/users/test/test'
+		);
+		assert.equal(
+			paths.join('file://localhost/c$/GitDevelopment/express', './settings'),
+			'file://localhost/c$/GitDevelopment/express/settings'
+		); // unc
+		assert.equal(
+			paths.join('file://localhost/c$/GitDevelopment/express', '.settings'),
+			'file://localhost/c$/GitDevelopment/express/.settings'
+		); // unc
 		assert.equal(paths.join('foo', '/bar'), 'foo/bar');
 		assert.equal(paths.join('foo', 'bar'), 'foo/bar');
 		assert.equal(paths.join('foo', 'bar/'), 'foo/bar/');
@@ -156,8 +229,14 @@ suite('Paths', () => {
 		assert.equal(paths.join('foo/', 'bar'), 'foo/bar');
 		assert.equal(paths.join('foo/bar', '../bar/foo'), 'foo/bar/foo');
 		assert.equal(paths.join('foo/bar', './bar/foo'), 'foo/bar/bar/foo');
-		assert.equal(paths.join('http://localhost/test', '../next'), 'http://localhost/next');
-		assert.equal(paths.join('http://localhost/test', 'test'), 'http://localhost/test/test');
+		assert.equal(
+			paths.join('http://localhost/test', '../next'),
+			'http://localhost/next'
+		);
+		assert.equal(
+			paths.join('http://localhost/test', 'test'),
+			'http://localhost/test/test'
+		);
 	});
 
 	test('extname', () => {

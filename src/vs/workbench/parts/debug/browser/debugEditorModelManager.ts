@@ -9,9 +9,19 @@ import * as objects from 'vs/base/common/objects';
 import * as lifecycle from 'vs/base/common/lifecycle';
 import { Constants } from 'vs/editor/common/core/uint';
 import { Range } from 'vs/editor/common/core/range';
-import { IModel, TrackedRangeStickiness, IModelDeltaDecoration, IModelDecorationOptions } from 'vs/editor/common/editorCommon';
+import {
+	IModel,
+	TrackedRangeStickiness,
+	IModelDeltaDecoration,
+	IModelDecorationOptions
+} from 'vs/editor/common/editorCommon';
 import { IWorkbenchContribution } from 'vs/workbench/common/contributions';
-import { IDebugService, IBreakpoint, IRawBreakpoint, State } from 'vs/workbench/parts/debug/common/debug';
+import {
+	IDebugService,
+	IBreakpoint,
+	IRawBreakpoint,
+	State
+} from 'vs/workbench/parts/debug/common/debug';
 import { IModelService } from 'vs/editor/common/services/modelService';
 import { IModelDecorationsChangedEvent } from 'vs/editor/common/model/textModelEvents';
 
@@ -59,32 +69,61 @@ export class DebugEditorModelManager implements IWorkbenchContribution {
 	}
 
 	private registerListeners(): void {
-		this.toDispose.push(this.modelService.onModelAdded(this.onModelAdded, this));
+		this.toDispose.push(
+			this.modelService.onModelAdded(this.onModelAdded, this)
+		);
 		this.modelService.getModels().forEach(model => this.onModelAdded(model));
-		this.toDispose.push(this.modelService.onModelRemoved(this.onModelRemoved, this));
+		this.toDispose.push(
+			this.modelService.onModelRemoved(this.onModelRemoved, this)
+		);
 
-		this.toDispose.push(this.debugService.getModel().onDidChangeBreakpoints(() => this.onBreakpointsChange()));
-		this.toDispose.push(this.debugService.getViewModel().onDidFocusStackFrame(() => this.onFocusStackFrame()));
-		this.toDispose.push(this.debugService.onDidChangeState(state => {
-			if (state === State.Inactive) {
-				this.modelDataMap.forEach(modelData => {
-					modelData.dirty = false;
-					modelData.topStackFrameRange = undefined;
-				});
-			}
-		}));
+		this.toDispose.push(
+			this.debugService
+				.getModel()
+				.onDidChangeBreakpoints(() => this.onBreakpointsChange())
+		);
+		this.toDispose.push(
+			this.debugService
+				.getViewModel()
+				.onDidFocusStackFrame(() => this.onFocusStackFrame())
+		);
+		this.toDispose.push(
+			this.debugService.onDidChangeState(state => {
+				if (state === State.Inactive) {
+					this.modelDataMap.forEach(modelData => {
+						modelData.dirty = false;
+						modelData.topStackFrameRange = undefined;
+					});
+				}
+			})
+		);
 	}
 
 	private onModelAdded(model: IModel): void {
 		const modelUrlStr = model.uri.toString();
-		const breakpoints = this.debugService.getModel().getBreakpoints().filter(bp => bp.uri.toString() === modelUrlStr);
+		const breakpoints = this.debugService
+			.getModel()
+			.getBreakpoints()
+			.filter(bp => bp.uri.toString() === modelUrlStr);
 
-		const currentStackDecorations = model.deltaDecorations([], this.createCallStackDecorations(modelUrlStr));
-		const breakPointDecorations = model.deltaDecorations([], this.createBreakpointDecorations(breakpoints));
+		const currentStackDecorations = model.deltaDecorations(
+			[],
+			this.createCallStackDecorations(modelUrlStr)
+		);
+		const breakPointDecorations = model.deltaDecorations(
+			[],
+			this.createBreakpointDecorations(breakpoints)
+		);
 
-		const toDispose: lifecycle.IDisposable[] = [model.onDidChangeDecorations((e) => this.onModelDecorationsChanged(modelUrlStr, e))];
+		const toDispose: lifecycle.IDisposable[] = [
+			model.onDidChangeDecorations(e =>
+				this.onModelDecorationsChanged(modelUrlStr, e)
+			)
+		];
 		const breakpointDecorationsAsMap = new Map<string, boolean>();
-		breakPointDecorations.forEach(bpd => breakpointDecorationsAsMap.set(bpd, true));
+		breakPointDecorations.forEach(bpd =>
+			breakpointDecorationsAsMap.set(bpd, true)
+		);
 
 		this.modelDataMap.set(modelUrlStr, {
 			model: model,
@@ -110,11 +149,16 @@ export class DebugEditorModelManager implements IWorkbenchContribution {
 
 	private onFocusStackFrame(): void {
 		this.modelDataMap.forEach((modelData, uri) => {
-			modelData.currentStackDecorations = modelData.model.deltaDecorations(modelData.currentStackDecorations, this.createCallStackDecorations(uri));
+			modelData.currentStackDecorations = modelData.model.deltaDecorations(
+				modelData.currentStackDecorations,
+				this.createCallStackDecorations(uri)
+			);
 		});
 	}
 
-	private createCallStackDecorations(modelUriStr: string): IModelDeltaDecoration[] {
+	private createCallStackDecorations(
+		modelUriStr: string
+	): IModelDeltaDecoration[] {
 		const result: IModelDeltaDecoration[] = [];
 		const stackFrame = this.debugService.getViewModel().focusedStackFrame;
 		if (!stackFrame || stackFrame.source.uri.toString() !== modelUriStr) {
@@ -122,8 +166,18 @@ export class DebugEditorModelManager implements IWorkbenchContribution {
 		}
 
 		// only show decorations for the currently focussed thread.
-		const columnUntilEOLRange = new Range(stackFrame.range.startLineNumber, stackFrame.range.startColumn, stackFrame.range.startLineNumber, Constants.MAX_SAFE_SMALL_INTEGER);
-		const range = new Range(stackFrame.range.startLineNumber, stackFrame.range.startColumn, stackFrame.range.startLineNumber, stackFrame.range.startColumn + 1);
+		const columnUntilEOLRange = new Range(
+			stackFrame.range.startLineNumber,
+			stackFrame.range.startColumn,
+			stackFrame.range.startLineNumber,
+			Constants.MAX_SAFE_SMALL_INTEGER
+		);
+		const range = new Range(
+			stackFrame.range.startLineNumber,
+			stackFrame.range.startColumn,
+			stackFrame.range.startLineNumber,
+			stackFrame.range.startColumn + 1
+		);
 
 		// compute how to decorate the editor. Different decorations are used if this is a top stack frame, focussed stack frame,
 		// an exception or a stack frame that did not change the line number (we only decorate the columns, not the whole line).
@@ -134,7 +188,10 @@ export class DebugEditorModelManager implements IWorkbenchContribution {
 				range
 			});
 
-			if (stackFrame.thread.stoppedDetails && stackFrame.thread.stoppedDetails.reason === 'exception') {
+			if (
+				stackFrame.thread.stoppedDetails &&
+				stackFrame.thread.stoppedDetails.reason === 'exception'
+			) {
 				result.push({
 					options: DebugEditorModelManager.TOP_STACK_FRAME_EXCEPTION_DECORATION,
 					range: columnUntilEOLRange
@@ -153,9 +210,16 @@ export class DebugEditorModelManager implements IWorkbenchContribution {
 
 				if (this.modelDataMap.has(modelUriStr)) {
 					const modelData = this.modelDataMap.get(modelUriStr);
-					if (modelData.topStackFrameRange && modelData.topStackFrameRange.startLineNumber === stackFrame.range.startLineNumber && modelData.topStackFrameRange.startColumn !== stackFrame.range.startColumn) {
+					if (
+						modelData.topStackFrameRange &&
+						modelData.topStackFrameRange.startLineNumber ===
+							stackFrame.range.startLineNumber &&
+						modelData.topStackFrameRange.startColumn !==
+							stackFrame.range.startColumn
+					) {
 						result.push({
-							options: DebugEditorModelManager.TOP_STACK_FRAME_INLINE_DECORATION,
+							options:
+								DebugEditorModelManager.TOP_STACK_FRAME_INLINE_DECORATION,
 							range: columnUntilEOLRange
 						});
 					}
@@ -184,13 +248,20 @@ export class DebugEditorModelManager implements IWorkbenchContribution {
 	}
 
 	// breakpoints management. Represent data coming from the debug service and also send data back.
-	private onModelDecorationsChanged(modelUrlStr: string, e: IModelDecorationsChangedEvent): void {
+	private onModelDecorationsChanged(
+		modelUrlStr: string,
+		e: IModelDecorationsChangedEvent
+	): void {
 		const modelData = this.modelDataMap.get(modelUrlStr);
 		if (modelData.breakpointDecorationsAsMap.size === 0) {
 			// I have no decorations
 			return;
 		}
-		if (!e.changedDecorations.some(decorationId => modelData.breakpointDecorationsAsMap.has(decorationId))) {
+		if (
+			!e.changedDecorations.some(decorationId =>
+				modelData.breakpointDecorationsAsMap.has(decorationId)
+			)
+		) {
 			// nothing to do, my decorations did not change.
 			return;
 		}
@@ -198,13 +269,23 @@ export class DebugEditorModelManager implements IWorkbenchContribution {
 		const data: IRawBreakpoint[] = [];
 
 		const lineToBreakpointDataMap = new Map<number, IBreakpoint>();
-		this.debugService.getModel().getBreakpoints().filter(bp => bp.uri.toString() === modelUrlStr).forEach(bp => {
-			lineToBreakpointDataMap.set(bp.lineNumber, bp);
-		});
+		this.debugService
+			.getModel()
+			.getBreakpoints()
+			.filter(bp => bp.uri.toString() === modelUrlStr)
+			.forEach(bp => {
+				lineToBreakpointDataMap.set(bp.lineNumber, bp);
+			});
 
 		const modelUri = modelData.model.uri;
-		for (let i = 0, len = modelData.breakpointDecorationIds.length; i < len; i++) {
-			const decorationRange = modelData.model.getDecorationRange(modelData.breakpointDecorationIds[i]);
+		for (
+			let i = 0, len = modelData.breakpointDecorationIds.length;
+			i < len;
+			i++
+		) {
+			const decorationRange = modelData.model.getDecorationRange(
+				modelData.breakpointDecorationIds[i]
+			);
 			const lineNumber = modelData.breakpointLines[i];
 			// check if the line got deleted.
 			if (decorationRange.endColumn - decorationRange.startColumn > 0) {
@@ -221,10 +302,14 @@ export class DebugEditorModelManager implements IWorkbenchContribution {
 		}
 		modelData.dirty = this.debugService.state !== State.Inactive;
 
-		const toRemove = this.debugService.getModel().getBreakpoints()
+		const toRemove = this.debugService
+			.getModel()
+			.getBreakpoints()
 			.filter(bp => bp.uri.toString() === modelUri.toString());
 
-		TPromise.join(toRemove.map(bp => this.debugService.removeBreakpoints(bp.getId()))).then(() => {
+		TPromise.join(
+			toRemove.map(bp => this.debugService.removeBreakpoints(bp.getId()))
+		).then(() => {
 			this.debugService.addBreakpoints(modelUri, data);
 		});
 	}
@@ -242,7 +327,10 @@ export class DebugEditorModelManager implements IWorkbenchContribution {
 
 		breakpointsMap.forEach((bps, uri) => {
 			if (this.modelDataMap.has(uri)) {
-				this.updateBreakpoints(this.modelDataMap.get(uri), breakpointsMap.get(uri));
+				this.updateBreakpoints(
+					this.modelDataMap.get(uri),
+					breakpointsMap.get(uri)
+				);
 			}
 		});
 		this.modelDataMap.forEach((modelData, uri) => {
@@ -252,17 +340,38 @@ export class DebugEditorModelManager implements IWorkbenchContribution {
 		});
 	}
 
-	private updateBreakpoints(modelData: IDebugEditorModelData, newBreakpoints: IBreakpoint[]): void {
-		modelData.breakpointDecorationIds = modelData.model.deltaDecorations(modelData.breakpointDecorationIds, this.createBreakpointDecorations(newBreakpoints));
+	private updateBreakpoints(
+		modelData: IDebugEditorModelData,
+		newBreakpoints: IBreakpoint[]
+	): void {
+		modelData.breakpointDecorationIds = modelData.model.deltaDecorations(
+			modelData.breakpointDecorationIds,
+			this.createBreakpointDecorations(newBreakpoints)
+		);
 		modelData.breakpointDecorationsAsMap.clear();
-		modelData.breakpointDecorationIds.forEach(id => modelData.breakpointDecorationsAsMap.set(id, true));
+		modelData.breakpointDecorationIds.forEach(id =>
+			modelData.breakpointDecorationsAsMap.set(id, true)
+		);
 		modelData.breakpointLines = newBreakpoints.map(bp => bp.lineNumber);
 	}
 
-	private createBreakpointDecorations(breakpoints: IBreakpoint[]): IModelDeltaDecoration[] {
-		return breakpoints.map((breakpoint) => {
-			const range = breakpoint.column ? new Range(breakpoint.lineNumber, breakpoint.column, breakpoint.lineNumber, breakpoint.column + 1)
-				: new Range(breakpoint.lineNumber, 1, breakpoint.lineNumber, Constants.MAX_SAFE_SMALL_INTEGER); // Decoration has to have a width #20688
+	private createBreakpointDecorations(
+		breakpoints: IBreakpoint[]
+	): IModelDeltaDecoration[] {
+		return breakpoints.map(breakpoint => {
+			const range = breakpoint.column
+				? new Range(
+						breakpoint.lineNumber,
+						breakpoint.column,
+						breakpoint.lineNumber,
+						breakpoint.column + 1
+					)
+				: new Range(
+						breakpoint.lineNumber,
+						1,
+						breakpoint.lineNumber,
+						Constants.MAX_SAFE_SMALL_INTEGER
+					); // Decoration has to have a width #20688
 			return {
 				options: this.getBreakpointDecorationOptions(breakpoint),
 				range
@@ -270,16 +379,26 @@ export class DebugEditorModelManager implements IWorkbenchContribution {
 		});
 	}
 
-	private getBreakpointDecorationOptions(breakpoint: IBreakpoint): IModelDecorationOptions {
+	private getBreakpointDecorationOptions(
+		breakpoint: IBreakpoint
+	): IModelDecorationOptions {
 		const activated = this.debugService.getModel().areBreakpointsActivated();
 		const state = this.debugService.state;
-		const debugActive = state === State.Running || state === State.Stopped || state === State.Initializing;
+		const debugActive =
+			state === State.Running ||
+			state === State.Stopped ||
+			state === State.Initializing;
 		const modelData = this.modelDataMap.get(breakpoint.uri.toString());
 
-		let result = (!breakpoint.enabled || !activated) ? DebugEditorModelManager.BREAKPOINT_DISABLED_DECORATION :
-			debugActive && modelData && modelData.dirty && !breakpoint.verified ? DebugEditorModelManager.BREAKPOINT_DIRTY_DECORATION :
-				debugActive && !breakpoint.verified ? DebugEditorModelManager.BREAKPOINT_UNVERIFIED_DECORATION :
-					!breakpoint.condition && !breakpoint.hitCondition ? DebugEditorModelManager.BREAKPOINT_DECORATION : null;
+		let result = !breakpoint.enabled || !activated
+			? DebugEditorModelManager.BREAKPOINT_DISABLED_DECORATION
+			: debugActive && modelData && modelData.dirty && !breakpoint.verified
+				? DebugEditorModelManager.BREAKPOINT_DIRTY_DECORATION
+				: debugActive && !breakpoint.verified
+					? DebugEditorModelManager.BREAKPOINT_UNVERIFIED_DECORATION
+					: !breakpoint.condition && !breakpoint.hitCondition
+						? DebugEditorModelManager.BREAKPOINT_DECORATION
+						: null;
 
 		if (result) {
 			result = objects.clone(result);
@@ -294,20 +413,29 @@ export class DebugEditorModelManager implements IWorkbenchContribution {
 		}
 
 		const process = this.debugService.getViewModel().focusedProcess;
-		if (process && !process.session.capabilities.supportsConditionalBreakpoints) {
+		if (
+			process &&
+			!process.session.capabilities.supportsConditionalBreakpoints
+		) {
 			return DebugEditorModelManager.BREAKPOINT_UNSUPPORTED_DECORATION;
 		}
 
-		const modeId = modelData ? modelData.model.getLanguageIdentifier().language : '';
+		const modeId = modelData
+			? modelData.model.getLanguageIdentifier().language
+			: '';
 		let condition: string;
 		if (breakpoint.condition && breakpoint.hitCondition) {
 			condition = `Expression: ${breakpoint.condition}\nHitCount: ${breakpoint.hitCondition}`;
 		} else {
-			condition = breakpoint.condition ? breakpoint.condition : breakpoint.hitCondition;
+			condition = breakpoint.condition
+				? breakpoint.condition
+				: breakpoint.hitCondition;
 		}
 		const glyphMarginHoverMessage = `\`\`\`${modeId}\n${condition}\`\`\``;
 		const glyphMarginClassName = 'debug-breakpoint-conditional-glyph';
-		const beforeContentClassName = breakpoint.column ? `debug-breakpoint-column ${glyphMarginClassName}-column` : undefined;
+		const beforeContentClassName = breakpoint.column
+			? `debug-breakpoint-column ${glyphMarginClassName}-column`
+			: undefined;
 
 		return {
 			glyphMarginClassName,
@@ -326,25 +454,37 @@ export class DebugEditorModelManager implements IWorkbenchContribution {
 
 	private static BREAKPOINT_DISABLED_DECORATION: IModelDecorationOptions = {
 		glyphMarginClassName: 'debug-breakpoint-disabled-glyph',
-		glyphMarginHoverMessage: nls.localize('breakpointDisabledHover', "Disabled Breakpoint"),
+		glyphMarginHoverMessage: nls.localize(
+			'breakpointDisabledHover',
+			'Disabled Breakpoint'
+		),
 		stickiness
 	};
 
 	private static BREAKPOINT_UNVERIFIED_DECORATION: IModelDecorationOptions = {
 		glyphMarginClassName: 'debug-breakpoint-unverified-glyph',
-		glyphMarginHoverMessage: nls.localize('breakpointUnverifieddHover', "Unverified Breakpoint"),
+		glyphMarginHoverMessage: nls.localize(
+			'breakpointUnverifieddHover',
+			'Unverified Breakpoint'
+		),
 		stickiness
 	};
 
 	private static BREAKPOINT_DIRTY_DECORATION: IModelDecorationOptions = {
 		glyphMarginClassName: 'debug-breakpoint-unverified-glyph',
-		glyphMarginHoverMessage: nls.localize('breakpointDirtydHover', "Unverified breakpoint. File is modified, please restart debug session."),
+		glyphMarginHoverMessage: nls.localize(
+			'breakpointDirtydHover',
+			'Unverified breakpoint. File is modified, please restart debug session.'
+		),
 		stickiness
 	};
 
 	private static BREAKPOINT_UNSUPPORTED_DECORATION: IModelDecorationOptions = {
 		glyphMarginClassName: 'debug-breakpoint-unsupported-glyph',
-		glyphMarginHoverMessage: nls.localize('breakpointUnsupported', "Conditional breakpoints not supported by this debug type"),
+		glyphMarginHoverMessage: nls.localize(
+			'breakpointUnsupported',
+			'Conditional breakpoints not supported by this debug type'
+		),
 		stickiness
 	};
 

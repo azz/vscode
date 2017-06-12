@@ -2,15 +2,24 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as nls from 'vs/nls';
 import { parse, ParseError } from 'vs/base/common/json';
 import { readFile } from 'vs/base/node/pfs';
-import { CharacterPair, LanguageConfiguration, IAutoClosingPair, IAutoClosingPairConditional, CommentRule } from 'vs/editor/common/modes/languageConfiguration';
+import {
+	CharacterPair,
+	LanguageConfiguration,
+	IAutoClosingPair,
+	IAutoClosingPairConditional,
+	CommentRule
+} from 'vs/editor/common/modes/languageConfiguration';
 import { IModeService } from 'vs/editor/common/services/modeService';
 import { LanguageConfigurationRegistry } from 'vs/editor/common/modes/languageConfigurationRegistry';
-import { Extensions, IJSONContributionRegistry } from 'vs/platform/jsonschemas/common/jsonContributionRegistry';
+import {
+	Extensions,
+	IJSONContributionRegistry
+} from 'vs/platform/jsonschemas/common/jsonContributionRegistry';
 import { Registry } from 'vs/platform/platform';
 import { IJSONSchema } from 'vs/base/common/jsonSchema';
 import { LanguageIdentifier } from 'vs/editor/common/modes';
@@ -30,7 +39,6 @@ interface ILanguageConfiguration {
 }
 
 export class LanguageConfigurationFileHandler {
-
 	private _modeService: IModeService;
 	private _done: boolean[];
 
@@ -42,37 +50,65 @@ export class LanguageConfigurationFileHandler {
 		this._done = [];
 
 		// Listen for hints that a language configuration is needed/usefull and then load it once
-		this._modeService.onDidCreateMode((mode) => this._loadConfigurationsForMode(mode.getLanguageIdentifier()));
-		textMateService.onDidEncounterLanguage((languageId) => {
-			this._loadConfigurationsForMode(this._modeService.getLanguageIdentifier(languageId));
+		this._modeService.onDidCreateMode(mode =>
+			this._loadConfigurationsForMode(mode.getLanguageIdentifier())
+		);
+		textMateService.onDidEncounterLanguage(languageId => {
+			this._loadConfigurationsForMode(
+				this._modeService.getLanguageIdentifier(languageId)
+			);
 		});
 	}
 
-	private _loadConfigurationsForMode(languageIdentifier: LanguageIdentifier): void {
+	private _loadConfigurationsForMode(
+		languageIdentifier: LanguageIdentifier
+	): void {
 		if (this._done[languageIdentifier.id]) {
 			return;
 		}
 		this._done[languageIdentifier.id] = true;
 
-		let configurationFiles = this._modeService.getConfigurationFiles(languageIdentifier.language);
-		configurationFiles.forEach((configFilePath) => this._handleConfigFile(languageIdentifier, configFilePath));
+		let configurationFiles = this._modeService.getConfigurationFiles(
+			languageIdentifier.language
+		);
+		configurationFiles.forEach(configFilePath =>
+			this._handleConfigFile(languageIdentifier, configFilePath)
+		);
 	}
 
-	private _handleConfigFile(languageIdentifier: LanguageIdentifier, configFilePath: string): void {
-		readFile(configFilePath).then((fileContents) => {
-			var errors: ParseError[] = [];
-			var configuration = <ILanguageConfiguration>parse(fileContents.toString(), errors);
-			if (errors.length) {
-				console.error(nls.localize('parseErrors', "Errors parsing {0}: {1}", configFilePath, errors.join('\n')));
+	private _handleConfigFile(
+		languageIdentifier: LanguageIdentifier,
+		configFilePath: string
+	): void {
+		readFile(configFilePath).then(
+			fileContents => {
+				var errors: ParseError[] = [];
+				var configuration = <ILanguageConfiguration>parse(
+					fileContents.toString(),
+					errors
+				);
+				if (errors.length) {
+					console.error(
+						nls.localize(
+							'parseErrors',
+							'Errors parsing {0}: {1}',
+							configFilePath,
+							errors.join('\n')
+						)
+					);
+				}
+				this._handleConfig(languageIdentifier, configuration);
+			},
+			err => {
+				console.error(err);
 			}
-			this._handleConfig(languageIdentifier, configuration);
-		}, (err) => {
-			console.error(err);
-		});
+		);
 	}
 
-	private _handleConfig(languageIdentifier: LanguageIdentifier, configuration: ILanguageConfiguration): void {
-
+	private _handleConfig(
+		languageIdentifier: LanguageIdentifier,
+		configuration: ILanguageConfiguration
+	): void {
 		let richEditConfig: LanguageConfiguration = {};
 
 		if (configuration.comments) {
@@ -84,11 +120,15 @@ export class LanguageConfigurationFileHandler {
 		}
 
 		if (configuration.autoClosingPairs) {
-			richEditConfig.autoClosingPairs = this._mapCharacterPairs(configuration.autoClosingPairs);
+			richEditConfig.autoClosingPairs = this._mapCharacterPairs(
+				configuration.autoClosingPairs
+			);
 		}
 
 		if (configuration.surroundingPairs) {
-			richEditConfig.surroundingPairs = this._mapCharacterPairs(configuration.surroundingPairs);
+			richEditConfig.surroundingPairs = this._mapCharacterPairs(
+				configuration.surroundingPairs
+			);
 		}
 
 		if (configuration.wordPattern) {
@@ -114,7 +154,9 @@ export class LanguageConfigurationFileHandler {
 		LanguageConfigurationRegistry.register(languageIdentifier, richEditConfig);
 	}
 
-	private _mapCharacterPairs(pairs: (CharacterPair | IAutoClosingPairConditional)[]): IAutoClosingPairConditional[] {
+	private _mapCharacterPairs(
+		pairs: (CharacterPair | IAutoClosingPairConditional)[]
+	): IAutoClosingPairConditional[] {
 		return pairs.map(pair => {
 			if (Array.isArray(pair)) {
 				return { open: pair[0], close: pair[1] };
@@ -138,19 +180,28 @@ const schema: IJSONSchema = {
 	definitions: {
 		openBracket: {
 			type: 'string',
-			description: nls.localize('schema.openBracket', 'The opening bracket character or string sequence.')
+			description: nls.localize(
+				'schema.openBracket',
+				'The opening bracket character or string sequence.'
+			)
 		},
 		closeBracket: {
 			type: 'string',
-			description: nls.localize('schema.closeBracket', 'The closing bracket character or string sequence.')
+			description: nls.localize(
+				'schema.closeBracket',
+				'The closing bracket character or string sequence.'
+			)
 		},
 		bracketPair: {
 			type: 'array',
-			items: [{
-				$ref: '#definitions/openBracket'
-			}, {
-				$ref: '#definitions/closeBracket'
-			}]
+			items: [
+				{
+					$ref: '#definitions/openBracket'
+				},
+				{
+					$ref: '#definitions/closeBracket'
+				}
+			]
 		}
 	},
 	properties: {
@@ -159,29 +210,50 @@ const schema: IJSONSchema = {
 				blockComment: ['/*', '*/'],
 				lineComment: '//'
 			},
-			description: nls.localize('schema.comments', 'Defines the comment symbols'),
+			description: nls.localize(
+				'schema.comments',
+				'Defines the comment symbols'
+			),
 			type: 'object',
 			properties: {
 				blockComment: {
 					type: 'array',
-					description: nls.localize('schema.blockComments', 'Defines how block comments are marked.'),
-					items: [{
-						type: 'string',
-						description: nls.localize('schema.blockComment.begin', 'The character sequence that starts a block comment.')
-					}, {
-						type: 'string',
-						description: nls.localize('schema.blockComment.end', 'The character sequence that ends a block comment.')
-					}]
+					description: nls.localize(
+						'schema.blockComments',
+						'Defines how block comments are marked.'
+					),
+					items: [
+						{
+							type: 'string',
+							description: nls.localize(
+								'schema.blockComment.begin',
+								'The character sequence that starts a block comment.'
+							)
+						},
+						{
+							type: 'string',
+							description: nls.localize(
+								'schema.blockComment.end',
+								'The character sequence that ends a block comment.'
+							)
+						}
+					]
 				},
 				lineComment: {
 					type: 'string',
-					description: nls.localize('schema.lineComment', 'The character sequence that starts a line comment.')
+					description: nls.localize(
+						'schema.lineComment',
+						'The character sequence that starts a line comment.'
+					)
 				}
 			}
 		},
 		brackets: {
 			default: [['(', ')'], ['[', ']'], ['{', '}']],
-			description: nls.localize('schema.brackets', 'Defines the bracket symbols that increase or decrease the indentation.'),
+			description: nls.localize(
+				'schema.brackets',
+				'Defines the bracket symbols that increase or decrease the indentation.'
+			),
 			type: 'array',
 			items: {
 				$ref: '#definitions/bracketPair'
@@ -189,71 +261,100 @@ const schema: IJSONSchema = {
 		},
 		autoClosingPairs: {
 			default: [['(', ')'], ['[', ']'], ['{', '}']],
-			description: nls.localize('schema.autoClosingPairs', 'Defines the bracket pairs. When a opening bracket is entered, the closing bracket is inserted automatically.'),
+			description: nls.localize(
+				'schema.autoClosingPairs',
+				'Defines the bracket pairs. When a opening bracket is entered, the closing bracket is inserted automatically.'
+			),
 			type: 'array',
 			items: {
-				oneOf: [{
-					$ref: '#definitions/bracketPair'
-				}, {
-					type: 'object',
-					properties: {
-						open: {
-							$ref: '#definitions/openBracket'
-						},
-						close: {
-							$ref: '#definitions/closeBracket'
-						},
-						notIn: {
-							type: 'array',
-							description: nls.localize('schema.autoClosingPairs.notIn', 'Defines a list of scopes where the auto pairs are disabled.'),
-							items: {
-								enum: ['string', 'comment']
+				oneOf: [
+					{
+						$ref: '#definitions/bracketPair'
+					},
+					{
+						type: 'object',
+						properties: {
+							open: {
+								$ref: '#definitions/openBracket'
+							},
+							close: {
+								$ref: '#definitions/closeBracket'
+							},
+							notIn: {
+								type: 'array',
+								description: nls.localize(
+									'schema.autoClosingPairs.notIn',
+									'Defines a list of scopes where the auto pairs are disabled.'
+								),
+								items: {
+									enum: ['string', 'comment']
+								}
 							}
 						}
 					}
-				}]
+				]
 			}
 		},
 		surroundingPairs: {
 			default: [['(', ')'], ['[', ']'], ['{', '}']],
-			description: nls.localize('schema.surroundingPairs', 'Defines the bracket pairs that can be used to surround a selected string.'),
+			description: nls.localize(
+				'schema.surroundingPairs',
+				'Defines the bracket pairs that can be used to surround a selected string.'
+			),
 			type: 'array',
 			items: {
-				oneOf: [{
-					$ref: '#definitions/bracketPair'
-				}, {
-					type: 'object',
-					properties: {
-						open: {
-							$ref: '#definitions/openBracket'
-						},
-						close: {
-							$ref: '#definitions/closeBracket'
+				oneOf: [
+					{
+						$ref: '#definitions/bracketPair'
+					},
+					{
+						type: 'object',
+						properties: {
+							open: {
+								$ref: '#definitions/openBracket'
+							},
+							close: {
+								$ref: '#definitions/closeBracket'
+							}
 						}
 					}
-				}]
+				]
 			}
 		},
 		wordPattern: {
 			default: '',
-			description: nls.localize('schema.wordPattern', 'The word definition for the language.'),
+			description: nls.localize(
+				'schema.wordPattern',
+				'The word definition for the language.'
+			),
 			type: ['string', 'object'],
 			properties: {
 				pattern: {
 					type: 'string',
-					description: nls.localize('schema.wordPattern.pattern', 'The RegExp pattern used to match words.'),
-					default: '',
+					description: nls.localize(
+						'schema.wordPattern.pattern',
+						'The RegExp pattern used to match words.'
+					),
+					default: ''
 				},
 				flags: {
 					type: 'string',
-					description: nls.localize('schema.wordPattern.flags', 'The RegExp flags used to match words.'),
+					description: nls.localize(
+						'schema.wordPattern.flags',
+						'The RegExp flags used to match words.'
+					),
 					default: 'g',
 					pattern: '^([gimuy]+)$',
-					patternErrorMessage: nls.localize('schema.wordPattern.flags.errorMessage', 'Must match the pattern `/^([gimuy]+)$/`.')
+					patternErrorMessage: nls.localize(
+						'schema.wordPattern.flags.errorMessage',
+						'Must match the pattern `/^([gimuy]+)$/`.'
+					)
 				}
 			}
 		}
 	}
 };
-let schemaRegistry = <IJSONContributionRegistry>Registry.as(Extensions.JSONContribution);
+let schemaRegistry = <IJSONContributionRegistry>Registry.as(
+	Extensions.JSONContribution
+);
 schemaRegistry.registerSchema(schemaId, schema);

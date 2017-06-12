@@ -2,10 +2,15 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { ReplaceCommand } from 'vs/editor/common/commands/replaceCommand';
-import { CursorColumns, CursorConfiguration, ICursorSimpleModel, EditOperationResult } from 'vs/editor/common/controller/cursorCommon';
+import {
+	CursorColumns,
+	CursorConfiguration,
+	ICursorSimpleModel,
+	EditOperationResult
+} from 'vs/editor/common/controller/cursorCommon';
 import { Range } from 'vs/editor/common/core/range';
 import { Selection } from 'vs/editor/common/core/selection';
 import { MoveOperations } from 'vs/editor/common/controller/cursorMoveOperations';
@@ -13,8 +18,11 @@ import * as strings from 'vs/base/common/strings';
 import { ICommand } from 'vs/editor/common/editorCommon';
 
 export class DeleteOperations {
-
-	public static deleteRight(config: CursorConfiguration, model: ICursorSimpleModel, selections: Selection[]): [boolean, ICommand[]] {
+	public static deleteRight(
+		config: CursorConfiguration,
+		model: ICursorSimpleModel,
+		selections: Selection[]
+	): [boolean, ICommand[]] {
 		let commands: ICommand[] = [];
 		let shouldPushStackElementBefore = false;
 		for (let i = 0, len = selections.length; i < len; i++) {
@@ -24,7 +32,12 @@ export class DeleteOperations {
 
 			if (deleteSelection.isEmpty()) {
 				let position = selection.getPosition();
-				let rightOfPosition = MoveOperations.right(config, model, position.lineNumber, position.column);
+				let rightOfPosition = MoveOperations.right(
+					config,
+					model,
+					position.lineNumber,
+					position.column
+				);
 				deleteSelection = new Range(
 					rightOfPosition.lineNumber,
 					rightOfPosition.column,
@@ -48,7 +61,11 @@ export class DeleteOperations {
 		return [shouldPushStackElementBefore, commands];
 	}
 
-	private static _isAutoClosingPairDelete(config: CursorConfiguration, model: ICursorSimpleModel, selections: Selection[]): boolean {
+	private static _isAutoClosingPairDelete(
+		config: CursorConfiguration,
+		model: ICursorSimpleModel,
+		selections: Selection[]
+	): boolean {
 		if (!config.autoClosingBrackets) {
 			return false;
 		}
@@ -79,7 +96,11 @@ export class DeleteOperations {
 		return true;
 	}
 
-	private static _runAutoClosingPairDelete(config: CursorConfiguration, model: ICursorSimpleModel, selections: Selection[]): [boolean, ICommand[]] {
+	private static _runAutoClosingPairDelete(
+		config: CursorConfiguration,
+		model: ICursorSimpleModel,
+		selections: Selection[]
+	): [boolean, ICommand[]] {
 		let commands: ICommand[] = [];
 		for (let i = 0, len = selections.length; i < len; i++) {
 			const position = selections[i].getPosition();
@@ -94,8 +115,11 @@ export class DeleteOperations {
 		return [true, commands];
 	}
 
-	public static deleteLeft(config: CursorConfiguration, model: ICursorSimpleModel, selections: Selection[]): [boolean, ICommand[]] {
-
+	public static deleteLeft(
+		config: CursorConfiguration,
+		model: ICursorSimpleModel,
+		selections: Selection[]
+	): [boolean, ICommand[]] {
 		if (this._isAutoClosingPairDelete(config, model, selections)) {
 			return this._runAutoClosingPairDelete(config, model, selections);
 		}
@@ -113,23 +137,50 @@ export class DeleteOperations {
 				if (config.useTabStops && position.column > 1) {
 					let lineContent = model.getLineContent(position.lineNumber);
 
-					let firstNonWhitespaceIndex = strings.firstNonWhitespaceIndex(lineContent);
-					let lastIndentationColumn = (
-						firstNonWhitespaceIndex === -1
-							? /* entire string is whitespace */lineContent.length + 1
-							: firstNonWhitespaceIndex + 1
+					let firstNonWhitespaceIndex = strings.firstNonWhitespaceIndex(
+						lineContent
 					);
+					let lastIndentationColumn = firstNonWhitespaceIndex === -1
+						? /* entire string is whitespace */ lineContent.length + 1
+						: firstNonWhitespaceIndex + 1;
 
 					if (position.column <= lastIndentationColumn) {
-						let fromVisibleColumn = CursorColumns.visibleColumnFromColumn2(config, model, position);
-						let toVisibleColumn = CursorColumns.prevTabStop(fromVisibleColumn, config.tabSize);
-						let toColumn = CursorColumns.columnFromVisibleColumn2(config, model, position.lineNumber, toVisibleColumn);
-						deleteSelection = new Range(position.lineNumber, toColumn, position.lineNumber, position.column);
+						let fromVisibleColumn = CursorColumns.visibleColumnFromColumn2(
+							config,
+							model,
+							position
+						);
+						let toVisibleColumn = CursorColumns.prevTabStop(
+							fromVisibleColumn,
+							config.tabSize
+						);
+						let toColumn = CursorColumns.columnFromVisibleColumn2(
+							config,
+							model,
+							position.lineNumber,
+							toVisibleColumn
+						);
+						deleteSelection = new Range(
+							position.lineNumber,
+							toColumn,
+							position.lineNumber,
+							position.column
+						);
 					} else {
-						deleteSelection = new Range(position.lineNumber, position.column - 1, position.lineNumber, position.column);
+						deleteSelection = new Range(
+							position.lineNumber,
+							position.column - 1,
+							position.lineNumber,
+							position.column
+						);
 					}
 				} else {
-					let leftOfPosition = MoveOperations.left(config, model, position.lineNumber, position.column);
+					let leftOfPosition = MoveOperations.left(
+						config,
+						model,
+						position.lineNumber,
+						position.column
+					);
 					deleteSelection = new Range(
 						leftOfPosition.lineNumber,
 						leftOfPosition.column,
@@ -154,7 +205,11 @@ export class DeleteOperations {
 		return [shouldPushStackElementBefore, commands];
 	}
 
-	public static cut(config: CursorConfiguration, model: ICursorSimpleModel, selections: Selection[]): EditOperationResult {
+	public static cut(
+		config: CursorConfiguration,
+		model: ICursorSimpleModel,
+		selections: Selection[]
+	): EditOperationResult {
 		let commands: ICommand[] = [];
 		for (let i = 0, len = selections.length; i < len; i++) {
 			const selection = selections[i];

@@ -9,24 +9,38 @@ import { TPromise } from 'vs/base/common/winjs.base';
 import { ITree } from 'vs/base/parts/tree/browser/tree';
 import { removeAnsiEscapeCodes } from 'vs/base/common/strings';
 import { Variable } from 'vs/workbench/parts/debug/common/debugModel';
-import { IDebugService, IStackFrame } from 'vs/workbench/parts/debug/common/debug';
+import {
+	IDebugService,
+	IStackFrame
+} from 'vs/workbench/parts/debug/common/debug';
 import { clipboard } from 'electron';
 
 export class CopyValueAction extends Action {
 	static ID = 'workbench.debug.viewlet.action.copyValue';
-	static LABEL = nls.localize('copyValue', "Copy Value");
+	static LABEL = nls.localize('copyValue', 'Copy Value');
 
-	constructor(id: string, label: string, private value: any, @IDebugService private debugService: IDebugService) {
+	constructor(
+		id: string,
+		label: string,
+		private value: any,
+		@IDebugService private debugService: IDebugService
+	) {
 		super(id, label, 'debug-action copy-value');
 	}
 
 	public run(): TPromise<any> {
 		if (this.value instanceof Variable) {
-			const frameId = this.debugService.getViewModel().focusedStackFrame.frameId;
+			const frameId = this.debugService.getViewModel().focusedStackFrame
+				.frameId;
 			const process = this.debugService.getViewModel().focusedProcess;
-			return process.session.evaluate({ expression: this.value.evaluateName, frameId }).then(result => {
-				clipboard.writeText(result.body.result);
-			}, err => clipboard.writeText(this.value.value));
+			return process.session
+				.evaluate({ expression: this.value.evaluateName, frameId })
+				.then(
+					result => {
+						clipboard.writeText(result.body.result);
+					},
+					err => clipboard.writeText(this.value.value)
+				);
 		}
 
 		clipboard.writeText(this.value);
@@ -36,7 +50,7 @@ export class CopyValueAction extends Action {
 
 export class CopyAction extends Action {
 	static ID = 'workbench.debug.action.copy';
-	static LABEL = nls.localize('copy', "Copy");
+	static LABEL = nls.localize('copy', 'Copy');
 
 	public run(): TPromise<any> {
 		clipboard.writeText(window.getSelection().toString());
@@ -46,7 +60,7 @@ export class CopyAction extends Action {
 
 export class CopyAllAction extends Action {
 	static ID = 'workbench.debug.action.copyAll';
-	static LABEL = nls.localize('copyAll', "Copy All");
+	static LABEL = nls.localize('copyAll', 'Copy All');
 
 	constructor(id: string, label: string, private tree: ITree) {
 		super(id, label);
@@ -70,10 +84,12 @@ export class CopyAllAction extends Action {
 
 export class CopyStackTraceAction extends Action {
 	static ID = 'workbench.action.debug.copyStackTrace';
-	static LABEL = nls.localize('copyStackTrace', "Copy Call Stack");
+	static LABEL = nls.localize('copyStackTrace', 'Copy Call Stack');
 
 	public run(frame: IStackFrame): TPromise<any> {
-		clipboard.writeText(frame.thread.getCallStack().map(sf => sf.toString()).join('\n'));
+		clipboard.writeText(
+			frame.thread.getCallStack().map(sf => sf.toString()).join('\n')
+		);
 		return TPromise.as(null);
 	}
 }

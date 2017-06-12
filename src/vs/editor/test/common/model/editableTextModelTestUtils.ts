@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import * as editorCommon from 'vs/editor/common/editorCommon';
@@ -13,7 +13,12 @@ import { Position } from 'vs/editor/common/core/position';
 import { RawTextSource } from 'vs/editor/common/model/textSource';
 import { IModelContentChangedEvent } from 'vs/editor/common/model/textModelEvents';
 
-export function testApplyEditsWithSyncedModels(original: string[], edits: editorCommon.IIdentifiedSingleEditOperation[], expected: string[], inputEditsAreInvalid: boolean = false): void {
+export function testApplyEditsWithSyncedModels(
+	original: string[],
+	edits: editorCommon.IIdentifiedSingleEditOperation[],
+	expected: string[],
+	inputEditsAreInvalid: boolean = false
+): void {
 	var originalStr = original.join('\n');
 	var expectedStr = expected.join('\n');
 
@@ -22,7 +27,10 @@ export function testApplyEditsWithSyncedModels(original: string[], edits: editor
 		var inverseEdits = model.applyEdits(edits);
 
 		// Assert edits produced expected result
-		assert.deepEqual(model.getValue(editorCommon.EndOfLinePreference.LF), expectedStr);
+		assert.deepEqual(
+			model.getValue(editorCommon.EndOfLinePreference.LF),
+			expectedStr
+		);
 
 		assertMirrorModels();
 
@@ -30,7 +38,10 @@ export function testApplyEditsWithSyncedModels(original: string[], edits: editor
 		var inverseInverseEdits = model.applyEdits(inverseEdits);
 
 		// Assert the inverse edits brought back model to original state
-		assert.deepEqual(model.getValue(editorCommon.EndOfLinePreference.LF), originalStr);
+		assert.deepEqual(
+			model.getValue(editorCommon.EndOfLinePreference.LF),
+			originalStr
+		);
 
 		if (!inputEditsAreInvalid) {
 			// Assert the inverse of the inverse edits are the original edits
@@ -46,22 +57,39 @@ const enum AssertDocumentLineMappingDirection {
 	PositionToOffset
 }
 
-function assertOneDirectionLineMapping(model: TextModel, direction: AssertDocumentLineMappingDirection, msg: string): void {
+function assertOneDirectionLineMapping(
+	model: TextModel,
+	direction: AssertDocumentLineMappingDirection,
+	msg: string
+): void {
 	let allText = model.getValue();
 
-	let line = 1, column = 1, previousIsCarriageReturn = false;
+	let line = 1,
+		column = 1,
+		previousIsCarriageReturn = false;
 	for (let offset = 0; offset <= allText.length; offset++) {
 		// The position coordinate system cannot express the position between \r and \n
-		let position = new Position(line, column + (previousIsCarriageReturn ? -1 : 0));
+		let position = new Position(
+			line,
+			column + (previousIsCarriageReturn ? -1 : 0)
+		);
 
 		if (direction === AssertDocumentLineMappingDirection.OffsetToPosition) {
 			let actualPosition = model.getPositionAt(offset);
-			assert.equal(actualPosition.toString(), position.toString(), msg + ' - getPositionAt mismatch for offset ' + offset);
+			assert.equal(
+				actualPosition.toString(),
+				position.toString(),
+				msg + ' - getPositionAt mismatch for offset ' + offset
+			);
 		} else {
 			// The position coordinate system cannot express the position between \r and \n
 			let expectedOffset = offset + (previousIsCarriageReturn ? -1 : 0);
 			let actualOffset = model.getOffsetAt(position);
-			assert.equal(actualOffset, expectedOffset, msg + ' - getOffsetAt mismatch for position ' + position.toString());
+			assert.equal(
+				actualOffset,
+				expectedOffset,
+				msg + ' - getOffsetAt mismatch for position ' + position.toString()
+			);
 		}
 
 		if (allText.charAt(offset) === '\n') {
@@ -71,18 +99,33 @@ function assertOneDirectionLineMapping(model: TextModel, direction: AssertDocume
 			column++;
 		}
 
-		previousIsCarriageReturn = (allText.charAt(offset) === '\r');
+		previousIsCarriageReturn = allText.charAt(offset) === '\r';
 	}
 }
 
 function assertLineMapping(model: TextModel, msg: string): void {
-	assertOneDirectionLineMapping(model, AssertDocumentLineMappingDirection.PositionToOffset, msg);
-	assertOneDirectionLineMapping(model, AssertDocumentLineMappingDirection.OffsetToPosition, msg);
+	assertOneDirectionLineMapping(
+		model,
+		AssertDocumentLineMappingDirection.PositionToOffset,
+		msg
+	);
+	assertOneDirectionLineMapping(
+		model,
+		AssertDocumentLineMappingDirection.OffsetToPosition,
+		msg
+	);
 }
 
-
-export function assertSyncedModels(text: string, callback: (model: EditableTextModel, assertMirrorModels: () => void) => void, setup: (model: EditableTextModel) => void = null): void {
-	var model = new EditableTextModel(RawTextSource.fromString(text), TextModel.DEFAULT_CREATION_OPTIONS, null);
+export function assertSyncedModels(
+	text: string,
+	callback: (model: EditableTextModel, assertMirrorModels: () => void) => void,
+	setup: (model: EditableTextModel) => void = null
+): void {
+	var model = new EditableTextModel(
+		RawTextSource.fromString(text),
+		TextModel.DEFAULT_CREATION_OPTIONS,
+		null
+	);
 	model.setEOL(editorCommon.EndOfLineSequence.LF);
 	assertLineMapping(model, 'model');
 
@@ -91,7 +134,12 @@ export function assertSyncedModels(text: string, callback: (model: EditableTextM
 		assertLineMapping(model, 'model');
 	}
 
-	var mirrorModel2 = new MirrorModel(null, model.getLinesContent(), model.getEOL(), model.getVersionId());
+	var mirrorModel2 = new MirrorModel(
+		null,
+		model.getLinesContent(),
+		model.getEOL(),
+		model.getVersionId()
+	);
 	var mirrorModel2PrevVersionId = model.getVersionId();
 
 	model.onDidChangeContent((e: IModelContentChangedEvent) => {
@@ -106,8 +154,16 @@ export function assertSyncedModels(text: string, callback: (model: EditableTextM
 	var assertMirrorModels = () => {
 		assertLineMapping(model, 'model');
 		model._assertLineNumbersOK();
-		assert.equal(mirrorModel2.getText(), model.getValue(), 'mirror model 2 text OK');
-		assert.equal(mirrorModel2.version, model.getVersionId(), 'mirror model 2 version OK');
+		assert.equal(
+			mirrorModel2.getText(),
+			model.getValue(),
+			'mirror model 2 text OK'
+		);
+		assert.equal(
+			mirrorModel2.version,
+			model.getVersionId(),
+			'mirror model 2 version OK'
+		);
 	};
 
 	callback(model, assertMirrorModels);

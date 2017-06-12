@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
 import { TPromise } from 'vs/base/common/winjs.base';
@@ -11,7 +11,9 @@ import { ConfigurationTarget } from 'vs/workbench/services/configuration/common/
 import { Color } from 'vs/base/common/color';
 import { ITheme, IThemeService } from 'vs/platform/theme/common/themeService';
 
-export let IWorkbenchThemeService = createDecorator<IWorkbenchThemeService>('themeService');
+export let IWorkbenchThemeService = createDecorator<IWorkbenchThemeService>(
+	'themeService'
+);
 
 export const VS_LIGHT_THEME = 'vs';
 export const VS_DARK_THEME = 'vs-dark';
@@ -20,7 +22,8 @@ export const VS_HC_THEME = 'hc-black';
 export const COLOR_THEME_SETTING = 'workbench.colorTheme';
 export const ICON_THEME_SETTING = 'workbench.iconTheme';
 export const CUSTOM_COLORS_SETTING = 'workbench.colorCustomizations';
-export const DEPRECATED_CUSTOM_COLORS_SETTING = 'workbench.experimental.colorCustomizations';
+export const DEPRECATED_CUSTOM_COLORS_SETTING =
+	'workbench.experimental.colorCustomizations';
 
 export interface IColorTheme extends ITheme {
 	readonly id: string;
@@ -50,12 +53,18 @@ export interface IFileIconTheme {
 
 export interface IWorkbenchThemeService extends IThemeService {
 	_serviceBrand: any;
-	setColorTheme(themeId: string, settingsTarget: ConfigurationTarget): TPromise<IColorTheme>;
+	setColorTheme(
+		themeId: string,
+		settingsTarget: ConfigurationTarget
+	): TPromise<IColorTheme>;
 	getColorTheme(): IColorTheme;
 	getColorThemes(): TPromise<IColorTheme[]>;
 	onDidColorThemeChange: Event<IColorTheme>;
 
-	setFileIconTheme(iconThemeId: string, settingsTarget: ConfigurationTarget): TPromise<IFileIconTheme>;
+	setFileIconTheme(
+		iconThemeId: string,
+		settingsTarget: ConfigurationTarget
+	): TPromise<IFileIconTheme>;
 	getFileIconTheme(): IFileIconTheme;
 	getFileIconThemes(): TPromise<IFileIconTheme[]>;
 	onDidFileIconThemeChange: Event<IFileIconTheme>;
@@ -70,7 +79,7 @@ export interface ITokenColorizationRule {
 export interface ITokenColorizationSetting {
 	foreground?: string;
 	background?: string;
-	fontStyle?: string;  // italic, underline, bold
+	fontStyle?: string; // italic, underline, bold
 }
 
 export interface ExtensionData {

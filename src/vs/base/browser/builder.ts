@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import 'vs/css!./builder';
 import { TPromise } from 'vs/base/common/winjs.base';
@@ -104,7 +104,10 @@ export class Dimension {
 	}
 
 	public substract(box: Box): Dimension {
-		return new Dimension(this.width - box.left - box.right, this.height - box.top - box.bottom);
+		return new Dimension(
+			this.width - box.left - box.right,
+			this.height - box.top - box.bottom
+		);
 	}
 }
 
@@ -133,8 +136,8 @@ export class Builder implements IDisposable {
 	private offdom: boolean;
 	private container: HTMLElement;
 	private createdElements: HTMLElement[];
-	private toUnbind: { [type: string]: IDisposable[]; };
-	private captureToUnbind: { [type: string]: IDisposable[]; };
+	private toUnbind: { [type: string]: IDisposable[] };
+	private captureToUnbind: { [type: string]: IDisposable[] };
 
 	constructor(element?: HTMLElement, offdom?: boolean) {
 		this.offdom = offdom;
@@ -176,10 +179,9 @@ export class Builder implements IDisposable {
 	public and(element: HTMLElement): MultiBuilder;
 	public and(builder: Builder): MultiBuilder;
 	public and(obj: any): MultiBuilder {
-
 		// Convert HTMLElement to Builder as necessary
 		if (!(obj instanceof Builder) && !(obj instanceof MultiBuilder)) {
-			obj = new Builder((<HTMLElement>obj), this.offdom);
+			obj = new Builder(<HTMLElement>obj, this.offdom);
 		}
 
 		// Wrap Builders into MultiBuilder
@@ -205,20 +207,27 @@ export class Builder implements IDisposable {
 	public build(container?: Builder, index?: number): Builder;
 	public build(container?: HTMLElement, index?: number): Builder;
 	public build(container?: any, index?: number): Builder {
-		assert.ok(this.offdom, 'This builder was not created off-dom, so build() can not be called.');
+		assert.ok(
+			this.offdom,
+			'This builder was not created off-dom, so build() can not be called.'
+		);
 
 		// Use builders own container if present
 		if (!container) {
 			container = this.container;
-		}
-
-		// Handle case of passed in Builder
-		else if (container instanceof Builder) {
+		} else if (container instanceof Builder) {
+			// Handle case of passed in Builder
 			container = (<Builder>container).getHTMLElement();
 		}
 
-		assert.ok(container, 'Builder can only be build() with a container provided.');
-		assert.ok(DOM.isHTMLElement(container), 'The container must either be a HTMLElement or a Builder.');
+		assert.ok(
+			container,
+			'Builder can only be build() with a container provided.'
+		);
+		assert.ok(
+			DOM.isHTMLElement(container),
+			'The container must either be a HTMLElement or a Builder.'
+		);
 
 		let htmlContainer = <HTMLElement>container;
 
@@ -227,7 +236,10 @@ export class Builder implements IDisposable {
 		let childNodes = htmlContainer.childNodes;
 		if (types.isNumber(index) && index < childNodes.length) {
 			for (i = 0, len = this.createdElements.length; i < len; i++) {
-				htmlContainer.insertBefore(this.createdElements[i], childNodes[index++]);
+				htmlContainer.insertBefore(
+					this.createdElements[i],
+					childNodes[index++]
+				);
 			}
 		} else {
 			for (i = 0, len = this.createdElements.length; i < len; i++) {
@@ -246,19 +258,22 @@ export class Builder implements IDisposable {
 	public appendTo(container?: Builder, index?: number): Builder;
 	public appendTo(container?: HTMLElement, index?: number): Builder;
 	public appendTo(container?: any, index?: number): Builder {
-
 		// Use builders own container if present
 		if (!container) {
 			container = this.container;
-		}
-
-		// Handle case of passed in Builder
-		else if (container instanceof Builder) {
+		} else if (container instanceof Builder) {
+			// Handle case of passed in Builder
 			container = (<Builder>container).getHTMLElement();
 		}
 
-		assert.ok(container, 'Builder can only be build() with a container provided.');
-		assert.ok(DOM.isHTMLElement(container), 'The container must either be a HTMLElement or a Builder.');
+		assert.ok(
+			container,
+			'Builder can only be build() with a container provided.'
+		);
+		assert.ok(
+			DOM.isHTMLElement(container),
+			'The container must either be a HTMLElement or a Builder.'
+		);
 
 		let htmlContainer = <HTMLElement>container;
 
@@ -292,7 +307,10 @@ export class Builder implements IDisposable {
 			child = withElement(child);
 		}
 
-		assert.ok(child instanceof Builder || child instanceof MultiBuilder, 'Need a child to append');
+		assert.ok(
+			child instanceof Builder || child instanceof MultiBuilder,
+			'Need a child to append'
+		);
 
 		(<Builder>child).appendTo(this, index);
 
@@ -466,12 +484,19 @@ export class Builder implements IDisposable {
 	 *  of the element. The function will be called with a new builder created with the
 	 *  provided element.
 	 */
-	public element(name: string, attributes?: any, fn?: (builder: Builder) => void): Builder {
+	public element(
+		name: string,
+		attributes?: any,
+		fn?: (builder: Builder) => void
+	): Builder {
 		return this.doElement(name, attributes, fn);
 	}
 
-	private doElement(name: string, attributesOrFn?: any, fn?: (builder: Builder) => void): Builder {
-
+	private doElement(
+		name: string,
+		attributesOrFn?: any,
+		fn?: (builder: Builder) => void
+	): Builder {
 		// Create Element
 		let element = document.createElement(name);
 		this.currentElement = element;
@@ -520,7 +545,7 @@ export class Builder implements IDisposable {
 	public hasFocus(): boolean {
 		let activeElement: Element = document.activeElement;
 
-		return (activeElement === this.currentElement);
+		return activeElement === this.currentElement;
 	}
 
 	/**
@@ -559,25 +584,42 @@ export class Builder implements IDisposable {
 	/**
 	 *  Registers listener on event types on the current element.
 	 */
-	public on(type: string, fn: (e: Event, builder: Builder, unbind: IDisposable) => void, listenerToUnbindContainer?: IDisposable[], useCapture?: boolean): Builder;
-	public on(typeArray: string[], fn: (e: Event, builder: Builder, unbind: IDisposable) => void, listenerToUnbindContainer?: IDisposable[], useCapture?: boolean): Builder;
-	public on(arg1: any, fn: (e: Event, builder: Builder, unbind: IDisposable) => void, listenerToUnbindContainer?: IDisposable[], useCapture?: boolean): Builder {
-
+	public on(
+		type: string,
+		fn: (e: Event, builder: Builder, unbind: IDisposable) => void,
+		listenerToUnbindContainer?: IDisposable[],
+		useCapture?: boolean
+	): Builder;
+	public on(
+		typeArray: string[],
+		fn: (e: Event, builder: Builder, unbind: IDisposable) => void,
+		listenerToUnbindContainer?: IDisposable[],
+		useCapture?: boolean
+	): Builder;
+	public on(
+		arg1: any,
+		fn: (e: Event, builder: Builder, unbind: IDisposable) => void,
+		listenerToUnbindContainer?: IDisposable[],
+		useCapture?: boolean
+	): Builder {
 		// Event Type Array
 		if (types.isArray(arg1)) {
 			arg1.forEach((type: string) => {
 				this.on(type, fn, listenerToUnbindContainer, useCapture);
 			});
-		}
-
-		// Single Event Type
-		else {
+		} else {
+			// Single Event Type
 			let type = arg1;
 
 			// Add Listener
-			let unbind: IDisposable = DOM.addDisposableListener(this.currentElement, type, (e: Event) => {
-				fn(e, this, unbind); // Pass in Builder as Second Argument
-			}, useCapture || false);
+			let unbind: IDisposable = DOM.addDisposableListener(
+				this.currentElement,
+				type,
+				(e: Event) => {
+					fn(e, this, unbind); // Pass in Builder as Second Argument
+				},
+				useCapture || false
+			);
 
 			// Remember for off() use
 			if (useCapture) {
@@ -593,12 +635,18 @@ export class Builder implements IDisposable {
 			}
 
 			// Bind to Element
-			let listenerBinding: IDisposable[] = this.getProperty(LISTENER_BINDING_ID, []);
+			let listenerBinding: IDisposable[] = this.getProperty(
+				LISTENER_BINDING_ID,
+				[]
+			);
 			listenerBinding.push(unbind);
 			this.setProperty(LISTENER_BINDING_ID, listenerBinding);
 
 			// Add to Array if passed in
-			if (listenerToUnbindContainer && types.isArray(listenerToUnbindContainer)) {
+			if (
+				listenerToUnbindContainer &&
+				types.isArray(listenerToUnbindContainer)
+			) {
 				listenerToUnbindContainer.push(unbind);
 			}
 		}
@@ -612,16 +660,13 @@ export class Builder implements IDisposable {
 	public off(type: string, useCapture?: boolean): Builder;
 	public off(typeArray: string[], useCapture?: boolean): Builder;
 	public off(arg1: any, useCapture?: boolean): Builder {
-
 		// Event Type Array
 		if (types.isArray(arg1)) {
 			arg1.forEach((type: string) => {
 				this.off(type);
 			});
-		}
-
-		// Single Event Type
-		else {
+		} else {
+			// Single Event Type
 			let type = arg1;
 			if (useCapture) {
 				if (this.captureToUnbind[type]) {
@@ -641,29 +686,49 @@ export class Builder implements IDisposable {
 	 *  Registers listener on event types on the current element and removes
 	 *  them after first invocation.
 	 */
-	public once(type: string, fn: (e: Event, builder: Builder, unbind: IDisposable) => void, listenerToUnbindContainer?: IDisposable[], useCapture?: boolean): Builder;
-	public once(typesArray: string[], fn: (e: Event, builder: Builder, unbind: IDisposable) => void, listenerToUnbindContainer?: IDisposable[], useCapture?: boolean): Builder;
-	public once(arg1: any, fn: (e: Event, builder: Builder, unbind: IDisposable) => void, listenerToUnbindContainer?: IDisposable[], useCapture?: boolean): Builder {
-
+	public once(
+		type: string,
+		fn: (e: Event, builder: Builder, unbind: IDisposable) => void,
+		listenerToUnbindContainer?: IDisposable[],
+		useCapture?: boolean
+	): Builder;
+	public once(
+		typesArray: string[],
+		fn: (e: Event, builder: Builder, unbind: IDisposable) => void,
+		listenerToUnbindContainer?: IDisposable[],
+		useCapture?: boolean
+	): Builder;
+	public once(
+		arg1: any,
+		fn: (e: Event, builder: Builder, unbind: IDisposable) => void,
+		listenerToUnbindContainer?: IDisposable[],
+		useCapture?: boolean
+	): Builder {
 		// Event Type Array
 		if (types.isArray(arg1)) {
 			arg1.forEach((type: string) => {
 				this.once(type, fn);
 			});
-		}
-
-		// Single Event Type
-		else {
+		} else {
+			// Single Event Type
 			let type = arg1;
 
 			// Add Listener
-			let unbind: IDisposable = DOM.addDisposableListener(this.currentElement, type, (e: Event) => {
-				fn(e, this, unbind); // Pass in Builder as Second Argument
-				unbind.dispose();
-			}, useCapture || false);
+			let unbind: IDisposable = DOM.addDisposableListener(
+				this.currentElement,
+				type,
+				(e: Event) => {
+					fn(e, this, unbind); // Pass in Builder as Second Argument
+					unbind.dispose();
+				},
+				useCapture || false
+			);
 
 			// Add to Array if passed in
-			if (listenerToUnbindContainer && types.isArray(listenerToUnbindContainer)) {
+			if (
+				listenerToUnbindContainer &&
+				types.isArray(listenerToUnbindContainer)
+			) {
 				listenerToUnbindContainer.push(unbind);
 			}
 		}
@@ -677,10 +742,25 @@ export class Builder implements IDisposable {
 	 *  parameter "cancelBubble" is set to true, it will also prevent bubbling
 	 *  of the event.
 	 */
-	public preventDefault(type: string, cancelBubble: boolean, listenerToUnbindContainer?: IDisposable[], useCapture?: boolean): Builder;
-	public preventDefault(typesArray: string[], cancelBubble: boolean, listenerToUnbindContainer?: IDisposable[], useCapture?: boolean): Builder;
-	public preventDefault(arg1: any, cancelBubble: boolean, listenerToUnbindContainer?: IDisposable[], useCapture?: boolean): Builder {
-		let fn = function (e: Event) {
+	public preventDefault(
+		type: string,
+		cancelBubble: boolean,
+		listenerToUnbindContainer?: IDisposable[],
+		useCapture?: boolean
+	): Builder;
+	public preventDefault(
+		typesArray: string[],
+		cancelBubble: boolean,
+		listenerToUnbindContainer?: IDisposable[],
+		useCapture?: boolean
+	): Builder;
+	public preventDefault(
+		arg1: any,
+		cancelBubble: boolean,
+		listenerToUnbindContainer?: IDisposable[],
+		useCapture?: boolean
+	): Builder {
+		let fn = function(e: Event) {
 			e.preventDefault();
 
 			if (cancelBubble) {
@@ -710,7 +790,6 @@ export class Builder implements IDisposable {
 	public attr(name: string, value: number): Builder;
 	public attr(attributes: any): Builder;
 	public attr(firstP: any, secondP?: any): any {
-
 		// Apply Object Literal to Attributes of Element
 		if (types.isObject(firstP)) {
 			for (let prop in firstP) {
@@ -838,7 +917,10 @@ export class Builder implements IDisposable {
 	 *  Sets the name draggable to the value provided for the current HTML element of the builder.
 	 */
 	public draggable(isDraggable: boolean): Builder {
-		this.currentElement.setAttribute('draggable', isDraggable ? 'true' : 'false');
+		this.currentElement.setAttribute(
+			'draggable',
+			isDraggable ? 'true' : 'false'
+		);
 
 		return this;
 	}
@@ -866,7 +948,6 @@ export class Builder implements IDisposable {
 	public style(name: string, value: string): Builder;
 	public style(attributes: any): Builder;
 	public style(firstP: any, secondP?: any): any {
-
 		// Apply Object Literal to Styles of Element
 		if (types.isObject(firstP)) {
 			for (let prop in firstP) {
@@ -884,10 +965,8 @@ export class Builder implements IDisposable {
 		// Get Style Value
 		if (hasFirstP && types.isUndefined(secondP)) {
 			return this.currentElement.style[this.cssKeyToJavaScriptProperty(firstP)];
-		}
-
-		// Set Style Value
-		else if (hasFirstP) {
+		} else if (hasFirstP) {
+			// Set Style Value
 			this.doSetStyle(firstP, secondP);
 		}
 
@@ -918,10 +997,8 @@ export class Builder implements IDisposable {
 				let segment = segments[i];
 				key = key + segment.charAt(0).toUpperCase() + segment.substr(1);
 			}
-		}
-
-		// Float is special too
-		else if (key === 'float') {
+		} else if (key === 'float') {
+			// Float is special too
 			key = 'cssFloat';
 		}
 
@@ -1037,8 +1114,18 @@ export class Builder implements IDisposable {
 	 *  Sets the CSS property padding.
 	 */
 	public padding(padding: string): Builder;
-	public padding(top: number, right?: number, bottom?: number, left?: number): Builder;
-	public padding(top: string, right?: string, bottom?: string, left?: string): Builder;
+	public padding(
+		top: number,
+		right?: number,
+		bottom?: number,
+		left?: number
+	): Builder;
+	public padding(
+		top: string,
+		right?: string,
+		bottom?: string,
+		left?: string
+	): Builder;
 	public padding(top: any, right?: any, bottom?: any, left?: any): Builder {
 		if (types.isString(top) && top.indexOf(' ') >= 0) {
 			return this.padding.apply(this, top.split(' '));
@@ -1067,8 +1154,18 @@ export class Builder implements IDisposable {
 	 *  Sets the CSS property margin.
 	 */
 	public margin(margin: string): Builder;
-	public margin(top: number, right?: number, bottom?: number, left?: number): Builder;
-	public margin(top: string, right?: string, bottom?: string, left?: string): Builder;
+	public margin(
+		top: number,
+		right?: number,
+		bottom?: number,
+		left?: number
+	): Builder;
+	public margin(
+		top: string,
+		right?: string,
+		bottom?: string,
+		left?: string
+	): Builder;
 	public margin(top: any, right?: any, bottom?: any, left?: any): Builder {
 		if (types.isString(top) && top.indexOf(' ') >= 0) {
 			return this.margin.apply(this, top.split(' '));
@@ -1097,9 +1194,27 @@ export class Builder implements IDisposable {
 	 *  Sets the CSS property position.
 	 */
 	public position(position: string): Builder;
-	public position(top: number, right?: number, bottom?: number, left?: number, position?: string): Builder;
-	public position(top: string, right?: string, bottom?: string, left?: string, position?: string): Builder;
-	public position(top: any, right?: any, bottom?: any, left?: any, position?: string): Builder {
+	public position(
+		top: number,
+		right?: number,
+		bottom?: number,
+		left?: number,
+		position?: string
+	): Builder;
+	public position(
+		top: string,
+		right?: string,
+		bottom?: string,
+		left?: string,
+		position?: string
+	): Builder;
+	public position(
+		top: any,
+		right?: any,
+		bottom?: any,
+		left?: any,
+		position?: string
+	): Builder {
 		if (types.isString(top) && top.indexOf(' ') >= 0) {
 			return this.position.apply(this, top.split(' '));
 		}
@@ -1305,7 +1420,6 @@ export class Builder implements IDisposable {
 	 *  operation.
 	 */
 	public showDelayed(delay: number): Builder {
-
 		// Cancel any pending showDelayed() invocation
 		this.cancelVisibilityPromise();
 
@@ -1339,14 +1453,16 @@ export class Builder implements IDisposable {
 	 *  Returns true if the current element of the builder is hidden.
 	 */
 	public isHidden(): boolean {
-		return this.hasClass('builder-hidden') || this.currentElement.style.display === 'none';
+		return (
+			this.hasClass('builder-hidden') ||
+			this.currentElement.style.display === 'none'
+		);
 	}
 
 	/**
 	 *  Toggles visibility of the current element of the builder.
 	 */
 	public toggleVisibility(): Builder {
-
 		// Cancel any pending showDelayed() invocation
 		this.cancelVisibilityPromise();
 
@@ -1354,8 +1470,7 @@ export class Builder implements IDisposable {
 
 		if (this.isHidden()) {
 			this.attr('aria-hidden', 'true');
-		}
-		else {
+		} else {
 			this.attr('aria-hidden', 'false');
 		}
 
@@ -1533,8 +1648,7 @@ export class Builder implements IDisposable {
 			// children is child Elements versus childNodes includes textNodes
 			if (this.currentElement.children.length === 0) {
 				this.currentElement.textContent += text;
-			}
-			else {
+			} else {
 				// if there are elements inside this node, append the string as a new text node
 				// to avoid wiping out the innerHTML and replacing it with only text content
 				this.currentElement.appendChild(document.createTextNode(text));
@@ -1610,7 +1724,10 @@ export class Builder implements IDisposable {
 	 *  Returns a new builder with the parent element of the current element of the builder.
 	 */
 	public parent(offdom?: boolean): Builder {
-		assert.ok(!this.offdom, 'Builder was created with offdom = true and thus has no parent set');
+		assert.ok(
+			!this.offdom,
+			'Builder was created with offdom = true and thus has no parent set'
+		);
 
 		return withElement(<HTMLElement>this.currentElement.parentNode, offdom);
 	}
@@ -1675,7 +1792,11 @@ export class Builder implements IDisposable {
 	 */
 	public matches(selector: string): boolean {
 		let element = this.currentElement;
-		let matches = (<any>element).webkitMatchesSelector || (<any>element).mozMatchesSelector || (<any>element).msMatchesSelector || (<any>element).oMatchesSelector;
+		let matches =
+			(<any>element).webkitMatchesSelector ||
+			(<any>element).mozMatchesSelector ||
+			(<any>element).msMatchesSelector ||
+			(<any>element).oMatchesSelector;
 
 		return matches && matches.call(element, selector);
 	}
@@ -1684,7 +1805,10 @@ export class Builder implements IDisposable {
 	 *  Returns true if the current element of the builder has no children.
 	 */
 	public isEmpty(): boolean {
-		return !this.currentElement.childNodes || this.currentElement.childNodes.length === 0;
+		return (
+			!this.currentElement.childNodes ||
+			this.currentElement.childNodes.length === 0
+		);
 	}
 
 	/**
@@ -1697,9 +1821,10 @@ export class Builder implements IDisposable {
 
 				// Unbind
 				if (hasData(<HTMLElement>element)) {
-
 					// Listeners
-					let listeners: IDisposable[] = data(<HTMLElement>element)[LISTENER_BINDING_ID];
+					let listeners: IDisposable[] = data(<HTMLElement>element)[
+						LISTENER_BINDING_ID
+					];
 					if (types.isArray(listeners)) {
 						while (listeners.length) {
 							listeners.pop().dispose();
@@ -1750,9 +1875,7 @@ export class Builder implements IDisposable {
 	 *  all listeners and properties set to the data slots.
 	 */
 	public destroy(): void {
-
 		if (this.currentElement) {
-
 			// Remove from parent
 			if (this.currentElement.parentNode) {
 				this.currentElement.parentNode.removeChild(this.currentElement);
@@ -1763,9 +1886,10 @@ export class Builder implements IDisposable {
 
 			// Unbind
 			if (hasData(this.currentElement)) {
-
 				// Listeners
-				let listeners: IDisposable[] = data(this.currentElement)[LISTENER_BINDING_ID];
+				let listeners: IDisposable[] = data(this.currentElement)[
+					LISTENER_BINDING_ID
+				];
 				if (types.isArray(listeners)) {
 					while (listeners.length) {
 						listeners.pop().dispose();
@@ -1780,13 +1904,19 @@ export class Builder implements IDisposable {
 		let type: string;
 
 		for (type in this.toUnbind) {
-			if (this.toUnbind.hasOwnProperty(type) && types.isArray(this.toUnbind[type])) {
+			if (
+				this.toUnbind.hasOwnProperty(type) &&
+				types.isArray(this.toUnbind[type])
+			) {
 				this.toUnbind[type] = dispose(this.toUnbind[type]);
 			}
 		}
 
 		for (type in this.captureToUnbind) {
-			if (this.captureToUnbind.hasOwnProperty(type) && types.isArray(this.captureToUnbind[type])) {
+			if (
+				this.captureToUnbind.hasOwnProperty(type) &&
+				types.isArray(this.captureToUnbind[type])
+			) {
 				this.captureToUnbind[type] = dispose(this.captureToUnbind[type]);
 			}
 		}
@@ -1832,10 +1962,12 @@ export class Builder implements IDisposable {
 	 *  Another variant of getting the inner dimensions of an element.
 	 */
 	public getClientArea(): Dimension {
-
 		// 0.) Try with DOM clientWidth / clientHeight
 		if (this.currentElement !== document.body) {
-			return new Dimension(this.currentElement.clientWidth, this.currentElement.clientHeight);
+			return new Dimension(
+				this.currentElement.clientWidth,
+				this.currentElement.clientHeight
+			);
 		}
 
 		// 1.) Try innerWidth / innerHeight
@@ -1844,13 +1976,27 @@ export class Builder implements IDisposable {
 		}
 
 		// 2.) Try with document.body.clientWidth / document.body.clientHeigh
-		if (document.body && document.body.clientWidth && document.body.clientWidth) {
-			return new Dimension(document.body.clientWidth, document.body.clientHeight);
+		if (
+			document.body &&
+			document.body.clientWidth &&
+			document.body.clientWidth
+		) {
+			return new Dimension(
+				document.body.clientWidth,
+				document.body.clientHeight
+			);
 		}
 
 		// 3.) Try with document.documentElement.clientWidth / document.documentElement.clientHeight
-		if (document.documentElement && document.documentElement.clientWidth && document.documentElement.clientHeight) {
-			return new Dimension(document.documentElement.clientWidth, document.documentElement.clientHeight);
+		if (
+			document.documentElement &&
+			document.documentElement.clientWidth &&
+			document.documentElement.clientHeight
+		) {
+			return new Dimension(
+				document.documentElement.clientWidth,
+				document.documentElement.clientHeight
+			);
 		}
 
 		throw new Error('Unable to figure out browser width and height');
@@ -1862,7 +2008,6 @@ export class Builder implements IDisposable {
  *  them on an array of builders.
  */
 export class MultiBuilder extends Builder {
-
 	public length: number;
 
 	private builders: Builder[];
@@ -1872,7 +2017,10 @@ export class MultiBuilder extends Builder {
 	constructor(builders: Builder[]);
 	constructor(elements: HTMLElement[]);
 	constructor(builders: any) {
-		assert.ok(types.isArray(builders) || builders instanceof MultiBuilder, 'Expected Array or MultiBuilder as parameter');
+		assert.ok(
+			types.isArray(builders) || builders instanceof MultiBuilder,
+			'Expected Array or MultiBuilder as parameter'
+		);
 
 		super();
 		this.length = 0;
@@ -1896,7 +2044,7 @@ export class MultiBuilder extends Builder {
 		// Mixin Builder functions to operate on all builders
 		let $outer = this;
 		let propertyFn = (prop: string) => {
-			(<any>$outer)[prop] = function (): any {
+			(<any>$outer)[prop] = function(): any {
 				let args = Array.prototype.slice.call(arguments);
 
 				let returnValues: any[];
@@ -1915,10 +2063,8 @@ export class MultiBuilder extends Builder {
 						for (let j = 0; j < (<MultiBuilder>res).length; j++) {
 							returnValues.push((<MultiBuilder>res).item(j));
 						}
-					}
-
-					// Any other Return Type (e.g. boolean, integer)
-					else if (!types.isUndefined(res) && !(res instanceof Builder)) {
+					} else if (!types.isUndefined(res) && !(res instanceof Builder)) {
+						// Any other Return Type (e.g. boolean, integer)
 						if (!returnValues) {
 							returnValues = [];
 						}
@@ -1936,8 +2082,12 @@ export class MultiBuilder extends Builder {
 		};
 
 		for (let prop in Builder.prototype) {
-			if (prop !== 'clone' && prop !== 'and') { // Skip methods that are explicitly defined in MultiBuilder
-				if (Builder.prototype.hasOwnProperty(prop) && types.isFunction((<any>Builder).prototype[prop])) {
+			if (prop !== 'clone' && prop !== 'and') {
+				// Skip methods that are explicitly defined in MultiBuilder
+				if (
+					Builder.prototype.hasOwnProperty(prop) &&
+					types.isFunction((<any>Builder).prototype[prop])
+				) {
 					propertyFn(prop);
 				}
 			}
@@ -2005,10 +2155,9 @@ export class MultiBuilder extends Builder {
 	public and(element: HTMLElement): MultiBuilder;
 	public and(builder: Builder): MultiBuilder;
 	public and(obj: any): MultiBuilder {
-
 		// Convert HTMLElement to Builder as necessary
 		if (!(obj instanceof Builder) && !(obj instanceof MultiBuilder)) {
-			obj = new Builder((<HTMLElement>obj));
+			obj = new Builder(<HTMLElement>obj);
 		}
 
 		let builders: Builder[] = [];
@@ -2028,7 +2177,7 @@ export class MultiBuilder extends Builder {
 
 function withBuilder(builder: Builder, offdom?: boolean): Builder {
 	if (builder instanceof MultiBuilder) {
-		return new MultiBuilder((<MultiBuilder>builder));
+		return new MultiBuilder(<MultiBuilder>builder);
 	}
 
 	return new Builder(builder.getHTMLElement(), offdom);
@@ -2047,14 +2196,22 @@ function offDOM(): Builder {
 /**
  *  Allows to store arbritary data into element.
  */
-export function setPropertyOnElement(element: HTMLElement, key: string, value: any): void {
+export function setPropertyOnElement(
+	element: HTMLElement,
+	key: string,
+	value: any
+): void {
 	data(element)[key] = value;
 }
 
 /**
  *  Allows to get arbritary data from element.
  */
-export function getPropertyFromElement(element: HTMLElement, key: string, fallback?: any): any {
+export function getPropertyFromElement(
+	element: HTMLElement,
+	key: string,
+	fallback?: any
+): any {
 	if (hasData(element)) {
 		let value = data(element)[key];
 		if (!types.isUndefined(value)) {
@@ -2068,7 +2225,10 @@ export function getPropertyFromElement(element: HTMLElement, key: string, fallba
 /**
  *  Removes a property from an element.
  */
-export function removePropertyFromElement(element: HTMLElement, key: string): void {
+export function removePropertyFromElement(
+	element: HTMLElement,
+	key: string
+): void {
 	if (hasData(element)) {
 		delete data(element)[key];
 	}
@@ -2107,8 +2267,7 @@ export let Binding = {
 
 let SELECTOR_REGEX = /([\w\-]+)?(#([\w\-]+))?((.([\w\-]+))*)/;
 
-export let $: QuickBuilder = function (arg?: any): Builder {
-
+export let $: QuickBuilder = function(arg?: any): Builder {
 	// Off-DOM use
 	if (types.isUndefined(arg)) {
 		return offDOM();
@@ -2131,11 +2290,10 @@ export let $: QuickBuilder = function (arg?: any): Builder {
 
 	// Wrap the given builder
 	if (arg instanceof Builder) {
-		return withBuilder((<Builder>arg));
+		return withBuilder(<Builder>arg);
 	}
 
 	if (types.isString(arg)) {
-
 		// Use the argument as HTML code
 		if (arg[0] === '<') {
 			let element: Node;
@@ -2161,10 +2319,8 @@ export let $: QuickBuilder = function (arg?: any): Builder {
 			}
 
 			return new MultiBuilder(builders);
-		}
-
-		// Use the argument as a selector constructor
-		else if (arguments.length === 1) {
+		} else if (arguments.length === 1) {
+			// Use the argument as a selector constructor
 			let match = SELECTOR_REGEX.exec(arg);
 			if (!match) {
 				throw new Error('Bad use of $');
@@ -2184,10 +2340,8 @@ export let $: QuickBuilder = function (arg?: any): Builder {
 			}
 
 			return offDOM().element(tag, props);
-		}
-
-		// Use the arguments as the arguments to Builder#element(...)
-		else {
+		} else {
+			// Use the arguments as the arguments to Builder#element(...)
 			let result = offDOM();
 			result.element.apply(result, arguments);
 			return result;

@@ -3,11 +3,19 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { deepEqual, equal } from 'assert';
-import { WinTerminalService, LinuxTerminalService, MacTerminalService } from 'vs/workbench/parts/execution/electron-browser/terminalService';
-import { DEFAULT_TERMINAL_WINDOWS, DEFAULT_TERMINAL_LINUX_READY, DEFAULT_TERMINAL_OSX } from 'vs/workbench/parts/execution/electron-browser/terminal';
+import {
+	WinTerminalService,
+	LinuxTerminalService,
+	MacTerminalService
+} from 'vs/workbench/parts/execution/electron-browser/terminalService';
+import {
+	DEFAULT_TERMINAL_WINDOWS,
+	DEFAULT_TERMINAL_LINUX_READY,
+	DEFAULT_TERMINAL_OSX
+} from 'vs/workbench/parts/execution/electron-browser/terminal';
 
 suite('Execution - TerminalService', () => {
 	let mockOnExit;
@@ -35,11 +43,15 @@ suite('Execution - TerminalService', () => {
 			spawn: (command, args, opts) => {
 				// assert
 				equal(command, testShell, 'shell should equal expected');
-				equal(args[args.length - 1], mockConfig.terminal.external.windowsExec, 'terminal should equal expected');
+				equal(
+					args[args.length - 1],
+					mockConfig.terminal.external.windowsExec,
+					'terminal should equal expected'
+				);
 				equal(opts.cwd, testCwd, 'opts.cwd should equal expected');
 				done();
 				return {
-					on: (evt) => evt
+					on: evt => evt
 				};
 			}
 		};
@@ -60,10 +72,14 @@ suite('Execution - TerminalService', () => {
 		let mockSpawner = {
 			spawn: (command, args, opts) => {
 				// assert
-				equal(args[args.length - 1], DEFAULT_TERMINAL_WINDOWS, 'terminal should equal expected');
+				equal(
+					args[args.length - 1],
+					DEFAULT_TERMINAL_WINDOWS,
+					'terminal should equal expected'
+				);
 				done();
 				return {
-					on: (evt) => evt
+					on: evt => evt
 				};
 			}
 		};
@@ -85,10 +101,14 @@ suite('Execution - TerminalService', () => {
 		let mockSpawner = {
 			spawn: (command, args, opts) => {
 				// assert
-				equal(opts.cwd, 'C:/foo', 'cwd should be uppercase regardless of the case that\'s passed in');
+				equal(
+					opts.cwd,
+					'C:/foo',
+					"cwd should be uppercase regardless of the case that's passed in"
+				);
 				done();
 				return {
-					on: (evt) => evt
+					on: evt => evt
 				};
 			}
 		};
@@ -113,7 +133,7 @@ suite('Execution - TerminalService', () => {
 				deepEqual(args, ['C:/foo']);
 				equal(opts, undefined);
 				done();
-				return { on: (evt) => evt };
+				return { on: evt => evt };
 			}
 		};
 		let testService = new WinTerminalService(mockConfig);
@@ -132,10 +152,14 @@ suite('Execution - TerminalService', () => {
 		let mockSpawner = {
 			spawn: (command, args, opts) => {
 				// assert
-				equal(args[1], mockConfig.terminal.external.osxExec, 'terminal should equal expected');
+				equal(
+					args[1],
+					mockConfig.terminal.external.osxExec,
+					'terminal should equal expected'
+				);
 				done();
 				return {
-					on: (evt) => evt
+					on: evt => evt
 				};
 			}
 		};
@@ -157,7 +181,7 @@ suite('Execution - TerminalService', () => {
 				equal(args[1], DEFAULT_TERMINAL_OSX, 'terminal should equal expected');
 				done();
 				return {
-					on: (evt) => evt
+					on: evt => evt
 				};
 			}
 		};
@@ -177,11 +201,15 @@ suite('Execution - TerminalService', () => {
 		let mockSpawner = {
 			spawn: (command, args, opts) => {
 				// assert
-				equal(command, mockConfig.terminal.external.linuxExec, 'terminal should equal expected');
+				equal(
+					command,
+					mockConfig.terminal.external.linuxExec,
+					'terminal should equal expected'
+				);
 				equal(opts.cwd, testCwd, 'opts.cwd should equal expected');
 				done();
 				return {
-					on: (evt) => evt
+					on: evt => evt
 				};
 			}
 		};
@@ -201,10 +229,14 @@ suite('Execution - TerminalService', () => {
 			let mockSpawner = {
 				spawn: (command, args, opts) => {
 					// assert
-					equal(command, defaultTerminalLinux, 'terminal should equal expected');
+					equal(
+						command,
+						defaultTerminalLinux,
+						'terminal should equal expected'
+					);
 					done();
 					return {
-						on: (evt) => evt
+						on: evt => evt
 					};
 				}
 			};

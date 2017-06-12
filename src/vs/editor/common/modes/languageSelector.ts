@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import URI from 'vs/base/common/uri';
 import { match as matchGlobPattern } from 'vs/base/common/glob'; // TODO@Alex
@@ -14,14 +14,24 @@ export interface LanguageFilter {
 	pattern?: string;
 }
 
-export type LanguageSelector = string | LanguageFilter | (string | LanguageFilter)[];
+export type LanguageSelector =
+	| string
+	| LanguageFilter
+	| (string | LanguageFilter)[];
 
-export default function matches(selection: LanguageSelector, uri: URI, language: string): boolean {
+export default function matches(
+	selection: LanguageSelector,
+	uri: URI,
+	language: string
+): boolean {
 	return score(selection, uri, language) > 0;
 }
 
-export function score(selector: LanguageSelector, candidateUri: URI, candidateLanguage: string): number {
-
+export function score(
+	selector: LanguageSelector,
+	candidateUri: URI,
+	candidateLanguage: string
+): number {
 	if (Array.isArray(selector)) {
 		// array -> take max individual value
 		let ret = 0;
@@ -35,7 +45,6 @@ export function score(selector: LanguageSelector, candidateUri: URI, candidateLa
 			}
 		}
 		return ret;
-
 	} else if (typeof selector === 'string') {
 		// short-hand notion, desugars to
 		// 'fooLang' -> [{ language: 'fooLang', scheme: 'file' }, { language: 'fooLang', scheme: 'untitled' }]
@@ -47,7 +56,6 @@ export function score(selector: LanguageSelector, candidateUri: URI, candidateLa
 		} else {
 			return 0;
 		}
-
 	} else if (selector) {
 		// filter -> select accordingly, use defaults for scheme
 		const { language, pattern, scheme } = selector;
@@ -75,7 +83,10 @@ export function score(selector: LanguageSelector, candidateUri: URI, candidateLa
 		}
 
 		if (pattern) {
-			if (pattern === candidateUri.fsPath || matchGlobPattern(pattern, candidateUri.fsPath)) {
+			if (
+				pattern === candidateUri.fsPath ||
+				matchGlobPattern(pattern, candidateUri.fsPath)
+			) {
 				ret = 10;
 			} else {
 				return 0;
@@ -83,7 +94,6 @@ export function score(selector: LanguageSelector, candidateUri: URI, candidateLa
 		}
 
 		return ret;
-
 	} else {
 		return 0;
 	}

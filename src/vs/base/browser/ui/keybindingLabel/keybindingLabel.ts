@@ -2,13 +2,16 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import 'vs/css!./keybindingLabel';
 import { IDisposable } from 'vs/base/common/lifecycle';
 import { equals } from 'vs/base/common/objects';
 import { OperatingSystem } from 'vs/base/common/platform';
-import { ResolvedKeybinding, ResolvedKeybindingPart } from 'vs/base/common/keyCodes';
+import {
+	ResolvedKeybinding,
+	ResolvedKeybindingPart
+} from 'vs/base/common/keyCodes';
 import { UILabelProvider } from 'vs/platform/keybinding/common/keybindingLabels';
 import * as dom from 'vs/base/browser/dom';
 
@@ -28,7 +31,6 @@ export interface Matches {
 }
 
 export class KeybindingLabel implements IDisposable {
-
 	private domNode: HTMLElement;
 	private keybinding: ResolvedKeybinding;
 	private matches: Matches;
@@ -45,7 +47,11 @@ export class KeybindingLabel implements IDisposable {
 	}
 
 	set(keybinding: ResolvedKeybinding, matches: Matches) {
-		if (this.didEverRender && this.keybinding === keybinding && KeybindingLabel.areSame(this.matches, matches)) {
+		if (
+			this.didEverRender &&
+			this.keybinding === keybinding &&
+			KeybindingLabel.areSame(this.matches, matches)
+		) {
 			return;
 		}
 
@@ -60,11 +66,19 @@ export class KeybindingLabel implements IDisposable {
 		if (this.keybinding) {
 			let [firstPart, chordPart] = this.keybinding.getParts();
 			if (firstPart) {
-				this.renderPart(this.domNode, firstPart, this.matches ? this.matches.firstPart : null);
+				this.renderPart(
+					this.domNode,
+					firstPart,
+					this.matches ? this.matches.firstPart : null
+				);
 			}
 			if (chordPart) {
 				dom.append(this.domNode, $('span', null, ' '));
-				this.renderPart(this.domNode, chordPart, this.matches ? this.matches.chordPart : null);
+				this.renderPart(
+					this.domNode,
+					chordPart,
+					this.matches ? this.matches.chordPart : null
+				);
 			}
 			this.domNode.title = this.keybinding.getAriaLabel();
 		}
@@ -72,19 +86,43 @@ export class KeybindingLabel implements IDisposable {
 		this.didEverRender = true;
 	}
 
-	private renderPart(parent: HTMLElement, part: ResolvedKeybindingPart, match: PartMatches) {
+	private renderPart(
+		parent: HTMLElement,
+		part: ResolvedKeybindingPart,
+		match: PartMatches
+	) {
 		const modifierLabels = UILabelProvider.modifierLabels[this.os];
 		if (part.ctrlKey) {
-			this.renderKey(parent, modifierLabels.ctrlKey, match && match.ctrlKey, modifierLabels.separator);
+			this.renderKey(
+				parent,
+				modifierLabels.ctrlKey,
+				match && match.ctrlKey,
+				modifierLabels.separator
+			);
 		}
 		if (part.shiftKey) {
-			this.renderKey(parent, modifierLabels.shiftKey, match && match.shiftKey, modifierLabels.separator);
+			this.renderKey(
+				parent,
+				modifierLabels.shiftKey,
+				match && match.shiftKey,
+				modifierLabels.separator
+			);
 		}
 		if (part.altKey) {
-			this.renderKey(parent, modifierLabels.altKey, match && match.altKey, modifierLabels.separator);
+			this.renderKey(
+				parent,
+				modifierLabels.altKey,
+				match && match.altKey,
+				modifierLabels.separator
+			);
 		}
 		if (part.metaKey) {
-			this.renderKey(parent, modifierLabels.metaKey, match && match.metaKey, modifierLabels.separator);
+			this.renderKey(
+				parent,
+				modifierLabels.metaKey,
+				match && match.metaKey,
+				modifierLabels.separator
+			);
 		}
 		const keyLabel = part.keyLabel;
 		if (keyLabel) {
@@ -92,8 +130,16 @@ export class KeybindingLabel implements IDisposable {
 		}
 	}
 
-	private renderKey(parent: HTMLElement, label: string, highlight: boolean, separator: string): void {
-		dom.append(parent, $('span.monaco-kbkey' + (highlight ? '.highlight' : ''), null, label));
+	private renderKey(
+		parent: HTMLElement,
+		label: string,
+		highlight: boolean,
+		separator: string
+	): void {
+		dom.append(
+			parent,
+			$('span.monaco-kbkey' + (highlight ? '.highlight' : ''), null, label)
+		);
 		if (separator) {
 			dom.append(parent, $('span', null, separator));
 		}
@@ -107,6 +153,11 @@ export class KeybindingLabel implements IDisposable {
 		if (a === b || (!a && !b)) {
 			return true;
 		}
-		return !!a && !!b && equals(a.firstPart, b.firstPart) && equals(a.chordPart, b.chordPart);
+		return (
+			!!a &&
+			!!b &&
+			equals(a.firstPart, b.firstPart) &&
+			equals(a.chordPart, b.chordPart)
+		);
 	}
 }

@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { IWordAtPosition } from 'vs/editor/common/editorCommon';
 
@@ -34,7 +34,7 @@ export const DEFAULT_WORD_REGEXP = createWordRegExp();
 export function ensureValidWordDefinition(wordDefinition?: RegExp): RegExp {
 	var result: RegExp = DEFAULT_WORD_REGEXP;
 
-	if (wordDefinition && (wordDefinition instanceof RegExp)) {
+	if (wordDefinition && wordDefinition instanceof RegExp) {
 		if (!wordDefinition.global) {
 			var flags = 'g';
 			if (wordDefinition.ignoreCase) {
@@ -54,7 +54,12 @@ export function ensureValidWordDefinition(wordDefinition?: RegExp): RegExp {
 	return result;
 }
 
-function getWordAtPosFast(column: number, wordDefinition: RegExp, text: string, textOffset: number): IWordAtPosition {
+function getWordAtPosFast(
+	column: number,
+	wordDefinition: RegExp,
+	text: string,
+	textOffset: number
+): IWordAtPosition {
 	// find whitespace enclosed text around column and match from there
 
 	if (wordDefinition.test(' ')) {
@@ -70,7 +75,7 @@ function getWordAtPosFast(column: number, wordDefinition: RegExp, text: string, 
 
 	wordDefinition.lastIndex = start;
 	let match: RegExpMatchArray;
-	while (match = wordDefinition.exec(text)) {
+	while ((match = wordDefinition.exec(text))) {
 		if (match.index <= pos && wordDefinition.lastIndex >= pos) {
 			return {
 				word: match[0],
@@ -83,8 +88,12 @@ function getWordAtPosFast(column: number, wordDefinition: RegExp, text: string, 
 	return null;
 }
 
-
-function getWordAtPosSlow(column: number, wordDefinition: RegExp, text: string, textOffset: number): IWordAtPosition {
+function getWordAtPosSlow(
+	column: number,
+	wordDefinition: RegExp,
+	text: string,
+	textOffset: number
+): IWordAtPosition {
 	// matches all words starting at the beginning
 	// of the input until it finds a match that encloses
 	// the desired column. slow but correct
@@ -93,12 +102,10 @@ function getWordAtPosSlow(column: number, wordDefinition: RegExp, text: string, 
 	wordDefinition.lastIndex = 0;
 
 	let match: RegExpMatchArray;
-	while (match = wordDefinition.exec(text)) {
-
+	while ((match = wordDefinition.exec(text))) {
 		if (match.index > pos) {
 			// |nW -> matched only after the pos
 			return null;
-
 		} else if (wordDefinition.lastIndex >= pos) {
 			// W|W -> match encloses pos
 			return {
@@ -112,7 +119,12 @@ function getWordAtPosSlow(column: number, wordDefinition: RegExp, text: string, 
 	return null;
 }
 
-export function getWordAtText(column: number, wordDefinition: RegExp, text: string, textOffset: number): IWordAtPosition {
+export function getWordAtText(
+	column: number,
+	wordDefinition: RegExp,
+	text: string,
+	textOffset: number
+): IWordAtPosition {
 	const result = getWordAtPosFast(column, wordDefinition, text, textOffset);
 	// both (getWordAtPosFast and getWordAtPosSlow) leave the wordDefinition-RegExp
 	// in an undefined state and to not confuse other users of the wordDefinition

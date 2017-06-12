@@ -2,12 +2,14 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
 
-export const ITelemetryService = createDecorator<ITelemetryService>('telemetryService');
+export const ITelemetryService = createDecorator<ITelemetryService>(
+	'telemetryService'
+);
 
 export interface ITelemetryInfo {
 	sessionId: string;
@@ -29,7 +31,6 @@ export interface ITelemetryExperiments {
 }
 
 export interface ITelemetryService {
-
 	_serviceBrand: any;
 
 	/**

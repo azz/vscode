@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./button';
 import { EventEmitter } from 'vs/base/common/eventEmitter';
@@ -14,8 +14,7 @@ import { KeyCode } from 'vs/base/common/keyCodes';
 import { Color } from 'vs/base/common/color';
 import { mixin } from 'vs/base/common/objects';
 
-export interface IButtonOptions extends IButtonStyles {
-}
+export interface IButtonOptions extends IButtonStyles {}
 
 export interface IButtonStyles {
 	buttonBackground?: Color;
@@ -31,7 +30,6 @@ const defaultOptions: IButtonStyles = {
 };
 
 export class Button extends EventEmitter {
-
 	private $el: Builder;
 	private options: IButtonOptions;
 
@@ -53,12 +51,14 @@ export class Button extends EventEmitter {
 		this.buttonForeground = this.options.buttonForeground;
 		this.buttonBorder = this.options.buttonBorder;
 
-		this.$el = $('a.monaco-button').attr({
-			'tabIndex': '0',
-			'role': 'button'
-		}).appendTo(container);
+		this.$el = $('a.monaco-button')
+			.attr({
+				tabIndex: '0',
+				role: 'button'
+			})
+			.appendTo(container);
 
-		this.$el.on(DOM.EventType.CLICK, (e) => {
+		this.$el.on(DOM.EventType.CLICK, e => {
 			if (!this.enabled) {
 				DOM.EventHelper.stop(e);
 				return;
@@ -70,7 +70,10 @@ export class Button extends EventEmitter {
 		this.$el.on(DOM.EventType.KEY_DOWN, (e: KeyboardEvent) => {
 			let event = new StandardKeyboardEvent(e);
 			let eventHandled = false;
-			if (this.enabled && event.equals(KeyCode.Enter) || event.equals(KeyCode.Space)) {
+			if (
+				(this.enabled && event.equals(KeyCode.Enter)) ||
+				event.equals(KeyCode.Space)
+			) {
 				this.emit(DOM.EventType.CLICK, e);
 				eventHandled = true;
 			} else if (event.equals(KeyCode.Escape)) {
@@ -85,7 +88,9 @@ export class Button extends EventEmitter {
 
 		this.$el.on(DOM.EventType.MOUSE_OVER, (e: MouseEvent) => {
 			if (!this.$el.hasClass('disabled')) {
-				const hoverBackground = this.buttonHoverBackground ? this.buttonHoverBackground.toString() : null;
+				const hoverBackground = this.buttonHoverBackground
+					? this.buttonHoverBackground.toString()
+					: null;
 				if (hoverBackground) {
 					this.$el.style('background-color', hoverBackground);
 				}
@@ -110,8 +115,12 @@ export class Button extends EventEmitter {
 
 	private applyStyles(): void {
 		if (this.$el) {
-			const background = this.buttonBackground ? this.buttonBackground.toString() : null;
-			const foreground = this.buttonForeground ? this.buttonForeground.toString() : null;
+			const background = this.buttonBackground
+				? this.buttonBackground.toString()
+				: null;
+			const foreground = this.buttonForeground
+				? this.buttonForeground.toString()
+				: null;
 			const border = this.buttonBorder ? this.buttonBorder.toString() : null;
 
 			this.$el.style('color', foreground);
@@ -143,7 +152,7 @@ export class Button extends EventEmitter {
 			this.$el.removeClass('disabled');
 			this.$el.attr({
 				'aria-disabled': 'false',
-				'tabIndex': '0'
+				tabIndex: '0'
 			});
 		} else {
 			this.$el.addClass('disabled');

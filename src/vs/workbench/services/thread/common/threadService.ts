@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
 
@@ -42,10 +42,16 @@ export class ProxyIdentifier<T> {
 	}
 }
 
-export function createMainContextProxyIdentifier<T>(identifier: string, ctor: Function): ProxyIdentifier<T> {
+export function createMainContextProxyIdentifier<T>(
+	identifier: string,
+	ctor: Function
+): ProxyIdentifier<T> {
 	return new ProxyIdentifier(true, 'm' + identifier, ctor);
 }
 
-export function createExtHostContextProxyIdentifier<T>(identifier: string, ctor: Function): ProxyIdentifier<T> {
+export function createExtHostContextProxyIdentifier<T>(
+	identifier: string,
+	ctor: Function
+): ProxyIdentifier<T> {
 	return new ProxyIdentifier(false, 'e' + identifier, ctor);
 }

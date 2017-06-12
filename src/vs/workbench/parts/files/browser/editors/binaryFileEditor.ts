@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import nls = require('vs/nls');
 import { BaseBinaryResourceEditor } from 'vs/workbench/browser/parts/editor/binaryEditor';
@@ -15,7 +15,6 @@ import { IWindowsService } from 'vs/platform/windows/common/windows';
  * An implementation of editor for binary files like images.
  */
 export class BinaryFileEditor extends BaseBinaryResourceEditor {
-
 	public static ID = BINARY_FILE_EDITOR_ID;
 
 	constructor(
@@ -27,6 +26,8 @@ export class BinaryFileEditor extends BaseBinaryResourceEditor {
 	}
 
 	public getTitle(): string {
-		return this.input ? this.input.getName() : nls.localize('binaryFileEditor', "Binary File Viewer");
+		return this.input
+			? this.input.getName()
+			: nls.localize('binaryFileEditor', 'Binary File Viewer');
 	}
 }

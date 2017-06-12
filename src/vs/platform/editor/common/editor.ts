@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import URI from 'vs/base/common/uri';
 import { TPromise } from 'vs/base/common/winjs.base';
@@ -14,7 +14,6 @@ import { IEditorViewState } from 'vs/editor/common/editorCommon';
 export const IEditorService = createDecorator<IEditorService>('editorService');
 
 export interface IEditorService {
-
 	_serviceBrand: any;
 
 	/**
@@ -24,7 +23,6 @@ export interface IEditorService {
 }
 
 export interface IEditorModel {
-
 	onDispose: Event<void>;
 
 	/**
@@ -39,7 +37,6 @@ export interface IEditorModel {
 }
 
 export interface IBaseResourceInput {
-
 	/**
 	 * Optional options to use when opening the text input.
 	 */
@@ -57,7 +54,6 @@ export interface IBaseResourceInput {
 }
 
 export interface IResourceInput extends IBaseResourceInput {
-
 	/**
 	 * The resource URL of the resource to open.
 	 */
@@ -70,7 +66,6 @@ export interface IResourceInput extends IBaseResourceInput {
 }
 
 export interface IUntitledResourceInput extends IBaseResourceInput {
-
 	/**
 	 * Optional resource. If the resource is not provided a new untitled file is created.
 	 */
@@ -98,7 +93,6 @@ export interface IUntitledResourceInput extends IBaseResourceInput {
 }
 
 export interface IResourceDiffInput extends IBaseResourceInput {
-
 	/**
 	 * The left hand side URI to open inside a diff editor.
 	 */
@@ -111,7 +105,6 @@ export interface IResourceDiffInput extends IBaseResourceInput {
 }
 
 export interface IResourceSideBySideInput extends IBaseResourceInput {
-
 	/**
 	 * The right hand side URI to open inside a side by side editor.
 	 */
@@ -123,12 +116,9 @@ export interface IResourceSideBySideInput extends IBaseResourceInput {
 	detailResource: URI;
 }
 
-export interface IEditorControl {
-
-}
+export interface IEditorControl {}
 
 export interface IEditor {
-
 	/**
 	 * The assigned input of this editor.
 	 */
@@ -169,7 +159,6 @@ export interface IEditor {
  * Possible locations for opening an editor.
  */
 export enum Position {
-
 	/** Opens the editor in the first position replacing the input currently showing */
 	ONE = 0,
 
@@ -194,7 +183,6 @@ export enum Verbosity {
 }
 
 export interface IEditorInput extends IDisposable {
-
 	onDispose: Event<void>;
 
 	/**
@@ -234,7 +222,6 @@ export interface IEditorInput extends IDisposable {
 }
 
 export interface IEditorOptions {
-
 	/**
 	 * Tells the editor to not receive keyboard focus when the editor is being opened. By default,
 	 * the editor will receive keyboard focus on open.
@@ -277,7 +264,6 @@ export interface IEditorOptions {
 }
 
 export interface ITextEditorOptions extends IEditorOptions {
-
 	/**
 	 * Text editor selection.
 	 */

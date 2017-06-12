@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 export function memoize(target: any, key: string, descriptor: any) {
 	let fnKey: string = null;
@@ -23,7 +23,7 @@ export function memoize(target: any, key: string, descriptor: any) {
 
 	const memoizeKey = `$memoize$${key}`;
 
-	descriptor[fnKey] = function (...args: any[]) {
+	descriptor[fnKey] = function(...args: any[]) {
 		if (!this.hasOwnProperty(memoizeKey)) {
 			Object.defineProperty(this, memoizeKey, {
 				configurable: false,

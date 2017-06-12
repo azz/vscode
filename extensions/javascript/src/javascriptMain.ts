@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { addJSONProviders } from './features/jsonContributions';
 import * as httpRequest from 'request-light';
@@ -23,5 +23,8 @@ export function activate(context: ExtensionContext): any {
 
 function configureHttpRequest() {
 	let httpSettings = workspace.getConfiguration('http');
-	httpRequest.configure(httpSettings.get<string>('proxy'), httpSettings.get<boolean>('proxyStrictSSL'));
+	httpRequest.configure(
+		httpSettings.get<string>('proxy'),
+		httpSettings.get<boolean>('proxyStrictSSL')
+	);
 }

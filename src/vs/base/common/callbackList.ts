@@ -2,17 +2,20 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { IDisposable } from 'vs/base/common/lifecycle';
 import { onUnexpectedError } from 'vs/base/common/errors';
 
 export default class CallbackList {
-
 	private _callbacks: Function[];
 	private _contexts: any[];
 
-	public add(callback: Function, context: any = null, bucket?: IDisposable[]): void {
+	public add(
+		callback: Function,
+		context: any = null,
+		bucket?: IDisposable[]
+	): void {
 		if (!this._callbacks) {
 			this._callbacks = [];
 			this._contexts = [];
@@ -45,7 +48,9 @@ export default class CallbackList {
 		}
 
 		if (foundCallbackWithDifferentContext) {
-			throw new Error('When adding a listener with a context, you should remove it with the same context');
+			throw new Error(
+				'When adding a listener with a context, you should remove it with the same context'
+			);
 		}
 	}
 
@@ -76,7 +81,9 @@ export default class CallbackList {
 		if (!this._callbacks) {
 			return [];
 		}
-		return this._callbacks.map((fn, index) => <[Function, any]>[fn, this._contexts[index]]);
+		return this._callbacks.map(
+			(fn, index) => <[Function, any]>[fn, this._contexts[index]]
+		);
 	}
 
 	public dispose(): void {

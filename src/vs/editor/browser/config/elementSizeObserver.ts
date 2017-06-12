@@ -2,13 +2,12 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { Disposable } from 'vs/base/common/lifecycle';
 import { IDimension } from 'vs/editor/common/editorCommon';
 
 export class ElementSizeObserver extends Disposable {
-
 	private referenceDomElement: HTMLElement;
 	private measureReferenceDomElementToken: number;
 	private changeCallback: () => void;
@@ -40,7 +39,10 @@ export class ElementSizeObserver extends Disposable {
 
 	public startObserving(): void {
 		if (this.measureReferenceDomElementToken === -1) {
-			this.measureReferenceDomElementToken = setInterval(() => this.measureReferenceDomElement(true), 100);
+			this.measureReferenceDomElementToken = setInterval(
+				() => this.measureReferenceDomElement(true),
+				100
+			);
 		}
 	}
 
@@ -55,7 +57,10 @@ export class ElementSizeObserver extends Disposable {
 		this.measureReferenceDomElement(true, dimension);
 	}
 
-	private measureReferenceDomElement(callChangeCallback: boolean, dimension?: IDimension): void {
+	private measureReferenceDomElement(
+		callChangeCallback: boolean,
+		dimension?: IDimension
+	): void {
 		let observedWidth = 0;
 		let observedHeight = 0;
 		if (dimension) {
@@ -75,5 +80,4 @@ export class ElementSizeObserver extends Disposable {
 			}
 		}
 	}
-
 }

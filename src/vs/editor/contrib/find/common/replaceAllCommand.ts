@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { Range } from 'vs/editor/common/core/range';
 import { Selection } from 'vs/editor/common/core/selection';
@@ -14,19 +14,25 @@ interface IEditOperation {
 }
 
 export class ReplaceAllCommand implements editorCommon.ICommand {
-
 	private _editorSelection: Selection;
 	private _trackedEditorSelectionId: string;
 	private _ranges: Range[];
 	private _replaceStrings: string[];
 
-	constructor(editorSelection: Selection, ranges: Range[], replaceStrings: string[]) {
+	constructor(
+		editorSelection: Selection,
+		ranges: Range[],
+		replaceStrings: string[]
+	) {
 		this._editorSelection = editorSelection;
 		this._ranges = ranges;
 		this._replaceStrings = replaceStrings;
 	}
 
-	public getEditOperations(model: editorCommon.ITokenizedModel, builder: editorCommon.IEditOperationBuilder): void {
+	public getEditOperations(
+		model: editorCommon.ITokenizedModel,
+		builder: editorCommon.IEditOperationBuilder
+	): void {
 		if (this._ranges.length > 0) {
 			// Collect all edit operations
 			var ops: IEditOperation[] = [];
@@ -46,7 +52,10 @@ export class ReplaceAllCommand implements editorCommon.ICommand {
 			var resultOps: IEditOperation[] = [];
 			var previousOp = ops[0];
 			for (var i = 1; i < ops.length; i++) {
-				if (previousOp.range.endLineNumber === ops[i].range.startLineNumber && previousOp.range.endColumn === ops[i].range.startColumn) {
+				if (
+					previousOp.range.endLineNumber === ops[i].range.startLineNumber &&
+					previousOp.range.endColumn === ops[i].range.startColumn
+				) {
 					// These operations are one after another and can be merged
 					previousOp.range = previousOp.range.plusRange(ops[i].range);
 					previousOp.text = previousOp.text + ops[i].text;
@@ -62,10 +71,15 @@ export class ReplaceAllCommand implements editorCommon.ICommand {
 			}
 		}
 
-		this._trackedEditorSelectionId = builder.trackSelection(this._editorSelection);
+		this._trackedEditorSelectionId = builder.trackSelection(
+			this._editorSelection
+		);
 	}
 
-	public computeCursorState(model: editorCommon.ITokenizedModel, helper: editorCommon.ICursorStateComputerData): Selection {
+	public computeCursorState(
+		model: editorCommon.ITokenizedModel,
+		helper: editorCommon.ICursorStateComputerData
+	): Selection {
 		return helper.getTrackedSelection(this._trackedEditorSelectionId);
 	}
 }

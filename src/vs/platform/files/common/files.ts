@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import paths = require('vs/base/common/paths');
@@ -41,7 +41,10 @@ export interface IFileService {
 	 * the stat service is asked to automatically resolve child folders that only
 	 * contain a single element.
 	 */
-	resolveFile(resource: URI, options?: IResolveFileOptions): TPromise<IFileStat>;
+	resolveFile(
+		resource: URI,
+		options?: IResolveFileOptions
+	): TPromise<IFileStat>;
 
 	/**
 	 *Finds out if a file identified by the resource exists.
@@ -53,14 +56,20 @@ export interface IFileService {
 	 *
 	 * The returned object contains properties of the file and the full value as string.
 	 */
-	resolveContent(resource: URI, options?: IResolveContentOptions): TPromise<IContent>;
+	resolveContent(
+		resource: URI,
+		options?: IResolveContentOptions
+	): TPromise<IContent>;
 
 	/**
 	 * Resolve the contents of a file identified by the resource.
 	 *
 	 * The returned object contains properties of the file and the value as a readable stream.
 	 */
-	resolveStreamContent(resource: URI, options?: IResolveContentOptions): TPromise<IStreamContent>;
+	resolveStreamContent(
+		resource: URI,
+		options?: IResolveContentOptions
+	): TPromise<IStreamContent>;
 
 	/**
 	 * Returns the contents of all files by the given array of file resources.
@@ -70,7 +79,11 @@ export interface IFileService {
 	/**
 	 * Updates the content replacing its previous value.
 	 */
-	updateContent(resource: URI, value: string, options?: IUpdateContentOptions): TPromise<IFileStat>;
+	updateContent(
+		resource: URI,
+		value: string,
+		options?: IUpdateContentOptions
+	): TPromise<IFileStat>;
 
 	/**
 	 * Moves the file to a new path identified by the resource.
@@ -159,9 +172,11 @@ export enum FileOperation {
 }
 
 export class FileOperationEvent {
-
-	constructor(private _resource: URI, private _operation: FileOperation, private _target?: IFileStat) {
-	}
+	constructor(
+		private _resource: URI,
+		private _operation: FileOperation,
+		private _target?: IFileStat
+	) {}
 
 	public get resource(): URI {
 		return this._resource;
@@ -189,7 +204,6 @@ export enum FileChangeType {
  * Identifies a single change in a file.
  */
 export interface IFileChange {
-
 	/**
 	 * The type of change that occured to the file.
 	 */
@@ -231,10 +245,18 @@ export class FileChangesEvent extends events.Event {
 
 			// For deleted also return true when deleted folder is parent of target path
 			if (type === FileChangeType.DELETED) {
-				return isEqualOrParent(resource.fsPath, change.resource.fsPath, !isLinux /* ignorecase */);
+				return isEqualOrParent(
+					resource.fsPath,
+					change.resource.fsPath,
+					!isLinux /* ignorecase */
+				);
 			}
 
-			return isEqual(resource.fsPath, change.resource.fsPath, !isLinux /* ignorecase */);
+			return isEqual(
+				resource.fsPath,
+				change.resource.fsPath,
+				!isLinux /* ignorecase */
+			);
 		});
 	}
 
@@ -291,8 +313,12 @@ export class FileChangesEvent extends events.Event {
 	}
 }
 
-export function isEqual(pathA: string, pathB: string, ignoreCase?: boolean): boolean {
-	const identityEquals = (pathA === pathB);
+export function isEqual(
+	pathA: string,
+	pathB: string,
+	ignoreCase?: boolean
+): boolean {
+	const identityEquals = pathA === pathB;
 	if (!ignoreCase || identityEquals) {
 		return identityEquals;
 	}
@@ -304,7 +330,11 @@ export function isEqual(pathA: string, pathB: string, ignoreCase?: boolean): boo
 	return equalsIgnoreCase(pathA, pathB);
 }
 
-export function isParent(path: string, candidate: string, ignoreCase?: boolean): boolean {
+export function isParent(
+	path: string,
+	candidate: string,
+	ignoreCase?: boolean
+): boolean {
 	if (!path || !candidate || path === candidate) {
 		return false;
 	}
@@ -324,7 +354,11 @@ export function isParent(path: string, candidate: string, ignoreCase?: boolean):
 	return path.indexOf(candidate) === 0;
 }
 
-export function isEqualOrParent(path: string, candidate: string, ignoreCase?: boolean): boolean {
+export function isEqualOrParent(
+	path: string,
+	candidate: string,
+	ignoreCase?: boolean
+): boolean {
 	if (path === candidate) {
 		return true;
 	}
@@ -362,7 +396,11 @@ export function isEqualOrParent(path: string, candidate: string, ignoreCase?: bo
 	return path.indexOf(candidate) === 0;
 }
 
-export function indexOf(path: string, candidate: string, ignoreCase?: boolean): number {
+export function indexOf(
+	path: string,
+	candidate: string,
+	ignoreCase?: boolean
+): number {
 	if (candidate.length > path.length) {
 		return -1;
 	}
@@ -380,7 +418,6 @@ export function indexOf(path: string, candidate: string, ignoreCase?: boolean): 
 }
 
 export interface IBaseStat {
-
 	/**
 	 * The unified resource identifier of this file or folder.
 	 */
@@ -409,7 +446,6 @@ export interface IBaseStat {
  * A file resource with meta information.
  */
 export interface IFileStat extends IBaseStat {
-
 	/**
 	 * The resource is a directory. Iff {{true}}
 	 * {{encoding}} has no meaning.
@@ -437,7 +473,6 @@ export interface IFileStat extends IBaseStat {
  * Content and meta information of a file.
  */
 export interface IContent extends IBaseStat {
-
 	/**
 	 * The content of a text file.
 	 */
@@ -463,7 +498,6 @@ export interface IStringStream {
  * Streamable content and meta information of a file.
  */
 export interface IStreamContent extends IBaseStat {
-
 	/**
 	 * The streamable content of a text file.
 	 */
@@ -476,7 +510,6 @@ export interface IStreamContent extends IBaseStat {
 }
 
 export interface IResolveContentOptions {
-
 	/**
 	 * The optional acceptTextOnly parameter allows to fail this request early if the file
 	 * contents are not textual.
@@ -503,7 +536,6 @@ export interface IResolveContentOptions {
 }
 
 export interface IUpdateContentOptions {
-
 	/**
 	 * The encoding to use when updating a file.
 	 */
@@ -590,7 +622,15 @@ export interface IFilesConfiguration {
 	};
 }
 
-export const SUPPORTED_ENCODINGS: { [encoding: string]: { labelLong: string; labelShort: string; order: number; encodeOnly?: boolean; alias?: string } } = {
+export const SUPPORTED_ENCODINGS: {
+	[encoding: string]: {
+		labelLong: string;
+		labelShort: string;
+		order: number;
+		encodeOnly?: boolean;
+		alias?: string;
+	};
+} = {
 	utf8: {
 		labelLong: 'UTF-8',
 		labelShort: 'UTF-8',

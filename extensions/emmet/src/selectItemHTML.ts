@@ -7,7 +7,12 @@ import * as vscode from 'vscode';
 import { getNode, getDeepestNode, findNextWord, findPrevWord } from './util';
 import Node from '@emmetio/node';
 
-export function nextItemHTML(selectionStart: number, selectionEnd: number, editor: vscode.TextEditor, rootNode: Node): vscode.Selection {
+export function nextItemHTML(
+	selectionStart: number,
+	selectionEnd: number,
+	editor: vscode.TextEditor,
+	rootNode: Node
+): vscode.Selection {
 	let currentNode = getNode(rootNode, selectionEnd);
 	let nextNode: Node;
 
@@ -19,7 +24,12 @@ export function nextItemHTML(selectionStart: number, selectionEnd: number, edito
 
 		// If cursor is in the open tag, look for attributes
 		if (selectionEnd < currentNode.open.end) {
-			let attrSelection = getNextAttribute(selectionStart, selectionEnd, editor.document, currentNode);
+			let attrSelection = getNextAttribute(
+				selectionStart,
+				selectionEnd,
+				editor.document,
+				currentNode
+			);
 			if (attrSelection) {
 				return attrSelection;
 			}
@@ -27,11 +37,13 @@ export function nextItemHTML(selectionStart: number, selectionEnd: number, edito
 
 		// Get the first child of current node which is right after the cursor and is not a comment
 		nextNode = currentNode.firstChild;
-		while (nextNode && (nextNode.start < selectionEnd || nextNode.type === 'comment')) {
+		while (
+			nextNode &&
+			(nextNode.start < selectionEnd || nextNode.type === 'comment')
+		) {
 			nextNode = nextNode.nextSibling;
 		}
 	}
-
 
 	// Get next sibling of current node which is not a comment. If none is found try the same on the parent
 	while (!nextNode && currentNode) {
@@ -49,26 +61,38 @@ export function nextItemHTML(selectionStart: number, selectionEnd: number, edito
 	return getSelectionFromNode(nextNode, editor.document);
 }
 
-export function prevItemHTML(selectionStart: number, selectionEnd: number, editor: vscode.TextEditor, rootNode: Node): vscode.Selection {
+export function prevItemHTML(
+	selectionStart: number,
+	selectionEnd: number,
+	editor: vscode.TextEditor,
+	rootNode: Node
+): vscode.Selection {
 	let currentNode = getNode(rootNode, selectionStart);
 	let prevNode: Node;
 
-	if (currentNode.type !== 'comment' && selectionStart > currentNode.open.start + 1) {
-
+	if (
+		currentNode.type !== 'comment' &&
+		selectionStart > currentNode.open.start + 1
+	) {
 		if (selectionStart < currentNode.open.end || !currentNode.firstChild) {
 			prevNode = currentNode;
 		} else {
 			// Select the child that appears just before the cursor and is not a comment
 			prevNode = currentNode.firstChild;
 			let oldOption: Node;
-			while (prevNode.nextSibling && prevNode.nextSibling.end < selectionStart) {
+			while (
+				prevNode.nextSibling &&
+				prevNode.nextSibling.end < selectionStart
+			) {
 				if (prevNode && prevNode.type !== 'comment') {
 					oldOption = prevNode;
 				}
 				prevNode = prevNode.nextSibling;
 			}
 
-			prevNode = getDeepestNode((prevNode && prevNode.type !== 'comment') ? prevNode : oldOption);
+			prevNode = getDeepestNode(
+				prevNode && prevNode.type !== 'comment' ? prevNode : oldOption
+			);
 		}
 	}
 
@@ -83,14 +107,23 @@ export function prevItemHTML(selectionStart: number, selectionEnd: number, edito
 		} else {
 			prevNode = currentNode.parent;
 		}
-
 	}
 
-	let attrSelection = getPrevAttribute(selectionStart, selectionEnd, editor.document, prevNode);
-	return attrSelection ? attrSelection : getSelectionFromNode(prevNode, editor.document);
+	let attrSelection = getPrevAttribute(
+		selectionStart,
+		selectionEnd,
+		editor.document,
+		prevNode
+	);
+	return attrSelection
+		? attrSelection
+		: getSelectionFromNode(prevNode, editor.document);
 }
 
-function getSelectionFromNode(node: Node, document: vscode.TextDocument): vscode.Selection {
+function getSelectionFromNode(
+	node: Node,
+	document: vscode.TextDocument
+): vscode.Selection {
 	if (node && node.open) {
 		let selectionStart = document.positionAt(node.open.start + 1);
 		let selectionEnd = selectionStart.translate(0, node.name.length);
@@ -99,9 +132,17 @@ function getSelectionFromNode(node: Node, document: vscode.TextDocument): vscode
 	}
 }
 
-function getNextAttribute(selectionStart: number, selectionEnd: number, document: vscode.TextDocument, node: Node): vscode.Selection {
-
-	if (!node.attributes || node.attributes.length === 0 || node.type === 'comment') {
+function getNextAttribute(
+	selectionStart: number,
+	selectionEnd: number,
+	document: vscode.TextDocument,
+	node: Node
+): vscode.Selection {
+	if (
+		!node.attributes ||
+		node.attributes.length === 0 ||
+		node.type === 'comment'
+	) {
 		return;
 	}
 
@@ -110,7 +151,10 @@ function getNextAttribute(selectionStart: number, selectionEnd: number, document
 
 		if (selectionEnd < attr.start) {
 			// select full attr
-			return new vscode.Selection(document.positionAt(attr.start), document.positionAt(attr.end));
+			return new vscode.Selection(
+				document.positionAt(attr.start),
+				document.positionAt(attr.end)
+			);
 		}
 
 		if (attr.value.start === attr.value.end) {
@@ -118,9 +162,15 @@ function getNextAttribute(selectionStart: number, selectionEnd: number, document
 			continue;
 		}
 
-		if ((selectionStart === attr.start && selectionEnd === attr.end) || selectionEnd < attr.value.start) {
+		if (
+			(selectionStart === attr.start && selectionEnd === attr.end) ||
+			selectionEnd < attr.value.start
+		) {
 			// cursor is in attr name,  so select full attr value
-			return new vscode.Selection(document.positionAt(attr.value.start), document.positionAt(attr.value.end));
+			return new vscode.Selection(
+				document.positionAt(attr.value.start),
+				document.positionAt(attr.value.end)
+			);
 		}
 
 		// Fetch the next word in the attr value
@@ -131,7 +181,10 @@ function getNextAttribute(selectionStart: number, selectionEnd: number, document
 		}
 
 		let pos = undefined;
-		if (selectionStart === attr.value.start && selectionEnd === attr.value.end) {
+		if (
+			selectionStart === attr.value.start &&
+			selectionEnd === attr.value.end
+		) {
 			pos = -1;
 		}
 		if (pos === undefined && selectionEnd < attr.end) {
@@ -139,20 +192,33 @@ function getNextAttribute(selectionStart: number, selectionEnd: number, document
 		}
 
 		if (pos !== undefined) {
-			let [newSelectionStart, newSelectionEnd] = findNextWord(attr.value.toString(), pos);
+			let [newSelectionStart, newSelectionEnd] = findNextWord(
+				attr.value.toString(),
+				pos
+			);
 			if (newSelectionStart >= 0 && newSelectionEnd >= 0) {
 				newSelectionStart += attr.value.start;
 				newSelectionEnd += attr.value.start;
-				return new vscode.Selection(document.positionAt(newSelectionStart), document.positionAt(newSelectionEnd));
+				return new vscode.Selection(
+					document.positionAt(newSelectionStart),
+					document.positionAt(newSelectionEnd)
+				);
 			}
 		}
-
 	}
 }
 
-function getPrevAttribute(selectionStart: number, selectionEnd: number, document: vscode.TextDocument, node: Node): vscode.Selection {
-
-	if (!node.attributes || node.attributes.length === 0 || node.type === 'comment') {
+function getPrevAttribute(
+	selectionStart: number,
+	selectionEnd: number,
+	document: vscode.TextDocument,
+	node: Node
+): vscode.Selection {
+	if (
+		!node.attributes ||
+		node.attributes.length === 0 ||
+		node.type === 'comment'
+	) {
 		return;
 	}
 
@@ -163,30 +229,48 @@ function getPrevAttribute(selectionStart: number, selectionEnd: number, document
 			continue;
 		}
 
-		if (attr.value.start === attr.value.end || selectionStart < attr.value.start) {
+		if (
+			attr.value.start === attr.value.end ||
+			selectionStart < attr.value.start
+		) {
 			// select full attr
-			return new vscode.Selection(document.positionAt(attr.start), document.positionAt(attr.end));
+			return new vscode.Selection(
+				document.positionAt(attr.start),
+				document.positionAt(attr.end)
+			);
 		}
 
 		if (selectionStart === attr.value.start) {
 			if (selectionEnd >= attr.value.end) {
 				// select full attr
-				return new vscode.Selection(document.positionAt(attr.start), document.positionAt(attr.end));
+				return new vscode.Selection(
+					document.positionAt(attr.start),
+					document.positionAt(attr.end)
+				);
 			}
 			// select attr value
-			return new vscode.Selection(document.positionAt(attr.value.start), document.positionAt(attr.value.end));
+			return new vscode.Selection(
+				document.positionAt(attr.value.start),
+				document.positionAt(attr.value.end)
+			);
 		}
 
 		// Fetch the prev word in the attr value
 
-		let pos = selectionStart > attr.value.end ? attr.value.toString().length : selectionStart - attr.value.start;
-		let [newSelectionStart, newSelectionEnd] = findPrevWord(attr.value.toString(), pos);
+		let pos = selectionStart > attr.value.end
+			? attr.value.toString().length
+			: selectionStart - attr.value.start;
+		let [newSelectionStart, newSelectionEnd] = findPrevWord(
+			attr.value.toString(),
+			pos
+		);
 		if (newSelectionStart >= 0 && newSelectionEnd >= 0) {
 			newSelectionStart += attr.value.start;
 			newSelectionEnd += attr.value.start;
-			return new vscode.Selection(document.positionAt(newSelectionStart), document.positionAt(newSelectionEnd));
+			return new vscode.Selection(
+				document.positionAt(newSelectionStart),
+				document.positionAt(newSelectionEnd)
+			);
 		}
-
-
 	}
 }

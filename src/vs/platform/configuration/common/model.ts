@@ -2,29 +2,43 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { Registry } from 'vs/platform/platform';
 import * as types from 'vs/base/common/types';
 import * as json from 'vs/base/common/json';
 import * as objects from 'vs/base/common/objects';
 import * as arrays from 'vs/base/common/arrays';
-import { IConfigurationRegistry, Extensions, OVERRIDE_PROPERTY_PATTERN } from 'vs/platform/configuration/common/configurationRegistry';
-import { IConfigModel, IOverrides } from 'vs/platform/configuration/common/configuration';
+import {
+	IConfigurationRegistry,
+	Extensions,
+	OVERRIDE_PROPERTY_PATTERN
+} from 'vs/platform/configuration/common/configurationRegistry';
+import {
+	IConfigModel,
+	IOverrides
+} from 'vs/platform/configuration/common/configuration';
 
 export function getDefaultValues(): any {
 	const valueTreeRoot: any = Object.create(null);
-	const properties = Registry.as<IConfigurationRegistry>(Extensions.Configuration).getConfigurationProperties();
+	const properties = Registry.as<IConfigurationRegistry>(
+		Extensions.Configuration
+	).getConfigurationProperties();
 
 	for (let key in properties) {
 		let value = properties[key].default;
-		addToValueTree(valueTreeRoot, key, value, message => console.error(`Conflict in default settings: ${message}`));
+		addToValueTree(valueTreeRoot, key, value, message =>
+			console.error(`Conflict in default settings: ${message}`)
+		);
 	}
 
 	return valueTreeRoot;
 }
 
-export function toValuesTree(properties: { [qualifiedKey: string]: any }, conflictReporter: (message: string) => void): any {
+export function toValuesTree(
+	properties: { [qualifiedKey: string]: any },
+	conflictReporter: (message: string) => void
+): any {
 	const root = Object.create(null);
 
 	for (let key in properties) {
@@ -34,7 +48,12 @@ export function toValuesTree(properties: { [qualifiedKey: string]: any }, confli
 	return root;
 }
 
-function addToValueTree(settingsTreeRoot: any, key: string, value: any, conflictReporter: (message: string) => void): void {
+function addToValueTree(
+	settingsTreeRoot: any,
+	key: string,
+	value: any,
+	conflictReporter: (message: string) => void
+): void {
 	const segments = key.split('.');
 	const last = segments.pop();
 
@@ -49,21 +68,29 @@ function addToValueTree(settingsTreeRoot: any, key: string, value: any, conflict
 			case 'object':
 				break;
 			default:
-				conflictReporter(`Ignoring ${key} as ${segments.slice(0, i + 1).join('.')} is ${JSON.stringify(obj)}`);
+				conflictReporter(
+					`Ignoring ${key} as ${segments
+						.slice(0, i + 1)
+						.join('.')} is ${JSON.stringify(obj)}`
+				);
 				return;
 		}
 		curr = obj;
-	};
+	}
 
 	if (typeof curr === 'object') {
 		curr[last] = value; // workaround https://github.com/Microsoft/vscode/issues/13606
 	} else {
-		conflictReporter(`Ignoring ${key} as ${segments.join('.')} is ${JSON.stringify(curr)}`);
+		conflictReporter(
+			`Ignoring ${key} as ${segments.join('.')} is ${JSON.stringify(curr)}`
+		);
 	}
 }
 
 export function getConfigurationKeys(): string[] {
-	const properties = Registry.as<IConfigurationRegistry>(Extensions.Configuration).getConfigurationProperties();
+	const properties = Registry.as<IConfigurationRegistry>(
+		Extensions.Configuration
+	).getConfigurationProperties();
 
 	return Object.keys(properties);
 }
@@ -87,7 +114,6 @@ interface Overrides<T> extends IOverrides<T> {
 }
 
 export class ConfigModel<T> implements IConfigModel<T> {
-
 	protected _contents: T = <T>{};
 	protected _overrides: IOverrides<T>[] = [];
 	protected _keys: string[] = [];
@@ -115,18 +141,27 @@ export class ConfigModel<T> implements IConfigModel<T> {
 		return this._parseErrors;
 	}
 
-	public merge(other: IConfigModel<T>, overwrite: boolean = true): ConfigModel<T> {
+	public merge(
+		other: IConfigModel<T>,
+		overwrite: boolean = true
+	): ConfigModel<T> {
 		const mergedModel = new ConfigModel<T>(null);
 		this.doMerge(mergedModel, this, overwrite);
 		this.doMerge(mergedModel, other, overwrite);
 		return mergedModel;
 	}
 
-	protected doMerge(source: ConfigModel<T>, target: IConfigModel<T>, overwrite: boolean = true) {
+	protected doMerge(
+		source: ConfigModel<T>,
+		target: IConfigModel<T>,
+		overwrite: boolean = true
+	) {
 		merge(source.contents, objects.clone(target.contents), overwrite);
 		const overrides = objects.clone(source.overrides);
 		for (const override of target.overrides) {
-			const [sourceOverride] = overrides.filter(o => arrays.equals(o.identifiers, override.identifiers));
+			const [sourceOverride] = overrides.filter(o =>
+				arrays.equals(o.identifiers, override.identifiers)
+			);
 			if (sourceOverride) {
 				merge(sourceOverride.contents, override.contents, overwrite);
 			} else {
@@ -221,30 +256,38 @@ export class ConfigModel<T> implements IConfigModel<T> {
 		}
 		this.processRaw(parsed);
 
-		const configurationProperties = Registry.as<IConfigurationRegistry>(Extensions.Configuration).getConfigurationProperties();
+		const configurationProperties = Registry.as<IConfigurationRegistry>(
+			Extensions.Configuration
+		).getConfigurationProperties();
 		this._overrides = overrides.map<IOverrides<T>>(override => {
 			// Filter unknown and non-overridable properties
 			const raw = {};
 			for (const key in override.raw) {
-				if (configurationProperties[key] && configurationProperties[key].overridable) {
+				if (
+					configurationProperties[key] &&
+					configurationProperties[key].overridable
+				) {
 					raw[key] = override.raw[key];
 				}
 			}
 			return {
 				identifiers: override.identifiers,
-				contents: <T>toValuesTree(raw, message => console.error(`Conflict in settings file ${this.name}: ${message}`))
+				contents: <T>toValuesTree(raw, message =>
+					console.error(`Conflict in settings file ${this.name}: ${message}`)
+				)
 			};
 		});
 	}
 
 	protected processRaw(raw: T): void {
-		this._contents = toValuesTree(raw, message => console.error(`Conflict in settings file ${this.name}: ${message}`));
+		this._contents = toValuesTree(raw, message =>
+			console.error(`Conflict in settings file ${this.name}: ${message}`)
+		);
 		this._keys = Object.keys(raw);
 	}
 }
 
 export class DefaultConfigModel<T> extends ConfigModel<T> {
-
 	constructor() {
 		super(null);
 		this.update();
@@ -262,7 +305,9 @@ export class DefaultConfigModel<T> extends ConfigModel<T> {
 			.map(key => {
 				return <IOverrides<any>>{
 					identifiers: [overrideIdentifierFromKey(key).trim()],
-					contents: toValuesTree(this._contents[key], message => console.error(`Conflict in default settings file: ${message}`))
+					contents: toValuesTree(this._contents[key], message =>
+						console.error(`Conflict in default settings file: ${message}`)
+					)
 				};
 			});
 	}

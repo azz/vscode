@@ -1,5 +1,7 @@
 declare module 'ansi-regex' {
 	function result(): RegExp;
-	module result { }
+	namespace result {
+
+	}
 	export = result;
 }

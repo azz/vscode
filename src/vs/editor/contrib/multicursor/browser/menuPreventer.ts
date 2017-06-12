@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { KeyMod } from 'vs/base/common/keyCodes';
 import { Disposable } from 'vs/base/common/lifecycle';
@@ -15,7 +15,6 @@ import { editorContribution } from 'vs/editor/browser/editorBrowserExtensions';
  */
 @editorContribution
 export class MenuPreventer extends Disposable implements IEditorContribution {
-
 	private static ID = 'editor.contrib.menuPreventer';
 
 	private _editor: ICodeEditor;
@@ -32,30 +31,36 @@ export class MenuPreventer extends Disposable implements IEditorContribution {
 		// When <alt> is hold, we will listen to mouse events and prevent
 		// the release event up <alt> if the mouse is triggered.
 
-		this._register(this._editor.onMouseDown((e) => {
-			if (this._altListeningMouse) {
-				this._altMouseTriggered = true;
-			}
-		}));
+		this._register(
+			this._editor.onMouseDown(e => {
+				if (this._altListeningMouse) {
+					this._altMouseTriggered = true;
+				}
+			})
+		);
 
-		this._register(this._editor.onKeyDown((e) => {
-			if (e.equals(KeyMod.Alt)) {
-				if (!this._altListeningMouse) {
+		this._register(
+			this._editor.onKeyDown(e => {
+				if (e.equals(KeyMod.Alt)) {
+					if (!this._altListeningMouse) {
+						this._altMouseTriggered = false;
+					}
+					this._altListeningMouse = true;
+				}
+			})
+		);
+
+		this._register(
+			this._editor.onKeyUp(e => {
+				if (e.equals(KeyMod.Alt)) {
+					if (this._altMouseTriggered) {
+						e.preventDefault();
+					}
+					this._altListeningMouse = false;
 					this._altMouseTriggered = false;
 				}
-				this._altListeningMouse = true;
-			}
-		}));
-
-		this._register(this._editor.onKeyUp((e) => {
-			if (e.equals(KeyMod.Alt)) {
-				if (this._altMouseTriggered) {
-					e.preventDefault();
-				}
-				this._altListeningMouse = false;
-				this._altMouseTriggered = false;
-			}
-		}));
+			})
+		);
 	}
 
 	public getId(): string {

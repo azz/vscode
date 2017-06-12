@@ -2,13 +2,21 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
-import { INormalizedVersion, IParsedVersion, IReducedExtensionDescription, isValidExtensionVersion, isValidVersion, isValidVersionStr, normalizeVersion, parseVersion } from 'vs/platform/extensions/node/extensionValidator';
+import {
+	INormalizedVersion,
+	IParsedVersion,
+	IReducedExtensionDescription,
+	isValidExtensionVersion,
+	isValidVersion,
+	isValidVersionStr,
+	normalizeVersion,
+	parseVersion
+} from 'vs/platform/extensions/node/extensionValidator';
 
 suite('Extension Version Validator', () => {
-
 	test('isValidVersionStr', () => {
 		assert.equal(isValidVersionStr('0.10.0-dev'), true);
 		assert.equal(isValidVersionStr('0.10.0'), true);
@@ -29,25 +37,167 @@ suite('Extension Version Validator', () => {
 	});
 
 	test('parseVersion', () => {
-		function assertParseVersion(version: string, hasCaret: boolean, hasGreaterEquals: boolean, majorBase: number, majorMustEqual: boolean, minorBase: number, minorMustEqual: boolean, patchBase: number, patchMustEqual: boolean, preRelease: string): void {
+		function assertParseVersion(
+			version: string,
+			hasCaret: boolean,
+			hasGreaterEquals: boolean,
+			majorBase: number,
+			majorMustEqual: boolean,
+			minorBase: number,
+			minorMustEqual: boolean,
+			patchBase: number,
+			patchMustEqual: boolean,
+			preRelease: string
+		): void {
 			const actual = parseVersion(version);
-			const expected: IParsedVersion = { hasCaret, hasGreaterEquals, majorBase, majorMustEqual, minorBase, minorMustEqual, patchBase, patchMustEqual, preRelease };
+			const expected: IParsedVersion = {
+				hasCaret,
+				hasGreaterEquals,
+				majorBase,
+				majorMustEqual,
+				minorBase,
+				minorMustEqual,
+				patchBase,
+				patchMustEqual,
+				preRelease
+			};
 
 			assert.deepEqual(actual, expected, 'parseVersion for ' + version);
 		}
 
-		assertParseVersion('0.10.0-dev', false, false, 0, true, 10, true, 0, true, '-dev');
-		assertParseVersion('0.10.0', false, false, 0, true, 10, true, 0, true, null);
-		assertParseVersion('0.10.1', false, false, 0, true, 10, true, 1, true, null);
-		assertParseVersion('0.10.100', false, false, 0, true, 10, true, 100, true, null);
-		assertParseVersion('0.11.0', false, false, 0, true, 11, true, 0, true, null);
+		assertParseVersion(
+			'0.10.0-dev',
+			false,
+			false,
+			0,
+			true,
+			10,
+			true,
+			0,
+			true,
+			'-dev'
+		);
+		assertParseVersion(
+			'0.10.0',
+			false,
+			false,
+			0,
+			true,
+			10,
+			true,
+			0,
+			true,
+			null
+		);
+		assertParseVersion(
+			'0.10.1',
+			false,
+			false,
+			0,
+			true,
+			10,
+			true,
+			1,
+			true,
+			null
+		);
+		assertParseVersion(
+			'0.10.100',
+			false,
+			false,
+			0,
+			true,
+			10,
+			true,
+			100,
+			true,
+			null
+		);
+		assertParseVersion(
+			'0.11.0',
+			false,
+			false,
+			0,
+			true,
+			11,
+			true,
+			0,
+			true,
+			null
+		);
 
-		assertParseVersion('x.x.x', false, false, 0, false, 0, false, 0, false, null);
-		assertParseVersion('0.x.x', false, false, 0, true, 0, false, 0, false, null);
-		assertParseVersion('0.10.x', false, false, 0, true, 10, true, 0, false, null);
-		assertParseVersion('^0.10.0', true, false, 0, true, 10, true, 0, true, null);
-		assertParseVersion('^0.10.2', true, false, 0, true, 10, true, 2, true, null);
-		assertParseVersion('^1.10.2', true, false, 1, true, 10, true, 2, true, null);
+		assertParseVersion(
+			'x.x.x',
+			false,
+			false,
+			0,
+			false,
+			0,
+			false,
+			0,
+			false,
+			null
+		);
+		assertParseVersion(
+			'0.x.x',
+			false,
+			false,
+			0,
+			true,
+			0,
+			false,
+			0,
+			false,
+			null
+		);
+		assertParseVersion(
+			'0.10.x',
+			false,
+			false,
+			0,
+			true,
+			10,
+			true,
+			0,
+			false,
+			null
+		);
+		assertParseVersion(
+			'^0.10.0',
+			true,
+			false,
+			0,
+			true,
+			10,
+			true,
+			0,
+			true,
+			null
+		);
+		assertParseVersion(
+			'^0.10.2',
+			true,
+			false,
+			0,
+			true,
+			10,
+			true,
+			2,
+			true,
+			null
+		);
+		assertParseVersion(
+			'^1.10.2',
+			true,
+			false,
+			1,
+			true,
+			10,
+			true,
+			2,
+			true,
+			null
+		);
 		assertParseVersion('*', false, false, 0, false, 0, false, 0, false, null);
 
 		assertParseVersion('>=0.0.1', false, true, 0, true, 0, true, 1, true, null);
@@ -55,9 +205,26 @@ suite('Extension Version Validator', () => {
 	});
 
 	test('normalizeVersion', () => {
-		function assertNormalizeVersion(version: string, majorBase: number, majorMustEqual: boolean, minorBase: number, minorMustEqual: boolean, patchBase: number, patchMustEqual: boolean, isMinimum: boolean): void {
+		function assertNormalizeVersion(
+			version: string,
+			majorBase: number,
+			majorMustEqual: boolean,
+			minorBase: number,
+			minorMustEqual: boolean,
+			patchBase: number,
+			patchMustEqual: boolean,
+			isMinimum: boolean
+		): void {
 			const actual = normalizeVersion(parseVersion(version));
-			const expected: INormalizedVersion = { majorBase, majorMustEqual, minorBase, minorMustEqual, patchBase, patchMustEqual, isMinimum };
+			const expected: INormalizedVersion = {
+				majorBase,
+				majorMustEqual,
+				minorBase,
+				minorMustEqual,
+				patchBase,
+				patchMustEqual,
+				isMinimum
+			};
 			assert.deepEqual(actual, expected, 'parseVersion for ' + version);
 		}
 
@@ -80,9 +247,22 @@ suite('Extension Version Validator', () => {
 	});
 
 	test('isValidVersion', () => {
-		function testIsValidVersion(version: string, desiredVersion: string, expectedResult: boolean): void {
+		function testIsValidVersion(
+			version: string,
+			desiredVersion: string,
+			expectedResult: boolean
+		): void {
 			let actual = isValidVersion(version, desiredVersion);
-			assert.equal(actual, expectedResult, 'extension - vscode: ' + version + ', desiredVersion: ' + desiredVersion + ' should be ' + expectedResult);
+			assert.equal(
+				actual,
+				expectedResult,
+				'extension - vscode: ' +
+					version +
+					', desiredVersion: ' +
+					desiredVersion +
+					' should be ' +
+					expectedResult
+			);
 		}
 
 		testIsValidVersion('0.10.0-dev', 'x.x.x', true);
@@ -203,8 +383,13 @@ suite('Extension Version Validator', () => {
 	});
 
 	test('isValidExtensionVersion', () => {
-
-		function testExtensionVersion(version: string, desiredVersion: string, isBuiltin: boolean, hasMain: boolean, expectedResult: boolean): void {
+		function testExtensionVersion(
+			version: string,
+			desiredVersion: string,
+			isBuiltin: boolean,
+			hasMain: boolean,
+			expectedResult: boolean
+		): void {
 			let desc: IReducedExtensionDescription = {
 				isBuiltin: isBuiltin,
 				engines: {
@@ -215,19 +400,50 @@ suite('Extension Version Validator', () => {
 			let reasons: string[] = [];
 			let actual = isValidExtensionVersion(version, desc, reasons);
 
-			assert.equal(actual, expectedResult, 'version: ' + version + ', desiredVersion: ' + desiredVersion + ', desc: ' + JSON.stringify(desc) + ', reasons: ' + JSON.stringify(reasons));
+			assert.equal(
+				actual,
+				expectedResult,
+				'version: ' +
+					version +
+					', desiredVersion: ' +
+					desiredVersion +
+					', desc: ' +
+					JSON.stringify(desc) +
+					', reasons: ' +
+					JSON.stringify(reasons)
+			);
 		}
 
-		function testIsInvalidExtensionVersion(version: string, desiredVersion: string, isBuiltin: boolean, hasMain: boolean): void {
+		function testIsInvalidExtensionVersion(
+			version: string,
+			desiredVersion: string,
+			isBuiltin: boolean,
+			hasMain: boolean
+		): void {
 			testExtensionVersion(version, desiredVersion, isBuiltin, hasMain, false);
 		}
 
-		function testIsValidExtensionVersion(version: string, desiredVersion: string, isBuiltin: boolean, hasMain: boolean): void {
+		function testIsValidExtensionVersion(
+			version: string,
+			desiredVersion: string,
+			isBuiltin: boolean,
+			hasMain: boolean
+		): void {
 			testExtensionVersion(version, desiredVersion, isBuiltin, hasMain, true);
 		}
 
-		function testIsValidVersion(version: string, desiredVersion: string, expectedResult: boolean): void {
-			testExtensionVersion(version, desiredVersion, false, true, expectedResult);
+		function testIsValidVersion(
+			version: string,
+			desiredVersion: string,
+			expectedResult: boolean
+		): void {
+			testExtensionVersion(
+				version,
+				desiredVersion,
+				false,
+				true,
+				expectedResult
+			);
 		}
 
 		// builtin are allowed to use * or x.x.x
@@ -336,7 +552,6 @@ suite('Extension Version Validator', () => {
 		testIsValidVersion('1.10.0', '1.10.x', true);
 		testIsValidVersion('1.10.0', '^1.10.0', true);
 		testIsValidVersion('1.10.0', '*', false); // fails due to lack of specificity
-
 
 		// Anything < 1.0.0 is compatible
 

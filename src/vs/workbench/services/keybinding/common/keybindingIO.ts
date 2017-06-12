@@ -2,14 +2,22 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
-import { Keybinding, SimpleKeybinding, ChordKeybinding, KeyCodeUtils } from 'vs/base/common/keyCodes';
+import {
+	Keybinding,
+	SimpleKeybinding,
+	ChordKeybinding,
+	KeyCodeUtils
+} from 'vs/base/common/keyCodes';
 import { OperatingSystem } from 'vs/base/common/platform';
 import { IUserFriendlyKeybinding } from 'vs/platform/keybinding/common/keybinding';
 import { ContextKeyExpr } from 'vs/platform/contextkey/common/contextkey';
 import { ResolvedKeybindingItem } from 'vs/platform/keybinding/common/resolvedKeybindingItem';
-import { ScanCodeBinding, ScanCodeUtils } from 'vs/workbench/services/keybinding/common/scanCode';
+import {
+	ScanCodeBinding,
+	ScanCodeUtils
+} from 'vs/workbench/services/keybinding/common/scanCode';
 
 export interface IUserKeybindingItem {
 	firstPart: SimpleKeybinding | ScanCodeBinding;
@@ -20,17 +28,29 @@ export interface IUserKeybindingItem {
 }
 
 export class KeybindingIO {
-
-	public static writeKeybindingItem(out: OutputBuilder, item: ResolvedKeybindingItem, OS: OperatingSystem): void {
-		let quotedSerializedKeybinding = JSON.stringify(item.resolvedKeybinding.getUserSettingsLabel());
-		out.write(`{ "key": ${rightPaddedString(quotedSerializedKeybinding + ',', 25)} "command": `);
+	public static writeKeybindingItem(
+		out: OutputBuilder,
+		item: ResolvedKeybindingItem,
+		OS: OperatingSystem
+	): void {
+		let quotedSerializedKeybinding = JSON.stringify(
+			item.resolvedKeybinding.getUserSettingsLabel()
+		);
+		out.write(
+			`{ "key": ${rightPaddedString(
+				quotedSerializedKeybinding + ',',
+				25
+			)} "command": `
+		);
 
 		let serializedWhen = item.when ? item.when.serialize() : '';
 		let quotedSerializeCommand = JSON.stringify(item.command);
 		if (serializedWhen.length > 0) {
 			out.write(`${quotedSerializeCommand},`);
 			out.writeLine();
-			out.write(`                                     "when": "${serializedWhen}" `);
+			out.write(
+				`                                     "when": "${serializedWhen}" `
+			);
 		} else {
 			out.write(`${quotedSerializeCommand} `);
 		}
@@ -38,11 +58,18 @@ export class KeybindingIO {
 		out.write('}');
 	}
 
-	public static readUserKeybindingItem(input: IUserFriendlyKeybinding, OS: OperatingSystem): IUserKeybindingItem {
-		const [firstPart, chordPart] = (typeof input.key === 'string' ? this._readUserBinding(input.key) : [null, null]);
-		const when = (typeof input.when === 'string' ? ContextKeyExpr.deserialize(input.when) : null);
-		const command = (typeof input.command === 'string' ? input.command : null);
-		const commandArgs = (typeof input.args !== 'undefined' ? input.args : null);
+	public static readUserKeybindingItem(
+		input: IUserFriendlyKeybinding,
+		OS: OperatingSystem
+	): IUserKeybindingItem {
+		const [firstPart, chordPart] = typeof input.key === 'string'
+			? this._readUserBinding(input.key)
+			: [null, null];
+		const when = typeof input.when === 'string'
+			? ContextKeyExpr.deserialize(input.when)
+			: null;
+		const command = typeof input.command === 'string' ? input.command : null;
+		const commandArgs = typeof input.args !== 'undefined' ? input.args : null;
 		return {
 			firstPart: firstPart,
 			chordPart: chordPart,
@@ -117,10 +144,15 @@ export class KeybindingIO {
 		};
 	}
 
-	private static _readSimpleKeybinding(input: string): [SimpleKeybinding, string] {
+	private static _readSimpleKeybinding(
+		input: string
+	): [SimpleKeybinding, string] {
 		const mods = this._readModifiers(input);
 		const keyCode = KeyCodeUtils.fromUserSettings(mods.key);
-		return [new SimpleKeybinding(mods.ctrl, mods.shift, mods.alt, mods.meta, keyCode), mods.remains];
+		return [
+			new SimpleKeybinding(mods.ctrl, mods.shift, mods.alt, mods.meta, keyCode),
+			mods.remains
+		];
 	}
 
 	public static readKeybinding(input: string, OS: OperatingSystem): Keybinding {
@@ -140,19 +172,35 @@ export class KeybindingIO {
 		return firstPart;
 	}
 
-	private static _readSimpleUserBinding(input: string): [SimpleKeybinding | ScanCodeBinding, string] {
+	private static _readSimpleUserBinding(
+		input: string
+	): [SimpleKeybinding | ScanCodeBinding, string] {
 		const mods = this._readModifiers(input);
 		const scanCodeMatch = mods.key.match(/^\[([^\]]+)\]$/);
 		if (scanCodeMatch) {
 			const strScanCode = scanCodeMatch[1];
 			const scanCode = ScanCodeUtils.lowerCaseToEnum(strScanCode);
-			return [new ScanCodeBinding(mods.ctrl, mods.shift, mods.alt, mods.meta, scanCode), mods.remains];
+			return [
+				new ScanCodeBinding(
+					mods.ctrl,
+					mods.shift,
+					mods.alt,
+					mods.meta,
+					scanCode
+				),
+				mods.remains
+			];
 		}
 		const keyCode = KeyCodeUtils.fromUserSettings(mods.key);
-		return [new SimpleKeybinding(mods.ctrl, mods.shift, mods.alt, mods.meta, keyCode), mods.remains];
+		return [
+			new SimpleKeybinding(mods.ctrl, mods.shift, mods.alt, mods.meta, keyCode),
+			mods.remains
+		];
 	}
 
-	static _readUserBinding(input: string): [SimpleKeybinding | ScanCodeBinding, SimpleKeybinding | ScanCodeBinding] {
+	static _readUserBinding(
+		input: string
+	): [SimpleKeybinding | ScanCodeBinding, SimpleKeybinding | ScanCodeBinding] {
 		if (!input) {
 			return [null, null];
 		}
@@ -168,13 +216,12 @@ export class KeybindingIO {
 
 function rightPaddedString(str: string, minChars: number): string {
 	if (str.length < minChars) {
-		return str + (new Array(minChars - str.length).join(' '));
+		return str + new Array(minChars - str.length).join(' ');
 	}
 	return str;
 }
 
 export class OutputBuilder {
-
 	private _lines: string[] = [];
 	private _currentLine: string = '';
 

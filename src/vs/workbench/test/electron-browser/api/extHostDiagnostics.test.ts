@@ -3,19 +3,22 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import URI from 'vs/base/common/uri';
 import Severity from 'vs/base/common/severity';
 import { DiagnosticCollection } from 'vs/workbench/api/node/extHostDiagnostics';
-import { Diagnostic, DiagnosticSeverity, Range } from 'vs/workbench/api/node/extHostTypes';
+import {
+	Diagnostic,
+	DiagnosticSeverity,
+	Range
+} from 'vs/workbench/api/node/extHostTypes';
 import { MainThreadDiagnosticsShape } from 'vs/workbench/api/node/extHost.protocol';
 import { TPromise } from 'vs/base/common/winjs.base';
 import { IMarkerData } from 'vs/platform/markers/common/markers';
 
 suite('ExtHostDiagnostics', () => {
-
 	class DiagnosticsShape extends MainThreadDiagnosticsShape {
 		$changeMany(owner: string, entries: [URI, IMarkerData[]][]): TPromise<any> {
 			return TPromise.as(null);
@@ -23,10 +26,9 @@ suite('ExtHostDiagnostics', () => {
 		$clear(owner: string): TPromise<any> {
 			return TPromise.as(null);
 		}
-	};
+	}
 
-	test('disposeCheck', function () {
-
+	test('disposeCheck', function() {
 		const collection = new DiagnosticCollection('test', new DiagnosticsShape());
 
 		collection.dispose();
@@ -34,15 +36,14 @@ suite('ExtHostDiagnostics', () => {
 		assert.throws(() => collection.name);
 		assert.throws(() => collection.clear());
 		assert.throws(() => collection.delete(URI.parse('aa:bb')));
-		assert.throws(() => collection.forEach(() => { ; }));
+		assert.throws(() => collection.forEach(() => {}));
 		assert.throws(() => collection.get(URI.parse('aa:bb')));
 		assert.throws(() => collection.has(URI.parse('aa:bb')));
 		assert.throws(() => collection.set(URI.parse('aa:bb'), []));
 		assert.throws(() => collection.set(URI.parse('aa:bb'), undefined));
 	});
 
-
-	test('diagnostic collection, forEach, clear, has', function () {
+	test('diagnostic collection, forEach, clear, has', function() {
 		let collection = new DiagnosticCollection('test', new DiagnosticsShape());
 		assert.equal(collection.name, 'test');
 		collection.dispose();
@@ -85,7 +86,7 @@ suite('ExtHostDiagnostics', () => {
 		collection.dispose();
 	});
 
-	test('diagnostic collection, immutable read', function () {
+	test('diagnostic collection, immutable read', function() {
 		let collection = new DiagnosticCollection('test', new DiagnosticsShape());
 		collection.set(URI.parse('foo:bar'), [
 			new Diagnostic(new Range(0, 0, 1, 1), 'message-1'),
@@ -93,14 +94,18 @@ suite('ExtHostDiagnostics', () => {
 		]);
 
 		let array = collection.get(URI.parse('foo:bar'));
-		assert.throws(() => array.length = 0);
+		assert.throws(() => (array.length = 0));
 		assert.throws(() => array.pop());
-		assert.throws(() => array[0] = new Diagnostic(new Range(0, 0, 0, 0), 'evil'));
+		assert.throws(
+			() => (array[0] = new Diagnostic(new Range(0, 0, 0, 0), 'evil'))
+		);
 
 		collection.forEach((uri, array) => {
-			assert.throws(() => array.length = 0);
+			assert.throws(() => (array.length = 0));
 			assert.throws(() => array.pop());
-			assert.throws(() => array[0] = new Diagnostic(new Range(0, 0, 0, 0), 'evil'));
+			assert.throws(
+				() => (array[0] = new Diagnostic(new Range(0, 0, 0, 0), 'evil'))
+			);
 		});
 
 		array = collection.get(URI.parse('foo:bar'));
@@ -109,14 +114,16 @@ suite('ExtHostDiagnostics', () => {
 		collection.dispose();
 	});
 
-
-	test('diagnostics collection, set with dupliclated tuples', function () {
+	test('diagnostics collection, set with dupliclated tuples', function() {
 		let collection = new DiagnosticCollection('test', new DiagnosticsShape());
 		let uri = URI.parse('sc:hightower');
 		collection.set([
 			[uri, [new Diagnostic(new Range(0, 0, 0, 1), 'message-1')]],
-			[URI.parse('some:thing'), [new Diagnostic(new Range(0, 0, 1, 1), 'something')]],
-			[uri, [new Diagnostic(new Range(0, 0, 0, 1), 'message-2')]],
+			[
+				URI.parse('some:thing'),
+				[new Diagnostic(new Range(0, 0, 1, 1), 'something')]
+			],
+			[uri, [new Diagnostic(new Range(0, 0, 0, 1), 'message-2')]]
 		]);
 
 		let array = collection.get(uri);
@@ -132,7 +139,10 @@ suite('ExtHostDiagnostics', () => {
 		// bad tuple clears 1/2
 		collection.set([
 			[uri, [new Diagnostic(new Range(0, 0, 0, 1), 'message-1')]],
-			[URI.parse('some:thing'), [new Diagnostic(new Range(0, 0, 1, 1), 'something')]],
+			[
+				URI.parse('some:thing'),
+				[new Diagnostic(new Range(0, 0, 1, 1), 'something')]
+			],
 			[uri, undefined]
 		]);
 		assert.ok(!collection.has(uri));
@@ -144,10 +154,13 @@ suite('ExtHostDiagnostics', () => {
 		// bad tuple clears 2/2
 		collection.set([
 			[uri, [new Diagnostic(new Range(0, 0, 0, 1), 'message-1')]],
-			[URI.parse('some:thing'), [new Diagnostic(new Range(0, 0, 1, 1), 'something')]],
+			[
+				URI.parse('some:thing'),
+				[new Diagnostic(new Range(0, 0, 1, 1), 'something')]
+			],
 			[uri, undefined],
 			[uri, [new Diagnostic(new Range(0, 0, 0, 1), 'message-2')]],
-			[uri, [new Diagnostic(new Range(0, 0, 0, 1), 'message-3')]],
+			[uri, [new Diagnostic(new Range(0, 0, 0, 1), 'message-3')]]
 		]);
 
 		array = collection.get(uri);
@@ -159,15 +172,20 @@ suite('ExtHostDiagnostics', () => {
 		collection.dispose();
 	});
 
-	test('diagnostics collection, set tuple overrides, #11547', function () {
-
+	test('diagnostics collection, set tuple overrides, #11547', function() {
 		let lastEntries: [URI, IMarkerData[]][];
-		let collection = new DiagnosticCollection('test', new class extends DiagnosticsShape {
-			$changeMany(owner: string, entries: [URI, IMarkerData[]][]): TPromise<any> {
-				lastEntries = entries;
-				return super.$changeMany(owner, entries);
-			}
-		});
+		let collection = new DiagnosticCollection(
+			'test',
+			new class extends DiagnosticsShape {
+				$changeMany(
+					owner: string,
+					entries: [URI, IMarkerData[]][]
+				): TPromise<any> {
+					lastEntries = entries;
+					return super.$changeMany(owner, entries);
+				}
+			}()
+		);
 		let uri = URI.parse('sc:hightower');
 
 		collection.set([[uri, [new Diagnostic(new Range(0, 0, 1, 1), 'error')]]]);
@@ -189,8 +207,7 @@ suite('ExtHostDiagnostics', () => {
 		lastEntries = undefined;
 	});
 
-	test('diagnostics collection, tuples and undefined (small array), #15585', function () {
-
+	test('diagnostics collection, tuples and undefined (small array), #15585', function() {
 		const collection = new DiagnosticCollection('test', new DiagnosticsShape());
 		let uri = URI.parse('sc:hightower');
 		let uri2 = URI.parse('sc:nomad');
@@ -203,15 +220,14 @@ suite('ExtHostDiagnostics', () => {
 
 			[uri2, [diag, diag]],
 			[uri2, undefined],
-			[uri2, [diag]],
+			[uri2, [diag]]
 		]);
 
 		assert.equal(collection.get(uri).length, 1);
 		assert.equal(collection.get(uri2).length, 1);
 	});
 
-	test('diagnostics collection, tuples and undefined (large array), #15585', function () {
-
+	test('diagnostics collection, tuples and undefined (large array), #15585', function() {
 		const collection = new DiagnosticCollection('test', new DiagnosticsShape());
 		const tuples: [URI, Diagnostic[]][] = [];
 
@@ -233,22 +249,31 @@ suite('ExtHostDiagnostics', () => {
 		}
 	});
 
-	test('diagnostic capping', function () {
-
+	test('diagnostic capping', function() {
 		let lastEntries: [URI, IMarkerData[]][];
-		let collection = new DiagnosticCollection('test', new class extends DiagnosticsShape {
-			$changeMany(owner: string, entries: [URI, IMarkerData[]][]): TPromise<any> {
-				lastEntries = entries;
-				return super.$changeMany(owner, entries);
-			}
-		});
+		let collection = new DiagnosticCollection(
+			'test',
+			new class extends DiagnosticsShape {
+				$changeMany(
+					owner: string,
+					entries: [URI, IMarkerData[]][]
+				): TPromise<any> {
+					lastEntries = entries;
+					return super.$changeMany(owner, entries);
+				}
+			}()
+		);
 		let uri = URI.parse('aa:bb');
 
 		let diagnostics: Diagnostic[] = [];
 		for (let i = 0; i < 500; i++) {
-			diagnostics.push(new Diagnostic(new Range(i, 0, i + 1, 0), `error#${i}`, i < 300
-				? DiagnosticSeverity.Warning
-				: DiagnosticSeverity.Error));
+			diagnostics.push(
+				new Diagnostic(
+					new Range(i, 0, i + 1, 0),
+					`error#${i}`,
+					i < 300 ? DiagnosticSeverity.Warning : DiagnosticSeverity.Error
+				)
+			);
 		}
 
 		collection.set(uri, diagnostics);

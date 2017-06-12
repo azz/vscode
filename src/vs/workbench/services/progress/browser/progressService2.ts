@@ -2,23 +2,39 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import 'vs/css!vs/workbench/services/progress/browser/media/progressService2';
 import * as dom from 'vs/base/browser/dom';
 import { localize } from 'vs/nls';
-import { IActivityBarService, ProgressBadge } from 'vs/workbench/services/activity/common/activityBarService';
+import {
+	IActivityBarService,
+	ProgressBadge
+} from 'vs/workbench/services/activity/common/activityBarService';
 import { IDisposable, dispose } from 'vs/base/common/lifecycle';
-import { IProgressService2, IProgressOptions, ProgressLocation, IProgress, IProgressStep, Progress, emptyProgress } from 'vs/platform/progress/common/progress';
+import {
+	IProgressService2,
+	IProgressOptions,
+	ProgressLocation,
+	IProgress,
+	IProgressStep,
+	Progress,
+	emptyProgress
+} from 'vs/platform/progress/common/progress';
 import { IViewletService } from 'vs/workbench/services/viewlet/browser/viewlet';
 import { OcticonLabel } from 'vs/base/browser/ui/octiconLabel/octiconLabel';
 import { Registry } from 'vs/platform/platform';
-import { StatusbarAlignment, IStatusbarRegistry, StatusbarItemDescriptor, Extensions, IStatusbarItem } from 'vs/workbench/browser/parts/statusbar/statusbar';
+import {
+	StatusbarAlignment,
+	IStatusbarRegistry,
+	StatusbarItemDescriptor,
+	Extensions,
+	IStatusbarItem
+} from 'vs/workbench/browser/parts/statusbar/statusbar';
 import { TPromise } from 'vs/base/common/winjs.base';
 import { always } from 'vs/base/common/async';
 
 class WindowProgressItem implements IStatusbarItem {
-
 	static Instance: WindowProgressItem;
 
 	private _element: HTMLElement;
@@ -53,9 +69,7 @@ class WindowProgressItem implements IStatusbarItem {
 	}
 }
 
-
 export class ProgressService2 implements IProgressService2 {
-
 	_serviceBrand: any;
 
 	private _stack: [IProgressOptions, Progress<IProgressStep>][] = [];
@@ -67,7 +81,12 @@ export class ProgressService2 implements IProgressService2 {
 		//
 	}
 
-	withProgress(options: IProgressOptions, task: (progress: IProgress<{ message?: string, percentage?: number }>) => TPromise<any>): void {
+	withProgress(
+		options: IProgressOptions,
+		task: (
+			progress: IProgress<{ message?: string; percentage?: number }>
+		) => TPromise<any>
+	): void {
 		const { location } = options;
 		switch (location) {
 			case ProgressLocation.Window:
@@ -81,10 +100,16 @@ export class ProgressService2 implements IProgressService2 {
 		}
 	}
 
-
-	private _withWindowProgress(options: IProgressOptions, callback: (progress: IProgress<{ message?: string, percentage?: number }>) => TPromise<any>): void {
-
-		const task: [IProgressOptions, Progress<IProgressStep>] = [options, new Progress<IProgressStep>(() => this._updateWindowProgress())];
+	private _withWindowProgress(
+		options: IProgressOptions,
+		callback: (
+			progress: IProgress<{ message?: string; percentage?: number }>
+		) => TPromise<any>
+	): void {
+		const task: [IProgressOptions, Progress<IProgressStep>] = [
+			options,
+			new Progress<IProgressStep>(() => this._updateWindowProgress())
+		];
 
 		const promise = callback(task[1]);
 		this._stack.unshift(task);
@@ -106,7 +131,12 @@ export class ProgressService2 implements IProgressService2 {
 			let text = options.title;
 			if (progress.value && progress.value.message) {
 				if (options.title) {
-					text = localize('progress.text', "{0} - {1}", progress.value.message, options.title);
+					text = localize(
+						'progress.text',
+						'{0} - {1}',
+						progress.value.message,
+						options.title
+					);
 				} else {
 					text = progress.value.message;
 				}
@@ -120,7 +150,7 @@ export class ProgressService2 implements IProgressService2 {
 
 			let title = text;
 			if (options.tooltip) {
-				title = localize('progress.title', "{0}: {1}", options.tooltip, text);
+				title = localize('progress.title', '{0}: {1}', options.tooltip, text);
 			}
 
 			WindowProgressItem.Instance.text = text;
@@ -129,12 +159,16 @@ export class ProgressService2 implements IProgressService2 {
 		}
 	}
 
-	private _withViewletProgress(viewletId: string, task: (progress: IProgress<number>) => TPromise<any>): void {
-
+	private _withViewletProgress(
+		viewletId: string,
+		task: (progress: IProgress<number>) => TPromise<any>
+	): void {
 		const promise = task(emptyProgress);
 
 		// show in viewlet
-		const viewletProgress = this._viewletService.getProgressIndicator(viewletId);
+		const viewletProgress = this._viewletService.getProgressIndicator(
+			viewletId
+		);
 		if (viewletProgress) {
 			viewletProgress.showWhile(promise);
 		}
@@ -170,7 +204,6 @@ export class ProgressService2 implements IProgressService2 {
 		});
 	}
 }
-
 
 Registry.as<IStatusbarRegistry>(Extensions.Statusbar).registerStatusbarItem(
 	new StatusbarItemDescriptor(WindowProgressItem, StatusbarAlignment.LEFT)

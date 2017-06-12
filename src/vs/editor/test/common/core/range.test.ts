@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { Range } from 'vs/editor/common/core/range';
@@ -59,62 +59,143 @@ suite('Editor Core - Range', () => {
 
 		a = new Range(1, 1, 1, 3);
 		b = new Range(1, 2, 1, 4);
-		assert.ok(Range.compareRangesUsingEnds(a, b) < 0, 'a.start < b.start, a.end < b.end');
+		assert.ok(
+			Range.compareRangesUsingEnds(a, b) < 0,
+			'a.start < b.start, a.end < b.end'
+		);
 
 		a = new Range(1, 1, 1, 3);
 		b = new Range(1, 1, 1, 4);
-		assert.ok(Range.compareRangesUsingEnds(a, b) < 0, 'a.start = b.start, a.end < b.end');
+		assert.ok(
+			Range.compareRangesUsingEnds(a, b) < 0,
+			'a.start = b.start, a.end < b.end'
+		);
 
 		a = new Range(1, 2, 1, 3);
 		b = new Range(1, 1, 1, 4);
-		assert.ok(Range.compareRangesUsingEnds(a, b) < 0, 'a.start > b.start, a.end < b.end');
+		assert.ok(
+			Range.compareRangesUsingEnds(a, b) < 0,
+			'a.start > b.start, a.end < b.end'
+		);
 
 		a = new Range(1, 1, 1, 4);
 		b = new Range(1, 2, 1, 4);
-		assert.ok(Range.compareRangesUsingEnds(a, b) < 0, 'a.start < b.start, a.end = b.end');
+		assert.ok(
+			Range.compareRangesUsingEnds(a, b) < 0,
+			'a.start < b.start, a.end = b.end'
+		);
 
 		a = new Range(1, 1, 1, 4);
 		b = new Range(1, 1, 1, 4);
-		assert.ok(Range.compareRangesUsingEnds(a, b) === 0, 'a.start = b.start, a.end = b.end');
+		assert.ok(
+			Range.compareRangesUsingEnds(a, b) === 0,
+			'a.start = b.start, a.end = b.end'
+		);
 
 		a = new Range(1, 2, 1, 4);
 		b = new Range(1, 1, 1, 4);
-		assert.ok(Range.compareRangesUsingEnds(a, b) > 0, 'a.start > b.start, a.end = b.end');
+		assert.ok(
+			Range.compareRangesUsingEnds(a, b) > 0,
+			'a.start > b.start, a.end = b.end'
+		);
 
 		a = new Range(1, 1, 1, 5);
 		b = new Range(1, 2, 1, 4);
-		assert.ok(Range.compareRangesUsingEnds(a, b) > 0, 'a.start < b.start, a.end > b.end');
+		assert.ok(
+			Range.compareRangesUsingEnds(a, b) > 0,
+			'a.start < b.start, a.end > b.end'
+		);
 
 		a = new Range(1, 1, 2, 4);
 		b = new Range(1, 1, 1, 4);
-		assert.ok(Range.compareRangesUsingEnds(a, b) > 0, 'a.start = b.start, a.end > b.end');
+		assert.ok(
+			Range.compareRangesUsingEnds(a, b) > 0,
+			'a.start = b.start, a.end > b.end'
+		);
 
 		a = new Range(1, 1, 5, 1);
 		b = new Range(1, 1, 1, 4);
-		assert.ok(Range.compareRangesUsingEnds(a, b) > 0, 'a.start = b.start, a.end > b.end');
+		assert.ok(
+			Range.compareRangesUsingEnds(a, b) > 0,
+			'a.start = b.start, a.end > b.end'
+		);
 	});
 
 	test('containsPosition', () => {
-		assert.equal(new Range(2, 2, 5, 10).containsPosition(new Position(1, 3)), false);
-		assert.equal(new Range(2, 2, 5, 10).containsPosition(new Position(2, 1)), false);
-		assert.equal(new Range(2, 2, 5, 10).containsPosition(new Position(2, 2)), true);
-		assert.equal(new Range(2, 2, 5, 10).containsPosition(new Position(2, 3)), true);
-		assert.equal(new Range(2, 2, 5, 10).containsPosition(new Position(3, 1)), true);
-		assert.equal(new Range(2, 2, 5, 10).containsPosition(new Position(5, 9)), true);
-		assert.equal(new Range(2, 2, 5, 10).containsPosition(new Position(5, 10)), true);
-		assert.equal(new Range(2, 2, 5, 10).containsPosition(new Position(5, 11)), false);
-		assert.equal(new Range(2, 2, 5, 10).containsPosition(new Position(6, 1)), false);
+		assert.equal(
+			new Range(2, 2, 5, 10).containsPosition(new Position(1, 3)),
+			false
+		);
+		assert.equal(
+			new Range(2, 2, 5, 10).containsPosition(new Position(2, 1)),
+			false
+		);
+		assert.equal(
+			new Range(2, 2, 5, 10).containsPosition(new Position(2, 2)),
+			true
+		);
+		assert.equal(
+			new Range(2, 2, 5, 10).containsPosition(new Position(2, 3)),
+			true
+		);
+		assert.equal(
+			new Range(2, 2, 5, 10).containsPosition(new Position(3, 1)),
+			true
+		);
+		assert.equal(
+			new Range(2, 2, 5, 10).containsPosition(new Position(5, 9)),
+			true
+		);
+		assert.equal(
+			new Range(2, 2, 5, 10).containsPosition(new Position(5, 10)),
+			true
+		);
+		assert.equal(
+			new Range(2, 2, 5, 10).containsPosition(new Position(5, 11)),
+			false
+		);
+		assert.equal(
+			new Range(2, 2, 5, 10).containsPosition(new Position(6, 1)),
+			false
+		);
 	});
 
 	test('containsRange', () => {
-		assert.equal(new Range(2, 2, 5, 10).containsRange(new Range(1, 3, 2, 2)), false);
-		assert.equal(new Range(2, 2, 5, 10).containsRange(new Range(2, 1, 2, 2)), false);
-		assert.equal(new Range(2, 2, 5, 10).containsRange(new Range(2, 2, 5, 11)), false);
-		assert.equal(new Range(2, 2, 5, 10).containsRange(new Range(2, 2, 6, 1)), false);
-		assert.equal(new Range(2, 2, 5, 10).containsRange(new Range(5, 9, 6, 1)), false);
-		assert.equal(new Range(2, 2, 5, 10).containsRange(new Range(5, 10, 6, 1)), false);
-		assert.equal(new Range(2, 2, 5, 10).containsRange(new Range(2, 2, 5, 10)), true);
-		assert.equal(new Range(2, 2, 5, 10).containsRange(new Range(2, 3, 5, 9)), true);
-		assert.equal(new Range(2, 2, 5, 10).containsRange(new Range(3, 100, 4, 100)), true);
+		assert.equal(
+			new Range(2, 2, 5, 10).containsRange(new Range(1, 3, 2, 2)),
+			false
+		);
+		assert.equal(
+			new Range(2, 2, 5, 10).containsRange(new Range(2, 1, 2, 2)),
+			false
+		);
+		assert.equal(
+			new Range(2, 2, 5, 10).containsRange(new Range(2, 2, 5, 11)),
+			false
+		);
+		assert.equal(
+			new Range(2, 2, 5, 10).containsRange(new Range(2, 2, 6, 1)),
+			false
+		);
+		assert.equal(
+			new Range(2, 2, 5, 10).containsRange(new Range(5, 9, 6, 1)),
+			false
+		);
+		assert.equal(
+			new Range(2, 2, 5, 10).containsRange(new Range(5, 10, 6, 1)),
+			false
+		);
+		assert.equal(
+			new Range(2, 2, 5, 10).containsRange(new Range(2, 2, 5, 10)),
+			true
+		);
+		assert.equal(
+			new Range(2, 2, 5, 10).containsRange(new Range(2, 3, 5, 9)),
+			true
+		);
+		assert.equal(
+			new Range(2, 2, 5, 10).containsRange(new Range(3, 100, 4, 100)),
+			true
+		);
 	});
 });

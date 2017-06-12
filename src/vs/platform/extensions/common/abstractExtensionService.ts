@@ -2,12 +2,17 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as nls from 'vs/nls';
 import Severity from 'vs/base/common/severity';
 import { TPromise } from 'vs/base/common/winjs.base';
-import { IExtensionDescription, IExtensionService, IExtensionsStatus, ExtensionPointContribution } from 'vs/platform/extensions/common/extensions';
+import {
+	IExtensionDescription,
+	IExtensionService,
+	IExtensionsStatus,
+	ExtensionPointContribution
+} from 'vs/platform/extensions/common/extensions';
 import { IExtensionPoint } from 'vs/platform/extensions/common/extensionsRegistry';
 
 const hasOwnProperty = Object.hasOwnProperty;
@@ -30,7 +35,8 @@ interface IActivatingExtensionMap {
 
 const NO_OP_VOID_PROMISE = TPromise.as<void>(void 0);
 
-export abstract class AbstractExtensionService<T extends ActivatedExtension> implements IExtensionService {
+export abstract class AbstractExtensionService<T extends ActivatedExtension>
+	implements IExtensionService {
 	public _serviceBrand: any;
 
 	private _activatingExtensions: IActivatingExtensionMap;
@@ -43,20 +49,27 @@ export abstract class AbstractExtensionService<T extends ActivatedExtension> imp
 	/**
 	 * A map of already activated events to speed things up if the same activation event is triggered multiple times.
 	 */
-	private _alreadyActivatedEvents: { [activationEvent: string]: boolean; };
+	private _alreadyActivatedEvents: { [activationEvent: string]: boolean };
 
 	constructor(isReadyByDefault: boolean) {
 		if (isReadyByDefault) {
 			this._isReady = true;
 			this._onReady = TPromise.as(true);
-			this._onReadyC = (v: boolean) => { /*no-op*/ };
+			this._onReadyC = (v: boolean) => {
+				/*no-op*/
+			};
 		} else {
 			this._isReady = false;
-			this._onReady = new TPromise<boolean>((c, e, p) => {
-				this._onReadyC = c;
-			}, () => {
-				console.warn('You should really not try to cancel this ready promise!');
-			});
+			this._onReady = new TPromise<boolean>(
+				(c, e, p) => {
+					this._onReadyC = c;
+				},
+				() => {
+					console.warn(
+						'You should really not try to cancel this ready promise!'
+					);
+				}
+			);
 		}
 		this._activatingExtensions = {};
 		this._activatedExtensions = {};
@@ -73,16 +86,25 @@ export abstract class AbstractExtensionService<T extends ActivatedExtension> imp
 		return this._onReady;
 	}
 
-	public readExtensionPointContributions<T>(extPoint: IExtensionPoint<T>): TPromise<ExtensionPointContribution<T>[]> {
+	public readExtensionPointContributions<T>(
+		extPoint: IExtensionPoint<T>
+	): TPromise<ExtensionPointContribution<T>[]> {
 		return this.onReady().then(() => {
 			let availableExtensions = this._registry.getAllExtensionDescriptions();
 
-			let result: ExtensionPointContribution<T>[] = [], resultLen = 0;
+			let result: ExtensionPointContribution<T>[] = [],
+				resultLen = 0;
 			for (let i = 0, len = availableExtensions.length; i < len; i++) {
 				let desc = availableExtensions[i];
 
-				if (desc.contributes && hasOwnProperty.call(desc.contributes, extPoint.name)) {
-					result[resultLen++] = new ExtensionPointContribution<T>(desc, desc.contributes[extPoint.name]);
+				if (
+					desc.contributes &&
+					hasOwnProperty.call(desc.contributes, extPoint.name)
+				) {
+					result[resultLen++] = new ExtensionPointContribution<T>(
+						desc,
+						desc.contributes[extPoint.name]
+					);
 				}
 			}
 
@@ -116,7 +138,9 @@ export abstract class AbstractExtensionService<T extends ActivatedExtension> imp
 	}
 
 	private _activateByEvent(activationEvent: string): TPromise<void> {
-		let activateExtensions = this._registry.getExtensionDescriptionsForActivationEvent(activationEvent);
+		let activateExtensions = this._registry.getExtensionDescriptionsForActivationEvent(
+			activationEvent
+		);
 		return this._activateExtensions(activateExtensions, 0).then(() => {
 			this._alreadyActivatedEvents[activationEvent] = true;
 		});
@@ -137,8 +161,14 @@ export abstract class AbstractExtensionService<T extends ActivatedExtension> imp
 	 * Handle semantics related to dependencies for `currentExtension`.
 	 * semantics: `redExtensions` must wait for `greenExtensions`.
 	 */
-	private _handleActivateRequest(currentExtension: IExtensionDescription, greenExtensions: { [id: string]: IExtensionDescription; }, redExtensions: IExtensionDescription[]): void {
-		let depIds = (typeof currentExtension.extensionDependencies === 'undefined' ? [] : currentExtension.extensionDependencies);
+	private _handleActivateRequest(
+		currentExtension: IExtensionDescription,
+		greenExtensions: { [id: string]: IExtensionDescription },
+		redExtensions: IExtensionDescription[]
+	): void {
+		let depIds = typeof currentExtension.extensionDependencies === 'undefined'
+			? []
+			: currentExtension.extensionDependencies;
 		let currentExtensionGetsGreenLight = true;
 
 		for (let j = 0, lenJ = depIds.length; j < lenJ; j++) {
@@ -147,8 +177,18 @@ export abstract class AbstractExtensionService<T extends ActivatedExtension> imp
 
 			if (!depDesc) {
 				// Error condition 1: unknown dependency
-				this._showMessage(Severity.Error, nls.localize('unknownDep', "Extension `{1}` failed to activate. Reason: unknown dependency `{0}`.", depId, currentExtension.id));
-				this._activatedExtensions[currentExtension.id] = this._createFailedExtension();
+				this._showMessage(
+					Severity.Error,
+					nls.localize(
+						'unknownDep',
+						'Extension `{1}` failed to activate. Reason: unknown dependency `{0}`.',
+						depId,
+						currentExtension.id
+					)
+				);
+				this._activatedExtensions[
+					currentExtension.id
+				] = this._createFailedExtension();
 				return;
 			}
 
@@ -156,8 +196,18 @@ export abstract class AbstractExtensionService<T extends ActivatedExtension> imp
 				let dep = this._activatedExtensions[depId];
 				if (dep.activationFailed) {
 					// Error condition 2: a dependency has already failed activation
-					this._showMessage(Severity.Error, nls.localize('failedDep1', "Extension `{1}` failed to activate. Reason: dependency `{0}` failed to activate.", depId, currentExtension.id));
-					this._activatedExtensions[currentExtension.id] = this._createFailedExtension();
+					this._showMessage(
+						Severity.Error,
+						nls.localize(
+							'failedDep1',
+							'Extension `{1}` failed to activate. Reason: dependency `{0}` failed to activate.',
+							depId,
+							currentExtension.id
+						)
+					);
+					this._activatedExtensions[
+						currentExtension.id
+					] = this._createFailedExtension();
 					return;
 				}
 			} else {
@@ -174,13 +224,18 @@ export abstract class AbstractExtensionService<T extends ActivatedExtension> imp
 		}
 	}
 
-	private _activateExtensions(extensionDescriptions: IExtensionDescription[], recursionLevel: number): TPromise<void> {
+	private _activateExtensions(
+		extensionDescriptions: IExtensionDescription[],
+		recursionLevel: number
+	): TPromise<void> {
 		// console.log(recursionLevel, '_activateExtensions: ', extensionDescriptions.map(p => p.id));
 		if (extensionDescriptions.length === 0) {
 			return TPromise.as(void 0);
 		}
 
-		extensionDescriptions = extensionDescriptions.filter((p) => !hasOwnProperty.call(this._activatedExtensions, p.id));
+		extensionDescriptions = extensionDescriptions.filter(
+			p => !hasOwnProperty.call(this._activatedExtensions, p.id)
+		);
 		if (extensionDescriptions.length === 0) {
 			return TPromise.as(void 0);
 		}
@@ -189,13 +244,22 @@ export abstract class AbstractExtensionService<T extends ActivatedExtension> imp
 			// More than 10 dependencies deep => most likely a dependency loop
 			for (let i = 0, len = extensionDescriptions.length; i < len; i++) {
 				// Error condition 3: dependency loop
-				this._showMessage(Severity.Error, nls.localize('failedDep2', "Extension `{0}` failed to activate. Reason: more than 10 levels of dependencies (most likely a dependency loop).", extensionDescriptions[i].id));
-				this._activatedExtensions[extensionDescriptions[i].id] = this._createFailedExtension();
+				this._showMessage(
+					Severity.Error,
+					nls.localize(
+						'failedDep2',
+						'Extension `{0}` failed to activate. Reason: more than 10 levels of dependencies (most likely a dependency loop).',
+						extensionDescriptions[i].id
+					)
+				);
+				this._activatedExtensions[
+					extensionDescriptions[i].id
+				] = this._createFailedExtension();
 			}
 			return TPromise.as(void 0);
 		}
 
-		let greenMap: { [id: string]: IExtensionDescription; } = Object.create(null),
+		let greenMap: { [id: string]: IExtensionDescription } = Object.create(null),
 			red: IExtensionDescription[] = [];
 
 		for (let i = 0, len = extensionDescriptions.length; i < len; i++) {
@@ -216,7 +280,9 @@ export abstract class AbstractExtensionService<T extends ActivatedExtension> imp
 
 		if (red.length === 0) {
 			// Finally reached only leafs!
-			return TPromise.join(green.map((p) => this._activateExtension(p))).then(_ => void 0);
+			return TPromise.join(green.map(p => this._activateExtension(p))).then(
+				_ => void 0
+			);
 		}
 
 		return this._activateExtensions(green, recursionLevel + 1).then(_ => {
@@ -224,25 +290,46 @@ export abstract class AbstractExtensionService<T extends ActivatedExtension> imp
 		});
 	}
 
-	protected _activateExtension(extensionDescription: IExtensionDescription): TPromise<void> {
-		if (hasOwnProperty.call(this._activatedExtensions, extensionDescription.id)) {
+	protected _activateExtension(
+		extensionDescription: IExtensionDescription
+	): TPromise<void> {
+		if (
+			hasOwnProperty.call(this._activatedExtensions, extensionDescription.id)
+		) {
 			return TPromise.as(void 0);
 		}
 
-		if (hasOwnProperty.call(this._activatingExtensions, extensionDescription.id)) {
+		if (
+			hasOwnProperty.call(this._activatingExtensions, extensionDescription.id)
+		) {
 			return this._activatingExtensions[extensionDescription.id];
 		}
 
-		this._activatingExtensions[extensionDescription.id] = this._actualActivateExtension(extensionDescription).then(null, (err) => {
-			this._showMessage(Severity.Error, nls.localize('activationError', "Activating extension `{0}` failed: {1}.", extensionDescription.id, err.message));
-			console.error('Activating extension `' + extensionDescription.id + '` failed: ', err.message);
-			console.log('Here is the error stack: ', err.stack);
-			// Treat the extension as being empty
-			return this._createFailedExtension();
-		}).then((x: T) => {
-			this._activatedExtensions[extensionDescription.id] = x;
-			delete this._activatingExtensions[extensionDescription.id];
-		});
+		this._activatingExtensions[
+			extensionDescription.id
+		] = this._actualActivateExtension(extensionDescription)
+			.then(null, err => {
+				this._showMessage(
+					Severity.Error,
+					nls.localize(
+						'activationError',
+						'Activating extension `{0}` failed: {1}.',
+						extensionDescription.id,
+						err.message
+					)
+				);
+				console.error(
+					'Activating extension `' + extensionDescription.id + '` failed: ',
+					err.message
+				);
+				console.log('Here is the error stack: ', err.stack);
+				// Treat the extension as being empty
+				return this._createFailedExtension();
+			})
+			.then((x: T) => {
+				this._activatedExtensions[extensionDescription.id] = x;
+				delete this._activatingExtensions[extensionDescription.id];
+			});
 
 		return this._activatingExtensions[extensionDescription.id];
 	}
@@ -251,9 +338,10 @@ export abstract class AbstractExtensionService<T extends ActivatedExtension> imp
 
 	protected abstract _createFailedExtension(): T;
 
-	protected abstract _actualActivateExtension(extensionDescription: IExtensionDescription): TPromise<T>;
+	protected abstract _actualActivateExtension(
+		extensionDescription: IExtensionDescription
+	): TPromise<T>;
 }
-
 
 interface IExtensionDescriptionMap {
 	[extensionId: string]: IExtensionDescription;
@@ -262,7 +350,9 @@ interface IExtensionDescriptionMap {
 export class ExtensionDescriptionRegistry {
 	private _extensionsMap: IExtensionDescriptionMap;
 	private _extensionsArr: IExtensionDescription[];
-	private _activationMap: { [activationEvent: string]: IExtensionDescription[]; };
+	private _activationMap: {
+		[activationEvent: string]: IExtensionDescription[];
+	};
 
 	constructor() {
 		this._extensionsMap = {};
@@ -270,13 +360,17 @@ export class ExtensionDescriptionRegistry {
 		this._activationMap = {};
 	}
 
-	public registerExtensions(extensionDescriptions: IExtensionDescription[]): void {
+	public registerExtensions(
+		extensionDescriptions: IExtensionDescription[]
+	): void {
 		for (let i = 0, len = extensionDescriptions.length; i < len; i++) {
 			let extensionDescription = extensionDescriptions[i];
 
 			if (hasOwnProperty.call(this._extensionsMap, extensionDescription.id)) {
 				// No overwriting allowed!
-				console.error('Extension `' + extensionDescription.id + '` is already registered');
+				console.error(
+					'Extension `' + extensionDescription.id + '` is already registered'
+				);
 				continue;
 			}
 
@@ -284,16 +378,23 @@ export class ExtensionDescriptionRegistry {
 			this._extensionsArr.push(extensionDescription);
 
 			if (Array.isArray(extensionDescription.activationEvents)) {
-				for (let j = 0, lenJ = extensionDescription.activationEvents.length; j < lenJ; j++) {
+				for (
+					let j = 0, lenJ = extensionDescription.activationEvents.length;
+					j < lenJ;
+					j++
+				) {
 					let activationEvent = extensionDescription.activationEvents[j];
-					this._activationMap[activationEvent] = this._activationMap[activationEvent] || [];
+					this._activationMap[activationEvent] =
+						this._activationMap[activationEvent] || [];
 					this._activationMap[activationEvent].push(extensionDescription);
 				}
 			}
 		}
 	}
 
-	public getExtensionDescriptionsForActivationEvent(activationEvent: string): IExtensionDescription[] {
+	public getExtensionDescriptionsForActivationEvent(
+		activationEvent: string
+	): IExtensionDescription[] {
 		if (!hasOwnProperty.call(this._activationMap, activationEvent)) {
 			return [];
 		}

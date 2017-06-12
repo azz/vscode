@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import types = require('vs/base/common/types');
 
@@ -11,7 +11,11 @@ export type NumberCallback = (index: number) => void;
 
 export function count(to: number, callback: NumberCallback): void;
 export function count(from: number, to: number, callback: NumberCallback): void;
-export function count(fromOrTo: number, toOrCallback?: NumberCallback | number, callback?: NumberCallback): any {
+export function count(
+	fromOrTo: number,
+	toOrCallback?: NumberCallback | number,
+	callback?: NumberCallback
+): any {
 	var from: number, to: number;
 
 	if (types.isNumber(toOrCallback)) {
@@ -24,7 +28,9 @@ export function count(fromOrTo: number, toOrCallback?: NumberCallback | number, 
 	}
 
 	var op = from <= to ? (i: number) => i + 1 : (i: number) => i - 1;
-	var cmp = from <= to ? (a: number, b: number) => a < b : (a: number, b: number) => a > b;
+	var cmp = from <= to
+		? (a: number, b: number) => a < b
+		: (a: number, b: number) => a > b;
 
 	for (var i = from; cmp(i, to); i = op(i)) {
 		callback(i);

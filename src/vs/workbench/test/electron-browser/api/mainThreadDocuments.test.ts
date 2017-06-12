@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { BoundModelReferenceCollection } from 'vs/workbench/api/electron-browser/mainThreadDocuments';
@@ -11,7 +11,6 @@ import { Model } from 'vs/editor/common/model/model';
 import { TPromise } from 'vs/base/common/winjs.base';
 
 suite('BoundModelReferenceCollection', () => {
-
 	let col = new BoundModelReferenceCollection(15, 75);
 
 	teardown(() => {
@@ -19,7 +18,6 @@ suite('BoundModelReferenceCollection', () => {
 	});
 
 	test('max age', () => {
-
 		let didDispose = false;
 
 		col.add({
@@ -35,7 +33,6 @@ suite('BoundModelReferenceCollection', () => {
 	});
 
 	test('max size', () => {
-
 		let disposed: number[] = [];
 
 		col.add({
@@ -52,7 +49,9 @@ suite('BoundModelReferenceCollection', () => {
 		});
 
 		col.add({
-			object: <any>{ textEditorModel: Model.createFromString(new Array(71).join('x')) },
+			object: <any>{
+				textEditorModel: Model.createFromString(new Array(71).join('x'))
+			},
 			dispose() {
 				disposed.push(2);
 			}
@@ -60,5 +59,4 @@ suite('BoundModelReferenceCollection', () => {
 
 		assert.deepEqual(disposed, [0, 1]);
 	});
-
 });

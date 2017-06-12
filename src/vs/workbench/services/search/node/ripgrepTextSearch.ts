@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { EventEmitter } from 'events';
 import * as path from 'path';
@@ -18,7 +18,11 @@ import * as glob from 'vs/base/common/glob';
 import { ILineMatch, ISearchLog } from 'vs/platform/search/common/search';
 import { TPromise } from 'vs/base/common/winjs.base';
 
-import { ISerializedFileMatch, ISerializedSearchComplete, IRawSearch } from './search';
+import {
+	ISerializedFileMatch,
+	ISerializedSearchComplete,
+	IRawSearch
+} from './search';
 
 export class RipgrepEngine {
 	private isDone = false;
@@ -29,8 +33,7 @@ export class RipgrepEngine {
 
 	private resultsHandledP: TPromise<any> = TPromise.wrap(null);
 
-	constructor(private config: IRawSearch) {
-	}
+	constructor(private config: IRawSearch) {}
 
 	cancel(): void {
 		this.isDone = true;
@@ -39,7 +42,11 @@ export class RipgrepEngine {
 	}
 
 	// TODO@Rob - make promise-based once the old search is gone, and I don't need them to have matching interfaces anymore
-	search(onResult: (match: ISerializedFileMatch) => void, onMessage: (message: ISearchLog) => void, done: (error: Error, complete: ISerializedSearchComplete) => void): void {
+	search(
+		onResult: (match: ISerializedFileMatch) => void,
+		onMessage: (message: ISearchLog) => void,
+		done: (error: Error, complete: ISerializedSearchComplete) => void
+	): void {
 		if (this.config.rootFolders.length) {
 			this.searchFolder(this.config.rootFolders[0], onResult, onMessage, done);
 		} else {
@@ -50,22 +57,33 @@ export class RipgrepEngine {
 		}
 	}
 
-	private searchFolder(rootFolder: string, onResult: (match: ISerializedFileMatch) => void, onMessage: (message: ISearchLog) => void, done: (error: Error, complete: ISerializedSearchComplete) => void): void {
+	private searchFolder(
+		rootFolder: string,
+		onResult: (match: ISerializedFileMatch) => void,
+		onMessage: (message: ISearchLog) => void,
+		done: (error: Error, complete: ISerializedSearchComplete) => void
+	): void {
 		const rgArgs = getRgArgs(this.config);
 		if (rgArgs.siblingClauses) {
-			this.postProcessExclusions = glob.parseToAsync(rgArgs.siblingClauses, { trimForExclusions: true });
+			this.postProcessExclusions = glob.parseToAsync(rgArgs.siblingClauses, {
+				trimForExclusions: true
+			});
 		}
 
 		process.nextTick(() => {
 			const escapedArgs = rgArgs.args
-				.map(arg => arg.match(/^-/) ? arg : `'${arg}'`)
+				.map(arg => (arg.match(/^-/) ? arg : `'${arg}'`))
 				.join(' ');
 
 			// Allow caller to register progress callback
 			const rgCmd = `rg ${escapedArgs}\n - cwd: ${rootFolder}\n`;
 			onMessage({ message: rgCmd });
 			if (rgArgs.siblingClauses) {
-				onMessage({ message: ` - Sibling clauses: ${JSON.stringify(rgArgs.siblingClauses)}\n` });
+				onMessage({
+					message: ` - Sibling clauses: ${JSON.stringify(
+						rgArgs.siblingClauses
+					)}\n`
+				});
 			}
 		});
 		this.rgProc = cp.spawn(rgPath, rgArgs.args, { cwd: rootFolder });
@@ -74,14 +92,20 @@ export class RipgrepEngine {
 		this.ripgrepParser.on('result', (match: ISerializedFileMatch) => {
 			if (this.postProcessExclusions) {
 				const relativePath = path.relative(rootFolder, match.path);
-				const handleResultP = (<TPromise<string>>this.postProcessExclusions(relativePath, undefined, () => getSiblings(match.path)))
-					.then(globMatch => {
-						if (!globMatch) {
-							onResult(match);
-						}
-					});
+				const handleResultP = (<TPromise<
+					string
+				>>this.postProcessExclusions(relativePath, undefined, () =>
+					getSiblings(match.path)
+				)).then(globMatch => {
+					if (!globMatch) {
+						onResult(match);
+					}
+				});
 
-				this.resultsHandledP = TPromise.join([this.resultsHandledP, handleResultP]);
+				this.resultsHandledP = TPromise.join([
+					this.resultsHandledP,
+					handleResultP
+				]);
 			} else {
 				onResult(match);
 			}
@@ -99,7 +123,7 @@ export class RipgrepEngine {
 		});
 
 		let gotData = false;
-		this.rgProc.stdout.once('data', () => gotData = true);
+		this.rgProc.stdout.once('data', () => (gotData = true));
 
 		let stderr = '';
 		this.rgProc.stderr.on('data', data => {
@@ -116,7 +140,11 @@ export class RipgrepEngine {
 				if (!this.isDone) {
 					this.isDone = true;
 					let displayMsg: string;
-					if (stderr && !gotData && (displayMsg = this.rgErrorMsgForDisplay(stderr))) {
+					if (
+						stderr &&
+						!gotData &&
+						(displayMsg = this.rgErrorMsgForDisplay(stderr))
+					) {
 						done(new Error(displayMsg), {
 							limitHit: false,
 							stats: null
@@ -150,7 +178,10 @@ export class RipgrepEngine {
 		const noSuchFileMatch = firstLine.match(reg);
 		if (noSuchFileMatch) {
 			const errorPath = noSuchFileMatch[1];
-			return this.config.searchPaths && this.config.searchPaths.indexOf(errorPath) >= 0 ? firstLine : undefined;
+			return this.config.searchPaths &&
+				this.config.searchPaths.indexOf(errorPath) >= 0
+				? firstLine
+				: undefined;
 		}
 
 		if (strings.startsWith(firstLine, 'Error parsing regex')) {
@@ -197,15 +228,15 @@ export class RipgrepParser extends EventEmitter {
 	}
 
 	public handleData(data: Buffer | string): void {
-		const dataStr = typeof data === 'string' ? data : this.stringDecoder.write(data);
+		const dataStr = typeof data === 'string'
+			? data
+			: this.stringDecoder.write(data);
 		this.handleDecodedData(dataStr);
 	}
 
 	private handleDecodedData(decodedData: string): void {
 		// If the previous data chunk didn't end in a newline, prepend it to this chunk
-		const dataStr = this.remainder ?
-			this.remainder + decodedData :
-			decodedData;
+		const dataStr = this.remainder ? this.remainder + decodedData : decodedData;
 
 		const dataLines: string[] = dataStr.split(/\r\n|\n/);
 		this.remainder = dataLines[dataLines.length - 1] ? dataLines.pop() : null;
@@ -217,7 +248,7 @@ export class RipgrepParser extends EventEmitter {
 			}
 
 			let r: RegExpMatchArray;
-			if (r = outputLine.match(RipgrepParser.RESULT_REGEX)) {
+			if ((r = outputLine.match(RipgrepParser.RESULT_REGEX))) {
 				const lineNum = parseInt(r[1]) - 1;
 				let matchText = r[2];
 
@@ -229,20 +260,26 @@ export class RipgrepParser extends EventEmitter {
 
 				// Line is a result - add to collected results for the current file path
 				this.handleMatchLine(outputLine, lineNum, matchText);
-			} else if (r = outputLine.match(RipgrepParser.FILE_REGEX)) {
+			} else if ((r = outputLine.match(RipgrepParser.FILE_REGEX))) {
 				// Line is a file path - send all collected results for the previous file path
 				if (this.fileMatch) {
 					this.onResult();
 				}
 
-				this.fileMatch = new FileMatch(path.isAbsolute(r[1]) ? r[1] : path.join(this.rootFolder, r[1]));
+				this.fileMatch = new FileMatch(
+					path.isAbsolute(r[1]) ? r[1] : path.join(this.rootFolder, r[1])
+				);
 			} else {
 				// Line is empty (or malformed)
 			}
 		}
 	}
 
-	private handleMatchLine(outputLine: string, lineNum: number, text: string): void {
+	private handleMatchLine(
+		outputLine: string,
+		lineNum: number,
+		text: string
+	): void {
 		const lineMatch = new LineMatch(text, lineNum);
 		this.fileMatch.addMatch(lineMatch);
 
@@ -256,20 +293,33 @@ export class RipgrepParser extends EventEmitter {
 
 		const realTextParts: string[] = [];
 
-		for (let i = 0; i < text.length - (RipgrepParser.MATCH_END_MARKER.length - 1);) {
-			if (text.substr(i, RipgrepParser.MATCH_START_MARKER.length) === RipgrepParser.MATCH_START_MARKER) {
+		for (
+			let i = 0;
+			i < text.length - (RipgrepParser.MATCH_END_MARKER.length - 1);
+
+		) {
+			if (
+				text.substr(i, RipgrepParser.MATCH_START_MARKER.length) ===
+				RipgrepParser.MATCH_START_MARKER
+			) {
 				// Match start
 				const chunk = text.slice(lastMatchEndPos, i);
 				realTextParts.push(chunk);
 				i += RipgrepParser.MATCH_START_MARKER.length;
 				matchTextStartPos = i;
 				matchTextStartRealIdx = textRealIdx;
-			} else if (text.substr(i, RipgrepParser.MATCH_END_MARKER.length) === RipgrepParser.MATCH_END_MARKER) {
+			} else if (
+				text.substr(i, RipgrepParser.MATCH_END_MARKER.length) ===
+				RipgrepParser.MATCH_END_MARKER
+			) {
 				// Match end
 				const chunk = text.slice(matchTextStartPos, i);
 				realTextParts.push(chunk);
 				if (!hitLimit) {
-					lineMatch.addMatch(matchTextStartRealIdx, textRealIdx - matchTextStartRealIdx);
+					lineMatch.addMatch(
+						matchTextStartRealIdx,
+						textRealIdx - matchTextStartRealIdx
+					);
 				}
 
 				matchTextStartPos = -1;
@@ -377,34 +427,53 @@ export class LineMatch implements ILineMatch {
 	}
 }
 
-function globExprsToRgGlobs(patterns: glob.IExpression): { globArgs: string[], siblingClauses: glob.IExpression } {
+function globExprsToRgGlobs(
+	patterns: glob.IExpression
+): { globArgs: string[]; siblingClauses: glob.IExpression } {
 	const globArgs: string[] = [];
 	let siblingClauses: glob.IExpression = null;
-	Object.keys(patterns)
-		.forEach(key => {
-			const value = patterns[key];
-			if (typeof value === 'boolean' && value) {
-				// globs added to ripgrep don't match from the root by default, so add a /
-				if (key.charAt(0) !== '*') {
-					key = '/' + key;
-				}
-
-				globArgs.push(key);
-			} else if (value && value.when) {
-				if (!siblingClauses) {
-					siblingClauses = {};
-				}
-
-				siblingClauses[key] = value;
+	Object.keys(patterns).forEach(key => {
+		const value = patterns[key];
+		if (typeof value === 'boolean' && value) {
+			// globs added to ripgrep don't match from the root by default, so add a /
+			if (key.charAt(0) !== '*') {
+				key = '/' + key;
 			}
-		});
+
+			globArgs.push(key);
+		} else if (value && value.when) {
+			if (!siblingClauses) {
+				siblingClauses = {};
+			}
+
+			siblingClauses[key] = value;
+		}
+	});
 
 	return { globArgs, siblingClauses };
 }
 
-function getRgArgs(config: IRawSearch): { args: string[], siblingClauses: glob.IExpression } {
-	const args = ['--hidden', '--heading', '--line-number', '--color', 'ansi', '--colors', 'path:none', '--colors', 'line:none', '--colors', 'match:fg:red', '--colors', 'match:style:nobold'];
-	args.push(config.contentPattern.isCaseSensitive ? '--case-sensitive' : '--ignore-case');
+function getRgArgs(
+	config: IRawSearch
+): { args: string[]; siblingClauses: glob.IExpression } {
+	const args = [
+		'--hidden',
+		'--heading',
+		'--line-number',
+		'--color',
+		'ansi',
+		'--colors',
+		'path:none',
+		'--colors',
+		'line:none',
+		'--colors',
+		'match:fg:red',
+		'--colors',
+		'match:style:nobold'
+	];
+	args.push(
+		config.contentPattern.isCaseSensitive ? '--case-sensitive' : '--ignore-case'
+	);
 
 	if (config.includePattern) {
 		// I don't think includePattern can have siblingClauses
@@ -416,8 +485,7 @@ function getRgArgs(config: IRawSearch): { args: string[], siblingClauses: glob.I
 	let siblingClauses: glob.IExpression;
 	if (config.excludePattern) {
 		const rgGlobs = globExprsToRgGlobs(config.excludePattern);
-		rgGlobs.globArgs
-			.forEach(rgGlob => args.push('-g', `!${rgGlob}`));
+		rgGlobs.globArgs.forEach(rgGlob => args.push('-g', `!${rgGlob}`));
 		siblingClauses = rgGlobs.siblingClauses;
 	}
 
@@ -447,7 +515,11 @@ function getRgArgs(config: IRawSearch): { args: string[], siblingClauses: glob.I
 
 	let searchPatternAfterDoubleDashes: string;
 	if (config.contentPattern.isWordMatch) {
-		const regexp = strings.createRegExp(config.contentPattern.pattern, config.contentPattern.isRegExp, { wholeWord: config.contentPattern.isWordMatch });
+		const regexp = strings.createRegExp(
+			config.contentPattern.pattern,
+			config.contentPattern.isRegExp,
+			{ wholeWord: config.contentPattern.isWordMatch }
+		);
 		const regexpStr = regexp.source.replace(/\\\//g, '/'); // RegExp.source arbitrarily returns escaped slashes. Search and destroy.
 		args.push('--regexp', regexpStr);
 	} else if (config.contentPattern.isRegExp) {

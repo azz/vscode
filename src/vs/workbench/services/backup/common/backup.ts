@@ -3,18 +3,28 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import Uri from 'vs/base/common/uri';
 import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
 import { TPromise } from 'vs/base/common/winjs.base';
-import { IResolveContentOptions, IUpdateContentOptions } from 'vs/platform/files/common/files';
+import {
+	IResolveContentOptions,
+	IUpdateContentOptions
+} from 'vs/platform/files/common/files';
 import { IRawTextSource } from 'vs/editor/common/model/textSource';
 
-export const IBackupFileService = createDecorator<IBackupFileService>('backupFileService');
+export const IBackupFileService = createDecorator<IBackupFileService>(
+	'backupFileService'
+);
 
-export const BACKUP_FILE_RESOLVE_OPTIONS: IResolveContentOptions = { acceptTextOnly: true, encoding: 'utf-8' };
-export const BACKUP_FILE_UPDATE_OPTIONS: IUpdateContentOptions = { encoding: 'utf-8' };
+export const BACKUP_FILE_RESOLVE_OPTIONS: IResolveContentOptions = {
+	acceptTextOnly: true,
+	encoding: 'utf-8'
+};
+export const BACKUP_FILE_UPDATE_OPTIONS: IUpdateContentOptions = {
+	encoding: 'utf-8'
+};
 
 /**
  * A service that handles any I/O and state associated with the backup system.
@@ -42,7 +52,11 @@ export interface IBackupFileService {
 	 * @param content The content of the resource.
 	 * @param versionId The version id of the resource to backup.
 	 */
-	backupResource(resource: Uri, content: string, versionId?: number): TPromise<void>;
+	backupResource(
+		resource: Uri,
+		content: string,
+		versionId?: number
+	): TPromise<void>;
 
 	/**
 	 * Gets a list of file backups for the current workspace.

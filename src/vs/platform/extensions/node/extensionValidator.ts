@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as nls from 'vs/nls';
 import { IExtensionDescription } from 'vs/platform/extensions/common/extensions';
@@ -35,7 +35,7 @@ const VERSION_REGEXP = /^(\^|>=)?((\d+)|x)\.((\d+)|x)\.((\d+)|x)(\-.*)?$/;
 
 export function isValidVersionStr(version: string): boolean {
 	version = version.trim();
-	return (version === '*' || VERSION_REGEXP.test(version));
+	return version === '*' || VERSION_REGEXP.test(version);
 }
 
 export function parseVersion(version: string): IParsedVersion {
@@ -64,11 +64,11 @@ export function parseVersion(version: string): IParsedVersion {
 		hasCaret: m[1] === '^',
 		hasGreaterEquals: m[1] === '>=',
 		majorBase: m[2] === 'x' ? 0 : parseInt(m[2], 10),
-		majorMustEqual: (m[2] === 'x' ? false : true),
+		majorMustEqual: m[2] === 'x' ? false : true,
 		minorBase: m[4] === 'x' ? 0 : parseInt(m[4], 10),
-		minorMustEqual: (m[4] === 'x' ? false : true),
+		minorMustEqual: m[4] === 'x' ? false : true,
 		patchBase: m[6] === 'x' ? 0 : parseInt(m[6], 10),
-		patchMustEqual: (m[6] === 'x' ? false : true),
+		patchMustEqual: m[6] === 'x' ? false : true,
 		preRelease: m[8] || null
 	};
 }
@@ -105,7 +105,10 @@ export function normalizeVersion(version: IParsedVersion): INormalizedVersion {
 	};
 }
 
-export function isValidVersion(_version: string | INormalizedVersion, _desiredVersion: string | INormalizedVersion): boolean {
+export function isValidVersion(
+	_version: string | INormalizedVersion,
+	_desiredVersion: string | INormalizedVersion
+): boolean {
 	let version: INormalizedVersion;
 	if (typeof _version === 'string') {
 		version = normalizeVersion(parseVersion(_version));
@@ -157,7 +160,11 @@ export function isValidVersion(_version: string | INormalizedVersion, _desiredVe
 	}
 
 	// Anything < 1.0.0 is compatible with >= 1.0.0, except exact matches
-	if (majorBase === 1 && desiredMajorBase === 0 && (!majorMustEqual || !minorMustEqual || !patchMustEqual)) {
+	if (
+		majorBase === 1 &&
+		desiredMajorBase === 0 &&
+		(!majorMustEqual || !minorMustEqual || !patchMustEqual)
+	) {
 		desiredMajorBase = 1;
 		desiredMinorBase = 0;
 		desiredPatchBase = 0;
@@ -173,7 +180,7 @@ export function isValidVersion(_version: string | INormalizedVersion, _desiredVe
 
 	if (majorBase > desiredMajorBase) {
 		// higher major version
-		return (!majorMustEqual);
+		return !majorMustEqual;
 	}
 
 	// at this point, majorBase are equal
@@ -185,7 +192,7 @@ export function isValidVersion(_version: string | INormalizedVersion, _desiredVe
 
 	if (minorBase > desiredMinorBase) {
 		// higher minor version
-		return (!minorMustEqual);
+		return !minorMustEqual;
 	}
 
 	// at this point, minorBase are equal
@@ -197,7 +204,7 @@ export function isValidVersion(_version: string | INormalizedVersion, _desiredVe
 
 	if (patchBase > desiredPatchBase) {
 		// higher patch version
-		return (!patchMustEqual);
+		return !patchMustEqual;
 	}
 
 	// at this point, patchBase are equal
@@ -212,8 +219,11 @@ export interface IReducedExtensionDescription {
 	main?: string;
 }
 
-export function isValidExtensionVersion(version: string, extensionDesc: IReducedExtensionDescription, notices: string[]): boolean {
-
+export function isValidExtensionVersion(
+	version: string,
+	extensionDesc: IReducedExtensionDescription,
+	notices: string[]
+): boolean {
 	if (extensionDesc.isBuiltin || typeof extensionDesc.main === 'undefined') {
 		// No version check for builtin or declarative extensions
 		return true;
@@ -222,11 +232,20 @@ export function isValidExtensionVersion(version: string, extensionDesc: IReduced
 	return isVersionValid(version, extensionDesc.engines.vscode, notices);
 }
 
-export function isVersionValid(currentVersion: string, requestedVersion: string, notices: string[] = []): boolean {
-
+export function isVersionValid(
+	currentVersion: string,
+	requestedVersion: string,
+	notices: string[] = []
+): boolean {
 	let desiredVersion = normalizeVersion(parseVersion(requestedVersion));
 	if (!desiredVersion) {
-		notices.push(nls.localize('versionSyntax', "Could not parse `engines.vscode` value {0}. Please use, for example: ^0.10.0, ^1.2.3, ^0.11.0, ^0.10.x, etc.", requestedVersion));
+		notices.push(
+			nls.localize(
+				'versionSyntax',
+				'Could not parse `engines.vscode` value {0}. Please use, for example: ^0.10.0, ^1.2.3, ^0.11.0, ^0.10.x, etc.',
+				requestedVersion
+			)
+		);
 		return false;
 	}
 
@@ -236,19 +255,38 @@ export function isVersionValid(currentVersion: string, requestedVersion: string,
 	if (desiredVersion.majorBase === 0) {
 		// force that major and minor must be specific
 		if (!desiredVersion.majorMustEqual || !desiredVersion.minorMustEqual) {
-			notices.push(nls.localize('versionSpecificity1', "Version specified in `engines.vscode` ({0}) is not specific enough. For vscode versions before 1.0.0, please define at a minimum the major and minor desired version. E.g. ^0.10.0, 0.10.x, 0.11.0, etc.", requestedVersion));
+			notices.push(
+				nls.localize(
+					'versionSpecificity1',
+					'Version specified in `engines.vscode` ({0}) is not specific enough. For vscode versions before 1.0.0, please define at a minimum the major and minor desired version. E.g. ^0.10.0, 0.10.x, 0.11.0, etc.',
+					requestedVersion
+				)
+			);
 			return false;
 		}
 	} else {
 		// force that major must be specific
 		if (!desiredVersion.majorMustEqual) {
-			notices.push(nls.localize('versionSpecificity2', "Version specified in `engines.vscode` ({0}) is not specific enough. For vscode versions after 1.0.0, please define at a minimum the major desired version. E.g. ^1.10.0, 1.10.x, 1.x.x, 2.x.x, etc.", requestedVersion));
+			notices.push(
+				nls.localize(
+					'versionSpecificity2',
+					'Version specified in `engines.vscode` ({0}) is not specific enough. For vscode versions after 1.0.0, please define at a minimum the major desired version. E.g. ^1.10.0, 1.10.x, 1.x.x, 2.x.x, etc.',
+					requestedVersion
+				)
+			);
 			return false;
 		}
 	}
 
 	if (!isValidVersion(currentVersion, desiredVersion)) {
-		notices.push(nls.localize('versionMismatch', "Extension is not compatible with Code {0}. Extension requires: {1}.", currentVersion, requestedVersion));
+		notices.push(
+			nls.localize(
+				'versionMismatch',
+				'Extension is not compatible with Code {0}. Extension requires: {1}.',
+				currentVersion,
+				requestedVersion
+			)
+		);
 		return false;
 	}
 
@@ -267,75 +305,168 @@ function _isStringArray(arr: string[]): boolean {
 	return true;
 }
 
-function baseIsValidExtensionDescription(extensionFolderPath: string, extensionDescription: IExtensionDescription, notices: string[]): boolean {
+function baseIsValidExtensionDescription(
+	extensionFolderPath: string,
+	extensionDescription: IExtensionDescription,
+	notices: string[]
+): boolean {
 	if (!extensionDescription) {
-		notices.push(nls.localize('extensionDescription.empty', "Got empty extension description"));
+		notices.push(
+			nls.localize(
+				'extensionDescription.empty',
+				'Got empty extension description'
+			)
+		);
 		return false;
 	}
 	if (typeof extensionDescription.publisher !== 'string') {
-		notices.push(nls.localize('extensionDescription.publisher', "property `{0}` is mandatory and must be of type `string`", 'publisher'));
+		notices.push(
+			nls.localize(
+				'extensionDescription.publisher',
+				'property `{0}` is mandatory and must be of type `string`',
+				'publisher'
+			)
+		);
 		return false;
 	}
 	if (typeof extensionDescription.name !== 'string') {
-		notices.push(nls.localize('extensionDescription.name', "property `{0}` is mandatory and must be of type `string`", 'name'));
+		notices.push(
+			nls.localize(
+				'extensionDescription.name',
+				'property `{0}` is mandatory and must be of type `string`',
+				'name'
+			)
+		);
 		return false;
 	}
 	if (typeof extensionDescription.version !== 'string') {
-		notices.push(nls.localize('extensionDescription.version', "property `{0}` is mandatory and must be of type `string`", 'version'));
+		notices.push(
+			nls.localize(
+				'extensionDescription.version',
+				'property `{0}` is mandatory and must be of type `string`',
+				'version'
+			)
+		);
 		return false;
 	}
 	if (!extensionDescription.engines) {
-		notices.push(nls.localize('extensionDescription.engines', "property `{0}` is mandatory and must be of type `object`", 'engines'));
+		notices.push(
+			nls.localize(
+				'extensionDescription.engines',
+				'property `{0}` is mandatory and must be of type `object`',
+				'engines'
+			)
+		);
 		return false;
 	}
 	if (typeof extensionDescription.engines.vscode !== 'string') {
-		notices.push(nls.localize('extensionDescription.engines.vscode', "property `{0}` is mandatory and must be of type `string`", 'engines.vscode'));
+		notices.push(
+			nls.localize(
+				'extensionDescription.engines.vscode',
+				'property `{0}` is mandatory and must be of type `string`',
+				'engines.vscode'
+			)
+		);
 		return false;
 	}
 	if (typeof extensionDescription.extensionDependencies !== 'undefined') {
 		if (!_isStringArray(extensionDescription.extensionDependencies)) {
-			notices.push(nls.localize('extensionDescription.extensionDependencies', "property `{0}` can be omitted or must be of type `string[]`", 'extensionDependencies'));
+			notices.push(
+				nls.localize(
+					'extensionDescription.extensionDependencies',
+					'property `{0}` can be omitted or must be of type `string[]`',
+					'extensionDependencies'
+				)
+			);
 			return false;
 		}
 	}
 	if (typeof extensionDescription.activationEvents !== 'undefined') {
 		if (!_isStringArray(extensionDescription.activationEvents)) {
-			notices.push(nls.localize('extensionDescription.activationEvents1', "property `{0}` can be omitted or must be of type `string[]`", 'activationEvents'));
+			notices.push(
+				nls.localize(
+					'extensionDescription.activationEvents1',
+					'property `{0}` can be omitted or must be of type `string[]`',
+					'activationEvents'
+				)
+			);
 			return false;
 		}
 		if (typeof extensionDescription.main === 'undefined') {
-			notices.push(nls.localize('extensionDescription.activationEvents2', "properties `{0}` and `{1}` must both be specified or must both be omitted", 'activationEvents', 'main'));
+			notices.push(
+				nls.localize(
+					'extensionDescription.activationEvents2',
+					'properties `{0}` and `{1}` must both be specified or must both be omitted',
+					'activationEvents',
+					'main'
+				)
+			);
 			return false;
 		}
 	}
 	if (typeof extensionDescription.main !== 'undefined') {
 		if (typeof extensionDescription.main !== 'string') {
-			notices.push(nls.localize('extensionDescription.main1', "property `{0}` can be omitted or must be of type `string`", 'main'));
+			notices.push(
+				nls.localize(
+					'extensionDescription.main1',
+					'property `{0}` can be omitted or must be of type `string`',
+					'main'
+				)
+			);
 			return false;
 		} else {
-			let normalizedAbsolutePath = join(extensionFolderPath, extensionDescription.main);
+			let normalizedAbsolutePath = join(
+				extensionFolderPath,
+				extensionDescription.main
+			);
 
 			if (normalizedAbsolutePath.indexOf(extensionFolderPath)) {
-				notices.push(nls.localize('extensionDescription.main2', "Expected `main` ({0}) to be included inside extension's folder ({1}). This might make the extension non-portable.", normalizedAbsolutePath, extensionFolderPath));
+				notices.push(
+					nls.localize(
+						'extensionDescription.main2',
+						"Expected `main` ({0}) to be included inside extension's folder ({1}). This might make the extension non-portable.",
+						normalizedAbsolutePath,
+						extensionFolderPath
+					)
+				);
 				// not a failure case
 			}
 		}
 		if (typeof extensionDescription.activationEvents === 'undefined') {
-			notices.push(nls.localize('extensionDescription.main3', "properties `{0}` and `{1}` must both be specified or must both be omitted", 'activationEvents', 'main'));
+			notices.push(
+				nls.localize(
+					'extensionDescription.main3',
+					'properties `{0}` and `{1}` must both be specified or must both be omitted',
+					'activationEvents',
+					'main'
+				)
+			);
 			return false;
 		}
 	}
 	return true;
 }
 
-export function isValidExtensionDescription(version: string, extensionFolderPath: string, extensionDescription: IExtensionDescription, notices: string[]): boolean {
-
-	if (!baseIsValidExtensionDescription(extensionFolderPath, extensionDescription, notices)) {
+export function isValidExtensionDescription(
+	version: string,
+	extensionFolderPath: string,
+	extensionDescription: IExtensionDescription,
+	notices: string[]
+): boolean {
+	if (
+		!baseIsValidExtensionDescription(
+			extensionFolderPath,
+			extensionDescription,
+			notices
+		)
+	) {
 		return false;
 	}
 
 	if (!valid(extensionDescription.version)) {
-		notices.push(nls.localize('notSemver', "Extension version is not semver compatible."));
+		notices.push(
+			nls.localize('notSemver', 'Extension version is not semver compatible.')
+		);
 		return false;
 	}
 

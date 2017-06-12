@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as es from 'event-stream';
 import * as debounce from 'debounce';
@@ -22,31 +22,43 @@ export interface ICancellationToken {
 	isCancellationRequested(): boolean;
 }
 
-const NoCancellationToken: ICancellationToken = { isCancellationRequested: () => false };
+const NoCancellationToken: ICancellationToken = {
+	isCancellationRequested: () => false
+};
 
 export interface IStreamProvider {
 	(cancellationToken?: ICancellationToken): NodeJS.ReadWriteStream;
 }
 
-export function incremental(streamProvider: IStreamProvider, initial: NodeJS.ReadWriteStream, supportsCancellation: boolean): NodeJS.ReadWriteStream {
+export function incremental(
+	streamProvider: IStreamProvider,
+	initial: NodeJS.ReadWriteStream,
+	supportsCancellation: boolean
+): NodeJS.ReadWriteStream {
 	const input = es.through();
 	const output = es.through();
 	let state = 'idle';
 	let buffer = Object.create(null);
 
-	const token: ICancellationToken = !supportsCancellation ? null : { isCancellationRequested: () => Object.keys(buffer).length > 0 };
+	const token: ICancellationToken = !supportsCancellation
+		? null
+		: { isCancellationRequested: () => Object.keys(buffer).length > 0 };
 
 	const run = (input, isCancellable) => {
 		state = 'running';
 
-		const stream = !supportsCancellation ? streamProvider() : streamProvider(isCancellable ? token : NoCancellationToken);
+		const stream = !supportsCancellation
+			? streamProvider()
+			: streamProvider(isCancellable ? token : NoCancellationToken);
 
 		input
 			.pipe(stream)
-			.pipe(es.through(null, () => {
-				state = 'idle';
-				eventuallyRun();
-			}))
+			.pipe(
+				es.through(null, () => {
+					state = 'idle';
+					eventuallyRun();
+				})
+			)
 			.pipe(output);
 	};
 
@@ -91,7 +103,9 @@ export function fixWin32DirectoryPermissions(): NodeJS.ReadWriteStream {
 	});
 }
 
-export function setExecutableBit(pattern: string | string[]): NodeJS.ReadWriteStream {
+export function setExecutableBit(
+	pattern: string | string[]
+): NodeJS.ReadWriteStream {
 	var setBit = es.mapSync<VinylFile, VinylFile>(f => {
 		f.stat.mode = /* 100755 */ 33261;
 		return f;
@@ -103,10 +117,7 @@ export function setExecutableBit(pattern: string | string[]): NodeJS.ReadWriteSt
 
 	var input = es.through();
 	var filter = _filter(pattern, { restore: true });
-	var output = input
-		.pipe(filter)
-		.pipe(setBit)
-		.pipe(filter.restore);
+	var output = input.pipe(filter).pipe(setBit).pipe(filter.restore);
 
 	return es.duplex(input, output);
 }
@@ -129,8 +140,13 @@ export function skipDirectories(): NodeJS.ReadWriteStream {
 	});
 }
 
-export function cleanNodeModule(name: string, excludes: string[], includes: string[]): NodeJS.ReadWriteStream {
-	const toGlob = (path: string) => '**/node_modules/' + name + (path ? '/' + path : '');
+export function cleanNodeModule(
+	name: string,
+	excludes: string[],
+	includes: string[]
+): NodeJS.ReadWriteStream {
+	const toGlob = (path: string) =>
+		'**/node_modules/' + name + (path ? '/' + path : '');
 	const negate = (str: string) => '!' + str;
 
 	const allFilter = _filter(toGlob('**'), { restore: true });
@@ -156,8 +172,8 @@ declare class FileSourceMap extends VinylFile {
 export function loadSourcemaps(): NodeJS.ReadWriteStream {
 	const input = es.through();
 
-	const output = input
-		.pipe(es.map<FileSourceMap, FileSourceMap>((f, cb): FileSourceMap => {
+	const output = input.pipe(
+		es.map<FileSourceMap, FileSourceMap>((f, cb): FileSourceMap => {
 			if (f.sourceMap) {
 				cb(null, f);
 				return;
@@ -171,9 +187,10 @@ export function loadSourcemaps(): NodeJS.ReadWriteStream {
 			const contents = (<Buffer>f.contents).toString('utf8');
 
 			const reg = /\/\/# sourceMappingURL=(.*)$/g;
-			let lastMatch = null, match = null;
+			let lastMatch = null,
+				match = null;
 
-			while (match = reg.exec(contents)) {
+			while ((match = reg.exec(contents))) {
 				lastMatch = match;
 			}
 
@@ -190,15 +207,25 @@ export function loadSourcemaps(): NodeJS.ReadWriteStream {
 				return;
 			}
 
-			f.contents = new Buffer(contents.replace(/\/\/# sourceMappingURL=(.*)$/g, ''), 'utf8');
+			f.contents = new Buffer(
+				contents.replace(/\/\/# sourceMappingURL=(.*)$/g, ''),
+				'utf8'
+			);
 
-			fs.readFile(path.join(path.dirname(f.path), lastMatch[1]), 'utf8', (err, contents) => {
-				if (err) { return cb(err); }
+			fs.readFile(
+				path.join(path.dirname(f.path), lastMatch[1]),
+				'utf8',
+				(err, contents) => {
+					if (err) {
+						return cb(err);
+					}
 
-				f.sourceMap = JSON.parse(contents);
-				cb(null, f);
-			});
-		}));
+					f.sourceMap = JSON.parse(contents);
+					cb(null, f);
+				}
+			);
+		})
+	);
 
 	return es.duplex(input, output);
 }
@@ -206,12 +233,16 @@ export function loadSourcemaps(): NodeJS.ReadWriteStream {
 export function stripSourceMappingURL(): NodeJS.ReadWriteStream {
 	const input = es.through();
 
-	const output = input
-		.pipe(es.mapSync<VinylFile, VinylFile>(f => {
+	const output = input.pipe(
+		es.mapSync<VinylFile, VinylFile>(f => {
 			const contents = (<Buffer>f.contents).toString('utf8');
-			f.contents = new Buffer(contents.replace(/\n\/\/# sourceMappingURL=(.*)$/gm, ''), 'utf8');
+			f.contents = new Buffer(
+				contents.replace(/\n\/\/# sourceMappingURL=(.*)$/gm, ''),
+				'utf8'
+			);
 			return f;
-		}));
+		})
+	);
 
 	return es.duplex(input, output);
 }
@@ -223,7 +254,7 @@ export function rimraf(dir: string): (cb: any) => void {
 		_rimraf(dir, { maxBusyTries: 1 }, (err: any) => {
 			if (!err) {
 				return cb();
-			};
+			}
 
 			if (err.code === 'ENOTEMPTY' && ++retries < 5) {
 				return setTimeout(() => retry(cb), 10);
@@ -258,13 +289,13 @@ export interface FilterStream extends NodeJS.ReadWriteStream {
 }
 
 export function filter(fn: (data: any) => boolean): FilterStream {
-	const result = <FilterStream><any>es.through(function (data) {
+	const result = <FilterStream>(<any>es.through(function(data) {
 		if (fn(data)) {
 			this.emit('data', data);
 		} else {
 			result.restore.push(data);
 		}
-	});
+	}));
 
 	result.restore = es.through();
 	return result;

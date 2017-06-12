@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { IDisposable } from 'vs/base/common/lifecycle';
@@ -13,12 +13,14 @@ import { Model } from 'vs/editor/common/model/model';
 import * as modes from 'vs/editor/common/modes';
 import { NULL_STATE } from 'vs/editor/common/modes/nullMode';
 import { TokenizationResult2 } from 'vs/editor/common/core/token';
-import { TokenIterator, ITokenInfo } from 'vs/editor/common/model/tokenIterator';
+import {
+	TokenIterator,
+	ITokenInfo
+} from 'vs/editor/common/model/tokenIterator';
 
 // --------- utils
 
 suite('Editor Model - Model Modes 1', () => {
-
 	let calledFor: string[] = [];
 
 	function checkAndClear(arr: string[]) {
@@ -39,16 +41,18 @@ suite('Editor Model - Model Modes 1', () => {
 	let languageRegistration: IDisposable = null;
 
 	setup(() => {
-		const TEXT =
-			'1\r\n' +
-			'2\n' +
-			'3\n' +
-			'4\r\n' +
-			'5';
+		const TEXT = '1\r\n' + '2\n' + '3\n' + '4\r\n' + '5';
 		const LANGUAGE_ID = 'modelModeTest1';
 		calledFor = [];
-		languageRegistration = modes.TokenizationRegistry.register(LANGUAGE_ID, tokenizationSupport);
-		thisModel = Model.createFromString(TEXT, undefined, new modes.LanguageIdentifier(LANGUAGE_ID, 0));
+		languageRegistration = modes.TokenizationRegistry.register(
+			LANGUAGE_ID,
+			tokenizationSupport
+		);
+		thisModel = Model.createFromString(
+			TEXT,
+			undefined,
+			new modes.LanguageIdentifier(LANGUAGE_ID, 0)
+		);
 	});
 
 	teardown(() => {
@@ -157,7 +161,6 @@ suite('Editor Model - Model Modes 1', () => {
 });
 
 suite('Editor Model - Model Modes 2', () => {
-
 	class ModelState2 implements modes.IState {
 		prevLineContent: string;
 
@@ -170,7 +173,10 @@ suite('Editor Model - Model Modes 2', () => {
 		}
 
 		equals(other: modes.IState): boolean {
-			return (other instanceof ModelState2) && other.prevLineContent === this.prevLineContent;
+			return (
+				other instanceof ModelState2 &&
+				other.prevLineContent === this.prevLineContent
+			);
 		}
 	}
 
@@ -198,7 +204,8 @@ suite('Editor Model - Model Modes 2', () => {
 	}
 
 	function statesEqual(model: Model, states: string[]): void {
-		var i, len = states.length - 1;
+		var i,
+			len = states.length - 1;
 		for (i = 0; i < len; i++) {
 			stateEqual(model._lines[i].getState(), states[i]);
 		}
@@ -210,14 +217,25 @@ suite('Editor Model - Model Modes 2', () => {
 
 	setup(() => {
 		const TEXT =
-			'Line1' + '\r\n' +
-			'Line2' + '\n' +
-			'Line3' + '\n' +
-			'Line4' + '\r\n' +
+			'Line1' +
+			'\r\n' +
+			'Line2' +
+			'\n' +
+			'Line3' +
+			'\n' +
+			'Line4' +
+			'\r\n' +
 			'Line5';
 		const LANGUAGE_ID = 'modelModeTest2';
-		languageRegistration = modes.TokenizationRegistry.register(LANGUAGE_ID, tokenizationSupport);
-		thisModel = Model.createFromString(TEXT, undefined, new modes.LanguageIdentifier(LANGUAGE_ID, 0));
+		languageRegistration = modes.TokenizationRegistry.register(
+			LANGUAGE_ID,
+			tokenizationSupport
+		);
+		thisModel = Model.createFromString(
+			TEXT,
+			undefined,
+			new modes.LanguageIdentifier(LANGUAGE_ID, 0)
+		);
 	});
 
 	teardown(() => {
@@ -253,11 +271,22 @@ suite('Editor Model - Model Modes 2', () => {
 	test('getTokensForInvalidLines one multi-line text insert, one small text insert', () => {
 		thisModel.forceTokenization(5);
 		statesEqual(thisModel, ['', 'Line1', 'Line2', 'Line3', 'Line4', 'Line5']);
-		thisModel.applyEdits([EditOperation.insert(new Position(1, 6), '\nNew line\nAnother new line')]);
+		thisModel.applyEdits([
+			EditOperation.insert(new Position(1, 6), '\nNew line\nAnother new line')
+		]);
 		thisModel.applyEdits([EditOperation.insert(new Position(5, 6), '-')]);
 		invalidEqual(thisModel, [0, 4]);
 		thisModel.forceTokenization(7);
-		statesEqual(thisModel, ['', 'Line1', 'New line', 'Another new line', 'Line2', 'Line3-', 'Line4', 'Line5']);
+		statesEqual(thisModel, [
+			'',
+			'Line1',
+			'New line',
+			'Another new line',
+			'Line2',
+			'Line3-',
+			'Line4',
+			'Line5'
+		]);
 	});
 
 	test('getTokensForInvalidLines one delete text', () => {
@@ -290,9 +319,7 @@ suite('Editor Model - Model Modes 2', () => {
 	});
 });
 
-
 suite('Editor Model - Token Iterator', () => {
-
 	const tokenizationSupport: modes.ITokenizationSupport = {
 		getInitialState: (): modes.IState => NULL_STATE,
 		tokenize: undefined,
@@ -303,10 +330,9 @@ suite('Editor Model - Token Iterator', () => {
 			let tokensCount = line.length / 3;
 			let tokens = new Uint32Array(tokensCount << 1);
 			for (let i = 0; i < tokensCount; i++) {
-				tokens[(i << 1)] = 3 * i;
-				tokens[(i << 1) + 1] = (
-					i << modes.MetadataConsts.FOREGROUND_OFFSET
-				) >>> 0;
+				tokens[i << 1] = 3 * i;
+				tokens[(i << 1) + 1] =
+					i << modes.MetadataConsts.FOREGROUND_OFFSET >>> 0;
 			}
 			return new TokenizationResult2(tokens, state);
 		}
@@ -317,12 +343,22 @@ suite('Editor Model - Token Iterator', () => {
 
 	setup(() => {
 		const TEXT =
-			'foobarfoobar' + '\r\n' +
-			'foobarfoobar' + '\r\n' +
-			'foobarfoobar' + '\r\n';
+			'foobarfoobar' +
+			'\r\n' +
+			'foobarfoobar' +
+			'\r\n' +
+			'foobarfoobar' +
+			'\r\n';
 		const LANGUAGE_ID = 'modelModeTestTokenIterator';
-		languageRegistration = modes.TokenizationRegistry.register(LANGUAGE_ID, tokenizationSupport);
-		thisModel = Model.createFromString(TEXT, undefined, new modes.LanguageIdentifier(LANGUAGE_ID, 0));
+		languageRegistration = modes.TokenizationRegistry.register(
+			LANGUAGE_ID,
+			tokenizationSupport
+		);
+		thisModel = Model.createFromString(
+			TEXT,
+			undefined,
+			new modes.LanguageIdentifier(LANGUAGE_ID, 0)
+		);
 	});
 
 	teardown(() => {
@@ -332,7 +368,11 @@ suite('Editor Model - Token Iterator', () => {
 		languageRegistration = null;
 	});
 
-	function tokenIterator(model: Model, position: Position, callback: (it: TokenIterator) => any): any {
+	function tokenIterator(
+		model: Model,
+		position: Position,
+		callback: (it: TokenIterator) => any
+	): any {
 		let iter = new TokenIterator(model, model.validatePosition(position));
 		let result = callback(iter);
 		iter._invalidate();
@@ -344,10 +384,11 @@ suite('Editor Model - Token Iterator', () => {
 		var ranges = [
 			[1, 4, 4, 7, 7, 10, 10, 13],
 			[1, 4, 4, 7, 7, 10, 10, 13],
-			[1, 4, 4, 7, 7, 10, 10, 13],
+			[1, 4, 4, 7, 7, 10, 10, 13]
 		];
-		tokenIterator(thisModel, new Position(1, 1), (iter) => {
-			var a: number[] = [], line = 0;
+		tokenIterator(thisModel, new Position(1, 1), iter => {
+			var a: number[] = [],
+				line = 0;
 			while (iter.hasNext()) {
 				calls++;
 				if (a.length === 0) {
@@ -365,7 +406,7 @@ suite('Editor Model - Token Iterator', () => {
 
 	test('all tokens from beginning with next', () => {
 		var n = 0;
-		tokenIterator(thisModel, new Position(1, 1), (iter) => {
+		tokenIterator(thisModel, new Position(1, 1), iter => {
 			while (iter.hasNext()) {
 				iter.next();
 				n++;
@@ -376,7 +417,7 @@ suite('Editor Model - Token Iterator', () => {
 
 	test('all tokens from beginning with prev', () => {
 		var n = 0;
-		tokenIterator(thisModel, new Position(1, 1), (iter) => {
+		tokenIterator(thisModel, new Position(1, 1), iter => {
 			while (iter.hasPrev()) {
 				iter.prev();
 				n++;
@@ -387,7 +428,7 @@ suite('Editor Model - Token Iterator', () => {
 
 	test('all tokens from end with prev', () => {
 		var n = 0;
-		tokenIterator(thisModel, new Position(3, 12), (iter) => {
+		tokenIterator(thisModel, new Position(3, 12), iter => {
 			while (iter.hasPrev()) {
 				iter.prev();
 				n++;
@@ -398,7 +439,7 @@ suite('Editor Model - Token Iterator', () => {
 
 	test('all tokens from end with next', () => {
 		var n = 0;
-		tokenIterator(thisModel, new Position(3, 12), (iter) => {
+		tokenIterator(thisModel, new Position(3, 12), iter => {
 			while (iter.hasNext()) {
 				iter.next();
 				n++;
@@ -409,7 +450,7 @@ suite('Editor Model - Token Iterator', () => {
 
 	test('prev and next are assert.equal at start', () => {
 		var calls = 0;
-		tokenIterator(thisModel, new Position(1, 2), (iter) => {
+		tokenIterator(thisModel, new Position(1, 2), iter => {
 			calls++;
 			var next = iter.next();
 			var prev = iter.prev();
@@ -421,7 +462,7 @@ suite('Editor Model - Token Iterator', () => {
 	test('position variance within token', () => {
 		var calls = 0;
 
-		tokenIterator(thisModel, new Position(1, 4), (iter) => {
+		tokenIterator(thisModel, new Position(1, 4), iter => {
 			calls++;
 			var next = iter.next();
 			assert.equal(next.lineNumber, 1);
@@ -429,7 +470,7 @@ suite('Editor Model - Token Iterator', () => {
 			assert.equal(next.endColumn, 7);
 		});
 
-		tokenIterator(thisModel, new Position(1, 5), (iter) => {
+		tokenIterator(thisModel, new Position(1, 5), iter => {
 			calls++;
 			var next = iter.next();
 			assert.equal(next.lineNumber, 1);
@@ -437,7 +478,7 @@ suite('Editor Model - Token Iterator', () => {
 			assert.equal(next.endColumn, 7);
 		});
 
-		tokenIterator(thisModel, new Position(1, 6), (iter) => {
+		tokenIterator(thisModel, new Position(1, 6), iter => {
 			calls++;
 			var next = iter.next();
 			assert.equal(next.lineNumber, 1);
@@ -450,8 +491,9 @@ suite('Editor Model - Token Iterator', () => {
 
 	test('iterator allows next/prev', () => {
 		var n = 0;
-		var up: ITokenInfo[] = [], down: ITokenInfo[] = [];
-		tokenIterator(thisModel, new Position(1, 1), (iter) => {
+		var up: ITokenInfo[] = [],
+			down: ITokenInfo[] = [];
+		tokenIterator(thisModel, new Position(1, 1), iter => {
 			while (iter.hasNext()) {
 				var next = iter.next();
 				up.push(next);
@@ -473,8 +515,9 @@ suite('Editor Model - Token Iterator', () => {
 
 	test('iterator allows prev/next', () => {
 		var n = 0;
-		var up: ITokenInfo[] = [], down: ITokenInfo[] = [];
-		tokenIterator(thisModel, new Position(3, 12), (iter) => {
+		var up: ITokenInfo[] = [],
+			down: ITokenInfo[] = [];
+		tokenIterator(thisModel, new Position(3, 12), iter => {
 			while (iter.hasPrev()) {
 				var prev = iter.prev();
 				down.push(prev);
@@ -494,13 +537,11 @@ suite('Editor Model - Token Iterator', () => {
 		}
 	});
 
-
 	test('iterator can not be used outside of callback', () => {
 		var illegalIterReference: TokenIterator;
-		tokenIterator(thisModel, new Position(3, 12), (iter) => {
+		tokenIterator(thisModel, new Position(3, 12), iter => {
 			illegalIterReference = iter;
 		});
-
 
 		try {
 			illegalIterReference.hasNext();

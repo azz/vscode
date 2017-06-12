@@ -1,5 +1,4 @@
-
-declare module "fast-plist" {
+declare module 'fast-plist' {
 	/**
 	 * A very fast plist parser
 	 */

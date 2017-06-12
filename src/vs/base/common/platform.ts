@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 // --- THIS FILE IS TEMPORARY UNTIL ENV.TS IS CLEANED UP. IT CAN SAFELY BE USED IN ALL TARGET EXECUTION ENVIRONMENTS (node & dom) ---
 
@@ -17,7 +17,7 @@ let _language: string = undefined;
 
 interface NLSConfig {
 	locale: string;
-	availableLanguages: { [key: string]: string; };
+	availableLanguages: { [key: string]: string };
 }
 
 export interface IProcessEnvironment {
@@ -43,10 +43,10 @@ export const LANGUAGE_DEFAULT = 'en';
 
 // OS detection
 if (typeof process === 'object') {
-	_isWindows = (process.platform === 'win32');
-	_isMacintosh = (process.platform === 'darwin');
-	_isLinux = (process.platform === 'linux');
-	_isRootUser = !_isWindows && (process.getuid() === 0);
+	_isWindows = process.platform === 'win32';
+	_isMacintosh = process.platform === 'darwin';
+	_isLinux = process.platform === 'linux';
+	_isRootUser = !_isWindows && process.getuid() === 0;
 	let rawNlsConfig = process.env['VSCODE_NLS_CONFIG'];
 	if (rawNlsConfig) {
 		try {
@@ -55,8 +55,7 @@ if (typeof process === 'object') {
 			_locale = nlsConfig.locale;
 			// VSCode's default language is 'en'
 			_language = resolved ? resolved : LANGUAGE_DEFAULT;
-		} catch (e) {
-		}
+		} catch (e) {}
 	}
 	_isNative = true;
 } else if (typeof navigator === 'object') {
@@ -109,18 +108,24 @@ export const language = _language;
  */
 export const locale = _locale;
 
-export interface TimeoutToken {
-}
+export interface TimeoutToken {}
 
-export interface IntervalToken {
-}
+export interface IntervalToken {}
 
 interface IGlobals {
 	Worker?: any;
-	setTimeout(callback: (...args: any[]) => void, delay: number, ...args: any[]): TimeoutToken;
+	setTimeout(
+		callback: (...args: any[]) => void,
+		delay: number,
+		...args: any[]
+	): TimeoutToken;
 	clearTimeout(token: TimeoutToken): void;
 
-	setInterval(callback: (...args: any[]) => void, delay: number, ...args: any[]): IntervalToken;
+	setInterval(
+		callback: (...args: any[]) => void,
+		delay: number,
+		...args: any[]
+	): IntervalToken;
 	clearInterval(token: IntervalToken): void;
 }
 
@@ -141,7 +146,9 @@ export const enum OperatingSystem {
 	Macintosh = 2,
 	Linux = 3
 }
-export const OS = (_isMacintosh ? OperatingSystem.Macintosh : (_isWindows ? OperatingSystem.Windows : OperatingSystem.Linux));
+export const OS = _isMacintosh
+	? OperatingSystem.Macintosh
+	: _isWindows ? OperatingSystem.Windows : OperatingSystem.Linux;
 
 export const enum AccessibilitySupport {
 	/**

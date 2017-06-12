@@ -13,18 +13,36 @@ import { IConfigurationService } from 'vs/platform/configuration/common/configur
 import { IContextMenuService } from 'vs/platform/contextview/browser/contextView';
 import { IInstantiationService } from 'vs/platform/instantiation/common/instantiation';
 import { ITelemetryService } from 'vs/platform/telemetry/common/telemetry';
-import { ITerminalService, ITerminalFont, TERMINAL_PANEL_ID } from 'vs/workbench/parts/terminal/common/terminal';
+import {
+	ITerminalService,
+	ITerminalFont,
+	TERMINAL_PANEL_ID
+} from 'vs/workbench/parts/terminal/common/terminal';
 import { IThemeService, ITheme } from 'vs/platform/theme/common/themeService';
-import { ansiColorIdentifiers, TERMINAL_BACKGROUND_COLOR, TERMINAL_FOREGROUND_COLOR } from './terminalColorRegistry';
-import { ColorIdentifier, selectionBackground } from 'vs/platform/theme/common/colorRegistry';
-import { KillTerminalAction, CreateNewTerminalAction, SwitchTerminalInstanceAction, SwitchTerminalInstanceActionItem, CopyTerminalSelectionAction, TerminalPasteAction, ClearTerminalAction } from 'vs/workbench/parts/terminal/electron-browser/terminalActions';
+import {
+	ansiColorIdentifiers,
+	TERMINAL_BACKGROUND_COLOR,
+	TERMINAL_FOREGROUND_COLOR
+} from './terminalColorRegistry';
+import {
+	ColorIdentifier,
+	selectionBackground
+} from 'vs/platform/theme/common/colorRegistry';
+import {
+	KillTerminalAction,
+	CreateNewTerminalAction,
+	SwitchTerminalInstanceAction,
+	SwitchTerminalInstanceActionItem,
+	CopyTerminalSelectionAction,
+	TerminalPasteAction,
+	ClearTerminalAction
+} from 'vs/workbench/parts/terminal/electron-browser/terminalActions';
 import { Panel } from 'vs/workbench/browser/panel';
 import { StandardMouseEvent } from 'vs/base/browser/mouseEvent';
 import { TPromise } from 'vs/base/common/winjs.base';
 import URI from 'vs/base/common/uri';
 
 export class TerminalPanel extends Panel {
-
 	private _actions: IAction[];
 	private _copyContextMenuAction: IAction;
 	private _contextMenuActions: IAction[];
@@ -61,15 +79,29 @@ export class TerminalPanel extends Panel {
 
 		this._attachEventListeners();
 
-		this._terminalService.setContainers(this.getContainer().getHTMLElement(), this._terminalContainer);
+		this._terminalService.setContainers(
+			this.getContainer().getHTMLElement(),
+			this._terminalContainer
+		);
 
-		this._register(this.themeService.onThemeChange(theme => this._updateTheme(theme)));
-		this._register(this._configurationService.onDidUpdateConfiguration(() => this._updateFont()));
+		this._register(
+			this.themeService.onThemeChange(theme => this._updateTheme(theme))
+		);
+		this._register(
+			this._configurationService.onDidUpdateConfiguration(() =>
+				this._updateFont()
+			)
+		);
 		this._updateFont();
 		this._updateTheme();
 
 		// Force another layout (first is setContainers) since config has changed
-		this.layout(new Dimension(this._terminalContainer.offsetWidth, this._terminalContainer.offsetHeight));
+		this.layout(
+			new Dimension(
+				this._terminalContainer.offsetWidth,
+				this._terminalContainer.offsetHeight
+			)
+		);
 		return TPromise.as(void 0);
 	}
 
@@ -77,7 +109,7 @@ export class TerminalPanel extends Panel {
 		if (!dimension) {
 			return;
 		}
-		this._terminalService.terminalInstances.forEach((t) => {
+		this._terminalService.terminalInstances.forEach(t => {
 			t.layout(dimension);
 		});
 	}
@@ -104,9 +136,21 @@ export class TerminalPanel extends Panel {
 	public getActions(): IAction[] {
 		if (!this._actions) {
 			this._actions = [
-				this._instantiationService.createInstance(SwitchTerminalInstanceAction, SwitchTerminalInstanceAction.ID, SwitchTerminalInstanceAction.LABEL),
-				this._instantiationService.createInstance(CreateNewTerminalAction, CreateNewTerminalAction.ID, CreateNewTerminalAction.PANEL_LABEL),
-				this._instantiationService.createInstance(KillTerminalAction, KillTerminalAction.ID, KillTerminalAction.PANEL_LABEL)
+				this._instantiationService.createInstance(
+					SwitchTerminalInstanceAction,
+					SwitchTerminalInstanceAction.ID,
+					SwitchTerminalInstanceAction.LABEL
+				),
+				this._instantiationService.createInstance(
+					CreateNewTerminalAction,
+					CreateNewTerminalAction.ID,
+					CreateNewTerminalAction.PANEL_LABEL
+				),
+				this._instantiationService.createInstance(
+					KillTerminalAction,
+					KillTerminalAction.ID,
+					KillTerminalAction.PANEL_LABEL
+				)
 			];
 			this._actions.forEach(a => {
 				this._register(a);
@@ -117,26 +161,47 @@ export class TerminalPanel extends Panel {
 
 	private _getContextMenuActions(): IAction[] {
 		if (!this._contextMenuActions) {
-			this._copyContextMenuAction = this._instantiationService.createInstance(CopyTerminalSelectionAction, CopyTerminalSelectionAction.ID, nls.localize('copy', "Copy"));
+			this._copyContextMenuAction = this._instantiationService.createInstance(
+				CopyTerminalSelectionAction,
+				CopyTerminalSelectionAction.ID,
+				nls.localize('copy', 'Copy')
+			);
 			this._contextMenuActions = [
-				this._instantiationService.createInstance(CreateNewTerminalAction, CreateNewTerminalAction.ID, nls.localize('createNewTerminal', "New Terminal")),
+				this._instantiationService.createInstance(
+					CreateNewTerminalAction,
+					CreateNewTerminalAction.ID,
+					nls.localize('createNewTerminal', 'New Terminal')
+				),
 				new Separator(),
 				this._copyContextMenuAction,
-				this._instantiationService.createInstance(TerminalPasteAction, TerminalPasteAction.ID, nls.localize('paste', "Paste")),
+				this._instantiationService.createInstance(
+					TerminalPasteAction,
+					TerminalPasteAction.ID,
+					nls.localize('paste', 'Paste')
+				),
 				new Separator(),
-				this._instantiationService.createInstance(ClearTerminalAction, ClearTerminalAction.ID, nls.localize('clear', "Clear"))
+				this._instantiationService.createInstance(
+					ClearTerminalAction,
+					ClearTerminalAction.ID,
+					nls.localize('clear', 'Clear')
+				)
 			];
 			this._contextMenuActions.forEach(a => {
 				this._register(a);
 			});
 		}
-		this._copyContextMenuAction.enabled = document.activeElement.classList.contains('xterm') && window.getSelection().toString().length > 0;
+		this._copyContextMenuAction.enabled =
+			document.activeElement.classList.contains('xterm') &&
+			window.getSelection().toString().length > 0;
 		return this._contextMenuActions;
 	}
 
 	public getActionItem(action: Action): IActionItem {
 		if (action.id === SwitchTerminalInstanceAction.ID) {
-			return this._instantiationService.createInstance(SwitchTerminalInstanceActionItem, action);
+			return this._instantiationService.createInstance(
+				SwitchTerminalInstanceActionItem,
+				action
+			);
 		}
 
 		return super.getActionItem(action);
@@ -150,88 +215,120 @@ export class TerminalPanel extends Panel {
 	}
 
 	private _attachEventListeners(): void {
-		this._register(dom.addDisposableListener(this._parentDomElement, 'mousedown', (event: MouseEvent) => {
-			if (this._terminalService.terminalInstances.length === 0) {
-				return;
-			}
+		this._register(
+			dom.addDisposableListener(
+				this._parentDomElement,
+				'mousedown',
+				(event: MouseEvent) => {
+					if (this._terminalService.terminalInstances.length === 0) {
+						return;
+					}
 
-			if (event.which === 2 && platform.isLinux) {
-				// Drop selection and focus terminal on Linux to enable middle button paste when click
-				// occurs on the selection itself.
-				this._terminalService.getActiveInstance().focus();
-			} else if (event.which === 3) {
-				if (this._terminalService.configHelper.config.rightClickCopyPaste) {
-					let terminal = this._terminalService.getActiveInstance();
-					if (terminal.hasSelection()) {
-						terminal.copySelection();
-						terminal.clearSelection();
-					} else {
-						terminal.paste();
+					if (event.which === 2 && platform.isLinux) {
+						// Drop selection and focus terminal on Linux to enable middle button paste when click
+						// occurs on the selection itself.
+						this._terminalService.getActiveInstance().focus();
+					} else if (event.which === 3) {
+						if (this._terminalService.configHelper.config.rightClickCopyPaste) {
+							let terminal = this._terminalService.getActiveInstance();
+							if (terminal.hasSelection()) {
+								terminal.copySelection();
+								terminal.clearSelection();
+							} else {
+								terminal.paste();
+							}
+							// Clear selection after all click event bubbling is finished on Mac to prevent
+							// right-click selecting a word which is seemed cannot be disabled. There is a
+							// flicker when pasting but this appears to give the best experience if the
+							// setting is enabled.
+							if (platform.isMacintosh) {
+								setTimeout(() => {
+									terminal.clearSelection();
+								}, 0);
+							}
+							this._cancelContextMenu = true;
+						}
 					}
-					// Clear selection after all click event bubbling is finished on Mac to prevent
-					// right-click selecting a word which is seemed cannot be disabled. There is a
-					// flicker when pasting but this appears to give the best experience if the
-					// setting is enabled.
-					if (platform.isMacintosh) {
-						setTimeout(() => {
-							terminal.clearSelection();
-						}, 0);
-					}
-					this._cancelContextMenu = true;
 				}
-			}
-		}));
-		this._register(dom.addDisposableListener(this._parentDomElement, 'contextmenu', (event: MouseEvent) => {
-			if (!this._cancelContextMenu) {
-				const standardEvent = new StandardMouseEvent(event);
-				let anchor: { x: number, y: number } = { x: standardEvent.posx, y: standardEvent.posy };
-				this._contextMenuService.showContextMenu({
-					getAnchor: () => anchor,
-					getActions: () => TPromise.as(this._getContextMenuActions()),
-					getActionsContext: () => this._parentDomElement
-				});
-			}
-			this._cancelContextMenu = false;
-		}));
-		this._register(dom.addDisposableListener(this._parentDomElement, 'click', (event) => {
-			if (event.which === 3) {
-				return;
-			}
-
-			const instance = this._terminalService.getActiveInstance();
-			if (instance) {
-				this._terminalService.getActiveInstance().focus();
-			}
-		}));
-		this._register(dom.addDisposableListener(this._parentDomElement, 'keyup', (event: KeyboardEvent) => {
-			if (event.keyCode === 27) {
-				// Keep terminal open on escape
-				event.stopPropagation();
-			}
-		}));
-		this._register(dom.addDisposableListener(this._parentDomElement, dom.EventType.DROP, (e: DragEvent) => {
-			if (e.target === this._parentDomElement || dom.isAncestor(e.target as HTMLElement, this._parentDomElement)) {
-				if (!e.dataTransfer) {
+			)
+		);
+		this._register(
+			dom.addDisposableListener(
+				this._parentDomElement,
+				'contextmenu',
+				(event: MouseEvent) => {
+					if (!this._cancelContextMenu) {
+						const standardEvent = new StandardMouseEvent(event);
+						let anchor: { x: number; y: number } = {
+							x: standardEvent.posx,
+							y: standardEvent.posy
+						};
+						this._contextMenuService.showContextMenu({
+							getAnchor: () => anchor,
+							getActions: () => TPromise.as(this._getContextMenuActions()),
+							getActionsContext: () => this._parentDomElement
+						});
+					}
+					this._cancelContextMenu = false;
+				}
+			)
+		);
+		this._register(
+			dom.addDisposableListener(this._parentDomElement, 'click', event => {
+				if (event.which === 3) {
 					return;
 				}
 
-				// Check if the file was dragged from the tree explorer
-				let uri = e.dataTransfer.getData('URL');
-				if (uri) {
-					uri = URI.parse(uri).path;
-				} else if (e.dataTransfer.files.length > 0) {
-					// Check if the file was dragged from the filesystem
-					uri = URI.file(e.dataTransfer.files[0].path).path;
+				const instance = this._terminalService.getActiveInstance();
+				if (instance) {
+					this._terminalService.getActiveInstance().focus();
 				}
-
-				if (!uri) {
-					return;
+			})
+		);
+		this._register(
+			dom.addDisposableListener(
+				this._parentDomElement,
+				'keyup',
+				(event: KeyboardEvent) => {
+					if (event.keyCode === 27) {
+						// Keep terminal open on escape
+						event.stopPropagation();
+					}
 				}
+			)
+		);
+		this._register(
+			dom.addDisposableListener(
+				this._parentDomElement,
+				dom.EventType.DROP,
+				(e: DragEvent) => {
+					if (
+						e.target === this._parentDomElement ||
+						dom.isAncestor(e.target as HTMLElement, this._parentDomElement)
+					) {
+						if (!e.dataTransfer) {
+							return;
+						}
 
-				const terminal = this._terminalService.getActiveInstance();
-				terminal.sendText(this._preparePathForTerminal(uri), false);
-			}
-		}));
+						// Check if the file was dragged from the tree explorer
+						let uri = e.dataTransfer.getData('URL');
+						if (uri) {
+							uri = URI.parse(uri).path;
+						} else if (e.dataTransfer.files.length > 0) {
+							// Check if the file was dragged from the filesystem
+							uri = URI.file(e.dataTransfer.files[0].path).path;
+						}
+
+						if (!uri) {
+							return;
+						}
+
+						const terminal = this._terminalService.getActiveInstance();
+						terminal.sendText(this._preparePathForTerminal(uri), false);
+					}
+				}
+			)
+		);
 	}
 
 	private _updateTheme(theme?: ITheme): void {
@@ -241,9 +338,11 @@ export class TerminalPanel extends Panel {
 
 		let css = '';
 		ansiColorIdentifiers.forEach((colorId: ColorIdentifier, index: number) => {
-			if (colorId) { // should not happen, all indices should have a color defined.
+			if (colorId) {
+				// should not happen, all indices should have a color defined.
 				let color = theme.getColor(colorId);
-				css += `.monaco-workbench .panel.integrated-terminal .xterm .xterm-color-${index} { color: ${color}; }` +
+				css +=
+					`.monaco-workbench .panel.integrated-terminal .xterm .xterm-color-${index} { color: ${color}; }` +
 					`.monaco-workbench .panel.integrated-terminal .xterm .xterm-bg-color-${index} { background-color: ${color}; }`;
 			}
 		});
@@ -253,7 +352,8 @@ export class TerminalPanel extends Panel {
 		}
 		const fgColor = theme.getColor(TERMINAL_FOREGROUND_COLOR);
 		if (fgColor) {
-			css += `.monaco-workbench .panel.integrated-terminal .xterm { color: ${fgColor}; }` +
+			css +=
+				`.monaco-workbench .panel.integrated-terminal .xterm { color: ${fgColor}; }` +
 				`.monaco-workbench .panel.integrated-terminal .xterm:not(.xterm-cursor-style-underline):not(.xterm-cursor-style-bar).focus .terminal-cursor,` +
 				`.monaco-workbench .panel.integrated-terminal .xterm:not(.xterm-cursor-style-underline):not(.xterm-cursor-style-bar):focus .terminal-cursor { background-color: ${fgColor} }` +
 				`.monaco-workbench .panel.integrated-terminal .xterm:not(.focus):not(:focus) .terminal-cursor { outline-color: ${fgColor}; }` +
@@ -277,25 +377,41 @@ export class TerminalPanel extends Panel {
 			return;
 		}
 		let newFont = this._terminalService.configHelper.getFont();
-		dom.toggleClass(this._parentDomElement, 'enable-ligatures', this._terminalService.configHelper.config.fontLigatures);
-		dom.toggleClass(this._parentDomElement, 'disable-bold', !this._terminalService.configHelper.config.enableBold);
+		dom.toggleClass(
+			this._parentDomElement,
+			'enable-ligatures',
+			this._terminalService.configHelper.config.fontLigatures
+		);
+		dom.toggleClass(
+			this._parentDomElement,
+			'disable-bold',
+			!this._terminalService.configHelper.config.enableBold
+		);
 		if (!this._font || this._fontsDiffer(this._font, newFont)) {
-			this._fontStyleElement.innerHTML = '.monaco-workbench .panel.integrated-terminal .xterm {' +
+			this._fontStyleElement.innerHTML =
+				'.monaco-workbench .panel.integrated-terminal .xterm {' +
 				`font-family: ${newFont.fontFamily};` +
 				`font-size: ${newFont.fontSize};` +
 				`line-height: ${newFont.lineHeight};` +
 				'}';
 			this._font = newFont;
 		}
-		this.layout(new Dimension(this._parentDomElement.offsetWidth, this._parentDomElement.offsetHeight));
+		this.layout(
+			new Dimension(
+				this._parentDomElement.offsetWidth,
+				this._parentDomElement.offsetHeight
+			)
+		);
 	}
 
 	private _fontsDiffer(a: ITerminalFont, b: ITerminalFont): boolean {
-		return a.charHeight !== b.charHeight ||
+		return (
+			a.charHeight !== b.charHeight ||
 			a.charWidth !== b.charWidth ||
 			a.fontFamily !== b.fontFamily ||
 			a.fontSize !== b.fontSize ||
-			a.lineHeight !== b.lineHeight;
+			a.lineHeight !== b.lineHeight
+		);
 	}
 
 	/**
@@ -310,12 +426,27 @@ export class TerminalPanel extends Panel {
 		}
 		path = path.replace(/(%5C|\\)/g, '\\\\');
 		const charsToEscape = [
-			' ', '\'', '"', '?', ':', ';', '!', '*', '(', ')', '{', '}', '[', ']'
+			' ',
+			"'",
+			'"',
+			'?',
+			':',
+			';',
+			'!',
+			'*',
+			'(',
+			')',
+			'{',
+			'}',
+			'[',
+			']'
 		];
 		for (let i = 0; i < path.length; i++) {
 			const indexOfChar = charsToEscape.indexOf(path.charAt(i));
 			if (indexOfChar >= 0) {
-				path = `${path.substring(0, i)}\\${path.charAt(i)}${path.substring(i + 1)}`;
+				path = `${path.substring(0, i)}\\${path.charAt(i)}${path.substring(
+					i + 1
+				)}`;
 				i++; // Skip char due to escape char being added
 			}
 		}

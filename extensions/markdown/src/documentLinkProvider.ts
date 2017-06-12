@@ -3,18 +3,21 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as vscode from 'vscode';
 import * as path from 'path';
 
-export default class MarkdownDocumentLinkProvider implements vscode.DocumentLinkProvider {
-
+export default class MarkdownDocumentLinkProvider
+	implements vscode.DocumentLinkProvider {
 	private _linkPattern = /(\[[^\]]*\]\(\s*?)(((((?=.*\)\)+)|(?=.*\)\]+))[^\s\)]+?)|([^\s]+)))\)/g;
 
-	constructor() { }
+	constructor() {}
 
-	public provideDocumentLinks(document: vscode.TextDocument, _token: vscode.CancellationToken): vscode.DocumentLink[] {
+	public provideDocumentLinks(
+		document: vscode.TextDocument,
+		_token: vscode.CancellationToken
+	): vscode.DocumentLink[] {
 		const results: vscode.DocumentLink[] = [];
 		const base = path.dirname(document.uri.fsPath);
 		const text = document.getText();
@@ -28,9 +31,12 @@ export default class MarkdownDocumentLinkProvider implements vscode.DocumentLink
 			const linkStart = document.positionAt(offset);
 			const linkEnd = document.positionAt(offset + link.length);
 			try {
-				results.push(new vscode.DocumentLink(
-					new vscode.Range(linkStart, linkEnd),
-					this.normalizeLink(document, link, base)));
+				results.push(
+					new vscode.DocumentLink(
+						new vscode.Range(linkStart, linkEnd),
+						this.normalizeLink(document, link, base)
+					)
+				);
 			} catch (e) {
 				// noop
 			}
@@ -39,7 +45,11 @@ export default class MarkdownDocumentLinkProvider implements vscode.DocumentLink
 		return results;
 	}
 
-	private normalizeLink(document: vscode.TextDocument, link: string, base: string): vscode.Uri {
+	private normalizeLink(
+		document: vscode.TextDocument,
+		link: string,
+		base: string
+	): vscode.Uri {
 		const uri = vscode.Uri.parse(link);
 		if (uri.scheme) {
 			return uri;
@@ -55,6 +65,10 @@ export default class MarkdownDocumentLinkProvider implements vscode.DocumentLink
 			resourcePath = path.join(base, uri.path);
 		}
 
-		return vscode.Uri.parse(`command:_markdown.openDocumentLink?${encodeURIComponent(JSON.stringify({ fragment: uri.fragment, path: resourcePath }))}`);
+		return vscode.Uri.parse(
+			`command:_markdown.openDocumentLink?${encodeURIComponent(
+				JSON.stringify({ fragment: uri.fragment, path: resourcePath })
+			)}`
+		);
 	}
 }

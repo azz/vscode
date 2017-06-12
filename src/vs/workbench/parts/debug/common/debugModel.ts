@@ -17,8 +17,25 @@ import { Range, IRange } from 'vs/editor/common/core/range';
 import { ISuggestion } from 'vs/editor/common/modes';
 import { Position } from 'vs/editor/common/core/position';
 import {
-	ITreeElement, IExpression, IExpressionContainer, IProcess, IStackFrame, IExceptionBreakpoint, IBreakpoint, IFunctionBreakpoint, IModel,
-	IConfig, ISession, IThread, IRawModelUpdate, IScope, IRawStoppedDetails, IEnablement, IRawBreakpoint, IExceptionInfo, IReplElement
+	ITreeElement,
+	IExpression,
+	IExpressionContainer,
+	IProcess,
+	IStackFrame,
+	IExceptionBreakpoint,
+	IBreakpoint,
+	IFunctionBreakpoint,
+	IModel,
+	IConfig,
+	ISession,
+	IThread,
+	IRawModelUpdate,
+	IScope,
+	IRawStoppedDetails,
+	IEnablement,
+	IRawBreakpoint,
+	IExceptionInfo,
+	IReplElement
 } from 'vs/workbench/parts/debug/common/debug';
 import { Source } from 'vs/workbench/parts/debug/common/debugSource';
 import { IWorkbenchEditorService } from 'vs/workbench/services/editor/common/editorService';
@@ -40,13 +57,9 @@ export abstract class AbstractOutputElement implements IReplElement {
 }
 
 export class OutputElement extends AbstractOutputElement {
-
 	public counter: number;
 
-	constructor(
-		public value: string,
-		public severity: severity,
-	) {
+	constructor(public value: string, public severity: severity) {
 		super();
 		this.counter = 1;
 	}
@@ -56,11 +69,15 @@ export class OutputElement extends AbstractOutputElement {
 	}
 }
 
-export class OutputNameValueElement extends AbstractOutputElement implements IExpression {
-
+export class OutputNameValueElement extends AbstractOutputElement
+	implements IExpression {
 	private static MAX_CHILDREN = 1000; // upper bound of children per value
 
-	constructor(public name: string, public valueObj: any, public annotation?: string) {
+	constructor(
+		public name: string,
+		public valueObj: any,
+		public annotation?: string
+	) {
 		super();
 	}
 
@@ -79,16 +96,22 @@ export class OutputNameValueElement extends AbstractOutputElement implements IEx
 	}
 
 	public get hasChildren(): boolean {
-		return (Array.isArray(this.valueObj) && this.valueObj.length > 0) || (isObject(this.valueObj) && Object.getOwnPropertyNames(this.valueObj).length > 0);
+		return (
+			(Array.isArray(this.valueObj) && this.valueObj.length > 0) ||
+			(isObject(this.valueObj) &&
+				Object.getOwnPropertyNames(this.valueObj).length > 0)
+		);
 	}
 
 	public getChildren(): TPromise<IExpression[]> {
 		let result: IExpression[] = [];
 		if (Array.isArray(this.valueObj)) {
-			result = (<any[]>this.valueObj).slice(0, OutputNameValueElement.MAX_CHILDREN)
+			result = (<any[]>this.valueObj)
+				.slice(0, OutputNameValueElement.MAX_CHILDREN)
 				.map((v, index) => new OutputNameValueElement(String(index), v));
 		} else if (isObject(this.valueObj)) {
-			result = Object.getOwnPropertyNames(this.valueObj).slice(0, OutputNameValueElement.MAX_CHILDREN)
+			result = Object.getOwnPropertyNames(this.valueObj)
+				.slice(0, OutputNameValueElement.MAX_CHILDREN)
 				.map(key => new OutputNameValueElement(key, this.valueObj[key]));
 		}
 
@@ -101,7 +124,6 @@ export class OutputNameValueElement extends AbstractOutputElement implements IEx
 }
 
 export class ExpressionContainer implements IExpressionContainer {
-
 	public static allValues: Map<string, string> = new Map<string, string>();
 	// Use chunks to support variable paging #9537
 	private static BASE_CHUNK_SIZE = 100;
@@ -117,7 +139,7 @@ export class ExpressionContainer implements IExpressionContainer {
 		public namedVariables = 0,
 		public indexedVariables = 0,
 		private startOfVariables = 0
-	) { }
+	) {}
 
 	public get reference(): number {
 		return this._reference;
@@ -146,10 +168,15 @@ export class ExpressionContainer implements IExpressionContainer {
 		}
 
 		// Check if object has named variables, fetch them independent from indexed variables #9670
-		return (!!this.namedVariables ? this.fetchVariables(undefined, undefined, 'named') : TPromise.as([])).then(childrenArray => {
+		return (!!this.namedVariables
+			? this.fetchVariables(undefined, undefined, 'named')
+			: TPromise.as([])).then(childrenArray => {
 			// Use a dynamic chunk size based on the number of elements #9774
 			let chunkSize = ExpressionContainer.BASE_CHUNK_SIZE;
-			while (this.indexedVariables > chunkSize * ExpressionContainer.BASE_CHUNK_SIZE) {
+			while (
+				this.indexedVariables >
+				chunkSize * ExpressionContainer.BASE_CHUNK_SIZE
+			) {
 				chunkSize *= ExpressionContainer.BASE_CHUNK_SIZE;
 			}
 
@@ -158,15 +185,35 @@ export class ExpressionContainer implements IExpressionContainer {
 				const numberOfChunks = Math.ceil(this.indexedVariables / chunkSize);
 				for (let i = 0; i < numberOfChunks; i++) {
 					const start = this.startOfVariables + i * chunkSize;
-					const count = Math.min(chunkSize, this.indexedVariables - i * chunkSize);
-					childrenArray.push(new Variable(this.process, this, this.reference, `[${start}..${start + count - 1}]`, '', '', null, count, null, true, start));
+					const count = Math.min(
+						chunkSize,
+						this.indexedVariables - i * chunkSize
+					);
+					childrenArray.push(
+						new Variable(
+							this.process,
+							this,
+							this.reference,
+							`[${start}..${start + count - 1}]`,
+							'',
+							'',
+							null,
+							count,
+							null,
+							true,
+							start
+						)
+					);
 				}
 
 				return childrenArray;
 			}
 
-			return this.fetchVariables(this.startOfVariables, this.indexedVariables, 'indexed')
-				.then(variables => childrenArray.concat(variables));
+			return this.fetchVariables(
+				this.startOfVariables,
+				this.indexedVariables,
+				'indexed'
+			).then(variables => childrenArray.concat(variables));
 		});
 	}
 
@@ -183,17 +230,55 @@ export class ExpressionContainer implements IExpressionContainer {
 		return this.reference > 0;
 	}
 
-	private fetchVariables(start: number, count: number, filter: 'indexed' | 'named'): TPromise<Variable[]> {
-		return this.process.session.variables({
-			variablesReference: this.reference,
-			start,
-			count,
-			filter
-		}).then(response => {
-			return response && response.body && response.body.variables ? distinct(response.body.variables.filter(v => !!v && v.name), v => v.name).map(
-				v => new Variable(this.process, this, v.variablesReference, v.name, v.evaluateName, v.value, v.namedVariables, v.indexedVariables, v.type)
-			) : [];
-		}, (e: Error) => [new Variable(this.process, this, 0, null, e.message, '', 0, 0, null, false)]);
+	private fetchVariables(
+		start: number,
+		count: number,
+		filter: 'indexed' | 'named'
+	): TPromise<Variable[]> {
+		return this.process.session
+			.variables({
+				variablesReference: this.reference,
+				start,
+				count,
+				filter
+			})
+			.then(
+				response => {
+					return response && response.body && response.body.variables
+						? distinct(
+								response.body.variables.filter(v => !!v && v.name),
+								v => v.name
+							).map(
+								v =>
+									new Variable(
+										this.process,
+										this,
+										v.variablesReference,
+										v.name,
+										v.evaluateName,
+										v.value,
+										v.namedVariables,
+										v.indexedVariables,
+										v.type
+									)
+							)
+						: [];
+				},
+				(e: Error) => [
+					new Variable(
+						this.process,
+						this,
+						0,
+						null,
+						e.message,
+						'',
+						0,
+						0,
+						null,
+						false
+					)
+				]
+			);
 	}
 
 	// The adapter explicitly sents the children count of an expression only if there are lots of children which should be chunked.
@@ -203,8 +288,11 @@ export class ExpressionContainer implements IExpressionContainer {
 
 	public set value(value: string) {
 		this._value = value;
-		this.valueChanged = ExpressionContainer.allValues.get(this.getId()) &&
-			ExpressionContainer.allValues.get(this.getId()) !== Expression.DEFAULT_VALUE && ExpressionContainer.allValues.get(this.getId()) !== value;
+		this.valueChanged =
+			ExpressionContainer.allValues.get(this.getId()) &&
+			ExpressionContainer.allValues.get(this.getId()) !==
+				Expression.DEFAULT_VALUE &&
+			ExpressionContainer.allValues.get(this.getId()) !== value;
 		ExpressionContainer.allValues.set(this.getId(), value);
 	}
 
@@ -214,7 +302,7 @@ export class ExpressionContainer implements IExpressionContainer {
 }
 
 export class Expression extends ExpressionContainer implements IExpression {
-	static DEFAULT_VALUE = nls.localize('notAvailable', "not available");
+	static DEFAULT_VALUE = nls.localize('notAvailable', 'not available');
 
 	public available: boolean;
 	public type: string;
@@ -229,9 +317,18 @@ export class Expression extends ExpressionContainer implements IExpression {
 		}
 	}
 
-	public evaluate(process: IProcess, stackFrame: IStackFrame, context: string): TPromise<void> {
+	public evaluate(
+		process: IProcess,
+		stackFrame: IStackFrame,
+		context: string
+	): TPromise<void> {
 		if (!process || (!stackFrame && context !== 'repl')) {
-			this.value = context === 'repl' ? nls.localize('startDebugFirst', "Please start a debug session to evaluate") : Expression.DEFAULT_VALUE;
+			this.value = context === 'repl'
+				? nls.localize(
+						'startDebugFirst',
+						'Please start a debug session to evaluate'
+					)
+				: Expression.DEFAULT_VALUE;
 			this.available = false;
 			this.reference = 0;
 
@@ -239,24 +336,29 @@ export class Expression extends ExpressionContainer implements IExpression {
 		}
 
 		this.process = process;
-		return process.session.evaluate({
-			expression: this.name,
-			frameId: stackFrame ? stackFrame.frameId : undefined,
-			context
-		}).then(response => {
-			this.available = !!(response && response.body);
-			if (response && response.body) {
-				this.value = response.body.result;
-				this.reference = response.body.variablesReference;
-				this.namedVariables = response.body.namedVariables;
-				this.indexedVariables = response.body.indexedVariables;
-				this.type = response.body.type;
-			}
-		}, err => {
-			this.value = err.message;
-			this.available = false;
-			this.reference = 0;
-		});
+		return process.session
+			.evaluate({
+				expression: this.name,
+				frameId: stackFrame ? stackFrame.frameId : undefined,
+				context
+			})
+			.then(
+				response => {
+					this.available = !!(response && response.body);
+					if (response && response.body) {
+						this.value = response.body.result;
+						this.reference = response.body.variablesReference;
+						this.namedVariables = response.body.namedVariables;
+						this.indexedVariables = response.body.indexedVariables;
+						this.type = response.body.type;
+					}
+				},
+				err => {
+					this.value = err.message;
+					this.available = false;
+					this.reference = 0;
+				}
+			);
 	}
 
 	public toString(): string {
@@ -265,7 +367,6 @@ export class Expression extends ExpressionContainer implements IExpression {
 }
 
 export class Variable extends ExpressionContainer implements IExpression {
-
 	// Used to show the error message coming from the adapter when setting the value #7807
 	public errorMessage: string;
 
@@ -282,26 +383,38 @@ export class Variable extends ExpressionContainer implements IExpression {
 		public available = true,
 		startOfVariables = 0
 	) {
-		super(process, reference, `variable:${parent.getId()}:${name}:${reference}`, namedVariables, indexedVariables, startOfVariables);
+		super(
+			process,
+			reference,
+			`variable:${parent.getId()}:${name}:${reference}`,
+			namedVariables,
+			indexedVariables,
+			startOfVariables
+		);
 		this.value = value;
 	}
 
 	public setVariable(value: string): TPromise<any> {
-		return this.process.session.setVariable({
-			name: this.name,
-			value,
-			variablesReference: (<ExpressionContainer>this.parent).reference
-		}).then(response => {
-			if (response && response.body) {
-				this.value = response.body.value;
-				this.type = response.body.type || this.type;
-				this.reference = response.body.variablesReference;
-				this.namedVariables = response.body.namedVariables;
-				this.indexedVariables = response.body.indexedVariables;
-			}
-		}, err => {
-			this.errorMessage = err.message;
-		});
+		return this.process.session
+			.setVariable({
+				name: this.name,
+				value,
+				variablesReference: (<ExpressionContainer>this.parent).reference
+			})
+			.then(
+				response => {
+					if (response && response.body) {
+						this.value = response.body.value;
+						this.type = response.body.type || this.type;
+						this.reference = response.body.variablesReference;
+						this.namedVariables = response.body.namedVariables;
+						this.indexedVariables = response.body.indexedVariables;
+					}
+				},
+				err => {
+					this.errorMessage = err.message;
+				}
+			);
 	}
 
 	public toString(): string {
@@ -310,7 +423,6 @@ export class Variable extends ExpressionContainer implements IExpression {
 }
 
 export class Scope extends ExpressionContainer implements IScope {
-
 	constructor(
 		stackFrame: IStackFrame,
 		public name: string,
@@ -320,12 +432,17 @@ export class Scope extends ExpressionContainer implements IScope {
 		indexedVariables: number,
 		public range?: IRange
 	) {
-		super(stackFrame.thread.process, reference, `scope:${stackFrame.getId()}:${name}:${reference}`, namedVariables, indexedVariables);
+		super(
+			stackFrame.thread.process,
+			reference,
+			`scope:${stackFrame.getId()}:${name}:${reference}`,
+			namedVariables,
+			indexedVariables
+		);
 	}
 }
 
 export class StackFrame implements IStackFrame {
-
 	private scopes: TPromise<Scope[]>;
 
 	constructor(
@@ -345,11 +462,34 @@ export class StackFrame implements IStackFrame {
 
 	public getScopes(): TPromise<IScope[]> {
 		if (!this.scopes) {
-			this.scopes = this.thread.process.session.scopes({ frameId: this.frameId }).then(response => {
-				return response && response.body && response.body.scopes ?
-					response.body.scopes.map(rs => new Scope(this, rs.name, rs.variablesReference, rs.expensive, rs.namedVariables, rs.indexedVariables,
-						rs.line && rs.column && rs.endLine && rs.endColumn ? new Range(rs.line, rs.column, rs.endLine, rs.endColumn) : null)) : [];
-			}, err => []);
+			this.scopes = this.thread.process.session
+				.scopes({ frameId: this.frameId })
+				.then(
+					response => {
+						return response && response.body && response.body.scopes
+							? response.body.scopes.map(
+									rs =>
+										new Scope(
+											this,
+											rs.name,
+											rs.variablesReference,
+											rs.expensive,
+											rs.namedVariables,
+											rs.indexedVariables,
+											rs.line && rs.column && rs.endLine && rs.endColumn
+												? new Range(
+														rs.line,
+														rs.column,
+														rs.endLine,
+														rs.endColumn
+													)
+												: null
+										)
+								)
+							: [];
+					},
+					err => []
+				);
 		}
 
 		return this.scopes;
@@ -363,33 +503,54 @@ export class StackFrame implements IStackFrame {
 				return scopes;
 			}
 
-			const scopesContainingRange = scopes.filter(scope => scope.range && Range.containsRange(scope.range, range))
-				.sort((first, second) => (first.range.endLineNumber - first.range.startLineNumber) - (second.range.endLineNumber - second.range.startLineNumber));
-			return scopesContainingRange.length > 0 ? scopesContainingRange.slice(0, 1) : scopes;
+			const scopesContainingRange = scopes
+				.filter(scope => scope.range && Range.containsRange(scope.range, range))
+				.sort(
+					(first, second) =>
+						first.range.endLineNumber -
+						first.range.startLineNumber -
+						(second.range.endLineNumber - second.range.startLineNumber)
+				);
+			return scopesContainingRange.length > 0
+				? scopesContainingRange.slice(0, 1)
+				: scopes;
 		});
 	}
 
 	public restart(): TPromise<any> {
-		return this.thread.process.session.restartFrame({ frameId: this.frameId }, this.thread.threadId);
+		return this.thread.process.session.restartFrame(
+			{ frameId: this.frameId },
+			this.thread.threadId
+		);
 	}
 
 	public toString(): string {
-		return `${this.name} (${this.source.inMemory ? this.source.name : this.source.uri.fsPath}:${this.range.startLineNumber})`;
+		return `${this.name} (${this.source.inMemory
+			? this.source.name
+			: this.source.uri.fsPath}:${this.range.startLineNumber})`;
 	}
 
-	public openInEditor(editorService: IWorkbenchEditorService, preserveFocus?: boolean, sideBySide?: boolean): TPromise<any> {
-
-		return !this.source.available ? TPromise.as(null) : editorService.openEditor({
-			resource: this.source.uri,
-			description: this.source.origin,
-			options: {
-				preserveFocus,
-				selection: this.range,
-				revealIfVisible: true,
-				revealInCenterIfOutsideViewport: true,
-				pinned: !preserveFocus
-			}
-		}, sideBySide);
+	public openInEditor(
+		editorService: IWorkbenchEditorService,
+		preserveFocus?: boolean,
+		sideBySide?: boolean
+	): TPromise<any> {
+		return !this.source.available
+			? TPromise.as(null)
+			: editorService.openEditor(
+					{
+						resource: this.source.uri,
+						description: this.source.origin,
+						options: {
+							preserveFocus,
+							selection: this.range,
+							revealIfVisible: true,
+							revealInCenterIfOutsideViewport: true,
+							pinned: !preserveFocus
+						}
+					},
+					sideBySide
+				);
 	}
 }
 
@@ -400,7 +561,11 @@ export class Thread implements IThread {
 	public stoppedDetails: IRawStoppedDetails;
 	public stopped: boolean;
 
-	constructor(public process: IProcess, public name: string, public threadId: number) {
+	constructor(
+		public process: IProcess,
+		public name: string,
+		public threadId: number
+	) {
 		this.fetchPromise = null;
 		this.stoppedDetails = null;
 		this.callStack = [];
@@ -445,48 +610,68 @@ export class Thread implements IThread {
 				this.callStack = callStack || [];
 			});
 		} else {
-			this.fetchPromise = (this.fetchPromise || TPromise.as(null)).then(() => this.getCallStackImpl(this.callStack.length, 20).then(callStackSecondPart => {
-				this.callStack = this.callStack.concat(callStackSecondPart);
-			}));
+			this.fetchPromise = (this.fetchPromise || TPromise.as(null)).then(() =>
+				this.getCallStackImpl(
+					this.callStack.length,
+					20
+				).then(callStackSecondPart => {
+					this.callStack = this.callStack.concat(callStackSecondPart);
+				})
+			);
 		}
 
 		return this.fetchPromise;
 	}
 
-	private getCallStackImpl(startFrame: number, levels: number): TPromise<IStackFrame[]> {
-		return this.process.session.stackTrace({ threadId: this.threadId, startFrame, levels }).then(response => {
-			if (!response || !response.body) {
-				return [];
-			}
+	private getCallStackImpl(
+		startFrame: number,
+		levels: number
+	): TPromise<IStackFrame[]> {
+		return this.process.session
+			.stackTrace({ threadId: this.threadId, startFrame, levels })
+			.then(
+				response => {
+					if (!response || !response.body) {
+						return [];
+					}
 
-			if (this.stoppedDetails) {
-				this.stoppedDetails.totalFrames = response.body.totalFrames;
-			}
+					if (this.stoppedDetails) {
+						this.stoppedDetails.totalFrames = response.body.totalFrames;
+					}
 
-			return response.body.stackFrames.map((rsf, index) => {
-				let source = new Source(rsf.source, rsf.source ? rsf.source.presentationHint : rsf.presentationHint);
-				if (this.process.sources.has(source.uri.toString())) {
-					const alreadyCreatedSource = this.process.sources.get(source.uri.toString());
-					alreadyCreatedSource.presenationHint = source.presenationHint;
-					source = alreadyCreatedSource;
-				} else {
-					this.process.sources.set(source.uri.toString(), source);
+					return response.body.stackFrames.map((rsf, index) => {
+						let source = new Source(
+							rsf.source,
+							rsf.source ? rsf.source.presentationHint : rsf.presentationHint
+						);
+						if (this.process.sources.has(source.uri.toString())) {
+							const alreadyCreatedSource = this.process.sources.get(
+								source.uri.toString()
+							);
+							alreadyCreatedSource.presenationHint = source.presenationHint;
+							source = alreadyCreatedSource;
+						} else {
+							this.process.sources.set(source.uri.toString(), source);
+						}
+
+						return new StackFrame(
+							this,
+							rsf.id,
+							source,
+							rsf.name,
+							new Range(rsf.line, rsf.column, rsf.endLine, rsf.endColumn),
+							startFrame + index
+						);
+					});
+				},
+				(err: Error) => {
+					if (this.stoppedDetails) {
+						this.stoppedDetails.framesErrorMessage = err.message;
+					}
+
+					return [];
 				}
-
-				return new StackFrame(this, rsf.id, source, rsf.name, new Range(
-					rsf.line,
-					rsf.column,
-					rsf.endLine,
-					rsf.endColumn
-				), startFrame + index);
-			});
-		}, (err: Error) => {
-			if (this.stoppedDetails) {
-				this.stoppedDetails.framesErrorMessage = err.message;
-			}
-
-			return [];
-		});
+			);
 	}
 
 	/**
@@ -502,12 +687,14 @@ export class Thread implements IThread {
 				});
 			}
 
-			return session.exceptionInfo({ threadId: this.threadId }).then(exception => ({
-				id: exception.body.exceptionId,
-				description: exception.body.description,
-				breakMode: exception.body.breakMode,
-				details: exception.body.details
-			}));
+			return session
+				.exceptionInfo({ threadId: this.threadId })
+				.then(exception => ({
+					id: exception.body.exceptionId,
+					description: exception.body.description,
+					breakMode: exception.body.breakMode,
+					details: exception.body.details
+				}));
 		}
 
 		return TPromise.as(null);
@@ -543,11 +730,13 @@ export class Thread implements IThread {
 }
 
 export class Process implements IProcess {
-
 	private threads: Map<number, Thread>;
 	public sources: Map<string, Source>;
 
-	constructor(public configuration: IConfig, private _session: ISession & ITreeElement) {
+	constructor(
+		public configuration: IConfig,
+		private _session: ISession & ITreeElement
+	) {
 		this.threads = new Map<number, Thread>();
 		this.sources = new Map<string, Source>();
 	}
@@ -579,10 +768,12 @@ export class Process implements IProcess {
 	}
 
 	public rawUpdate(data: IRawModelUpdate): void {
-
 		if (data.thread && !this.threads.has(data.threadId)) {
 			// A new thread came in, initialize it.
-			this.threads.set(data.threadId, new Thread(this, data.thread.name, data.thread.id));
+			this.threads.set(
+				data.threadId,
+				new Thread(this, data.thread.name, data.thread.id)
+			);
 		} else if (data.thread && data.thread.name) {
 			// Just the thread name got updated #18244
 			this.threads.get(data.threadId).name = data.thread.name;
@@ -610,7 +801,10 @@ export class Process implements IProcess {
 		}
 	}
 
-	public clearThreads(removeThreads: boolean, reference: number = undefined): void {
+	public clearThreads(
+		removeThreads: boolean,
+		reference: number = undefined
+	): void {
 		if (reference) {
 			if (this.threads.has(reference)) {
 				const thread = this.threads.get(reference);
@@ -636,39 +830,51 @@ export class Process implements IProcess {
 		}
 	}
 
-	public completions(frameId: number, text: string, position: Position, overwriteBefore: number): TPromise<ISuggestion[]> {
+	public completions(
+		frameId: number,
+		text: string,
+		position: Position,
+		overwriteBefore: number
+	): TPromise<ISuggestion[]> {
 		if (!this.session.capabilities.supportsCompletionsRequest) {
 			return TPromise.as([]);
 		}
 
-		return this.session.completions({
-			frameId,
-			text,
-			column: position.column,
-			line: position.lineNumber
-		}).then(response => {
-			const result: ISuggestion[] = [];
-			if (response && response.body && response.body.targets) {
-				response.body.targets.forEach(item => {
-					if (item && item.label) {
-						result.push({
-							label: item.label,
-							insertText: item.text || item.label,
-							type: item.type,
-							filterText: item.start && item.length && text.substr(item.start, item.length).concat(item.label),
-							overwriteBefore: item.length || overwriteBefore
+		return this.session
+			.completions({
+				frameId,
+				text,
+				column: position.column,
+				line: position.lineNumber
+			})
+			.then(
+				response => {
+					const result: ISuggestion[] = [];
+					if (response && response.body && response.body.targets) {
+						response.body.targets.forEach(item => {
+							if (item && item.label) {
+								result.push({
+									label: item.label,
+									insertText: item.text || item.label,
+									type: item.type,
+									filterText:
+										item.start &&
+											item.length &&
+											text.substr(item.start, item.length).concat(item.label),
+									overwriteBefore: item.length || overwriteBefore
+								});
+							}
 						});
 					}
-				});
-			}
 
-			return result;
-		}, err => []);
+					return result;
+				},
+				err => []
+			);
 	}
 }
 
 export class Breakpoint implements IBreakpoint {
-
 	public verified: boolean;
 	public idFromAdapter: number;
 	public message: string;
@@ -682,7 +888,7 @@ export class Breakpoint implements IBreakpoint {
 		public column: number,
 		public enabled: boolean,
 		public condition: string,
-		public hitCondition: string,
+		public hitCondition: string
 	) {
 		if (enabled === undefined) {
 			this.enabled = true;
@@ -697,12 +903,15 @@ export class Breakpoint implements IBreakpoint {
 }
 
 export class FunctionBreakpoint implements IFunctionBreakpoint {
-
 	private id: string;
 	public verified: boolean;
 	public idFromAdapter: number;
 
-	constructor(public name: string, public enabled: boolean, public hitCondition: string) {
+	constructor(
+		public name: string,
+		public enabled: boolean,
+		public hitCondition: string
+	) {
 		this.verified = false;
 		this.id = generateUuid();
 	}
@@ -713,10 +922,13 @@ export class FunctionBreakpoint implements IFunctionBreakpoint {
 }
 
 export class ExceptionBreakpoint implements IExceptionBreakpoint {
-
 	private id: string;
 
-	constructor(public filter: string, public label: string, public enabled: boolean) {
+	constructor(
+		public filter: string,
+		public label: string,
+		public enabled: boolean
+	) {
 		this.id = generateUuid();
 	}
 
@@ -726,7 +938,7 @@ export class ExceptionBreakpoint implements IExceptionBreakpoint {
 }
 
 export class ThreadAndProcessIds implements ITreeElement {
-	constructor(public processId: string, public threadId: number) { }
+	constructor(public processId: string, public threadId: number) {}
 
 	public getId(): string {
 		return `${this.processId}:${this.threadId}`;
@@ -734,7 +946,6 @@ export class ThreadAndProcessIds implements ITreeElement {
 }
 
 export class Model implements IModel {
-
 	private processes: Process[];
 	private toDispose: lifecycle.IDisposable[];
 	private replElements: IReplElement[];
@@ -767,7 +978,10 @@ export class Model implements IModel {
 		return this.processes;
 	}
 
-	public addProcess(configuration: IConfig, session: ISession & ITreeElement): Process {
+	public addProcess(
+		configuration: IConfig,
+		session: ISession & ITreeElement
+	): Process {
 		const process = new Process(configuration, session);
 		this.processes.push(process);
 
@@ -796,14 +1010,20 @@ export class Model implements IModel {
 	}
 
 	public rawUpdate(data: IRawModelUpdate): void {
-		let process = this.processes.filter(p => p.getId() === data.sessionId).pop();
+		let process = this.processes
+			.filter(p => p.getId() === data.sessionId)
+			.pop();
 		if (process) {
 			process.rawUpdate(data);
 			this._onDidChangeCallStack.fire();
 		}
 	}
 
-	public clearThreads(id: string, removeThreads: boolean, reference: number = undefined): void {
+	public clearThreads(
+		id: string,
+		removeThreads: boolean,
+		reference: number = undefined
+	): void {
 		const process = this.processes.filter(p => p.getId() === id).pop();
 		if (process) {
 			process.clearThreads(removeThreads, reference);
@@ -829,11 +1049,19 @@ export class Model implements IModel {
 		return this.exceptionBreakpoints;
 	}
 
-	public setExceptionBreakpoints(data: DebugProtocol.ExceptionBreakpointsFilter[]): void {
+	public setExceptionBreakpoints(
+		data: DebugProtocol.ExceptionBreakpointsFilter[]
+	): void {
 		if (data) {
 			this.exceptionBreakpoints = data.map(d => {
-				const ebp = this.exceptionBreakpoints.filter(ebp => ebp.filter === d.filter).pop();
-				return new ExceptionBreakpoint(d.filter, d.label, ebp ? ebp.enabled : d.default);
+				const ebp = this.exceptionBreakpoints
+					.filter(ebp => ebp.filter === d.filter)
+					.pop();
+				return new ExceptionBreakpoint(
+					d.filter,
+					d.label,
+					ebp ? ebp.enabled : d.default
+				);
 			});
 		}
 	}
@@ -848,19 +1076,37 @@ export class Model implements IModel {
 	}
 
 	public addBreakpoints(uri: uri, rawData: IRawBreakpoint[]): void {
-		this.breakpoints = this.breakpoints.concat(rawData.map(rawBp =>
-			new Breakpoint(uri, rawBp.lineNumber, rawBp.column, rawBp.enabled, rawBp.condition, rawBp.hitCondition)));
+		this.breakpoints = this.breakpoints.concat(
+			rawData.map(
+				rawBp =>
+					new Breakpoint(
+						uri,
+						rawBp.lineNumber,
+						rawBp.column,
+						rawBp.enabled,
+						rawBp.condition,
+						rawBp.hitCondition
+					)
+			)
+		);
 		this.breakpointsActivated = true;
-		this.breakpoints = distinct(this.breakpoints, bp => `${bp.uri.toString()}:${bp.lineNumber}:${bp.column}`);
+		this.breakpoints = distinct(
+			this.breakpoints,
+			bp => `${bp.uri.toString()}:${bp.lineNumber}:${bp.column}`
+		);
 		this._onDidChangeBreakpoints.fire();
 	}
 
 	public removeBreakpoints(toRemove: IBreakpoint[]): void {
-		this.breakpoints = this.breakpoints.filter(bp => !toRemove.some(toRemove => toRemove.getId() === bp.getId()));
+		this.breakpoints = this.breakpoints.filter(
+			bp => !toRemove.some(toRemove => toRemove.getId() === bp.getId())
+		);
 		this._onDidChangeBreakpoints.fire();
 	}
 
-	public updateBreakpoints(data: { [id: string]: DebugProtocol.Breakpoint }): void {
+	public updateBreakpoints(data: {
+		[id: string]: DebugProtocol.Breakpoint;
+	}): void {
 		this.breakpoints.forEach(bp => {
 			const bpData = data[bp.getId()];
 			if (bpData) {
@@ -873,7 +1119,10 @@ export class Model implements IModel {
 				bp.message = bpData.message;
 			}
 		});
-		this.breakpoints = distinct(this.breakpoints, bp => `${bp.uri.toString()}:${bp.lineNumber}:${bp.column}`);
+		this.breakpoints = distinct(
+			this.breakpoints,
+			bp => `${bp.uri.toString()}:${bp.lineNumber}:${bp.column}`
+		);
 
 		this._onDidChangeBreakpoints.fire();
 	}
@@ -895,18 +1144,27 @@ export class Model implements IModel {
 				bp.verified = false;
 			}
 		});
-		this.exceptionBreakpoints.forEach(ebp => ebp.enabled = enable);
-		this.functionBreakpoints.forEach(fbp => fbp.enabled = enable);
+		this.exceptionBreakpoints.forEach(ebp => (ebp.enabled = enable));
+		this.functionBreakpoints.forEach(fbp => (fbp.enabled = enable));
 
 		this._onDidChangeBreakpoints.fire();
 	}
 
 	public addFunctionBreakpoint(functionName: string): void {
-		this.functionBreakpoints.push(new FunctionBreakpoint(functionName, true, null));
+		this.functionBreakpoints.push(
+			new FunctionBreakpoint(functionName, true, null)
+		);
 		this._onDidChangeBreakpoints.fire();
 	}
 
-	public updateFunctionBreakpoints(data: { [id: string]: { name?: string, verified?: boolean; id?: number; hitCondition?: string } }): void {
+	public updateFunctionBreakpoints(data: {
+		[id: string]: {
+			name?: string;
+			verified?: boolean;
+			id?: number;
+			hitCondition?: string;
+		};
+	}): void {
 		this.functionBreakpoints.forEach(fbp => {
 			const fbpData = data[fbp.getId()];
 			if (fbpData) {
@@ -921,7 +1179,9 @@ export class Model implements IModel {
 	}
 
 	public removeFunctionBreakpoints(id?: string): void {
-		this.functionBreakpoints = id ? this.functionBreakpoints.filter(fbp => fbp.getId() !== id) : [];
+		this.functionBreakpoints = id
+			? this.functionBreakpoints.filter(fbp => fbp.getId() !== id)
+			: [];
 		this._onDidChangeBreakpoints.fire();
 	}
 
@@ -929,27 +1189,54 @@ export class Model implements IModel {
 		return this.replElements;
 	}
 
-	public addReplExpression(process: IProcess, stackFrame: IStackFrame, name: string): TPromise<void> {
+	public addReplExpression(
+		process: IProcess,
+		stackFrame: IStackFrame,
+		name: string
+	): TPromise<void> {
 		const expression = new Expression(name);
 		this.addReplElements([expression]);
-		return expression.evaluate(process, stackFrame, 'repl')
+		return expression
+			.evaluate(process, stackFrame, 'repl')
 			.then(() => this._onDidChangeREPLElements.fire());
 	}
 
 	public appendToRepl(output: string | IExpression, severity: severity): void {
 		if (typeof output === 'string') {
-			const previousOutput = this.replElements.length && (this.replElements[this.replElements.length - 1] as OutputElement);
-			const lastNonEmpty = previousOutput && previousOutput.value.trim() ? previousOutput : this.replElements.length > 1 ? this.replElements[this.replElements.length - 2] : undefined;
+			const previousOutput =
+				this.replElements.length &&
+				(this.replElements[this.replElements.length - 1] as OutputElement);
+			const lastNonEmpty = previousOutput && previousOutput.value.trim()
+				? previousOutput
+				: this.replElements.length > 1
+					? this.replElements[this.replElements.length - 2]
+					: undefined;
 
-			if (lastNonEmpty instanceof OutputElement && severity === lastNonEmpty.severity && lastNonEmpty.value === output.trim() && output.trim() && output.length > 1) {
+			if (
+				lastNonEmpty instanceof OutputElement &&
+				severity === lastNonEmpty.severity &&
+				lastNonEmpty.value === output.trim() &&
+				output.trim() &&
+				output.length > 1
+			) {
 				// we got the same output (but not an empty string when trimmed) so we just increment the counter
 				lastNonEmpty.counter++;
 			} else {
-				const toAdd = output.split('\n').map(line => new OutputElement(line, severity));
-				if (previousOutput instanceof OutputElement && severity === previousOutput.severity && toAdd.length) {
+				const toAdd = output
+					.split('\n')
+					.map(line => new OutputElement(line, severity));
+				if (
+					previousOutput instanceof OutputElement &&
+					severity === previousOutput.severity &&
+					toAdd.length
+				) {
 					previousOutput.value += toAdd.shift().value;
 				}
-				if (previousOutput && previousOutput.value === '' && previousOutput.severity !== severity) {
+				if (
+					previousOutput &&
+					previousOutput.value === '' &&
+					previousOutput.severity !== severity
+				) {
 					// remove potential empty lines between different output types
 					this.replElements.pop();
 				}
@@ -982,7 +1269,11 @@ export class Model implements IModel {
 		return this.watchExpressions;
 	}
 
-	public addWatchExpression(process: IProcess, stackFrame: IStackFrame, name: string): TPromise<void> {
+	public addWatchExpression(
+		process: IProcess,
+		stackFrame: IStackFrame,
+		name: string
+	): TPromise<void> {
 		const we = new Expression(name);
 		this.watchExpressions.push(we);
 		if (!name) {
@@ -993,7 +1284,12 @@ export class Model implements IModel {
 		return this.evaluateWatchExpressions(process, stackFrame, we.getId());
 	}
 
-	public renameWatchExpression(process: IProcess, stackFrame: IStackFrame, id: string, newName: string): TPromise<void> {
+	public renameWatchExpression(
+		process: IProcess,
+		stackFrame: IStackFrame,
+		id: string,
+		newName: string
+	): TPromise<void> {
 		const filtered = this.watchExpressions.filter(we => we.getId() === id);
 		if (filtered.length === 1) {
 			filtered[0].name = newName;
@@ -1006,7 +1302,11 @@ export class Model implements IModel {
 		return TPromise.as(null);
 	}
 
-	public evaluateWatchExpressions(process: IProcess, stackFrame: IStackFrame, id: string = null): TPromise<void> {
+	public evaluateWatchExpressions(
+		process: IProcess,
+		stackFrame: IStackFrame,
+		id: string = null
+	): TPromise<void> {
 		if (id) {
 			const filtered = this.watchExpressions.filter(we => we.getId() === id);
 			if (filtered.length !== 1) {
@@ -1018,20 +1318,28 @@ export class Model implements IModel {
 			});
 		}
 
-		return TPromise.join(this.watchExpressions.map(we => we.evaluate(process, stackFrame, 'watch'))).then(() => {
+		return TPromise.join(
+			this.watchExpressions.map(we => we.evaluate(process, stackFrame, 'watch'))
+		).then(() => {
 			this._onDidChangeWatchExpressions.fire();
 		});
 	}
 
 	public removeWatchExpressions(id: string = null): void {
-		this.watchExpressions = id ? this.watchExpressions.filter(we => we.getId() !== id) : [];
+		this.watchExpressions = id
+			? this.watchExpressions.filter(we => we.getId() !== id)
+			: [];
 		this._onDidChangeWatchExpressions.fire();
 	}
 
 	public moveWatchExpression(id: string, position: number): void {
 		const we = this.watchExpressions.filter(we => we.getId() === id).pop();
-		this.watchExpressions = this.watchExpressions.filter(we => we.getId() !== id);
-		this.watchExpressions = this.watchExpressions.slice(0, position).concat(we, this.watchExpressions.slice(position));
+		this.watchExpressions = this.watchExpressions.filter(
+			we => we.getId() !== id
+		);
+		this.watchExpressions = this.watchExpressions
+			.slice(0, position)
+			.concat(we, this.watchExpressions.slice(position));
 
 		this._onDidChangeWatchExpressions.fire();
 	}

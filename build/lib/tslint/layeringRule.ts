@@ -14,7 +14,6 @@ interface Config {
 
 export class Rule extends Lint.Rules.AbstractRule {
 	public apply(sourceFile: ts.SourceFile): Lint.RuleFailure[] {
-
 		const parts = dirname(sourceFile.fileName).split(/\\|\//);
 		let ruleArgs = this.getOptions().ruleArguments[0];
 
@@ -38,12 +37,13 @@ export class Rule extends Lint.Rules.AbstractRule {
 			return [];
 		}
 
-		return this.applyWithWalker(new LayeringRule(sourceFile, config, this.getOptions()));
+		return this.applyWithWalker(
+			new LayeringRule(sourceFile, config, this.getOptions())
+		);
 	}
 }
 
 class LayeringRule extends Lint.RuleWalker {
-
 	private _config: Config;
 
 	constructor(file: ts.SourceFile, config: Config, opts: Lint.IOptions) {
@@ -72,8 +72,12 @@ class LayeringRule extends Lint.RuleWalker {
 
 			if (this._config.disallowed.has(part)) {
 				// BAD - wrong layer
-				const message = `Bad layering. You are not allowed to access '${part}' from here, allowed layers are: [${LayeringRule._print(this._config.allowed)}]`;
-				this.addFailure(this.createFailure(node.getStart(), node.getWidth(), message));
+				const message = `Bad layering. You are not allowed to access '${part}' from here, allowed layers are: [${LayeringRule._print(
+					this._config.allowed
+				)}]`;
+				this.addFailure(
+					this.createFailure(node.getStart(), node.getWidth(), message)
+				);
 				return;
 			}
 		}

@@ -7,7 +7,6 @@ import { ArraySet } from 'vs/base/common/set';
 import { INavigator, ArrayNavigator } from 'vs/base/common/iterator';
 
 export class HistoryNavigator<T> implements INavigator<T> {
-
 	private _history: ArraySet<T>;
 	private _limit: number;
 	private _navigator: ArrayNavigator<T>;
@@ -73,5 +72,4 @@ export class HistoryNavigator<T> implements INavigator<T> {
 			this._history = new ArraySet<T>(data.slice(data.length - this._limit));
 		}
 	}
-
 }

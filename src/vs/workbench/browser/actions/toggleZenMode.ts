@@ -9,13 +9,15 @@ import { Action } from 'vs/base/common/actions';
 import { KeyCode, KeyMod, KeyChord } from 'vs/base/common/keyCodes';
 import { Registry } from 'vs/platform/platform';
 import { SyncActionDescriptor } from 'vs/platform/actions/common/actions';
-import { IWorkbenchActionRegistry, Extensions } from 'vs/workbench/common/actionRegistry';
+import {
+	IWorkbenchActionRegistry,
+	Extensions
+} from 'vs/workbench/common/actionRegistry';
 import { IPartService } from 'vs/workbench/services/part/common/partService';
 
 class ToggleZenMode extends Action {
-
 	public static ID = 'workbench.action.toggleZenMode';
-	public static LABEL = nls.localize('toggleZenMode', "Toggle Zen Mode");
+	public static LABEL = nls.localize('toggleZenMode', 'Toggle Zen Mode');
 
 	constructor(
 		id: string,
@@ -32,5 +34,16 @@ class ToggleZenMode extends Action {
 	}
 }
 
-const registry = Registry.as<IWorkbenchActionRegistry>(Extensions.WorkbenchActions);
-registry.registerWorkbenchAction(new SyncActionDescriptor(ToggleZenMode, ToggleZenMode.ID, ToggleZenMode.LABEL, { primary: KeyChord(KeyMod.CtrlCmd | KeyCode.KEY_K, KeyCode.KEY_Z) }), 'View: Toggle Zen Mode', nls.localize('view', "View"));
+const registry = Registry.as<IWorkbenchActionRegistry>(
+	Extensions.WorkbenchActions
+);
+registry.registerWorkbenchAction(
+	new SyncActionDescriptor(
+		ToggleZenMode,
+		ToggleZenMode.ID,
+		ToggleZenMode.LABEL,
+		{ primary: KeyChord(KeyMod.CtrlCmd | KeyCode.KEY_K, KeyCode.KEY_Z) }
+	),
+	'View: Toggle Zen Mode',
+	nls.localize('view', 'View')
+);

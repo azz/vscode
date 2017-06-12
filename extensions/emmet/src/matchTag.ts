@@ -18,7 +18,11 @@ export function matchTag() {
 	let rootNode: Node = parse(editor.document.getText());
 	let updatedSelections = [];
 	editor.selections.forEach(selection => {
-		let updatedSelection = getUpdatedSelections(editor, editor.document.offsetAt(selection.start), rootNode);
+		let updatedSelection = getUpdatedSelections(
+			editor,
+			editor.document.offsetAt(selection.start),
+			rootNode
+		);
 		if (updatedSelection) {
 			updatedSelections.push(updatedSelection);
 		}
@@ -29,11 +33,18 @@ export function matchTag() {
 	}
 }
 
-function getUpdatedSelections(editor: vscode.TextEditor, offset: number, rootNode: Node): vscode.Selection {
+function getUpdatedSelections(
+	editor: vscode.TextEditor,
+	offset: number,
+	rootNode: Node
+): vscode.Selection {
 	let currentNode = getNode(rootNode, offset, true);
 
 	// If no closing tag or cursor is between open and close tag, then no-op
-	if (!currentNode.close || (currentNode.open.end < offset && currentNode.close.start > offset)) {
+	if (
+		!currentNode.close ||
+		(currentNode.open.end < offset && currentNode.close.start > offset)
+	) {
 		return;
 	}
 
@@ -44,7 +55,4 @@ function getUpdatedSelections(editor: vscode.TextEditor, offset: number, rootNod
 		let matchingPosition = editor.document.positionAt(currentNode.open.start);
 		return new vscode.Selection(matchingPosition, matchingPosition);
 	}
-
 }
-
-

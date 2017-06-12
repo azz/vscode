@@ -8,12 +8,16 @@ import * as interfaces from './interfaces';
 import { loadMessageBundle } from 'vscode-nls';
 const localize = loadMessageBundle();
 
-export default class MergeConflictCodeLensProvider implements vscode.CodeLensProvider, vscode.Disposable {
+export default class MergeConflictCodeLensProvider
+	implements vscode.CodeLensProvider, vscode.Disposable {
 	private codeLensRegistrationHandle: vscode.Disposable | null;
 	private config: interfaces.IExtensionConfiguration;
 	private tracker: interfaces.IDocumentMergeConflictTracker;
 
-	constructor(private context: vscode.ExtensionContext, trackerService: interfaces.IDocumentMergeConflictTrackerService) {
+	constructor(
+		private context: vscode.ExtensionContext,
+		trackerService: interfaces.IDocumentMergeConflictTrackerService
+	) {
 		this.tracker = trackerService.createTracker('codelens');
 	}
 
@@ -26,18 +30,21 @@ export default class MergeConflictCodeLensProvider implements vscode.CodeLensPro
 	}
 
 	configurationUpdated(updatedConfig: interfaces.IExtensionConfiguration) {
-
-		if (updatedConfig.enableCodeLens === false && this.codeLensRegistrationHandle) {
+		if (
+			updatedConfig.enableCodeLens === false &&
+			this.codeLensRegistrationHandle
+		) {
 			this.codeLensRegistrationHandle.dispose();
 			this.codeLensRegistrationHandle = null;
-		}
-		else if (updatedConfig.enableCodeLens === true && !this.codeLensRegistrationHandle) {
+		} else if (
+			updatedConfig.enableCodeLens === true &&
+			!this.codeLensRegistrationHandle
+		) {
 			this.registerCodeLensProvider();
 		}
 
 		this.config = updatedConfig;
 	}
-
 
 	dispose() {
 		if (this.codeLensRegistrationHandle) {
@@ -46,8 +53,10 @@ export default class MergeConflictCodeLensProvider implements vscode.CodeLensPro
 		}
 	}
 
-	async provideCodeLenses(document: vscode.TextDocument, token: vscode.CancellationToken): Promise<vscode.CodeLens[] | null> {
-
+	async provideCodeLenses(
+		document: vscode.TextDocument,
+		token: vscode.CancellationToken
+	): Promise<vscode.CodeLens[] | null> {
 		if (!this.config || !this.config.enableCodeLens) {
 			return null;
 		}
@@ -87,9 +96,30 @@ export default class MergeConflictCodeLensProvider implements vscode.CodeLensPro
 
 			items.push(
 				new vscode.CodeLens(conflict.range, acceptCurrentCommand),
-				new vscode.CodeLens(conflict.range.with(conflict.range.start.with({ character: conflict.range.start.character + 1 })), acceptIncomingCommand),
-				new vscode.CodeLens(conflict.range.with(conflict.range.start.with({ character: conflict.range.start.character + 2 })), acceptBothCommand),
-				new vscode.CodeLens(conflict.range.with(conflict.range.start.with({ character: conflict.range.start.character + 3 })), diffCommand)
+				new vscode.CodeLens(
+					conflict.range.with(
+						conflict.range.start.with({
+							character: conflict.range.start.character + 1
+						})
+					),
+					acceptIncomingCommand
+				),
+				new vscode.CodeLens(
+					conflict.range.with(
+						conflict.range.start.with({
+							character: conflict.range.start.character + 2
+						})
+					),
+					acceptBothCommand
+				),
+				new vscode.CodeLens(
+					conflict.range.with(
+						conflict.range.start.with({
+							character: conflict.range.start.character + 3
+						})
+					),
+					diffCommand
+				)
 			);
 		});
 
@@ -97,6 +127,9 @@ export default class MergeConflictCodeLensProvider implements vscode.CodeLensPro
 	}
 
 	private registerCodeLensProvider() {
-		this.codeLensRegistrationHandle = vscode.languages.registerCodeLensProvider({ pattern: '**/*' }, this);
+		this.codeLensRegistrationHandle = vscode.languages.registerCodeLensProvider(
+			{ pattern: '**/*' },
+			this
+		);
 	}
 }

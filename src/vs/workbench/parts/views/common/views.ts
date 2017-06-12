@@ -8,8 +8,8 @@ import Event from 'vs/base/common/event';
 import { Command } from 'vs/editor/common/modes';
 
 export type TreeViewItemHandleArg = {
-	$treeViewId: string,
-	$treeItemHandle: number
+	$treeViewId: string;
+	$treeItemHandle: number;
 };
 
 export enum TreeItemCollapsibleState {
@@ -19,7 +19,6 @@ export enum TreeItemCollapsibleState {
 }
 
 export interface ITreeItem {
-
 	handle: number;
 
 	label: string;
@@ -38,11 +37,9 @@ export interface ITreeItem {
 }
 
 export interface ITreeViewDataProvider {
-
 	onDidChange: Event<ITreeItem | undefined | null>;
 
 	getElements(): TPromise<ITreeItem[]>;
 
 	getChildren(element: ITreeItem): TPromise<ITreeItem[]>;
-
 }

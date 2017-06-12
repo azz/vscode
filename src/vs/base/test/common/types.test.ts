@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import types = require('vs/base/common/types');
@@ -23,7 +23,11 @@ suite('Types', () => {
 		assert(!types.isFunction(new Date()));
 
 		assert(types.isFunction(assert));
-		assert(types.isFunction(function foo() { /**/ }));
+		assert(
+			types.isFunction(function foo() {
+				/**/
+			})
+		);
 	});
 
 	test('areFunctions', () => {
@@ -43,7 +47,11 @@ suite('Types', () => {
 
 		assert(types.areFunctions(assert));
 		assert(types.areFunctions(assert, assert));
-		assert(types.areFunctions(function foo() { /**/ }));
+		assert(
+			types.areFunctions(function foo() {
+				/**/
+			})
+		);
 	});
 
 	test('isObject', () => {
@@ -58,7 +66,7 @@ suite('Types', () => {
 		assert(!types.isObject(new RegExp('')));
 		assert(!types.isFunction(new Date()));
 		assert(!types.isObject(assert));
-		assert(!types.isObject(function foo() { }));
+		assert(!types.isObject(function foo() {}));
 
 		assert(types.isObject({}));
 		assert(types.isObject({ foo: 'bar' }));
@@ -76,7 +84,11 @@ suite('Types', () => {
 		assert(!types.isEmptyObject(new RegExp('')));
 		assert(!types.isEmptyObject(new Date()));
 		assert(!types.isEmptyObject(assert));
-		assert(!types.isEmptyObject(function foo() { /**/ }));
+		assert(
+			!types.isEmptyObject(function foo() {
+				/**/
+			})
+		);
 		assert(!types.isEmptyObject({ foo: 'bar' }));
 
 		assert(types.isEmptyObject({}));
@@ -93,7 +105,11 @@ suite('Types', () => {
 		assert(!types.isArray(new RegExp('')));
 		assert(!types.isArray(new Date()));
 		assert(!types.isArray(assert));
-		assert(!types.isArray(function foo() { /**/ }));
+		assert(
+			!types.isArray(function foo() {
+				/**/
+			})
+		);
 		assert(!types.isArray({ foo: 'bar' }));
 
 		assert(types.isArray([]));
@@ -112,7 +128,11 @@ suite('Types', () => {
 		assert(!types.isString(new RegExp('')));
 		assert(!types.isString(new Date()));
 		assert(!types.isString(assert));
-		assert(!types.isString(function foo() { /**/ }));
+		assert(
+			!types.isString(function foo() {
+				/**/
+			})
+		);
 		assert(!types.isString({ foo: 'bar' }));
 
 		assert(types.isString('foo'));
@@ -130,7 +150,11 @@ suite('Types', () => {
 		assert(!types.isNumber(new RegExp('')));
 		assert(!types.isNumber(new Date()));
 		assert(!types.isNumber(assert));
-		assert(!types.isNumber(function foo() { /**/ }));
+		assert(
+			!types.isNumber(function foo() {
+				/**/
+			})
+		);
 		assert(!types.isNumber({ foo: 'bar' }));
 		assert(!types.isNumber(parseInt('A', 10)));
 
@@ -148,7 +172,11 @@ suite('Types', () => {
 		assert(!types.isUndefined(new RegExp('')));
 		assert(!types.isUndefined(new Date()));
 		assert(!types.isUndefined(assert));
-		assert(!types.isUndefined(function foo() { /**/ }));
+		assert(
+			!types.isUndefined(function foo() {
+				/**/
+			})
+		);
 		assert(!types.isUndefined({ foo: 'bar' }));
 
 		assert(types.isUndefined(undefined));
@@ -164,7 +192,11 @@ suite('Types', () => {
 		assert(!types.isUndefinedOrNull(new RegExp('')));
 		assert(!types.isUndefinedOrNull(new Date()));
 		assert(!types.isUndefinedOrNull(assert));
-		assert(!types.isUndefinedOrNull(function foo() { /**/ }));
+		assert(
+			!types.isUndefinedOrNull(function foo() {
+				/**/
+			})
+		);
 		assert(!types.isUndefinedOrNull({ foo: 'bar' }));
 
 		assert(types.isUndefinedOrNull(undefined));
@@ -173,32 +205,43 @@ suite('Types', () => {
 
 	test('validateConstraints', () => {
 		types.validateConstraints([1, 'test', true], [Number, String, Boolean]);
-		types.validateConstraints([1, 'test', true], ['number', 'string', 'boolean']);
+		types.validateConstraints(
+			[1, 'test', true],
+			['number', 'string', 'boolean']
+		);
 		types.validateConstraints([console.log], [Function]);
 		types.validateConstraints([undefined], [types.isUndefined]);
 		types.validateConstraints([1], [types.isNumber]);
 
-		function foo() { }
+		function foo() {}
 		types.validateConstraints([new foo()], [foo]);
 
-		function isFoo(f) { }
+		function isFoo(f) {}
 		assert.throws(() => types.validateConstraints([new foo()], [isFoo]));
 
-		function isFoo2(f) { return true; };
+		function isFoo2(f) {
+			return true;
+		}
 		types.validateConstraints([new foo()], [isFoo2]);
 
-		assert.throws(() => types.validateConstraints([1, true], [types.isNumber, types.isString]));
+		assert.throws(() =>
+			types.validateConstraints([1, true], [types.isNumber, types.isString])
+		);
 		assert.throws(() => types.validateConstraints(['2'], [types.isNumber]));
-		assert.throws(() => types.validateConstraints([1, 'test', true], [Number, String, Number]));
+		assert.throws(() =>
+			types.validateConstraints([1, 'test', true], [Number, String, Number])
+		);
 	});
 
 	test('create', () => {
-		let zeroConstructor = function () { /**/ };
+		let zeroConstructor = function() {
+			/**/
+		};
 
 		assert(types.create(zeroConstructor) instanceof zeroConstructor);
 		assert(types.isObject(types.create(zeroConstructor)));
 
-		let manyArgConstructor = function (foo, bar) {
+		let manyArgConstructor = function(foo, bar) {
 			this.foo = foo;
 			this.bar = bar;
 		};
@@ -209,7 +252,9 @@ suite('Types', () => {
 		assert(types.create(manyArgConstructor) instanceof manyArgConstructor);
 		assert(types.isObject(types.create(manyArgConstructor)));
 
-		assert(types.create(manyArgConstructor, foo, bar) instanceof manyArgConstructor);
+		assert(
+			types.create(manyArgConstructor, foo, bar) instanceof manyArgConstructor
+		);
 		assert(types.isObject(types.create(manyArgConstructor, foo, bar)));
 
 		let obj = types.create(manyArgConstructor, foo, bar);

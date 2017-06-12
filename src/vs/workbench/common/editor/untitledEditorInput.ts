@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import URI from 'vs/base/common/uri';
@@ -10,7 +10,12 @@ import { suggestFilename } from 'vs/base/common/mime';
 import labels = require('vs/base/common/labels');
 import { PLAINTEXT_MODE_ID } from 'vs/editor/common/modes/modesRegistry';
 import paths = require('vs/base/common/paths');
-import { EditorInput, IEncodingSupport, EncodingMode, ConfirmResult } from 'vs/workbench/common/editor';
+import {
+	EditorInput,
+	IEncodingSupport,
+	EncodingMode,
+	ConfirmResult
+} from 'vs/workbench/common/editor';
 import { UntitledEditorModel } from 'vs/workbench/common/editor/untitledEditorModel';
 import { IInstantiationService } from 'vs/platform/instantiation/common/instantiation';
 import { IWorkspaceContextService } from 'vs/platform/workspace/common/workspace';
@@ -23,8 +28,8 @@ import { IEnvironmentService } from 'vs/platform/environment/common/environment'
 /**
  * An editor input to be used for untitled text buffers.
  */
-export class UntitledEditorInput extends EditorInput implements IEncodingSupport {
-
+export class UntitledEditorInput extends EditorInput
+	implements IEncodingSupport {
 	public static ID: string = 'workbench.editors.untitledEditorInput';
 
 	private _hasAssociatedFilePath: boolean;
@@ -85,11 +90,19 @@ export class UntitledEditorInput extends EditorInput implements IEncodingSupport
 	}
 
 	public getName(): string {
-		return this.hasAssociatedFilePath ? paths.basename(this.resource.fsPath) : this.resource.fsPath;
+		return this.hasAssociatedFilePath
+			? paths.basename(this.resource.fsPath)
+			: this.resource.fsPath;
 	}
 
 	public getDescription(): string {
-		return this.hasAssociatedFilePath ? labels.getPathLabel(paths.dirname(this.resource.fsPath), this.contextService, this.environmentService) : null;
+		return this.hasAssociatedFilePath
+			? labels.getPathLabel(
+					paths.dirname(this.resource.fsPath),
+					this.contextService,
+					this.environmentService
+				)
+			: null;
 	}
 
 	public isDirty(): boolean {
@@ -128,7 +141,8 @@ export class UntitledEditorInput extends EditorInput implements IEncodingSupport
 		if (!this.hasAssociatedFilePath) {
 			if (this.cachedModel) {
 				const modeId = this.cachedModel.getModeId();
-				if (modeId !== PLAINTEXT_MODE_ID) { // do not suggest when the mode ID is simple plain text
+				if (modeId !== PLAINTEXT_MODE_ID) {
+					// do not suggest when the mode ID is simple plain text
 					return suggestFilename(modeId, this.getName());
 				}
 			}
@@ -145,7 +159,10 @@ export class UntitledEditorInput extends EditorInput implements IEncodingSupport
 		return this.preferredEncoding;
 	}
 
-	public setEncoding(encoding: string, mode: EncodingMode /* ignored, we only have Encode */): void {
+	public setEncoding(
+		encoding: string,
+		mode: EncodingMode /* ignored, we only have Encode */
+	): void {
 		this.preferredEncoding = encoding;
 
 		if (this.cachedModel) {
@@ -154,7 +171,6 @@ export class UntitledEditorInput extends EditorInput implements IEncodingSupport
 	}
 
 	public resolve(): TPromise<UntitledEditorModel> {
-
 		// Join a model resolve if we have had one before
 		if (this.modelResolve) {
 			return this.modelResolve;
@@ -168,12 +184,25 @@ export class UntitledEditorInput extends EditorInput implements IEncodingSupport
 	}
 
 	private createModel(): UntitledEditorModel {
-		const model = this.instantiationService.createInstance(UntitledEditorModel, this.modeId, this.resource, this.hasAssociatedFilePath, this.initialValue, this.preferredEncoding);
+		const model = this.instantiationService.createInstance(
+			UntitledEditorModel,
+			this.modeId,
+			this.resource,
+			this.hasAssociatedFilePath,
+			this.initialValue,
+			this.preferredEncoding
+		);
 
 		// re-emit some events from the model
-		this.toUnbind.push(model.onDidChangeContent(() => this._onDidModelChangeContent.fire()));
-		this.toUnbind.push(model.onDidChangeDirty(() => this._onDidChangeDirty.fire()));
-		this.toUnbind.push(model.onDidChangeEncoding(() => this._onDidModelChangeEncoding.fire()));
+		this.toUnbind.push(
+			model.onDidChangeContent(() => this._onDidModelChangeContent.fire())
+		);
+		this.toUnbind.push(
+			model.onDidChangeDirty(() => this._onDidChangeDirty.fire())
+		);
+		this.toUnbind.push(
+			model.onDidChangeEncoding(() => this._onDidModelChangeEncoding.fire())
+		);
 
 		return model;
 	}
@@ -194,7 +223,10 @@ export class UntitledEditorInput extends EditorInput implements IEncodingSupport
 			const otherUntitledEditorInput = <UntitledEditorInput>otherInput;
 
 			// Otherwise compare by properties
-			return otherUntitledEditorInput.resource.toString() === this.resource.toString();
+			return (
+				otherUntitledEditorInput.resource.toString() ===
+				this.resource.toString()
+			);
 		}
 
 		return false;

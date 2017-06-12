@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { onUnexpectedError } from 'vs/base/common/errors';
 import { assign, clone } from 'vs/base/common/objects';
@@ -13,11 +13,14 @@ import { crashReporter } from 'electron';
 import product from 'vs/platform/node/product';
 import pkg from 'vs/platform/node/package';
 import * as os from 'os';
-import { ICrashReporterService, TELEMETRY_SECTION_ID, ICrashReporterConfig } from 'vs/workbench/services/crashReporter/common/crashReporterService';
+import {
+	ICrashReporterService,
+	TELEMETRY_SECTION_ID,
+	ICrashReporterConfig
+} from 'vs/workbench/services/crashReporter/common/crashReporterService';
 import { isWindows, isMacintosh, isLinux } from 'vs/base/common/platform';
 
 export class CrashReporterService implements ICrashReporterService {
-
 	public _serviceBrand: any;
 
 	private options: Electron.CrashReporterStartOptions;
@@ -28,7 +31,9 @@ export class CrashReporterService implements ICrashReporterService {
 		@IWindowsService private windowsService: IWindowsService,
 		@IConfigurationService configurationService: IConfigurationService
 	) {
-		const config = configurationService.getConfiguration<ICrashReporterConfig>(TELEMETRY_SECTION_ID);
+		const config = configurationService.getConfiguration<ICrashReporterConfig>(
+			TELEMETRY_SECTION_ID
+		);
 		this.isEnabled = !!config.enableCrashReporter;
 
 		if (this.isEnabled) {
@@ -37,7 +42,6 @@ export class CrashReporterService implements ICrashReporterService {
 	}
 
 	private startCrashReporter(): void {
-
 		// base options with product info
 		this.options = {
 			companyName: product.crashReporter.companyName,
@@ -50,7 +54,8 @@ export class CrashReporterService implements ICrashReporterService {
 		};
 
 		// mixin telemetry info
-		this.telemetryService.getTelemetryInfo()
+		this.telemetryService
+			.getTelemetryInfo()
 			.then(info => {
 				assign(this.options.extra, {
 					vscode_sessionId: info.sessionId,
@@ -79,8 +84,9 @@ export class CrashReporterService implements ICrashReporterService {
 		return submitURL;
 	}
 
-	public getChildProcessStartOptions(name: string): Electron.CrashReporterStartOptions {
-
+	public getChildProcessStartOptions(
+		name: string
+	): Electron.CrashReporterStartOptions {
 		// Experimental crash reporting support for child processes on Mac only for now
 		if (this.isEnabled && isMacintosh) {
 			const childProcessOptions = clone(this.options);

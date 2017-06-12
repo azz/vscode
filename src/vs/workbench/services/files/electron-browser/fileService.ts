@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import nls = require('vs/nls');
 import { TPromise } from 'vs/base/common/winjs.base';
@@ -12,24 +12,48 @@ import encoding = require('vs/base/node/encoding');
 import errors = require('vs/base/common/errors');
 import uri from 'vs/base/common/uri';
 import { toResource } from 'vs/workbench/common/editor';
-import { FileOperation, FileOperationEvent, IFileService, IFilesConfiguration, IResolveFileOptions, IFileStat, IContent, IStreamContent, IImportResult, IResolveContentOptions, IUpdateContentOptions, FileChangesEvent } from 'vs/platform/files/common/files';
-import { FileService as NodeFileService, IFileServiceOptions, IEncodingOverride } from 'vs/workbench/services/files/node/fileService';
+import {
+	FileOperation,
+	FileOperationEvent,
+	IFileService,
+	IFilesConfiguration,
+	IResolveFileOptions,
+	IFileStat,
+	IContent,
+	IStreamContent,
+	IImportResult,
+	IResolveContentOptions,
+	IUpdateContentOptions,
+	FileChangesEvent
+} from 'vs/platform/files/common/files';
+import {
+	FileService as NodeFileService,
+	IFileServiceOptions,
+	IEncodingOverride
+} from 'vs/workbench/services/files/node/fileService';
 import { IConfigurationService } from 'vs/platform/configuration/common/configuration';
 import { IWorkspaceContextService } from 'vs/platform/workspace/common/workspace';
 import { Action } from 'vs/base/common/actions';
 import { ResourceMap } from 'vs/base/common/map';
 import { IWorkbenchEditorService } from 'vs/workbench/services/editor/common/editorService';
-import { IMessageService, IMessageWithAction, Severity, CloseAction } from 'vs/platform/message/common/message';
+import {
+	IMessageService,
+	IMessageWithAction,
+	Severity,
+	CloseAction
+} from 'vs/platform/message/common/message';
 import { IEnvironmentService } from 'vs/platform/environment/common/environment';
 import { IEditorGroupService } from 'vs/workbench/services/group/common/groupService';
 import { ILifecycleService } from 'vs/platform/lifecycle/common/lifecycle';
-import { IStorageService, StorageScope } from 'vs/platform/storage/common/storage';
+import {
+	IStorageService,
+	StorageScope
+} from 'vs/platform/storage/common/storage';
 import Event, { Emitter } from 'vs/base/common/event';
 
 import { shell } from 'electron';
 
 export class FileService implements IFileService {
-
 	public _serviceBrand: any;
 
 	// If we run with .NET framework < 4.5, we need to detect this error to inform the user
@@ -63,33 +87,52 @@ export class FileService implements IFileService {
 		this._onAfterOperation = new Emitter<FileOperationEvent>();
 		this.toUnbind.push(this._onAfterOperation);
 
-		const configuration = this.configurationService.getConfiguration<IFilesConfiguration>();
+		const configuration = this.configurationService.getConfiguration<
+			IFilesConfiguration
+		>();
 
 		// adjust encodings
 		const encodingOverride: IEncodingOverride[] = [];
-		encodingOverride.push({ resource: uri.file(environmentService.appSettingsHome), encoding: encoding.UTF8 });
+		encodingOverride.push({
+			resource: uri.file(environmentService.appSettingsHome),
+			encoding: encoding.UTF8
+		});
 		if (this.contextService.hasWorkspace()) {
-			encodingOverride.push({ resource: uri.file(paths.join(this.contextService.getWorkspace().resource.fsPath, '.vscode')), encoding: encoding.UTF8 });
+			encodingOverride.push({
+				resource: uri.file(
+					paths.join(
+						this.contextService.getWorkspace().resource.fsPath,
+						'.vscode'
+					)
+				),
+				encoding: encoding.UTF8
+			});
 		}
 
 		let watcherIgnoredPatterns: string[] = [];
 		if (configuration.files && configuration.files.watcherExclude) {
-			watcherIgnoredPatterns = Object.keys(configuration.files.watcherExclude).filter(k => !!configuration.files.watcherExclude[k]);
+			watcherIgnoredPatterns = Object.keys(
+				configuration.files.watcherExclude
+			).filter(k => !!configuration.files.watcherExclude[k]);
 		}
 
 		// build config
 		const fileServiceConfig: IFileServiceOptions = {
 			errorLogger: (msg: string) => this.onFileServiceError(msg),
 			encoding: configuration.files && configuration.files.encoding,
-			autoGuessEncoding: configuration.files && configuration.files.autoGuessEncoding,
+			autoGuessEncoding:
+				configuration.files && configuration.files.autoGuessEncoding,
 			encodingOverride,
 			watcherIgnoredPatterns,
-			verboseLogging: environmentService.verbose,
+			verboseLogging: environmentService.verbose
 		};
 
 		// create service
 		const workspace = this.contextService.getWorkspace();
-		this.raw = new NodeFileService(workspace ? workspace.resource.fsPath : void 0, fileServiceConfig);
+		this.raw = new NodeFileService(
+			workspace ? workspace.resource.fsPath : void 0,
+			fileServiceConfig
+		);
 
 		// Listeners
 		this.registerListeners();
@@ -107,37 +150,75 @@ export class FileService implements IFileService {
 		errors.onUnexpectedError(msg);
 
 		// Detect if we run < .NET Framework 4.5
-		if (typeof msg === 'string' && msg.indexOf(FileService.NET_VERSION_ERROR) >= 0 && !this.storageService.getBoolean(FileService.NET_VERSION_ERROR_IGNORE_KEY, StorageScope.WORKSPACE)) {
-			this.messageService.show(Severity.Warning, <IMessageWithAction>{
-				message: nls.localize('netVersionError', "The Microsoft .NET Framework 4.5 is required. Please follow the link to install it."),
-				actions: [
-					new Action('install.net', nls.localize('installNet', "Download .NET Framework 4.5"), null, true, () => {
-						window.open('https://go.microsoft.com/fwlink/?LinkId=786533');
+		if (
+			typeof msg === 'string' &&
+			msg.indexOf(FileService.NET_VERSION_ERROR) >= 0 &&
+			!this.storageService.getBoolean(
+				FileService.NET_VERSION_ERROR_IGNORE_KEY,
+				StorageScope.WORKSPACE
+			)
+		) {
+			this.messageService.show(
+				Severity.Warning,
+				<IMessageWithAction>{
+					message: nls.localize(
+						'netVersionError',
+						'The Microsoft .NET Framework 4.5 is required. Please follow the link to install it.'
+					),
+					actions: [
+						new Action(
+							'install.net',
+							nls.localize('installNet', 'Download .NET Framework 4.5'),
+							null,
+							true,
+							() => {
+								window.open('https://go.microsoft.com/fwlink/?LinkId=786533');
 
-						return TPromise.as(true);
-					}),
-					new Action('net.error.ignore', nls.localize('neverShowAgain', "Don't Show Again"), '', true, () => {
-						this.storageService.store(FileService.NET_VERSION_ERROR_IGNORE_KEY, true, StorageScope.WORKSPACE);
+								return TPromise.as(true);
+							}
+						),
+						new Action(
+							'net.error.ignore',
+							nls.localize('neverShowAgain', "Don't Show Again"),
+							'',
+							true,
+							() => {
+								this.storageService.store(
+									FileService.NET_VERSION_ERROR_IGNORE_KEY,
+									true,
+									StorageScope.WORKSPACE
+								);
 
-						return TPromise.as(null);
-					}),
-					CloseAction
-				]
-			});
+								return TPromise.as(null);
+							}
+						),
+						CloseAction
+					]
+				}
+			);
 		}
 	}
 
 	private registerListeners(): void {
-
 		// File events
-		this.toUnbind.push(this.raw.onFileChanges(e => this._onFileChanges.fire(e)));
-		this.toUnbind.push(this.raw.onAfterOperation(e => this._onAfterOperation.fire(e)));
+		this.toUnbind.push(
+			this.raw.onFileChanges(e => this._onFileChanges.fire(e))
+		);
+		this.toUnbind.push(
+			this.raw.onAfterOperation(e => this._onAfterOperation.fire(e))
+		);
 
 		// Config changes
-		this.toUnbind.push(this.configurationService.onDidUpdateConfiguration(e => this.onConfigurationChange(e.config)));
+		this.toUnbind.push(
+			this.configurationService.onDidUpdateConfiguration(e =>
+				this.onConfigurationChange(e.config)
+			)
+		);
 
 		// Editor changing
-		this.toUnbind.push(this.editorGroupService.onEditorsChanged(() => this.onEditorsChanged()));
+		this.toUnbind.push(
+			this.editorGroupService.onEditorsChanged(() => this.onEditorsChanged())
+		);
 
 		// Lifecycle
 		this.lifecycleService.onShutdown(this.dispose, this);
@@ -149,13 +230,22 @@ export class FileService implements IFileService {
 
 	private handleOutOfWorkspaceWatchers(): void {
 		const visibleOutOfWorkspacePaths = new ResourceMap<uri>();
-		this.editorService.getVisibleEditors().map(editor => {
-			return toResource(editor.input, { supportSideBySide: true, filter: 'file' });
-		}).filter(fileResource => {
-			return !!fileResource && !this.contextService.isInsideWorkspace(fileResource);
-		}).forEach(resource => {
-			visibleOutOfWorkspacePaths.set(resource, resource);
-		});
+		this.editorService
+			.getVisibleEditors()
+			.map(editor => {
+				return toResource(editor.input, {
+					supportSideBySide: true,
+					filter: 'file'
+				});
+			})
+			.filter(fileResource => {
+				return (
+					!!fileResource && !this.contextService.isInsideWorkspace(fileResource)
+				);
+			})
+			.forEach(resource => {
+				visibleOutOfWorkspacePaths.set(resource, resource);
+			});
 
 		// Handle no longer visible out of workspace resources
 		this.activeOutOfWorkspaceWatchers.forEach(resource => {
@@ -182,7 +272,10 @@ export class FileService implements IFileService {
 		this.raw.updateOptions(options);
 	}
 
-	public resolveFile(resource: uri, options?: IResolveFileOptions): TPromise<IFileStat> {
+	public resolveFile(
+		resource: uri,
+		options?: IResolveFileOptions
+	): TPromise<IFileStat> {
 		return this.raw.resolveFile(resource, options);
 	}
 
@@ -190,11 +283,17 @@ export class FileService implements IFileService {
 		return this.raw.existsFile(resource);
 	}
 
-	public resolveContent(resource: uri, options?: IResolveContentOptions): TPromise<IContent> {
+	public resolveContent(
+		resource: uri,
+		options?: IResolveContentOptions
+	): TPromise<IContent> {
 		return this.raw.resolveContent(resource, options);
 	}
 
-	public resolveStreamContent(resource: uri, options?: IResolveContentOptions): TPromise<IStreamContent> {
+	public resolveStreamContent(
+		resource: uri,
+		options?: IResolveContentOptions
+	): TPromise<IStreamContent> {
 		return this.raw.resolveStreamContent(resource, options);
 	}
 
@@ -202,15 +301,27 @@ export class FileService implements IFileService {
 		return this.raw.resolveContents(resources);
 	}
 
-	public updateContent(resource: uri, value: string, options?: IUpdateContentOptions): TPromise<IFileStat> {
+	public updateContent(
+		resource: uri,
+		value: string,
+		options?: IUpdateContentOptions
+	): TPromise<IFileStat> {
 		return this.raw.updateContent(resource, value, options);
 	}
 
-	public moveFile(source: uri, target: uri, overwrite?: boolean): TPromise<IFileStat> {
+	public moveFile(
+		source: uri,
+		target: uri,
+		overwrite?: boolean
+	): TPromise<IFileStat> {
 		return this.raw.moveFile(source, target, overwrite);
 	}
 
-	public copyFile(source: uri, target: uri, overwrite?: boolean): TPromise<IFileStat> {
+	public copyFile(
+		source: uri,
+		target: uri,
+		overwrite?: boolean
+	): TPromise<IFileStat> {
 		return this.raw.copyFile(source, target, overwrite);
 	}
 
@@ -247,16 +358,26 @@ export class FileService implements IFileService {
 		const absolutePath = resource.fsPath;
 		const result = shell.moveItemToTrash(absolutePath);
 		if (!result) {
-			return TPromise.wrapError<void>(new Error(nls.localize('trashFailed', "Failed to move '{0}' to the trash", paths.basename(absolutePath))));
+			return TPromise.wrapError<void>(
+				new Error(
+					nls.localize(
+						'trashFailed',
+						"Failed to move '{0}' to the trash",
+						paths.basename(absolutePath)
+					)
+				)
+			);
 		}
 
-		this._onAfterOperation.fire(new FileOperationEvent(resource, FileOperation.DELETE));
+		this._onAfterOperation.fire(
+			new FileOperationEvent(resource, FileOperation.DELETE)
+		);
 
 		return TPromise.as(null);
 	}
 
 	public importFile(source: uri, targetFolder: uri): TPromise<IImportResult> {
-		return this.raw.importFile(source, targetFolder).then((result) => {
+		return this.raw.importFile(source, targetFolder).then(result => {
 			return <IImportResult>{
 				isNew: result && result.isNew,
 				stat: result && result.stat
@@ -295,7 +416,9 @@ export class FileService implements IFileService {
 		this.toUnbind = dispose(this.toUnbind);
 
 		// Dispose watchers if any
-		this.activeOutOfWorkspaceWatchers.forEach(resource => this.unwatchFileChanges(resource));
+		this.activeOutOfWorkspaceWatchers.forEach(resource =>
+			this.unwatchFileChanges(resource)
+		);
 		this.activeOutOfWorkspaceWatchers.clear();
 
 		// Dispose service

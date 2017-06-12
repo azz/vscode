@@ -2,16 +2,18 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import types = require('vs/base/common/types');
-import { IStorageService, StorageScope } from 'vs/platform/storage/common/storage';
+import {
+	IStorageService,
+	StorageScope
+} from 'vs/platform/storage/common/storage';
 
 /**
  * Supported memento scopes.
  */
 export enum Scope {
-
 	/**
 	 * The memento will be scoped to all workspaces of this domain.
 	 */
@@ -27,7 +29,6 @@ export enum Scope {
  * A memento provides access to a datastructure that is persisted and restored as part of the workbench lifecycle.
  */
 export class Memento {
-
 	// Mementos are static to ensure that for a given component with an id only ever one memento gets loaded
 	private static globalMementos: { [id: string]: ScopedMemento } = {};
 	private static workspaceMementos: { [id: string]: ScopedMemento } = {};
@@ -46,8 +47,10 @@ export class Memento {
 	 * provided, the scope will be global, Memento.Scope.WORKSPACE can be used to
 	 * scope the memento to the workspace.
 	 */
-	public getMemento(storageService: IStorageService, scope: Scope = Scope.GLOBAL): any {
-
+	public getMemento(
+		storageService: IStorageService,
+		scope: Scope = Scope.GLOBAL
+	): any {
 		// Scope by Workspace
 		if (scope === Scope.WORKSPACE) {
 			let workspaceMemento = Memento.workspaceMementos[this.id];
@@ -74,7 +77,6 @@ export class Memento {
 	 * global and workspace scope.
 	 */
 	public saveMemento(): void {
-
 		// Global
 		if (Memento.globalMementos[this.id]) {
 			Memento.globalMementos[this.id].save();
@@ -92,7 +94,11 @@ class ScopedMemento {
 	private mementoObj: any;
 	private scope: Scope;
 
-	constructor(id: string, scope: Scope, private storageService: IStorageService) {
+	constructor(
+		id: string,
+		scope: Scope,
+		private storageService: IStorageService
+	) {
 		this.id = id;
 		this.scope = scope;
 		this.mementoObj = this.loadMemento();
@@ -103,7 +109,9 @@ class ScopedMemento {
 	}
 
 	private loadMemento(): any {
-		let storageScope = this.scope === Scope.GLOBAL ? StorageScope.GLOBAL : StorageScope.WORKSPACE;
+		let storageScope = this.scope === Scope.GLOBAL
+			? StorageScope.GLOBAL
+			: StorageScope.WORKSPACE;
 		let memento = this.storageService.get(this.id, storageScope);
 		if (memento) {
 			return JSON.parse(memento);
@@ -113,10 +121,16 @@ class ScopedMemento {
 	}
 
 	public save(): void {
-		let storageScope = this.scope === Scope.GLOBAL ? StorageScope.GLOBAL : StorageScope.WORKSPACE;
+		let storageScope = this.scope === Scope.GLOBAL
+			? StorageScope.GLOBAL
+			: StorageScope.WORKSPACE;
 
 		if (!types.isEmptyObject(this.mementoObj)) {
-			this.storageService.store(this.id, JSON.stringify(this.mementoObj), storageScope);
+			this.storageService.store(
+				this.id,
+				JSON.stringify(this.mementoObj),
+				storageScope
+			);
 		} else {
 			this.storageService.remove(this.id, storageScope);
 		}

@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 export interface IEditorWhitespace {
 	readonly id: number;
@@ -15,7 +15,6 @@ export interface IEditorWhitespace {
  * The whitespaces are sorted ascending by `afterLineNumber`.
  */
 export class WhitespaceComputer {
-
 	/**
 	 * heights[i] is the height in pixels for whitespace at index i
 	 */
@@ -73,12 +72,17 @@ export class WhitespaceComputer {
 	 * Find the insertion index for a new value inside a sorted array of values.
 	 * If the value is already present in the sorted array, the insertion index will be after the already existing value.
 	 */
-	public static findInsertionIndex(sortedArray: number[], value: number, ordinals: number[], valueOrdinal: number): number {
+	public static findInsertionIndex(
+		sortedArray: number[],
+		value: number,
+		ordinals: number[],
+		valueOrdinal: number
+	): number {
 		let low = 0;
 		let high = sortedArray.length;
 
 		while (low < high) {
-			let mid = ((low + high) >>> 1);
+			let mid = (low + high) >>> 1;
 
 			if (value === sortedArray[mid]) {
 				if (valueOrdinal < ordinals[mid]) {
@@ -105,18 +109,39 @@ export class WhitespaceComputer {
 	 * @param heightInPx The height of the whitespace, in pixels.
 	 * @return An id that can be used later to mutate or delete the whitespace
 	 */
-	public insertWhitespace(afterLineNumber: number, ordinal: number, heightInPx: number): number {
+	public insertWhitespace(
+		afterLineNumber: number,
+		ordinal: number,
+		heightInPx: number
+	): number {
 		afterLineNumber = afterLineNumber | 0;
 		ordinal = ordinal | 0;
 		heightInPx = heightInPx | 0;
 
-		let id = (++this._lastWhitespaceId);
-		let insertionIndex = WhitespaceComputer.findInsertionIndex(this._afterLineNumbers, afterLineNumber, this._ordinals, ordinal);
-		this._insertWhitespaceAtIndex(id, insertionIndex, afterLineNumber, ordinal, heightInPx);
+		let id = ++this._lastWhitespaceId;
+		let insertionIndex = WhitespaceComputer.findInsertionIndex(
+			this._afterLineNumbers,
+			afterLineNumber,
+			this._ordinals,
+			ordinal
+		);
+		this._insertWhitespaceAtIndex(
+			id,
+			insertionIndex,
+			afterLineNumber,
+			ordinal,
+			heightInPx
+		);
 		return id;
 	}
 
-	private _insertWhitespaceAtIndex(id: number, insertIndex: number, afterLineNumber: number, ordinal: number, heightInPx: number): void {
+	private _insertWhitespaceAtIndex(
+		id: number,
+		insertIndex: number,
+		afterLineNumber: number,
+		ordinal: number,
+		heightInPx: number
+	): void {
 		id = id | 0;
 		insertIndex = insertIndex | 0;
 		afterLineNumber = afterLineNumber | 0;
@@ -139,20 +164,29 @@ export class WhitespaceComputer {
 		}
 
 		this._whitespaceId2Index[id.toString()] = insertIndex;
-		this._prefixSumValidIndex = Math.min(this._prefixSumValidIndex, insertIndex - 1);
+		this._prefixSumValidIndex = Math.min(
+			this._prefixSumValidIndex,
+			insertIndex - 1
+		);
 	}
 
 	/**
 	 * Change properties associated with a certain whitespace.
 	 */
-	public changeWhitespace(id: number, newAfterLineNumber: number, newHeight: number): boolean {
+	public changeWhitespace(
+		id: number,
+		newAfterLineNumber: number,
+		newHeight: number
+	): boolean {
 		id = id | 0;
 		newAfterLineNumber = newAfterLineNumber | 0;
 		newHeight = newHeight | 0;
 
 		let hasChanges = false;
 		hasChanges = this.changeWhitespaceHeight(id, newHeight) || hasChanges;
-		hasChanges = this.changeWhitespaceAfterLineNumber(id, newAfterLineNumber) || hasChanges;
+		hasChanges =
+			this.changeWhitespaceAfterLineNumber(id, newAfterLineNumber) ||
+			hasChanges;
 		return hasChanges;
 	}
 
@@ -172,7 +206,10 @@ export class WhitespaceComputer {
 			let index = this._whitespaceId2Index[sid];
 			if (this._heights[index] !== newHeightInPx) {
 				this._heights[index] = newHeightInPx;
-				this._prefixSumValidIndex = Math.min(this._prefixSumValidIndex, index - 1);
+				this._prefixSumValidIndex = Math.min(
+					this._prefixSumValidIndex,
+					index - 1
+				);
 				return true;
 			}
 		}
@@ -186,7 +223,10 @@ export class WhitespaceComputer {
 	 * @param newAfterLineNumber The new line number the whitespace will follow
 	 * @return Returns true if the whitespace is found and if the new line number is different than the old line number
 	 */
-	public changeWhitespaceAfterLineNumber(id: number, newAfterLineNumber: number): boolean {
+	public changeWhitespaceAfterLineNumber(
+		id: number,
+		newAfterLineNumber: number
+	): boolean {
 		id = id | 0;
 		newAfterLineNumber = newAfterLineNumber | 0;
 
@@ -206,8 +246,19 @@ export class WhitespaceComputer {
 				this.removeWhitespace(id);
 
 				// And add it again
-				let insertionIndex = WhitespaceComputer.findInsertionIndex(this._afterLineNumbers, newAfterLineNumber, this._ordinals, ordinal);
-				this._insertWhitespaceAtIndex(id, insertionIndex, newAfterLineNumber, ordinal, heightInPx);
+				let insertionIndex = WhitespaceComputer.findInsertionIndex(
+					this._afterLineNumbers,
+					newAfterLineNumber,
+					this._ordinals,
+					ordinal
+				);
+				this._insertWhitespaceAtIndex(
+					id,
+					insertionIndex,
+					newAfterLineNumber,
+					ordinal,
+					heightInPx
+				);
 
 				return true;
 			}
@@ -244,7 +295,10 @@ export class WhitespaceComputer {
 		this._afterLineNumbers.splice(removeIndex, 1);
 		this._ordinals.splice(removeIndex, 1);
 		this._prefixSum.splice(removeIndex, 1);
-		this._prefixSumValidIndex = Math.min(this._prefixSumValidIndex, removeIndex - 1);
+		this._prefixSumValidIndex = Math.min(
+			this._prefixSumValidIndex,
+			removeIndex - 1
+		);
 
 		let keys = Object.keys(this._whitespaceId2Index);
 		for (let i = 0, len = keys.length; i < len; i++) {
@@ -270,14 +324,17 @@ export class WhitespaceComputer {
 		for (let i = 0, len = this._afterLineNumbers.length; i < len; i++) {
 			let afterLineNumber = this._afterLineNumbers[i];
 
-			if (fromLineNumber <= afterLineNumber && afterLineNumber <= toLineNumber) {
+			if (
+				fromLineNumber <= afterLineNumber &&
+				afterLineNumber <= toLineNumber
+			) {
 				// The line this whitespace was after has been deleted
 				//  => move whitespace to before first deleted line
 				this._afterLineNumbers[i] = fromLineNumber - 1;
 			} else if (afterLineNumber > toLineNumber) {
 				// The line this whitespace was after has been moved up
 				//  => move whitespace up
-				this._afterLineNumbers[i] -= (toLineNumber - fromLineNumber + 1);
+				this._afterLineNumbers[i] -= toLineNumber - fromLineNumber + 1;
 			}
 		}
 	}
@@ -297,7 +354,7 @@ export class WhitespaceComputer {
 			let afterLineNumber = this._afterLineNumbers[i];
 
 			if (fromLineNumber <= afterLineNumber) {
-				this._afterLineNumbers[i] += (toLineNumber - fromLineNumber + 1);
+				this._afterLineNumbers[i] += toLineNumber - fromLineNumber + 1;
 			}
 		}
 	}
@@ -344,7 +401,9 @@ export class WhitespaceComputer {
 	public getAccumulatedHeightBeforeLineNumber(lineNumber: number): number {
 		lineNumber = lineNumber | 0;
 
-		let lastWhitespaceBeforeLineNumber = this._findLastWhitespaceBeforeLineNumber(lineNumber);
+		let lastWhitespaceBeforeLineNumber = this._findLastWhitespaceBeforeLineNumber(
+			lineNumber
+		);
 
 		if (lastWhitespaceBeforeLineNumber === -1) {
 			return 0;
@@ -367,7 +426,10 @@ export class WhitespaceComputer {
 			let mid = (low + halfDelta) | 0;
 
 			if (afterLineNumbers[mid] < lineNumber) {
-				if (mid + 1 >= afterLineNumbers.length || afterLineNumbers[mid + 1] >= lineNumber) {
+				if (
+					mid + 1 >= afterLineNumbers.length ||
+					afterLineNumbers[mid + 1] >= lineNumber
+				) {
 					return mid;
 				} else {
 					low = (mid + 1) | 0;
@@ -383,7 +445,9 @@ export class WhitespaceComputer {
 	private _findFirstWhitespaceAfterLineNumber(lineNumber: number): number {
 		lineNumber = lineNumber | 0;
 
-		let lastWhitespaceBeforeLineNumber = this._findLastWhitespaceBeforeLineNumber(lineNumber);
+		let lastWhitespaceBeforeLineNumber = this._findLastWhitespaceBeforeLineNumber(
+			lineNumber
+		);
 		let firstWhitespaceAfterLineNumber = lastWhitespaceBeforeLineNumber + 1;
 
 		if (firstWhitespaceAfterLineNumber < this._heights.length) {

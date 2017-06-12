@@ -2,22 +2,23 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { LanguagesRegistry } from 'vs/editor/common/services/languagesRegistry';
 
 suite('LanguagesRegistry', () => {
-
 	test('output mode does not have a name', () => {
 		let registry = new LanguagesRegistry(false);
 
-		registry._registerLanguages([{
-			id: 'outputModeId',
-			extensions: [],
-			aliases: [null],
-			mimetypes: ['outputModeMimeType'],
-		}]);
+		registry._registerLanguages([
+			{
+				id: 'outputModeId',
+				extensions: [],
+				aliases: [null],
+				mimetypes: ['outputModeMimeType']
+			}
+		]);
 
 		assert.deepEqual(registry.getRegisteredLanguageNames(), []);
 	});
@@ -25,12 +26,14 @@ suite('LanguagesRegistry', () => {
 	test('mode with alias does have a name', () => {
 		let registry = new LanguagesRegistry(false);
 
-		registry._registerLanguages([{
-			id: 'modeId',
-			extensions: [],
-			aliases: ['ModeName'],
-			mimetypes: ['bla'],
-		}]);
+		registry._registerLanguages([
+			{
+				id: 'modeId',
+				extensions: [],
+				aliases: ['ModeName'],
+				mimetypes: ['bla']
+			}
+		]);
 
 		assert.deepEqual(registry.getRegisteredLanguageNames(), ['ModeName']);
 		assert.deepEqual(registry.getLanguageName('modeId'), 'ModeName');
@@ -39,11 +42,13 @@ suite('LanguagesRegistry', () => {
 	test('mode without alias gets a name', () => {
 		let registry = new LanguagesRegistry(false);
 
-		registry._registerLanguages([{
-			id: 'modeId',
-			extensions: [],
-			mimetypes: ['bla'],
-		}]);
+		registry._registerLanguages([
+			{
+				id: 'modeId',
+				extensions: [],
+				mimetypes: ['bla']
+			}
+		]);
 
 		assert.deepEqual(registry.getRegisteredLanguageNames(), ['modeId']);
 		assert.deepEqual(registry.getLanguageName('modeId'), 'modeId');
@@ -52,19 +57,23 @@ suite('LanguagesRegistry', () => {
 	test('bug #4360: f# not shown in status bar', () => {
 		let registry = new LanguagesRegistry(false);
 
-		registry._registerLanguages([{
-			id: 'modeId',
-			extensions: ['.ext1'],
-			aliases: ['ModeName'],
-			mimetypes: ['bla'],
-		}]);
+		registry._registerLanguages([
+			{
+				id: 'modeId',
+				extensions: ['.ext1'],
+				aliases: ['ModeName'],
+				mimetypes: ['bla']
+			}
+		]);
 
-		registry._registerLanguages([{
-			id: 'modeId',
-			extensions: ['.ext2'],
-			aliases: [],
-			mimetypes: ['bla'],
-		}]);
+		registry._registerLanguages([
+			{
+				id: 'modeId',
+				extensions: ['.ext2'],
+				aliases: [],
+				mimetypes: ['bla']
+			}
+		]);
 
 		assert.deepEqual(registry.getRegisteredLanguageNames(), ['ModeName']);
 		assert.deepEqual(registry.getLanguageName('modeId'), 'ModeName');
@@ -73,19 +82,23 @@ suite('LanguagesRegistry', () => {
 	test('issue #5278: Extension cannot override language name anymore', () => {
 		let registry = new LanguagesRegistry(false);
 
-		registry._registerLanguages([{
-			id: 'modeId',
-			extensions: ['.ext1'],
-			aliases: ['ModeName'],
-			mimetypes: ['bla'],
-		}]);
+		registry._registerLanguages([
+			{
+				id: 'modeId',
+				extensions: ['.ext1'],
+				aliases: ['ModeName'],
+				mimetypes: ['bla']
+			}
+		]);
 
-		registry._registerLanguages([{
-			id: 'modeId',
-			extensions: ['.ext2'],
-			aliases: ['BetterModeName'],
-			mimetypes: ['bla'],
-		}]);
+		registry._registerLanguages([
+			{
+				id: 'modeId',
+				extensions: ['.ext2'],
+				aliases: ['BetterModeName'],
+				mimetypes: ['bla']
+			}
+		]);
 
 		assert.deepEqual(registry.getRegisteredLanguageNames(), ['BetterModeName']);
 		assert.deepEqual(registry.getLanguageName('modeId'), 'BetterModeName');
@@ -94,9 +107,11 @@ suite('LanguagesRegistry', () => {
 	test('mimetypes are generated if necessary', () => {
 		let registry = new LanguagesRegistry(false);
 
-		registry._registerLanguages([{
-			id: 'modeId'
-		}]);
+		registry._registerLanguages([
+			{
+				id: 'modeId'
+			}
+		]);
 
 		assert.deepEqual(registry.getMimeForMode('modeId'), 'text/x-modeId');
 	});
@@ -104,10 +119,12 @@ suite('LanguagesRegistry', () => {
 	test('first mimetype wins', () => {
 		let registry = new LanguagesRegistry(false);
 
-		registry._registerLanguages([{
-			id: 'modeId',
-			mimetypes: ['text/modeId', 'text/modeId2']
-		}]);
+		registry._registerLanguages([
+			{
+				id: 'modeId',
+				mimetypes: ['text/modeId', 'text/modeId2']
+			}
+		]);
 
 		assert.deepEqual(registry.getMimeForMode('modeId'), 'text/modeId');
 	});
@@ -115,14 +132,18 @@ suite('LanguagesRegistry', () => {
 	test('first mimetype wins 2', () => {
 		let registry = new LanguagesRegistry(false);
 
-		registry._registerLanguages([{
-			id: 'modeId'
-		}]);
+		registry._registerLanguages([
+			{
+				id: 'modeId'
+			}
+		]);
 
-		registry._registerLanguages([{
-			id: 'modeId',
-			mimetypes: ['text/modeId']
-		}]);
+		registry._registerLanguages([
+			{
+				id: 'modeId',
+				mimetypes: ['text/modeId']
+			}
+		]);
 
 		assert.deepEqual(registry.getMimeForMode('modeId'), 'text/x-modeId');
 	});
@@ -130,19 +151,23 @@ suite('LanguagesRegistry', () => {
 	test('aliases', () => {
 		let registry = new LanguagesRegistry(false);
 
-		registry._registerLanguages([{
-			id: 'a'
-		}]);
+		registry._registerLanguages([
+			{
+				id: 'a'
+			}
+		]);
 
 		assert.deepEqual(registry.getRegisteredLanguageNames(), ['a']);
 		assert.deepEqual(registry.getModeIdsFromLanguageName('a'), ['a']);
 		assert.deepEqual(registry.getModeIdForLanguageNameLowercase('a'), 'a');
 		assert.deepEqual(registry.getLanguageName('a'), 'a');
 
-		registry._registerLanguages([{
-			id: 'a',
-			aliases: ['A1', 'A2']
-		}]);
+		registry._registerLanguages([
+			{
+				id: 'a',
+				aliases: ['A1', 'A2']
+			}
+		]);
 
 		assert.deepEqual(registry.getRegisteredLanguageNames(), ['A1']);
 		assert.deepEqual(registry.getModeIdsFromLanguageName('a'), []);
@@ -153,10 +178,12 @@ suite('LanguagesRegistry', () => {
 		assert.deepEqual(registry.getModeIdForLanguageNameLowercase('a2'), 'a');
 		assert.deepEqual(registry.getLanguageName('a'), 'A1');
 
-		registry._registerLanguages([{
-			id: 'a',
-			aliases: ['A3', 'A4']
-		}]);
+		registry._registerLanguages([
+			{
+				id: 'a',
+				aliases: ['A3', 'A4']
+			}
+		]);
 
 		assert.deepEqual(registry.getRegisteredLanguageNames(), ['A3']);
 		assert.deepEqual(registry.getModeIdsFromLanguageName('a'), []);
@@ -175,19 +202,23 @@ suite('LanguagesRegistry', () => {
 	test('empty aliases array means no alias', () => {
 		let registry = new LanguagesRegistry(false);
 
-		registry._registerLanguages([{
-			id: 'a'
-		}]);
+		registry._registerLanguages([
+			{
+				id: 'a'
+			}
+		]);
 
 		assert.deepEqual(registry.getRegisteredLanguageNames(), ['a']);
 		assert.deepEqual(registry.getModeIdsFromLanguageName('a'), ['a']);
 		assert.deepEqual(registry.getModeIdForLanguageNameLowercase('a'), 'a');
 		assert.deepEqual(registry.getLanguageName('a'), 'a');
 
-		registry._registerLanguages([{
-			id: 'b',
-			aliases: []
-		}]);
+		registry._registerLanguages([
+			{
+				id: 'b',
+				aliases: []
+			}
+		]);
 
 		assert.deepEqual(registry.getRegisteredLanguageNames(), ['a']);
 		assert.deepEqual(registry.getModeIdsFromLanguageName('a'), ['a']);
@@ -201,20 +232,24 @@ suite('LanguagesRegistry', () => {
 	test('extensions', () => {
 		let registry = new LanguagesRegistry(false);
 
-		registry._registerLanguages([{
-			id: 'a',
-			aliases: ['aName'],
-			extensions: ['aExt']
-		}]);
+		registry._registerLanguages([
+			{
+				id: 'a',
+				aliases: ['aName'],
+				extensions: ['aExt']
+			}
+		]);
 
 		assert.deepEqual(registry.getExtensions('a'), []);
 		assert.deepEqual(registry.getExtensions('aname'), []);
 		assert.deepEqual(registry.getExtensions('aName'), ['aExt']);
 
-		registry._registerLanguages([{
-			id: 'a',
-			extensions: ['aExt2']
-		}]);
+		registry._registerLanguages([
+			{
+				id: 'a',
+				extensions: ['aExt2']
+			}
+		]);
 
 		assert.deepEqual(registry.getExtensions('a'), []);
 		assert.deepEqual(registry.getExtensions('aname'), []);
@@ -224,45 +259,59 @@ suite('LanguagesRegistry', () => {
 	test('filenames', () => {
 		let registry = new LanguagesRegistry(false);
 
-		registry._registerLanguages([{
-			id: 'a',
-			aliases: ['aName'],
-			filenames: ['aFilename']
-		}]);
+		registry._registerLanguages([
+			{
+				id: 'a',
+				aliases: ['aName'],
+				filenames: ['aFilename']
+			}
+		]);
 
 		assert.deepEqual(registry.getFilenames('a'), []);
 		assert.deepEqual(registry.getFilenames('aname'), []);
 		assert.deepEqual(registry.getFilenames('aName'), ['aFilename']);
 
-		registry._registerLanguages([{
-			id: 'a',
-			filenames: ['aFilename2']
-		}]);
+		registry._registerLanguages([
+			{
+				id: 'a',
+				filenames: ['aFilename2']
+			}
+		]);
 
 		assert.deepEqual(registry.getFilenames('a'), []);
 		assert.deepEqual(registry.getFilenames('aname'), []);
-		assert.deepEqual(registry.getFilenames('aName'), ['aFilename', 'aFilename2']);
+		assert.deepEqual(registry.getFilenames('aName'), [
+			'aFilename',
+			'aFilename2'
+		]);
 	});
 
 	test('configuration', () => {
 		let registry = new LanguagesRegistry(false);
 
-		registry._registerLanguages([{
-			id: 'a',
-			aliases: ['aName'],
-			configuration: 'aFilename'
-		}]);
+		registry._registerLanguages([
+			{
+				id: 'a',
+				aliases: ['aName'],
+				configuration: 'aFilename'
+			}
+		]);
 
 		assert.deepEqual(registry.getConfigurationFiles('a'), ['aFilename']);
 		assert.deepEqual(registry.getConfigurationFiles('aname'), []);
 		assert.deepEqual(registry.getConfigurationFiles('aName'), []);
 
-		registry._registerLanguages([{
-			id: 'a',
-			configuration: 'aFilename2'
-		}]);
+		registry._registerLanguages([
+			{
+				id: 'a',
+				configuration: 'aFilename2'
+			}
+		]);
 
-		assert.deepEqual(registry.getConfigurationFiles('a'), ['aFilename', 'aFilename2']);
+		assert.deepEqual(registry.getConfigurationFiles('a'), [
+			'aFilename',
+			'aFilename2'
+		]);
 		assert.deepEqual(registry.getConfigurationFiles('aname'), []);
 		assert.deepEqual(registry.getConfigurationFiles('aName'), []);
 	});

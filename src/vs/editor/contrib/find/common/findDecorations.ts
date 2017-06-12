@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { IDisposable } from 'vs/base/common/lifecycle';
 import * as editorCommon from 'vs/editor/common/editorCommon';
@@ -11,7 +11,6 @@ import { Range } from 'vs/editor/common/core/range';
 import { ModelDecorationOptions } from 'vs/editor/common/model/textModelWithDecorations';
 
 export class FindDecorations implements IDisposable {
-
 	private _editor: editorCommon.ICommonCodeEditor;
 	private _decorations: string[];
 	private _findScopeDecorationId: string;
@@ -52,7 +51,9 @@ export class FindDecorations implements IDisposable {
 
 	public getFindScope(): Range {
 		if (this._findScopeDecorationId) {
-			return this._editor.getModel().getDecorationRange(this._findScopeDecorationId);
+			return this._editor
+				.getModel()
+				.getDecorationRange(this._findScopeDecorationId);
 		}
 		return null;
 	}
@@ -68,9 +69,11 @@ export class FindDecorations implements IDisposable {
 
 	public getCurrentMatchesPosition(desiredRange: Range): number {
 		for (let i = 0, len = this._decorations.length; i < len; i++) {
-			let range = this._editor.getModel().getDecorationRange(this._decorations[i]);
+			let range = this._editor
+				.getModel()
+				.getDecorationRange(this._decorations[i]);
 			if (desiredRange.equalsRange(range)) {
-				return (i + 1);
+				return i + 1;
 			}
 		}
 		return 1;
@@ -81,53 +84,76 @@ export class FindDecorations implements IDisposable {
 		let matchPosition = 0;
 		if (nextMatch) {
 			for (let i = 0, len = this._decorations.length; i < len; i++) {
-				let range = this._editor.getModel().getDecorationRange(this._decorations[i]);
+				let range = this._editor
+					.getModel()
+					.getDecorationRange(this._decorations[i]);
 				if (nextMatch.equalsRange(range)) {
 					newCurrentDecorationId = this._decorations[i];
-					matchPosition = (i + 1);
+					matchPosition = i + 1;
 					break;
 				}
 			}
 		}
 
-		if (this._highlightedDecorationId !== null || newCurrentDecorationId !== null) {
-			this._editor.changeDecorations((changeAccessor: editorCommon.IModelDecorationsChangeAccessor) => {
-				if (this._highlightedDecorationId !== null) {
-					changeAccessor.changeDecorationOptions(this._highlightedDecorationId, FindDecorations.createFindMatchDecorationOptions(false));
-					this._highlightedDecorationId = null;
+		if (
+			this._highlightedDecorationId !== null ||
+			newCurrentDecorationId !== null
+		) {
+			this._editor.changeDecorations(
+				(changeAccessor: editorCommon.IModelDecorationsChangeAccessor) => {
+					if (this._highlightedDecorationId !== null) {
+						changeAccessor.changeDecorationOptions(
+							this._highlightedDecorationId,
+							FindDecorations.createFindMatchDecorationOptions(false)
+						);
+						this._highlightedDecorationId = null;
+					}
+					if (newCurrentDecorationId !== null) {
+						this._highlightedDecorationId = newCurrentDecorationId;
+						changeAccessor.changeDecorationOptions(
+							this._highlightedDecorationId,
+							FindDecorations.createFindMatchDecorationOptions(true)
+						);
+					}
+					if (this._rangeHighlightDecorationId !== null) {
+						changeAccessor.removeDecoration(this._rangeHighlightDecorationId);
+						this._rangeHighlightDecorationId = null;
+					}
+					if (newCurrentDecorationId !== null) {
+						let rng = this._editor
+							.getModel()
+							.getDecorationRange(newCurrentDecorationId);
+						this._rangeHighlightDecorationId = changeAccessor.addDecoration(
+							rng,
+							FindDecorations._RANGE_HIGHLIGHT_DECORATION
+						);
+					}
 				}
-				if (newCurrentDecorationId !== null) {
-					this._highlightedDecorationId = newCurrentDecorationId;
-					changeAccessor.changeDecorationOptions(this._highlightedDecorationId, FindDecorations.createFindMatchDecorationOptions(true));
-				}
-				if (this._rangeHighlightDecorationId !== null) {
-					changeAccessor.removeDecoration(this._rangeHighlightDecorationId);
-					this._rangeHighlightDecorationId = null;
-				}
-				if (newCurrentDecorationId !== null) {
-					let rng = this._editor.getModel().getDecorationRange(newCurrentDecorationId);
-					this._rangeHighlightDecorationId = changeAccessor.addDecoration(rng, FindDecorations._RANGE_HIGHLIGHT_DECORATION);
-				}
-			});
+			);
 		}
 
 		return matchPosition;
 	}
 
 	public set(matches: Range[], findScope: Range): void {
-		let newDecorations: editorCommon.IModelDeltaDecoration[] = matches.map((match) => {
-			return {
-				range: match,
-				options: FindDecorations.createFindMatchDecorationOptions(false)
-			};
-		});
+		let newDecorations: editorCommon.IModelDeltaDecoration[] = matches.map(
+			match => {
+				return {
+					range: match,
+					options: FindDecorations.createFindMatchDecorationOptions(false)
+				};
+			}
+		);
 		if (findScope) {
 			newDecorations.unshift({
 				range: findScope,
 				options: FindDecorations._FIND_SCOPE_DECORATION
 			});
 		}
-		let tmpDecorations = this._editor.deltaDecorations(this._allDecorations(), newDecorations);
+		let tmpDecorations = this._editor.deltaDecorations(
+			this._allDecorations(),
+			newDecorations
+		);
 
 		if (findScope) {
 			this._findScopeDecorationId = tmpDecorations.shift();
@@ -151,20 +177,27 @@ export class FindDecorations implements IDisposable {
 		return result;
 	}
 
-	private static createFindMatchDecorationOptions(isCurrent: boolean): ModelDecorationOptions {
-		return (isCurrent ? this._CURRENT_FIND_MATCH_DECORATION : this._FIND_MATCH_DECORATION);
+	private static createFindMatchDecorationOptions(
+		isCurrent: boolean
+	): ModelDecorationOptions {
+		return isCurrent
+			? this._CURRENT_FIND_MATCH_DECORATION
+			: this._FIND_MATCH_DECORATION;
 	}
 
-	private static _CURRENT_FIND_MATCH_DECORATION = ModelDecorationOptions.register({
-		stickiness: editorCommon.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges,
-		className: 'currentFindMatch',
-		showIfCollapsed: true,
-		overviewRuler: {
-			color: 'rgba(246, 185, 77, 0.7)',
-			darkColor: 'rgba(246, 185, 77, 0.7)',
-			position: editorCommon.OverviewRulerLane.Center
+	private static _CURRENT_FIND_MATCH_DECORATION = ModelDecorationOptions.register(
+		{
+			stickiness:
+				editorCommon.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges,
+			className: 'currentFindMatch',
+			showIfCollapsed: true,
+			overviewRuler: {
+				color: 'rgba(246, 185, 77, 0.7)',
+				darkColor: 'rgba(246, 185, 77, 0.7)',
+				position: editorCommon.OverviewRulerLane.Center
+			}
 		}
-	});
+	);
 
 	private static _FIND_MATCH_DECORATION = ModelDecorationOptions.register({
 		stickiness: editorCommon.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges,

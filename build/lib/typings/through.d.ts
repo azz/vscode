@@ -3,16 +3,18 @@
 // Definitions by: Andrew Gaspar <https://github.com/AndrewGaspar/>
 // Definitions: https://github.com/borisyankov/DefinitelyTyped
 
-declare module "through" {
-	import stream = require("stream");
+declare module 'through' {
+	import stream = require('stream');
 
-	function through(write?: (data:any) => void,
+	function through(
+		write?: (data: any) => void,
 		end?: () => void,
 		opts?: {
 			autoDestroy: boolean;
-		}): through.ThroughStream;
+		}
+	): through.ThroughStream;
 
-	module through {
+	namespace through {
 		export interface ThroughStream extends stream.Transform {
 			autoDestroy: boolean;
 		}

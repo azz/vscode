@@ -3,13 +3,18 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import nls = require('vs/nls');
 import errors = require('vs/base/common/errors');
 import { IWorkbenchContribution } from 'vs/workbench/common/contributions';
 import { VIEWLET_ID } from 'vs/workbench/parts/files/common/files';
-import { TextFileModelChangeEvent, ITextFileService, AutoSaveMode, ModelState } from 'vs/workbench/services/textfile/common/textfiles';
+import {
+	TextFileModelChangeEvent,
+	ITextFileService,
+	AutoSaveMode,
+	ModelState
+} from 'vs/workbench/services/textfile/common/textfiles';
 import { platform, Platform } from 'vs/base/common/platform';
 import { Position } from 'vs/platform/editor/common/editor';
 import { IWindowService } from 'vs/platform/windows/common/windows';
@@ -19,7 +24,10 @@ import { ILifecycleService } from 'vs/platform/lifecycle/common/lifecycle';
 import { IDisposable, dispose } from 'vs/base/common/lifecycle';
 import URI from 'vs/base/common/uri';
 import { IWorkbenchEditorService } from 'vs/workbench/services/editor/common/editorService';
-import { IActivityBarService, NumberBadge } from 'vs/workbench/services/activity/common/activityBarService';
+import {
+	IActivityBarService,
+	NumberBadge
+} from 'vs/workbench/services/activity/common/activityBarService';
 import { IUntitledEditorService } from 'vs/workbench/services/untitled/common/untitledEditorService';
 import arrays = require('vs/base/common/arrays');
 
@@ -37,7 +45,8 @@ export class DirtyFilesTracker implements IWorkbenchContribution {
 		@IWorkbenchEditorService private editorService: IWorkbenchEditorService,
 		@IActivityBarService private activityBarService: IActivityBarService,
 		@IWindowService private windowService: IWindowService,
-		@IUntitledEditorService private untitledEditorService: IUntitledEditorService
+		@IUntitledEditorService
+		private untitledEditorService: IUntitledEditorService
 	) {
 		this.toUnbind = [];
 		this.isDocumentedEdited = false;
@@ -47,13 +56,28 @@ export class DirtyFilesTracker implements IWorkbenchContribution {
 	}
 
 	private registerListeners(): void {
-
 		// Local text file changes
-		this.toUnbind.push(this.untitledEditorService.onDidChangeDirty(e => this.onUntitledDidChangeDirty(e)));
-		this.toUnbind.push(this.textFileService.models.onModelsDirty(e => this.onTextFilesDirty(e)));
-		this.toUnbind.push(this.textFileService.models.onModelsSaved(e => this.onTextFilesSaved(e)));
-		this.toUnbind.push(this.textFileService.models.onModelsSaveError(e => this.onTextFilesSaveError(e)));
-		this.toUnbind.push(this.textFileService.models.onModelsReverted(e => this.onTextFilesReverted(e)));
+		this.toUnbind.push(
+			this.untitledEditorService.onDidChangeDirty(e =>
+				this.onUntitledDidChangeDirty(e)
+			)
+		);
+		this.toUnbind.push(
+			this.textFileService.models.onModelsDirty(e => this.onTextFilesDirty(e))
+		);
+		this.toUnbind.push(
+			this.textFileService.models.onModelsSaved(e => this.onTextFilesSaved(e))
+		);
+		this.toUnbind.push(
+			this.textFileService.models.onModelsSaveError(e =>
+				this.onTextFilesSaveError(e)
+			)
+		);
+		this.toUnbind.push(
+			this.textFileService.models.onModelsReverted(e =>
+				this.onTextFilesReverted(e)
+			)
+		);
 
 		// Lifecycle
 		this.lifecycleService.onShutdown(this.dispose, this);
@@ -62,7 +86,10 @@ export class DirtyFilesTracker implements IWorkbenchContribution {
 	private onUntitledDidChangeDirty(resource: URI): void {
 		const gotDirty = this.untitledEditorService.isDirty(resource);
 
-		if ((!this.isDocumentedEdited && gotDirty) || (this.isDocumentedEdited && !gotDirty)) {
+		if (
+			(!this.isDocumentedEdited && gotDirty) ||
+			(this.isDocumentedEdited && !gotDirty)
+		) {
 			this.updateDocumentEdited();
 		}
 
@@ -72,24 +99,39 @@ export class DirtyFilesTracker implements IWorkbenchContribution {
 	}
 
 	private onTextFilesDirty(e: TextFileModelChangeEvent[]): void {
-		if ((this.textFileService.getAutoSaveMode() !== AutoSaveMode.AFTER_SHORT_DELAY) && !this.isDocumentedEdited) {
+		if (
+			this.textFileService.getAutoSaveMode() !==
+				AutoSaveMode.AFTER_SHORT_DELAY &&
+			!this.isDocumentedEdited
+		) {
 			this.updateDocumentEdited(); // no indication needed when auto save is enabled for short delay
 		}
 
-		if (this.textFileService.getAutoSaveMode() !== AutoSaveMode.AFTER_SHORT_DELAY) {
+		if (
+			this.textFileService.getAutoSaveMode() !== AutoSaveMode.AFTER_SHORT_DELAY
+		) {
 			this.updateActivityBadge(); // no indication needed when auto save is enabled for short delay
 		}
 
 		// If files become dirty but are not opened, we open it in the background unless there are pending to be saved
-		this.doOpenDirtyResources(arrays.distinct(e.filter(e => {
+		this.doOpenDirtyResources(
+			arrays.distinct(
+				e
+					.filter(e => {
+						// Only dirty models that are not PENDING_SAVE
+						const model = this.textFileService.models.get(e.resource);
+						const shouldOpen =
+							model &&
+							model.isDirty() &&
+							!model.hasState(ModelState.PENDING_SAVE);
 
-			// Only dirty models that are not PENDING_SAVE
-			const model = this.textFileService.models.get(e.resource);
-			const shouldOpen = model && model.isDirty() && !model.hasState(ModelState.PENDING_SAVE);
-
-			// Only if not open already
-			return shouldOpen && !this.stacks.isOpen(e.resource);
-		}).map(e => e.resource), r => r.toString()));
+						// Only if not open already
+						return shouldOpen && !this.stacks.isOpen(e.resource);
+					})
+					.map(e => e.resource),
+				r => r.toString()
+			)
+		);
 	}
 
 	private doOpenDirtyResources(resources: URI[]): void {
@@ -97,15 +139,19 @@ export class DirtyFilesTracker implements IWorkbenchContribution {
 		const activePosition = activeEditor ? activeEditor.position : Position.ONE;
 
 		// Open
-		this.editorService.openEditors(resources.map(resource => {
-			return {
-				input: {
-					resource,
-					options: { inactive: true, pinned: true, preserveFocus: true }
-				},
-				position: activePosition
-			};
-		})).done(null, errors.onUnexpectedError);
+		this.editorService
+			.openEditors(
+				resources.map(resource => {
+					return {
+						input: {
+							resource,
+							options: { inactive: true, pinned: true, preserveFocus: true }
+						},
+						position: activePosition
+					};
+				})
+			)
+			.done(null, errors.onUnexpectedError);
 	}
 
 	private onTextFilesSaved(e: TextFileModelChangeEvent[]): void {
@@ -141,7 +187,13 @@ export class DirtyFilesTracker implements IWorkbenchContribution {
 		this.lastDirtyCount = dirtyCount;
 		dispose(this.badgeHandle);
 		if (dirtyCount > 0) {
-			this.badgeHandle = this.activityBarService.showActivity(VIEWLET_ID, new NumberBadge(dirtyCount, num => nls.localize('dirtyFiles', "{0} unsaved files", dirtyCount)), 'explorer-viewlet-label');
+			this.badgeHandle = this.activityBarService.showActivity(
+				VIEWLET_ID,
+				new NumberBadge(dirtyCount, num =>
+					nls.localize('dirtyFiles', '{0} unsaved files', dirtyCount)
+				),
+				'explorer-viewlet-label'
+			);
 		}
 	}
 

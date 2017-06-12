@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import path = require('path');
 import assert = require('assert');
@@ -12,7 +12,6 @@ import * as arrays from 'vs/base/common/arrays';
 
 import { RipgrepParser } from 'vs/workbench/services/search/node/ripgrepTextSearch';
 import { ISerializedFileMatch } from 'vs/workbench/services/search/node/search';
-
 
 suite('RipgrepParser', () => {
 	const rootFolder = '/workspace';
@@ -23,11 +22,13 @@ suite('RipgrepParser', () => {
 	}
 
 	function getMatchLine(lineNum: number, matchParts: string[]): string {
-		let matchLine = `\u001b\[m${lineNum}\u001b\[m:` +
+		let matchLine =
+			`\u001b\[m${lineNum}\u001b\[m:` +
 			`${matchParts.shift()}${RipgrepParser.MATCH_START_MARKER}${matchParts.shift()}${RipgrepParser.MATCH_END_MARKER}${matchParts.shift()}`;
 
 		while (matchParts.length) {
-			matchLine += `${RipgrepParser.MATCH_START_MARKER}${matchParts.shift()}${RipgrepParser.MATCH_END_MARKER}${matchParts.shift() || ''}`;
+			matchLine += `${RipgrepParser.MATCH_START_MARKER}${matchParts.shift()}${RipgrepParser.MATCH_END_MARKER}${matchParts.shift() ||
+				''}`;
 		}
 
 		return matchLine;
@@ -66,12 +67,18 @@ suite('RipgrepParser', () => {
 
 	test('Parses one chunk', () => {
 		const input = [
-			[getFileLine('a.txt'), getMatchLine(1, ['before', 'match', 'after']), getMatchLine(2, ['before', 'match', 'after']), fileSectionEnd].join('\n')
+			[
+				getFileLine('a.txt'),
+				getMatchLine(1, ['before', 'match', 'after']),
+				getMatchLine(2, ['before', 'match', 'after']),
+				fileSectionEnd
+			].join('\n')
 		];
 
 		const results = parseInputStrings(input);
 		assert.equal(results.length, 1);
-		assert.deepEqual(results[0],
+		assert.deepEqual(
+			results[0],
 			<ISerializedFileMatch>{
 				numMatches: 2,
 				path: path.join(rootFolder, 'a.txt'),
@@ -87,14 +94,30 @@ suite('RipgrepParser', () => {
 						offsetAndLengths: [[6, 5]]
 					}
 				]
-			});
+			}
+		);
 	});
 
 	test('Parses multiple chunks broken at file sections', () => {
 		const input = [
-			[getFileLine('a.txt'), getMatchLine(1, ['before', 'match', 'after']), getMatchLine(2, ['before', 'match', 'after']), fileSectionEnd].join('\n'),
-			[getFileLine('b.txt'), getMatchLine(1, ['before', 'match', 'after']), getMatchLine(2, ['before', 'match', 'after']), fileSectionEnd].join('\n'),
-			[getFileLine('c.txt'), getMatchLine(1, ['before', 'match', 'after']), getMatchLine(2, ['before', 'match', 'after']), fileSectionEnd].join('\n')
+			[
+				getFileLine('a.txt'),
+				getMatchLine(1, ['before', 'match', 'after']),
+				getMatchLine(2, ['before', 'match', 'after']),
+				fileSectionEnd
+			].join('\n'),
+			[
+				getFileLine('b.txt'),
+				getMatchLine(1, ['before', 'match', 'after']),
+				getMatchLine(2, ['before', 'match', 'after']),
+				fileSectionEnd
+			].join('\n'),
+			[
+				getFileLine('c.txt'),
+				getMatchLine(1, ['before', 'match', 'after']),
+				getMatchLine(2, ['before', 'match', 'after']),
+				fileSectionEnd
+			].join('\n')
 		];
 
 		const results = parseInputStrings(input);
@@ -126,9 +149,9 @@ suite('RipgrepParser', () => {
 	});
 
 	test('Parses multiple chunks broken in the middle of each line', () => {
-		const input = arrays.flatten(singleLineChunks
-			.map(chunk => chunk + '\n')
-			.map(halve));
+		const input = arrays.flatten(
+			singleLineChunks.map(chunk => chunk + '\n').map(halve)
+		);
 
 		const results = parseInputStrings(input);
 		assert.equal(results.length, 3);
@@ -136,9 +159,9 @@ suite('RipgrepParser', () => {
 	});
 
 	test('Parses multiple chunks broken at each character', () => {
-		const input = arrays.flatten(singleLineChunks
-			.map(chunk => chunk + '\n')
-			.map(arrayOfChars));
+		const input = arrays.flatten(
+			singleLineChunks.map(chunk => chunk + '\n').map(arrayOfChars)
+		);
 
 		const results = parseInputStrings(input);
 		assert.equal(results.length, 3);
@@ -146,8 +169,7 @@ suite('RipgrepParser', () => {
 	});
 
 	test('Parses chunks broken before newline', () => {
-		const input = singleLineChunks
-			.map(chunk => '\n' + chunk);
+		const input = singleLineChunks.map(chunk => '\n' + chunk);
 
 		const results = parseInputStrings(input);
 		assert.equal(results.length, 3);
@@ -157,13 +179,23 @@ suite('RipgrepParser', () => {
 	test('Parses chunks broken in the middle of a multibyte character', () => {
 		const multibyteStr = '漢';
 		const multibyteBuf = new Buffer(multibyteStr);
-		const text = getFileLine('foo/bar') + '\n' + getMatchLine(0, ['before', 'match', 'after']) + '\n';
+		const text =
+			getFileLine('foo/bar') +
+			'\n' +
+			getMatchLine(0, ['before', 'match', 'after']) +
+			'\n';
 
 		// Split the multibyte char into two pieces and divide between the two buffers
 		const beforeIndex = 24;
 		const inputBufs = [
-			Buffer.concat([new Buffer(text.substr(0, beforeIndex)), multibyteBuf.slice(0, 2)]),
-			Buffer.concat([multibyteBuf.slice(2), new Buffer(text.substr(beforeIndex))])
+			Buffer.concat([
+				new Buffer(text.substr(0, beforeIndex)),
+				multibyteBuf.slice(0, 2)
+			]),
+			Buffer.concat([
+				multibyteBuf.slice(2),
+				new Buffer(text.substr(beforeIndex))
+			])
 		];
 
 		const results = parseInput(inputBufs);

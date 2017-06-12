@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./media/titlebarpart';
 import { TPromise } from 'vs/base/common/winjs.base';
@@ -13,7 +13,10 @@ import * as paths from 'vs/base/common/paths';
 import { Part } from 'vs/workbench/browser/part';
 import { ITitleService } from 'vs/workbench/services/title/common/titleService';
 import { getZoomFactor } from 'vs/base/browser/browser';
-import { IWindowService, IWindowsService } from 'vs/platform/windows/common/windows';
+import {
+	IWindowService,
+	IWindowsService
+} from 'vs/platform/windows/common/windows';
 import * as errors from 'vs/base/common/errors';
 import { IContextMenuService } from 'vs/platform/contextview/browser/contextView';
 import { StandardMouseEvent } from 'vs/base/browser/mouseEvent';
@@ -30,14 +33,24 @@ import { IEnvironmentService } from 'vs/platform/environment/common/environment'
 import { IWorkspaceContextService } from 'vs/platform/workspace/common/workspace';
 import { Verbosity } from 'vs/platform/editor/common/editor';
 import { IThemeService } from 'vs/platform/theme/common/themeService';
-import { TITLE_BAR_ACTIVE_BACKGROUND, TITLE_BAR_ACTIVE_FOREGROUND, TITLE_BAR_INACTIVE_FOREGROUND, TITLE_BAR_INACTIVE_BACKGROUND } from 'vs/workbench/common/theme';
+import {
+	TITLE_BAR_ACTIVE_BACKGROUND,
+	TITLE_BAR_ACTIVE_FOREGROUND,
+	TITLE_BAR_INACTIVE_FOREGROUND,
+	TITLE_BAR_INACTIVE_BACKGROUND
+} from 'vs/workbench/common/theme';
 
 export class TitlebarPart extends Part implements ITitleService {
-
 	public _serviceBrand: any;
 
-	private static NLS_UNSUPPORTED = nls.localize('patchedWindowTitle', "[Unsupported]");
-	private static NLS_EXTENSION_HOST = nls.localize('devExtensionWindowTitlePrefix', "[Extension Development Host]");
+	private static NLS_UNSUPPORTED = nls.localize(
+		'patchedWindowTitle',
+		'[Unsupported]'
+	);
+	private static NLS_EXTENSION_HOST = nls.localize(
+		'devExtensionWindowTitlePrefix',
+		'[Extension Development Host]'
+	);
 	private static TITLE_DIRTY = '\u25cf ';
 	private static TITLE_SEPARATOR = ' — ';
 
@@ -71,7 +84,13 @@ export class TitlebarPart extends Part implements ITitleService {
 
 		this.isPure = true;
 		this.activeEditorListeners = [];
-		this.workspacePath = contextService.hasWorkspace() ? labels.getPathLabel(contextService.getWorkspace().resource, void 0, environmentService) : '';
+		this.workspacePath = contextService.hasWorkspace()
+			? labels.getPathLabel(
+					contextService.getWorkspace().resource,
+					void 0,
+					environmentService
+				)
+			: '';
 
 		this.init();
 
@@ -79,7 +98,6 @@ export class TitlebarPart extends Part implements ITitleService {
 	}
 
 	private init(): void {
-
 		// Read initial config
 		this.onConfigurationChanged();
 
@@ -96,10 +114,22 @@ export class TitlebarPart extends Part implements ITitleService {
 	}
 
 	private registerListeners(): void {
-		this.toUnbind.push(DOM.addDisposableListener(window, DOM.EventType.BLUR, () => this.onBlur()));
-		this.toUnbind.push(DOM.addDisposableListener(window, DOM.EventType.FOCUS, () => this.onFocus()));
-		this.toUnbind.push(this.configurationService.onDidUpdateConfiguration(() => this.onConfigurationChanged(true)));
-		this.toUnbind.push(this.editorGroupService.onEditorsChanged(() => this.onEditorsChanged()));
+		this.toUnbind.push(
+			DOM.addDisposableListener(window, DOM.EventType.BLUR, () => this.onBlur())
+		);
+		this.toUnbind.push(
+			DOM.addDisposableListener(window, DOM.EventType.FOCUS, () =>
+				this.onFocus()
+			)
+		);
+		this.toUnbind.push(
+			this.configurationService.onDidUpdateConfiguration(() =>
+				this.onConfigurationChanged(true)
+			)
+		);
+		this.toUnbind.push(
+			this.editorGroupService.onEditorsChanged(() => this.onEditorsChanged())
+		);
 	}
 
 	private onBlur(): void {
@@ -114,7 +144,9 @@ export class TitlebarPart extends Part implements ITitleService {
 
 	private onConfigurationChanged(update?: boolean): void {
 		const currentTitleTemplate = this.titleTemplate;
-		this.titleTemplate = this.configurationService.lookup<string>('window.title').value;
+		this.titleTemplate = this.configurationService.lookup<string>(
+			'window.title'
+		).value;
 
 		if (update && currentTitleTemplate !== this.titleTemplate) {
 			this.setTitle(this.getWindowTitle());
@@ -122,7 +154,6 @@ export class TitlebarPart extends Part implements ITitleService {
 	}
 
 	private onEditorsChanged(): void {
-
 		// Dispose old listeners
 		dispose(this.activeEditorListeners);
 		this.activeEditorListeners = [];
@@ -135,13 +166,17 @@ export class TitlebarPart extends Part implements ITitleService {
 
 		// Apply listener for dirty and label changes
 		if (activeInput instanceof EditorInput) {
-			this.activeEditorListeners.push(activeInput.onDidChangeDirty(() => {
-				this.setTitle(this.getWindowTitle());
-			}));
+			this.activeEditorListeners.push(
+				activeInput.onDidChangeDirty(() => {
+					this.setTitle(this.getWindowTitle());
+				})
+			);
 
-			this.activeEditorListeners.push(activeInput.onDidChangeLabel(() => {
-				this.setTitle(this.getWindowTitle());
-			}));
+			this.activeEditorListeners.push(
+				activeInput.onDidChangeLabel(() => {
+					this.setTitle(this.getWindowTitle());
+				})
+			);
 		}
 	}
 
@@ -181,8 +216,12 @@ export class TitlebarPart extends Part implements ITitleService {
 
 		// Variables
 		const activeEditorShort = input ? input.getTitle(Verbosity.SHORT) : '';
-		const activeEditorMedium = input ? input.getTitle(Verbosity.MEDIUM) : activeEditorShort;
-		const activeEditorLong = input ? input.getTitle(Verbosity.LONG) : activeEditorMedium;
+		const activeEditorMedium = input
+			? input.getTitle(Verbosity.MEDIUM)
+			: activeEditorShort;
+		const activeEditorLong = input
+			? input.getTitle(Verbosity.LONG)
+			: activeEditorMedium;
 		const rootName = workspace ? workspace.name : '';
 		const rootPath = workspace ? this.workspacePath : '';
 		const dirty = input && input.isDirty() ? TitlebarPart.TITLE_DIRTY : '';
@@ -211,20 +250,23 @@ export class TitlebarPart extends Part implements ITitleService {
 		}
 
 		// Maximize/Restore on doubleclick
-		this.titleContainer.on(DOM.EventType.DBLCLICK, (e) => {
+		this.titleContainer.on(DOM.EventType.DBLCLICK, e => {
 			DOM.EventHelper.stop(e);
 
 			this.onTitleDoubleclick();
 		});
 
 		// Context menu on title
-		this.title.on([DOM.EventType.CONTEXT_MENU, DOM.EventType.MOUSE_DOWN], (e: MouseEvent) => {
-			if (e.type === DOM.EventType.CONTEXT_MENU || e.metaKey) {
-				DOM.EventHelper.stop(e);
+		this.title.on(
+			[DOM.EventType.CONTEXT_MENU, DOM.EventType.MOUSE_DOWN],
+			(e: MouseEvent) => {
+				if (e.type === DOM.EventType.CONTEXT_MENU || e.metaKey) {
+					DOM.EventHelper.stop(e);
 
-				this.onContextMenu(e);
+					this.onContextMenu(e);
+				}
 			}
-		});
+		);
 
 		return this.titleContainer;
 	}
@@ -235,17 +277,32 @@ export class TitlebarPart extends Part implements ITitleService {
 		// Part container
 		const container = this.getContainer();
 		if (container) {
-			container.style('color', this.getColor(this.isInactive ? TITLE_BAR_INACTIVE_FOREGROUND : TITLE_BAR_ACTIVE_FOREGROUND));
-			container.style('background-color', this.getColor(this.isInactive ? TITLE_BAR_INACTIVE_BACKGROUND : TITLE_BAR_ACTIVE_BACKGROUND));
+			container.style(
+				'color',
+				this.getColor(
+					this.isInactive
+						? TITLE_BAR_INACTIVE_FOREGROUND
+						: TITLE_BAR_ACTIVE_FOREGROUND
+				)
+			);
+			container.style(
+				'background-color',
+				this.getColor(
+					this.isInactive
+						? TITLE_BAR_INACTIVE_BACKGROUND
+						: TITLE_BAR_ACTIVE_BACKGROUND
+				)
+			);
 		}
 	}
 
 	private onTitleDoubleclick(): void {
-		this.windowService.onWindowTitleDoubleClick().then(null, errors.onUnexpectedError);
+		this.windowService
+			.onWindowTitleDoubleClick()
+			.then(null, errors.onUnexpectedError);
 	}
 
 	private onContextMenu(e: MouseEvent): void {
-
 		// Find target anchor
 		const event = new StandardMouseEvent(e);
 		const anchor = { x: event.posx, y: event.posy };
@@ -267,7 +324,7 @@ export class TitlebarPart extends Part implements ITitleService {
 		if (this.representedFileName) {
 			const segments = this.representedFileName.split(paths.sep);
 			for (let i = segments.length; i > 0; i--) {
-				const isFile = (i === segments.length);
+				const isFile = i === segments.length;
 
 				let pathOffset = i;
 				if (!isFile) {
@@ -281,7 +338,13 @@ export class TitlebarPart extends Part implements ITitleService {
 					label = paths.basename(paths.dirname(path));
 				}
 
-				actions.push(new ShowItemInFolderAction(path, label || paths.sep, this.windowsService));
+				actions.push(
+					new ShowItemInFolderAction(
+						path,
+						label || paths.sep,
+						this.windowsService
+					)
+				);
 			}
 		}
 
@@ -289,7 +352,6 @@ export class TitlebarPart extends Part implements ITitleService {
 	}
 
 	public setTitle(title: string): void {
-
 		// Always set the native window title to identify us properly to the OS
 		window.document.title = title;
 
@@ -302,7 +364,6 @@ export class TitlebarPart extends Part implements ITitleService {
 	}
 
 	public setRepresentedFilename(path: string): void {
-
 		// Apply to window
 		this.windowService.setRepresentedFilename(path);
 
@@ -311,20 +372,27 @@ export class TitlebarPart extends Part implements ITitleService {
 	}
 
 	public layout(dimension: Dimension): Dimension[] {
-
 		// To prevent zooming we need to adjust the font size with the zoom factor
 		if (typeof this.initialTitleFontSize !== 'number') {
-			this.initialTitleFontSize = parseInt(this.titleContainer.getComputedStyle().fontSize, 10);
+			this.initialTitleFontSize = parseInt(
+				this.titleContainer.getComputedStyle().fontSize,
+				10
+			);
 		}
-		this.titleContainer.style({ fontSize: `${this.initialTitleFontSize / getZoomFactor()}px` });
+		this.titleContainer.style({
+			fontSize: `${this.initialTitleFontSize / getZoomFactor()}px`
+		});
 
 		return super.layout(dimension);
 	}
 }
 
 class ShowItemInFolderAction extends Action {
-
-	constructor(private path: string, label: string, private windowsService: IWindowsService) {
+	constructor(
+		private path: string,
+		label: string,
+		private windowsService: IWindowsService
+	) {
 		super('showItemInFolder.action.id', label);
 	}
 

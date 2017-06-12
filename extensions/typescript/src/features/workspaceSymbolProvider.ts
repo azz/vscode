@@ -3,29 +3,51 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { workspace, window, Uri, WorkspaceSymbolProvider, SymbolInformation, SymbolKind, Range, Location, CancellationToken } from 'vscode';
+import {
+	workspace,
+	window,
+	Uri,
+	WorkspaceSymbolProvider,
+	SymbolInformation,
+	SymbolKind,
+	Range,
+	Location,
+	CancellationToken
+} from 'vscode';
 
 import * as Proto from '../protocol';
 import { ITypescriptServiceClient } from '../typescriptService';
 
 function getSymbolKind(item: Proto.NavtoItem): SymbolKind {
 	switch (item.kind) {
-		case 'method': return SymbolKind.Method;
-		case 'enum': return SymbolKind.Enum;
-		case 'function': return SymbolKind.Function;
-		case 'class': return SymbolKind.Class;
-		case 'interface': return SymbolKind.Interface;
-		case 'var': return SymbolKind.Variable;
-		default: return SymbolKind.Variable;
+		case 'method':
+			return SymbolKind.Method;
+		case 'enum':
+			return SymbolKind.Enum;
+		case 'function':
+			return SymbolKind.Function;
+		case 'class':
+			return SymbolKind.Class;
+		case 'interface':
+			return SymbolKind.Interface;
+		case 'var':
+			return SymbolKind.Variable;
+		default:
+			return SymbolKind.Variable;
 	}
 }
 
-export default class TypeScriptWorkspaceSymbolProvider implements WorkspaceSymbolProvider {
+export default class TypeScriptWorkspaceSymbolProvider
+	implements WorkspaceSymbolProvider {
 	public constructor(
 		private client: ITypescriptServiceClient,
-		private modeId: string) { }
+		private modeId: string
+	) {}
 
-	public provideWorkspaceSymbols(search: string, token: CancellationToken): Promise<SymbolInformation[]> {
+	public provideWorkspaceSymbols(
+		search: string,
+		token: CancellationToken
+	): Promise<SymbolInformation[]> {
 		// typescript wants to have a resource even when asking
 		// general questions so we check the active editor. If this
 		// doesn't match we take the first TS document.
@@ -59,26 +81,40 @@ export default class TypeScriptWorkspaceSymbolProvider implements WorkspaceSymbo
 			file: filepath,
 			searchValue: search
 		};
-		return this.client.execute('navto', args, token).then((response): SymbolInformation[] => {
-			const result: SymbolInformation[] = [];
-			let data = response.body;
-			if (data) {
-				for (let item of data) {
-					if (!item.containerName && item.kind === 'alias') {
-						continue;
+		return this.client.execute('navto', args, token).then(
+			(response): SymbolInformation[] => {
+				const result: SymbolInformation[] = [];
+				let data = response.body;
+				if (data) {
+					for (let item of data) {
+						if (!item.containerName && item.kind === 'alias') {
+							continue;
+						}
+						const range = new Range(
+							item.start.line - 1,
+							item.start.offset - 1,
+							item.end.line - 1,
+							item.end.offset - 1
+						);
+						let label = item.name;
+						if (item.kind === 'method' || item.kind === 'function') {
+							label += '()';
+						}
+						result.push(
+							new SymbolInformation(
+								label,
+								getSymbolKind(item),
+								item.containerName || '',
+								new Location(this.client.asUrl(item.file), range)
+							)
+						);
 					}
-					const range = new Range(item.start.line - 1, item.start.offset - 1, item.end.line - 1, item.end.offset - 1);
-					let label = item.name;
-					if (item.kind === 'method' || item.kind === 'function') {
-						label += '()';
-					}
-					result.push(new SymbolInformation(label, getSymbolKind(item), item.containerName || '',
-						new Location(this.client.asUrl(item.file), range)));
 				}
+				return result;
+			},
+			() => {
+				return [];
 			}
-			return result;
-		}, () => {
-			return [];
-		});
+		);
 	}
 }

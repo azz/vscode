@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import path = require('path');
 import os = require('os');
@@ -19,7 +19,25 @@ export interface IForkOpts {
 }
 
 function makeRandomHexString(length: number): string {
-	let chars = ['0', '1', '2', '3', '4', '5', '6', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
+	let chars = [
+		'0',
+		'1',
+		'2',
+		'3',
+		'4',
+		'5',
+		'6',
+		'6',
+		'7',
+		'8',
+		'9',
+		'a',
+		'b',
+		'c',
+		'd',
+		'e',
+		'f'
+	];
 	let result = '';
 	for (let i = 0; i < length; i++) {
 		let idx = Math.floor(chars.length * Math.random());
@@ -38,7 +56,12 @@ function generatePipeName(): string {
 	return path.join(os.tmpdir(), randomName + '.sock');
 }
 
-function generatePatchedEnv(env: any, stdInPipeName: string, stdOutPipeName: string, stdErrPipeName: string): any {
+function generatePatchedEnv(
+	env: any,
+	stdInPipeName: string,
+	stdOutPipeName: string,
+	stdErrPipeName: string
+): any {
 	// Set the two unique pipe names and the electron flag as process env
 
 	let newEnv: any = {};
@@ -55,8 +78,12 @@ function generatePatchedEnv(env: any, stdInPipeName: string, stdOutPipeName: str
 	return newEnv;
 }
 
-export function fork(modulePath: string, args: string[], options: IForkOpts, callback: (error: any, cp: cp.ChildProcess) => void): void {
-
+export function fork(
+	modulePath: string,
+	args: string[],
+	options: IForkOpts,
+	callback: (error: any, cp: cp.ChildProcess) => void
+): void {
 	let callbackCalled = false;
 	let resolve = (result: cp.ChildProcess) => {
 		if (callbackCalled) {
@@ -78,19 +105,24 @@ export function fork(modulePath: string, args: string[], options: IForkOpts, cal
 	let stdOutPipeName = generatePipeName();
 	let stdErrPipeName = generatePipeName();
 
-	let newEnv = generatePatchedEnv(options.env || process.env, stdInPipeName, stdOutPipeName, stdErrPipeName);
+	let newEnv = generatePatchedEnv(
+		options.env || process.env,
+		stdInPipeName,
+		stdOutPipeName,
+		stdErrPipeName
+	);
 
 	let childProcess: cp.ChildProcess;
 
 	// Begin listening to stderr pipe
-	let stdErrServer = net.createServer((stdErrStream) => {
+	let stdErrServer = net.createServer(stdErrStream => {
 		// From now on the childProcess.stderr is available for reading
 		childProcess.stderr = stdErrStream;
 	});
 	stdErrServer.listen(stdErrPipeName);
 
 	// Begin listening to stdout pipe
-	let stdOutServer = net.createServer((stdOutStream) => {
+	let stdOutServer = net.createServer(stdOutStream => {
 		// The child process will write exactly one chunk with content `ready` when it has installed a listener to the stdin pipe
 
 		stdOutStream.once('data', (chunk: Buffer) => {
@@ -118,7 +150,7 @@ export function fork(modulePath: string, args: string[], options: IForkOpts, cal
 	};
 
 	// Create the process
-	let bootstrapperPath = (uri.parse(require.toUrl('./stdForkStart.js')).fsPath);
+	let bootstrapperPath = uri.parse(require.toUrl('./stdForkStart.js')).fsPath;
 	childProcess = cp.fork(bootstrapperPath, [modulePath].concat(args), {
 		silent: true,
 		cwd: options.cwd,

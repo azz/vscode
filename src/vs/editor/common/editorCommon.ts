@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { BulkListenerCallback } from 'vs/base/common/eventEmitter';
 import { MarkedString } from 'vs/base/common/htmlContent';
@@ -18,12 +18,21 @@ import { Selection, ISelection } from 'vs/editor/common/core/selection';
 import { IndentRange } from 'vs/editor/common/model/indentRanges';
 import { ITextSource } from 'vs/editor/common/model/textSource';
 import {
-	ModelRawContentChangedEvent, IModelContentChangedEvent, IModelDecorationsChangedEvent,
-	IModelLanguageChangedEvent, IModelOptionsChangedEvent
+	ModelRawContentChangedEvent,
+	IModelContentChangedEvent,
+	IModelDecorationsChangedEvent,
+	IModelLanguageChangedEvent,
+	IModelOptionsChangedEvent
 } from 'vs/editor/common/model/textModelEvents';
 import * as editorOptions from 'vs/editor/common/config/editorOptions';
-import { ICursorPositionChangedEvent, ICursorSelectionChangedEvent } from 'vs/editor/common/controller/cursorEvents';
-import { ICursors, CursorConfiguration } from 'vs/editor/common/controller/cursorCommon';
+import {
+	ICursorPositionChangedEvent,
+	ICursorSelectionChangedEvent
+} from 'vs/editor/common/controller/cursorEvents';
+import {
+	ICursors,
+	CursorConfiguration
+} from 'vs/editor/common/controller/cursorCommon';
 
 /**
  * Vertical Lane in the overview ruler of the editor.
@@ -185,7 +194,10 @@ export interface IModelDecorationsChangeAccessor {
 	 * @param id The unique identifier associated with the decoration.
 	 * @param newOptions The new options associated with this decoration.
 	 */
-	changeDecorationOptions(id: string, newOptions: IModelDecorationOptions): void;
+	changeDecorationOptions(
+		id: string,
+		newOptions: IModelDecorationOptions
+	): void;
 	/**
 	 * Remove an existing decoration.
 	 * @param id The unique identifier associated with the decoration.
@@ -200,7 +212,10 @@ export interface IModelDecorationsChangeAccessor {
 	 * @param newDecorations Array describing what decorations should result after the call.
 	 * @return An array containing the new decorations identifiers.
 	 */
-	deltaDecorations(oldDecorations: string[], newDecorations: IModelDeltaDecoration[]): string[];
+	deltaDecorations(
+		oldDecorations: string[],
+		newDecorations: IModelDeltaDecoration[]
+	): string[];
 }
 
 /**
@@ -332,7 +347,6 @@ export interface ICursorStateComputerData {
  * A command that modifies text / cursor state on a model.
  */
 export interface ICommand {
-
 	/**
 	 * Signal that this command is inserting automatic whitespace that should be trimmed if possible.
 	 * @internal
@@ -344,7 +358,10 @@ export interface ICommand {
 	 * @param model The model the command will execute on.
 	 * @param builder A helper to collect the needed edit operations and to track selections.
 	 */
-	getEditOperations(model: ITokenizedModel, builder: IEditOperationBuilder): void;
+	getEditOperations(
+		model: ITokenizedModel,
+		builder: IEditOperationBuilder
+	): void;
 
 	/**
 	 * Compute the cursor state after the edit operations were applied.
@@ -352,7 +369,10 @@ export interface ICommand {
 	 * @param helper A helper to get inverse edit operations and to get previously tracked selections.
 	 * @return The cursor state after the command executed.
 	 */
-	computeCursorState(model: ITokenizedModel, helper: ICursorStateComputerData): Selection;
+	computeCursorState(
+		model: ITokenizedModel,
+		helper: ICursorStateComputerData
+	): Selection;
 }
 
 /**
@@ -446,21 +466,23 @@ export class TextModelResolvedOptions {
 	 */
 	public equals(other: TextModelResolvedOptions): boolean {
 		return (
-			this.tabSize === other.tabSize
-			&& this.insertSpaces === other.insertSpaces
-			&& this.defaultEOL === other.defaultEOL
-			&& this.trimAutoWhitespace === other.trimAutoWhitespace
+			this.tabSize === other.tabSize &&
+			this.insertSpaces === other.insertSpaces &&
+			this.defaultEOL === other.defaultEOL &&
+			this.trimAutoWhitespace === other.trimAutoWhitespace
 		);
 	}
 
 	/**
 	 * @internal
 	 */
-	public createChangeEvent(newOpts: TextModelResolvedOptions): IModelOptionsChangedEvent {
+	public createChangeEvent(
+		newOpts: TextModelResolvedOptions
+	): IModelOptionsChangedEvent {
 		return {
 			tabSize: this.tabSize !== newOpts.tabSize,
 			insertSpaces: this.insertSpaces !== newOpts.insertSpaces,
-			trimAutoWhitespace: this.trimAutoWhitespace !== newOpts.trimAutoWhitespace,
+			trimAutoWhitespace: this.trimAutoWhitespace !== newOpts.trimAutoWhitespace
 		};
 	}
 }
@@ -486,7 +508,6 @@ export interface ITextModelUpdateOptions {
  * A textual read-only model.
  */
 export interface ITextModel {
-
 	/**
 	 * If true, the text model might contain RTL.
 	 * If false, the text model **contains only** contain LTR.
@@ -712,7 +733,15 @@ export interface ITextModel {
 	 * @param limitResultCount Limit the number of results
 	 * @return The ranges where the matches are. It is empty if not matches have been found.
 	 */
-	findMatches(searchString: string, searchOnlyEditableRange: boolean, isRegex: boolean, matchCase: boolean, wordSeparators: string, captureMatches: boolean, limitResultCount?: number): FindMatch[];
+	findMatches(
+		searchString: string,
+		searchOnlyEditableRange: boolean,
+		isRegex: boolean,
+		matchCase: boolean,
+		wordSeparators: string,
+		captureMatches: boolean,
+		limitResultCount?: number
+	): FindMatch[];
 	/**
 	 * Search the model.
 	 * @param searchString The string used to search. If it is a regular expression, set `isRegex` to true.
@@ -724,7 +753,15 @@ export interface ITextModel {
 	 * @param limitResultCount Limit the number of results
 	 * @return The ranges where the matches are. It is empty if no matches have been found.
 	 */
-	findMatches(searchString: string, searchScope: IRange, isRegex: boolean, matchCase: boolean, wordSeparators: string, captureMatches: boolean, limitResultCount?: number): FindMatch[];
+	findMatches(
+		searchString: string,
+		searchScope: IRange,
+		isRegex: boolean,
+		matchCase: boolean,
+		wordSeparators: string,
+		captureMatches: boolean,
+		limitResultCount?: number
+	): FindMatch[];
 	/**
 	 * Search the model for the next match. Loops to the beginning of the model if needed.
 	 * @param searchString The string used to search. If it is a regular expression, set `isRegex` to true.
@@ -735,7 +772,14 @@ export interface ITextModel {
 	 * @param captureMatches The result will contain the captured groups.
 	 * @return The range where the next match is. It is null if no next match has been found.
 	 */
-	findNextMatch(searchString: string, searchStart: IPosition, isRegex: boolean, matchCase: boolean, wordSeparators: string, captureMatches: boolean): FindMatch;
+	findNextMatch(
+		searchString: string,
+		searchStart: IPosition,
+		isRegex: boolean,
+		matchCase: boolean,
+		wordSeparators: string,
+		captureMatches: boolean
+	): FindMatch;
 	/**
 	 * Search the model for the previous match. Loops to the end of the model if needed.
 	 * @param searchString The string used to search. If it is a regular expression, set `isRegex` to true.
@@ -746,7 +790,14 @@ export interface ITextModel {
 	 * @param captureMatches The result will contain the captured groups.
 	 * @return The range where the previous match is. It is null if no previous match has been found.
 	 */
-	findPreviousMatch(searchString: string, searchStart: IPosition, isRegex: boolean, matchCase: boolean, wordSeparators: string, captureMatches: boolean): FindMatch;
+	findPreviousMatch(
+		searchString: string,
+		searchStart: IPosition,
+		isRegex: boolean,
+		matchCase: boolean,
+		wordSeparators: string,
+		captureMatches: boolean
+	): FindMatch;
 }
 
 export class FindMatch {
@@ -812,7 +863,6 @@ export interface IFoundBracket {
  * A model that is tokenized.
  */
 export interface ITokenizedModel extends ITextModel {
-
 	/**
 	 * Force tokenization information for `lineNumber` to be accurate.
 	 * @internal
@@ -905,7 +955,12 @@ export interface ITextModelWithMarkers extends ITextModel {
 	/**
 	 * @internal
 	 */
-	_addMarker(internalDecorationId: number, lineNumber: number, column: number, stickToPreviousCharacter: boolean): string;
+	_addMarker(
+		internalDecorationId: number,
+		lineNumber: number,
+		column: number,
+		stickToPreviousCharacter: boolean
+	): string;
 	/**
 	 * @internal
 	 */
@@ -913,7 +968,10 @@ export interface ITextModelWithMarkers extends ITextModel {
 	/**
 	 * @internal
 	 */
-	_changeMarkerStickiness(id: string, newStickToPreviousCharacter: boolean): void;
+	_changeMarkerStickiness(
+		id: string,
+		newStickToPreviousCharacter: boolean
+	): void;
 	/**
 	 * @internal
 	 */
@@ -932,7 +990,7 @@ export enum TrackedRangeStickiness {
 	AlwaysGrowsWhenTypingAtEdges = 0,
 	NeverGrowsWhenTypingAtEdges = 1,
 	GrowsOnlyWhenTypingBefore = 2,
-	GrowsOnlyWhenTypingAfter = 3,
+	GrowsOnlyWhenTypingAfter = 3
 }
 
 /**
@@ -947,7 +1005,10 @@ export interface ITextModelWithDecorations {
 	 * @param ownerId Identifies the editor id in which these decorations should appear. If no `ownerId` is provided, the decorations will appear in all editors that attach this model.
 	 * @internal
 	 */
-	changeDecorations<T>(callback: (changeAccessor: IModelDecorationsChangeAccessor) => T, ownerId?: number): T;
+	changeDecorations<T>(
+		callback: (changeAccessor: IModelDecorationsChangeAccessor) => T,
+		ownerId?: number
+	): T;
 
 	/**
 	 * Perform a minimum ammount of operations, in order to transform the decorations
@@ -959,7 +1020,11 @@ export interface ITextModelWithDecorations {
 	 * @param ownerId Identifies the editor id in which these decorations should appear. If no `ownerId` is provided, the decorations will appear in all editors that attach this model.
 	 * @return An array containing the new decorations identifiers.
 	 */
-	deltaDecorations(oldDecorations: string[], newDecorations: IModelDeltaDecoration[], ownerId?: number): string[];
+	deltaDecorations(
+		oldDecorations: string[],
+		newDecorations: IModelDeltaDecoration[],
+		ownerId?: number
+	): string[];
 
 	/**
 	 * Remove all decorations that have been added with this specific ownerId.
@@ -989,7 +1054,11 @@ export interface ITextModelWithDecorations {
 	 * @param filterOutValidation If set, it will ignore decorations specific to validation (i.e. warnings, errors).
 	 * @return An array with the decorations
 	 */
-	getLineDecorations(lineNumber: number, ownerId?: number, filterOutValidation?: boolean): IModelDecoration[];
+	getLineDecorations(
+		lineNumber: number,
+		ownerId?: number,
+		filterOutValidation?: boolean
+	): IModelDecoration[];
 
 	/**
 	 * Gets all the decorations for the lines between `startLineNumber` and `endLineNumber` as an array.
@@ -999,7 +1068,12 @@ export interface ITextModelWithDecorations {
 	 * @param filterOutValidation If set, it will ignore decorations specific to validation (i.e. warnings, errors).
 	 * @return An array with the decorations
 	 */
-	getLinesDecorations(startLineNumber: number, endLineNumber: number, ownerId?: number, filterOutValidation?: boolean): IModelDecoration[];
+	getLinesDecorations(
+		startLineNumber: number,
+		endLineNumber: number,
+		ownerId?: number,
+		filterOutValidation?: boolean
+	): IModelDecoration[];
 
 	/**
 	 * Gets all the deocorations in a range as an array. Only `startLineNumber` and `endLineNumber` from `range` are used for filtering.
@@ -1009,21 +1083,27 @@ export interface ITextModelWithDecorations {
 	 * @param filterOutValidation If set, it will ignore decorations specific to validation (i.e. warnings, errors).
 	 * @return An array with the decorations
 	 */
-	getDecorationsInRange(range: IRange, ownerId?: number, filterOutValidation?: boolean): IModelDecoration[];
+	getDecorationsInRange(
+		range: IRange,
+		ownerId?: number,
+		filterOutValidation?: boolean
+	): IModelDecoration[];
 
 	/**
 	 * Gets all the decorations as an array.
 	 * @param ownerId If set, it will ignore decorations belonging to other owners.
 	 * @param filterOutValidation If set, it will ignore decorations specific to validation (i.e. warnings, errors).
 	 */
-	getAllDecorations(ownerId?: number, filterOutValidation?: boolean): IModelDecoration[];
+	getAllDecorations(
+		ownerId?: number,
+		filterOutValidation?: boolean
+	): IModelDecoration[];
 }
 
 /**
  * An editable text model.
  */
 export interface IEditableTextModel extends ITextModelWithMarkers {
-
 	/**
 	 * Normalize a string containing whitespace according to indentation rules (converts to spaces or to tabs).
 	 */
@@ -1059,7 +1139,11 @@ export interface IEditableTextModel extends ITextModelWithMarkers {
 	 * @param cursorStateComputer A callback that can compute the resulting cursors state after the edit operations have been executed.
 	 * @return The cursor state returned by the `cursorStateComputer`.
 	 */
-	pushEditOperations(beforeCursorState: Selection[], editOperations: IIdentifiedSingleEditOperation[], cursorStateComputer: ICursorStateComputer): Selection[];
+	pushEditOperations(
+		beforeCursorState: Selection[],
+		editOperations: IIdentifiedSingleEditOperation[],
+		cursorStateComputer: ICursorStateComputer
+	): Selection[];
 
 	/**
 	 * Edit the model without adding the edits to the undo stack.
@@ -1067,7 +1151,9 @@ export interface IEditableTextModel extends ITextModelWithMarkers {
 	 * @param operations The edit operations.
 	 * @return The inverse edit operations, that, when applied, will bring the model back to the previous state.
 	 */
-	applyEdits(operations: IIdentifiedSingleEditOperation[]): IIdentifiedSingleEditOperation[];
+	applyEdits(
+		operations: IIdentifiedSingleEditOperation[]
+	): IIdentifiedSingleEditOperation[];
 
 	/**
 	 * Undo edit operations until the first previous stop point created by `pushStackElement`.
@@ -1105,34 +1191,49 @@ export interface IEditableTextModel extends ITextModelWithMarkers {
 /**
  * A model.
  */
-export interface IModel extends IReadOnlyModel, IEditableTextModel, ITextModelWithMarkers, ITokenizedModel, ITextModelWithDecorations {
+export interface IModel
+	extends IReadOnlyModel,
+		IEditableTextModel,
+		ITextModelWithMarkers,
+		ITokenizedModel,
+		ITextModelWithDecorations {
 	/**
 	 * @deprecated Please use `onDidChangeContent` instead.
 	 * An event emitted when the contents of the model have changed.
 	 * @internal
 	 * @event
 	 */
-	onDidChangeRawContent(listener: (e: ModelRawContentChangedEvent) => void): IDisposable;
+	onDidChangeRawContent(
+		listener: (e: ModelRawContentChangedEvent) => void
+	): IDisposable;
 	/**
 	 * An event emitted when the contents of the model have changed.
 	 * @event
 	 */
-	onDidChangeContent(listener: (e: IModelContentChangedEvent) => void): IDisposable;
+	onDidChangeContent(
+		listener: (e: IModelContentChangedEvent) => void
+	): IDisposable;
 	/**
 	 * An event emitted when decorations of the model have changed.
 	 * @event
 	 */
-	onDidChangeDecorations(listener: (e: IModelDecorationsChangedEvent) => void): IDisposable;
+	onDidChangeDecorations(
+		listener: (e: IModelDecorationsChangedEvent) => void
+	): IDisposable;
 	/**
 	 * An event emitted when the model options have changed.
 	 * @event
 	 */
-	onDidChangeOptions(listener: (e: IModelOptionsChangedEvent) => void): IDisposable;
+	onDidChangeOptions(
+		listener: (e: IModelOptionsChangedEvent) => void
+	): IDisposable;
 	/**
 	 * An event emitted when the language associated with the model has changed.
 	 * @event
 	 */
-	onDidChangeLanguage(listener: (e: IModelLanguageChangedEvent) => void): IDisposable;
+	onDidChangeLanguage(
+		listener: (e: IModelLanguageChangedEvent) => void
+	): IDisposable;
 	/**
 	 * An event emitted right before disposing the model.
 	 * @event
@@ -1247,7 +1348,9 @@ export interface IDiffLineInformation {
  * @internal
  */
 export interface IConfiguration {
-	onDidChange(listener: (e: editorOptions.IConfigurationChangedEvent) => void): IDisposable;
+	onDidChange(
+		listener: (e: editorOptions.IConfigurationChangedEvent) => void
+	): IDisposable;
 
 	readonly editor: editorOptions.InternalEditorOptions;
 
@@ -1483,7 +1586,11 @@ export interface IEditor {
 	/**
 	 * Scroll vertically or horizontally as necessary and reveal a position.
 	 */
-	revealPosition(position: IPosition, revealVerticalInCenter?: boolean, revealHorizontal?: boolean): void;
+	revealPosition(
+		position: IPosition,
+		revealVerticalInCenter?: boolean,
+		revealHorizontal?: boolean
+	): void;
 
 	/**
 	 * Scroll vertically or horizontally as necessary and reveal a position centered vertically.
@@ -1545,7 +1652,10 @@ export interface IEditor {
 	/**
 	 * Scroll vertically as necessary and reveal lines centered vertically only if it lies outside the viewport.
 	 */
-	revealLinesInCenterIfOutsideViewport(lineNumber: number, endLineNumber: number): void;
+	revealLinesInCenterIfOutsideViewport(
+		lineNumber: number,
+		endLineNumber: number
+	): void;
 
 	/**
 	 * Scroll vertically or horizontally as necessary and reveal a range.
@@ -1597,7 +1707,9 @@ export interface IEditor {
 	 * @see IModel.changeDecorations
 	 * @internal
 	 */
-	changeDecorations(callback: (changeAccessor: IModelDecorationsChangeAccessor) => any): any;
+	changeDecorations(
+		callback: (changeAccessor: IModelDecorationsChangeAccessor) => any
+	): any;
 }
 
 /**
@@ -1686,7 +1798,8 @@ export interface IContentDecorationRenderOptions {
 /**
  * @internal
  */
-export interface IDecorationRenderOptions extends IThemeDecorationRenderOptions {
+export interface IDecorationRenderOptions
+	extends IThemeDecorationRenderOptions {
 	isWholeLine?: boolean;
 	rangeBehavior?: TrackedRangeStickiness;
 	overviewRulerLane?: OverviewRulerLane;
@@ -1706,7 +1819,8 @@ export interface IThemeDecorationInstanceRenderOptions {
 /**
  * @internal
  */
-export interface IDecorationInstanceRenderOptions extends IThemeDecorationInstanceRenderOptions {
+export interface IDecorationInstanceRenderOptions
+	extends IThemeDecorationInstanceRenderOptions {
 	light?: IThemeDecorationInstanceRenderOptions;
 	dark?: IThemeDecorationInstanceRenderOptions;
 }
@@ -1725,32 +1839,44 @@ export interface ICommonCodeEditor extends IEditor {
 	 * An event emitted when the content of the current model has changed.
 	 * @event
 	 */
-	onDidChangeModelContent(listener: (e: IModelContentChangedEvent) => void): IDisposable;
+	onDidChangeModelContent(
+		listener: (e: IModelContentChangedEvent) => void
+	): IDisposable;
 	/**
 	 * An event emitted when the language of the current model has changed.
 	 * @event
 	 */
-	onDidChangeModelLanguage(listener: (e: IModelLanguageChangedEvent) => void): IDisposable;
+	onDidChangeModelLanguage(
+		listener: (e: IModelLanguageChangedEvent) => void
+	): IDisposable;
 	/**
 	 * An event emitted when the options of the current model has changed.
 	 * @event
 	 */
-	onDidChangeModelOptions(listener: (e: IModelOptionsChangedEvent) => void): IDisposable;
+	onDidChangeModelOptions(
+		listener: (e: IModelOptionsChangedEvent) => void
+	): IDisposable;
 	/**
 	 * An event emitted when the configuration of the editor has changed. (e.g. `editor.updateOptions()`)
 	 * @event
 	 */
-	onDidChangeConfiguration(listener: (e: editorOptions.IConfigurationChangedEvent) => void): IDisposable;
+	onDidChangeConfiguration(
+		listener: (e: editorOptions.IConfigurationChangedEvent) => void
+	): IDisposable;
 	/**
 	 * An event emitted when the cursor position has changed.
 	 * @event
 	 */
-	onDidChangeCursorPosition(listener: (e: ICursorPositionChangedEvent) => void): IDisposable;
+	onDidChangeCursorPosition(
+		listener: (e: ICursorPositionChangedEvent) => void
+	): IDisposable;
 	/**
 	 * An event emitted when the cursor selection has changed.
 	 * @event
 	 */
-	onDidChangeCursorSelection(listener: (e: ICursorSelectionChangedEvent) => void): IDisposable;
+	onDidChangeCursorSelection(
+		listener: (e: ICursorSelectionChangedEvent) => void
+	): IDisposable;
 	/**
 	 * An event emitted when the model of this editor has changed (e.g. `editor.setModel()`).
 	 * @event
@@ -1760,7 +1886,9 @@ export interface ICommonCodeEditor extends IEditor {
 	 * An event emitted when the decorations of the current model have changed.
 	 * @event
 	 */
-	onDidChangeModelDecorations(listener: (e: IModelDecorationsChangedEvent) => void): IDisposable;
+	onDidChangeModelDecorations(
+		listener: (e: IModelDecorationsChangedEvent) => void
+	): IDisposable;
 	/**
 	 * An event emitted when the text inside this editor gained focus (i.e. cursor blinking).
 	 * @event
@@ -1848,7 +1976,7 @@ export interface ICommonCodeEditor extends IEditor {
 	 * Get value of the current model attached to this editor.
 	 * @see IModel.getValue
 	 */
-	getValue(options?: { preserveBOM: boolean; lineEnding: string; }): string;
+	getValue(options?: { preserveBOM: boolean; lineEnding: string }): string;
 
 	/**
 	 * Set the value of the current model attached to this editor.
@@ -1914,7 +2042,11 @@ export interface ICommonCodeEditor extends IEditor {
 	 * @param edits The edits to execute.
 	 * @param endCursoState Cursor state after the edits were applied.
 	 */
-	executeEdits(source: string, edits: IIdentifiedSingleEditOperation[], endCursoState?: Selection[]): boolean;
+	executeEdits(
+		source: string,
+		edits: IIdentifiedSingleEditOperation[],
+		endCursoState?: Selection[]
+	): boolean;
 
 	/**
 	 * Execute multiple (concommitent) commands on the editor.
@@ -1942,7 +2074,10 @@ export interface ICommonCodeEditor extends IEditor {
 	 * All decorations added through this call will get the ownerId of this editor.
 	 * @see IModel.deltaDecorations
 	 */
-	deltaDecorations(oldDecorations: string[], newDecorations: IModelDeltaDecoration[]): string[];
+	deltaDecorations(
+		oldDecorations: string[],
+		newDecorations: IModelDeltaDecoration[]
+	): string[];
 
 	/**
 	 * @internal
@@ -1962,7 +2097,7 @@ export interface ICommonCodeEditor extends IEditor {
 	/**
 	 * @internal
 	 */
-	getTelemetryData(): { [key: string]: any; };
+	getTelemetryData(): { [key: string]: any };
 }
 
 export interface ICommonDiffEditor extends IEditor {
@@ -2017,7 +2152,7 @@ export interface ICommonDiffEditor extends IEditor {
 	/**
 	 * @see ICodeEditor.getValue
 	 */
-	getValue(options?: { preserveBOM: boolean; lineEnding: string; }): string;
+	getValue(options?: { preserveBOM: boolean; lineEnding: string }): string;
 
 	/**
 	 * Returns whether the diff editor is ignoring trim whitespace or not.
@@ -2050,7 +2185,9 @@ export var EditorType = {
  */
 export function isCommonCodeEditor(thing: any): thing is ICommonCodeEditor {
 	if (thing && typeof (<ICommonCodeEditor>thing).getEditorType === 'function') {
-		return (<ICommonCodeEditor>thing).getEditorType() === EditorType.ICodeEditor;
+		return (
+			(<ICommonCodeEditor>thing).getEditorType() === EditorType.ICodeEditor
+		);
 	} else {
 		return false;
 	}
@@ -2061,7 +2198,9 @@ export function isCommonCodeEditor(thing: any): thing is ICommonCodeEditor {
  */
 export function isCommonDiffEditor(thing: any): thing is ICommonDiffEditor {
 	if (thing && typeof (<ICommonDiffEditor>thing).getEditorType === 'function') {
-		return (<ICommonDiffEditor>thing).getEditorType() === EditorType.IDiffEditor;
+		return (
+			(<ICommonDiffEditor>thing).getEditorType() === EditorType.IDiffEditor
+		);
 	} else {
 		return false;
 	}
@@ -2084,5 +2223,5 @@ export var Handler = {
 	Cut: 'cut',
 
 	Undo: 'undo',
-	Redo: 'redo',
+	Redo: 'redo'
 };

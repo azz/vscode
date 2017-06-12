@@ -2,11 +2,19 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { TokenMetadata } from 'vs/editor/common/model/tokensBinaryEncoding';
-import { ViewLineTokenFactory, ViewLineToken } from 'vs/editor/common/core/viewLineToken';
-import { ColorId, FontStyle, StandardTokenType, LanguageId } from 'vs/editor/common/modes';
+import {
+	ViewLineTokenFactory,
+	ViewLineToken
+} from 'vs/editor/common/core/viewLineToken';
+import {
+	ColorId,
+	FontStyle,
+	StandardTokenType,
+	LanguageId
+} from 'vs/editor/common/modes';
 
 export class LineToken {
 	_lineTokenBrand: void;
@@ -41,7 +49,14 @@ export class LineToken {
 		return TokenMetadata.getBackground(this._metadata);
 	}
 
-	constructor(source: LineTokens, tokenIndex: number, tokenCount: number, startOffset: number, endOffset: number, metadata: number) {
+	constructor(
+		source: LineTokens,
+		tokenIndex: number,
+		tokenCount: number,
+		startOffset: number,
+		endOffset: number,
+		metadata: number
+	) {
 		this._source = source;
 		this._tokenIndex = tokenIndex;
 		this._metadata = metadata;
@@ -49,8 +64,8 @@ export class LineToken {
 		this.startOffset = startOffset;
 		this.endOffset = endOffset;
 
-		this.hasPrev = (this._tokenIndex > 0);
-		this.hasNext = (this._tokenIndex + 1 < tokenCount);
+		this.hasPrev = this._tokenIndex > 0;
+		this.hasNext = this._tokenIndex + 1 < tokenCount;
 	}
 
 	public prev(): LineToken {
@@ -80,7 +95,7 @@ export class LineTokens {
 
 	constructor(tokens: Uint32Array, text: string) {
 		this._tokens = tokens;
-		this._tokensCount = (this._tokens.length >>> 1);
+		this._tokensCount = this._tokens.length >>> 1;
 		this._text = text;
 		this._textLength = this._text.length;
 	}
@@ -98,7 +113,7 @@ export class LineTokens {
 	}
 
 	public getTokenStartOffset(tokenIndex: number): number {
-		return this._tokens[(tokenIndex << 1)];
+		return this._tokens[tokenIndex << 1];
 	}
 
 	public getLanguageId(tokenIndex: number): LanguageId {
@@ -139,7 +154,7 @@ export class LineTokens {
 	}
 
 	public tokenAt(tokenIndex: number): LineToken {
-		let startOffset = this._tokens[(tokenIndex << 1)];
+		let startOffset = this._tokens[tokenIndex << 1];
 		let endOffset: number;
 		if (tokenIndex + 1 < this._tokensCount) {
 			endOffset = this._tokens[(tokenIndex + 1) << 1];
@@ -147,7 +162,14 @@ export class LineTokens {
 			endOffset = this._textLength;
 		}
 		let metadata = this._tokens[(tokenIndex << 1) + 1];
-		return new LineToken(this, tokenIndex, this._tokensCount, startOffset, endOffset, metadata);
+		return new LineToken(
+			this,
+			tokenIndex,
+			this._tokensCount,
+			startOffset,
+			endOffset,
+			metadata
+		);
 	}
 
 	public firstToken(): LineToken {
@@ -168,7 +190,17 @@ export class LineTokens {
 		return ViewLineTokenFactory.inflateArr(this._tokens, this._textLength);
 	}
 
-	public sliceAndInflate(startOffset: number, endOffset: number, deltaOffset: number): ViewLineToken[] {
-		return ViewLineTokenFactory.sliceAndInflate(this._tokens, startOffset, endOffset, deltaOffset, this._textLength);
+	public sliceAndInflate(
+		startOffset: number,
+		endOffset: number,
+		deltaOffset: number
+	): ViewLineToken[] {
+		return ViewLineTokenFactory.sliceAndInflate(
+			this._tokens,
+			startOffset,
+			endOffset,
+			deltaOffset,
+			this._textLength
+		);
 	}
 }

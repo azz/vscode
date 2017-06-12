@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import WinJS = require('vs/base/common/winjs.base');
 import Touch = require('vs/base/browser/touch');
@@ -16,7 +16,6 @@ import { IAction, IActionItem } from 'vs/base/common/actions';
 import { Color } from 'vs/base/common/color';
 
 export interface ITree extends Events.IEventEmitter {
-
 	emit(eventType: string, data?: any): void;
 
 	onDOMFocus: Event<void>;
@@ -230,12 +229,20 @@ export interface ITree extends Events.IEventEmitter {
 	/**
 	 * Selects the next `count`-nth element, in visible order.
 	 */
-	selectNext(count?: number, clearSelection?: boolean, eventPayload?: any): void;
+	selectNext(
+		count?: number,
+		clearSelection?: boolean,
+		eventPayload?: any
+	): void;
 
 	/**
 	 * Selects the previous `count`-nth element, in visible order.
 	 */
-	selectPrevious(count?: number, clearSelection?: boolean, eventPayload?: any): void;
+	selectPrevious(
+		count?: number,
+		clearSelection?: boolean,
+		eventPayload?: any
+	): void;
 
 	/**
 	 * Selects the currently selected element's parent.
@@ -352,7 +359,6 @@ export interface ITree extends Events.IEventEmitter {
 }
 
 export interface IDataSource {
-
 	/**
 	 * Returns the unique identifier of the given element.
 	 * No more than one element may use a given identifier.
@@ -381,7 +387,6 @@ export interface IDataSource {
 }
 
 export interface IRenderer {
-
 	/**
 	 * Returns the element's height in the tree, in pixels.
 	 */
@@ -412,7 +417,12 @@ export interface IRenderer {
 	 * Try to make this method do as little possible, since it will be called very
 	 * often.
 	 */
-	renderElement(tree: ITree, element: any, templateId: string, templateData: any): void;
+	renderElement(
+		tree: ITree,
+		element: any,
+		templateId: string,
+		templateData: any
+	): void;
 
 	/**
 	 * Disposes a template that was once rendered.
@@ -421,7 +431,6 @@ export interface IRenderer {
 }
 
 export interface IAccessibilityProvider {
-
 	/**
 	 * Given an element in the tree, return the ARIA label that should be associated with the
 	 * item. This helps screen readers to provide a meaningful label for the currently focused
@@ -436,7 +445,6 @@ export interface IAccessibilityProvider {
 }
 
 export /* abstract */ class ContextMenuEvent {
-
 	private _posx: number;
 	private _posy: number;
 	private _target: HTMLElement;
@@ -469,7 +477,6 @@ export /* abstract */ class ContextMenuEvent {
 }
 
 export class MouseContextMenuEvent extends ContextMenuEvent {
-
 	private originalEvent: Mouse.IMouseEvent;
 
 	constructor(originalEvent: Mouse.IMouseEvent) {
@@ -487,10 +494,13 @@ export class MouseContextMenuEvent extends ContextMenuEvent {
 }
 
 export class KeyboardContextMenuEvent extends ContextMenuEvent {
-
 	private originalEvent: Keyboard.IKeyboardEvent;
 
-	constructor(posx: number, posy: number, originalEvent: Keyboard.IKeyboardEvent) {
+	constructor(
+		posx: number,
+		posy: number,
+		originalEvent: Keyboard.IKeyboardEvent
+	) {
 		super(posx, posy, originalEvent.target);
 		this.originalEvent = originalEvent;
 	}
@@ -505,7 +515,6 @@ export class KeyboardContextMenuEvent extends ContextMenuEvent {
 }
 
 export interface IController {
-
 	/**
 	 * Called when an element is clicked.
 	 */
@@ -561,10 +570,26 @@ export interface IDragOverReaction {
 
 export const DRAG_OVER_REJECT: IDragOverReaction = { accept: false };
 export const DRAG_OVER_ACCEPT: IDragOverReaction = { accept: true };
-export const DRAG_OVER_ACCEPT_BUBBLE_UP: IDragOverReaction = { accept: true, bubble: DragOverBubble.BUBBLE_UP };
-export const DRAG_OVER_ACCEPT_BUBBLE_DOWN = (autoExpand = false) => ({ accept: true, bubble: DragOverBubble.BUBBLE_DOWN, autoExpand });
-export const DRAG_OVER_ACCEPT_BUBBLE_UP_COPY: IDragOverReaction = { accept: true, bubble: DragOverBubble.BUBBLE_UP, effect: DragOverEffect.COPY };
-export const DRAG_OVER_ACCEPT_BUBBLE_DOWN_COPY = (autoExpand = false) => ({ accept: true, bubble: DragOverBubble.BUBBLE_DOWN, effect: DragOverEffect.COPY, autoExpand });
+export const DRAG_OVER_ACCEPT_BUBBLE_UP: IDragOverReaction = {
+	accept: true,
+	bubble: DragOverBubble.BUBBLE_UP
+};
+export const DRAG_OVER_ACCEPT_BUBBLE_DOWN = (autoExpand = false) => ({
+	accept: true,
+	bubble: DragOverBubble.BUBBLE_DOWN,
+	autoExpand
+});
+export const DRAG_OVER_ACCEPT_BUBBLE_UP_COPY: IDragOverReaction = {
+	accept: true,
+	bubble: DragOverBubble.BUBBLE_UP,
+	effect: DragOverEffect.COPY
+};
+export const DRAG_OVER_ACCEPT_BUBBLE_DOWN_COPY = (autoExpand = false) => ({
+	accept: true,
+	bubble: DragOverBubble.BUBBLE_DOWN,
+	effect: DragOverEffect.COPY,
+	autoExpand
+});
 
 export interface IDragAndDropData {
 	update(event: Mouse.DragMouseEvent): void;
@@ -572,7 +597,6 @@ export interface IDragAndDropData {
 }
 
 export interface IDragAndDrop {
-
 	/**
 	 * Returns a uri if the given element should be allowed to drag.
 	 * Returns null, otherwise.
@@ -587,22 +611,35 @@ export interface IDragAndDrop {
 	/**
 	 * Sent when the drag operation is starting.
 	 */
-	onDragStart(tree: ITree, data: IDragAndDropData, originalEvent: Mouse.DragMouseEvent): void;
+	onDragStart(
+		tree: ITree,
+		data: IDragAndDropData,
+		originalEvent: Mouse.DragMouseEvent
+	): void;
 
 	/**
 	 * Returns a DragOverReaction indicating whether sources can be
 	 * dropped into target or some parent of the target.
 	 */
-	onDragOver(tree: ITree, data: IDragAndDropData, targetElement: any, originalEvent: Mouse.DragMouseEvent): IDragOverReaction;
+	onDragOver(
+		tree: ITree,
+		data: IDragAndDropData,
+		targetElement: any,
+		originalEvent: Mouse.DragMouseEvent
+	): IDragOverReaction;
 
 	/**
 	 * Handles the action of dropping sources into target.
 	 */
-	drop(tree: ITree, data: IDragAndDropData, targetElement: any, originalEvent: Mouse.DragMouseEvent): void;
+	drop(
+		tree: ITree,
+		data: IDragAndDropData,
+		targetElement: any,
+		originalEvent: Mouse.DragMouseEvent
+	): void;
 }
 
 export interface IFilter {
-
 	/**
 	 * Returns whether the given element should be visible.
 	 */
@@ -616,7 +653,6 @@ export interface IElementCallback {
 export type ICallback = () => void;
 
 export interface ISorter {
-
 	/**
 	 * Compare two elements in the viewer to define the sorting order.
 	 */
@@ -686,7 +722,6 @@ export interface ITreeContext extends ITreeConfiguration {
 }
 
 export interface IActionProvider {
-
 	/**
 	 * Returns whether or not the element has actions. These show up in place right to the element in the tree.
 	 */

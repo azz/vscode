@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import { onUnexpectedError, illegalArgument } from 'vs/base/common/errors';
@@ -19,15 +19,15 @@ import { toResource } from 'vs/workbench/common/editor';
 
 export interface IWorkspaceSymbolProvider {
 	provideWorkspaceSymbols(search: string): TPromise<SymbolInformation[]>;
-	resolveWorkspaceSymbol?: (item: SymbolInformation) => TPromise<SymbolInformation>;
+	resolveWorkspaceSymbol?: (
+		item: SymbolInformation
+	) => TPromise<SymbolInformation>;
 }
 
 export namespace WorkspaceSymbolProviderRegistry {
-
 	const _supports: IWorkspaceSymbolProvider[] = [];
 
 	export function register(support: IWorkspaceSymbolProvider): IDisposable {
-
 		if (support) {
 			_supports.push(support);
 		}
@@ -50,8 +50,9 @@ export namespace WorkspaceSymbolProviderRegistry {
 	}
 }
 
-export function getWorkspaceSymbols(query: string): TPromise<[IWorkspaceSymbolProvider, SymbolInformation[]][]> {
-
+export function getWorkspaceSymbols(
+	query: string
+): TPromise<[IWorkspaceSymbolProvider, SymbolInformation[]][]> {
 	const result: [IWorkspaceSymbolProvider, SymbolInformation[]][] = [];
 
 	const promises = WorkspaceSymbolProviderRegistry.all().map(support => {
@@ -65,35 +66,44 @@ export function getWorkspaceSymbols(query: string): TPromise<[IWorkspaceSymbolPr
 	return TPromise.join(promises).then(_ => result);
 }
 
-CommonEditorRegistry.registerLanguageCommand('_executeWorkspaceSymbolProvider', function (accessor, args: { query: string; }) {
-	let { query } = args;
-	if (typeof query !== 'string') {
-		throw illegalArgument();
+CommonEditorRegistry.registerLanguageCommand(
+	'_executeWorkspaceSymbolProvider',
+	function(accessor, args: { query: string }) {
+		let { query } = args;
+		if (typeof query !== 'string') {
+			throw illegalArgument();
+		}
+		return getWorkspaceSymbols(query);
 	}
-	return getWorkspaceSymbols(query);
-});
+);
 
 export interface IWorkbenchSearchConfiguration extends ISearchConfiguration {
 	search: {
 		quickOpen: {
 			includeSymbols: boolean;
-		},
-		exclude: glob.IExpression,
-		useRipgrep: boolean,
-		useIgnoreFilesByDefault: boolean
+		};
+		exclude: glob.IExpression;
+		useRipgrep: boolean;
+		useIgnoreFilesByDefault: boolean;
 	};
 }
 
 /**
  * Helper to return all opened editors with resources not belonging to the currently opened workspace.
  */
-export function getOutOfWorkspaceEditorResources(editorGroupService: IEditorGroupService, contextService: IWorkspaceContextService): URI[] {
+export function getOutOfWorkspaceEditorResources(
+	editorGroupService: IEditorGroupService,
+	contextService: IWorkspaceContextService
+): URI[] {
 	const resources: URI[] = [];
 
 	editorGroupService.getStacksModel().groups.forEach(group => {
 		const editors = group.getEditors();
 		editors.forEach(editor => {
-			const fileResource = toResource(editor, { supportSideBySide: true, filter: 'file' });
+			const fileResource = toResource(editor, {
+				supportSideBySide: true,
+				filter: 'file'
+			});
 			if (fileResource && !contextService.isInsideWorkspace(fileResource)) {
 				resources.push(fileResource);
 			}

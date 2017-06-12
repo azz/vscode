@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as path from 'path';
 import * as fs from 'fs';
@@ -53,7 +53,7 @@ export function getVersion(repo: string): string {
 	let refsMatch: RegExpExecArray;
 	let refs: { [ref: string]: string } = {};
 
-	while (refsMatch = refsRegex.exec(refsRaw)) {
+	while ((refsMatch = refsRegex.exec(refsRaw))) {
 		refs[refsMatch[2]] = refsMatch[1];
 	}
 

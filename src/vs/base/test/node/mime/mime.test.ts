@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import assert = require('assert');
 
@@ -11,8 +11,9 @@ import mimeCommon = require('vs/base/common/mime');
 import mime = require('vs/base/node/mime');
 
 suite('Mime', () => {
-
-	test('detectMimesFromFile (JSON saved as PNG)', function (done: (err?: any) => void) {
+	test('detectMimesFromFile (JSON saved as PNG)', function(
+		done: (err?: any) => void
+	) {
 		const file = require.toUrl('./fixtures/some.json.png');
 		mime.detectMimesFromFile(file).then(mimes => {
 			assert.deepEqual(mimes.mimes, ['text/plain']);
@@ -20,8 +21,14 @@ suite('Mime', () => {
 		}, done);
 	});
 
-	test('detectMimesFromFile (PNG saved as TXT)', function (done: (err?: any) => void) {
-		mimeCommon.registerTextMime({ id: 'text', mime: 'text/plain', extension: '.txt' });
+	test('detectMimesFromFile (PNG saved as TXT)', function(
+		done: (err?: any) => void
+	) {
+		mimeCommon.registerTextMime({
+			id: 'text',
+			mime: 'text/plain',
+			extension: '.txt'
+		});
 		const file = require.toUrl('./fixtures/some.png.txt');
 		mime.detectMimesFromFile(file).then(mimes => {
 			assert.deepEqual(mimes.mimes, ['text/plain', 'application/octet-stream']);
@@ -29,7 +36,9 @@ suite('Mime', () => {
 		}, done);
 	});
 
-	test('detectMimesFromFile (XML saved as PNG)', function (done: (err?: any) => void) {
+	test('detectMimesFromFile (XML saved as PNG)', function(
+		done: (err?: any) => void
+	) {
 		const file = require.toUrl('./fixtures/some.xml.png');
 		mime.detectMimesFromFile(file).then(mimes => {
 			assert.deepEqual(mimes.mimes, ['text/plain']);
@@ -37,7 +46,9 @@ suite('Mime', () => {
 		}, done);
 	});
 
-	test('detectMimesFromFile (QWOFF saved as TXT)', function (done: (err?: any) => void) {
+	test('detectMimesFromFile (QWOFF saved as TXT)', function(
+		done: (err?: any) => void
+	) {
 		const file = require.toUrl('./fixtures/some.qwoff.txt');
 		mime.detectMimesFromFile(file).then(mimes => {
 			assert.deepEqual(mimes.mimes, ['text/plain', 'application/octet-stream']);
@@ -45,7 +56,9 @@ suite('Mime', () => {
 		}, done);
 	});
 
-	test('detectMimesFromFile (CSS saved as QWOFF)', function (done: (err?: any) => void) {
+	test('detectMimesFromFile (CSS saved as QWOFF)', function(
+		done: (err?: any) => void
+	) {
 		const file = require.toUrl('./fixtures/some.css.qwoff');
 		mime.detectMimesFromFile(file).then(mimes => {
 			assert.deepEqual(mimes.mimes, ['text/plain']);
@@ -53,7 +66,7 @@ suite('Mime', () => {
 		}, done);
 	});
 
-	test('detectMimesFromFile (PDF)', function (done: () => void) {
+	test('detectMimesFromFile (PDF)', function(done: () => void) {
 		const file = require.toUrl('./fixtures/some.pdf');
 		mime.detectMimesFromFile(file).then(mimes => {
 			assert.deepEqual(mimes.mimes, ['application/octet-stream']);
@@ -61,7 +74,7 @@ suite('Mime', () => {
 		}, done);
 	});
 
-	test('autoGuessEncoding (ShiftJIS)', function (done: () => void) {
+	test('autoGuessEncoding (ShiftJIS)', function(done: () => void) {
 		const file = require.toUrl('./fixtures/some.shiftjis.txt');
 		mime.detectMimesFromFile(file, { autoGuessEncoding: true }).then(mimes => {
 			assert.equal(mimes.encoding, 'shiftjis');
@@ -69,7 +82,7 @@ suite('Mime', () => {
 		}, done);
 	});
 
-	test('autoGuessEncoding (CP1252)', function (done: () => void) {
+	test('autoGuessEncoding (CP1252)', function(done: () => void) {
 		const file = require.toUrl('./fixtures/some.cp1252.txt');
 		mime.detectMimesFromFile(file, { autoGuessEncoding: true }).then(mimes => {
 			assert.equal(mimes.encoding, 'windows1252');

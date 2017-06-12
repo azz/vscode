@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 function _encode(ch: string): string {
 	return '%' + ch.charCodeAt(0).toString(16).toUpperCase();
@@ -16,7 +16,6 @@ function encodeURIComponent2(str: string): string {
 function encodeNoop(str: string): string {
 	return str;
 }
-
 
 /**
  * Uniform Resource Identifier (URI) http://tools.ietf.org/html/rfc3986.
@@ -35,7 +34,6 @@ function encodeNoop(str: string): string {
  *
  */
 export default class URI {
-
 	private static _empty = '';
 	private static _slash = '/';
 	private static _regexp = /^(([^:/?#]+?):)?(\/\/([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/;
@@ -129,7 +127,13 @@ export default class URI {
 
 	// ---- modify to new -------------------------
 
-	public with(scheme: string, authority: string, path: string, query: string, fragment: string): URI {
+	public with(
+		scheme: string,
+		authority: string,
+		path: string,
+		query: string,
+		fragment: string
+	): URI {
 		var ret = new URI();
 		ret._scheme = scheme || this.scheme;
 		ret._authority = authority || this.authority;
@@ -175,7 +179,6 @@ export default class URI {
 	}
 
 	public static file(path: string): URI {
-
 		const ret = new URI();
 		ret._scheme = 'file';
 
@@ -208,13 +211,12 @@ export default class URI {
 	}
 
 	private static _parseComponents(value: string): UriComponents {
-
 		const ret: UriComponents = {
 			scheme: URI._empty,
 			authority: URI._empty,
 			path: URI._empty,
 			query: URI._empty,
-			fragment: URI._empty,
+			fragment: URI._empty
 		};
 
 		const match = URI._regexp.exec(value);
@@ -228,12 +230,17 @@ export default class URI {
 		return ret;
 	}
 
-	public static create(scheme?: string, authority?: string, path?: string, query?: string, fragment?: string): URI {
+	public static create(
+		scheme?: string,
+		authority?: string,
+		path?: string,
+		query?: string,
+		fragment?: string
+	): URI {
 		return new URI().with(scheme, authority, path, query, fragment);
 	}
 
 	private static _validate(ret: URI): void {
-
 		// validation
 		// path, http://tools.ietf.org/html/rfc3986#section-3.3
 		// If a URI contains an authority component, then the path component
@@ -241,10 +248,14 @@ export default class URI {
 		// does not contain an authority component, then the path cannot begin
 		// with two slash characters ("//").
 		if (ret.authority && ret.path && ret.path[0] !== '/') {
-			throw new Error('[UriError]: If a URI contains an authority component, then the path component must either be empty or begin with a slash ("/") character');
+			throw new Error(
+				'[UriError]: If a URI contains an authority component, then the path component must either be empty or begin with a slash ("/") character'
+			);
 		}
 		if (!ret.authority && ret.path.indexOf('//') === 0) {
-			throw new Error('[UriError]: If a URI does not contain an authority component, then the path cannot begin with two slash characters ("//")');
+			throw new Error(
+				'[UriError]: If a URI does not contain an authority component, then the path cannot begin with two slash characters ("//")'
+			);
 		}
 	}
 
@@ -267,10 +278,7 @@ export default class URI {
 	}
 
 	private static _asFormatted(uri: URI, skipEncoding: boolean): string {
-
-		const encoder = !skipEncoding
-			? encodeURIComponent2
-			: encodeNoop;
+		const encoder = !skipEncoding ? encodeURIComponent2 : encodeNoop;
 
 		const parts: string[] = [];
 
@@ -294,7 +302,8 @@ export default class URI {
 			// lower-case windown drive letters in /C:/fff
 			const m = URI._upperCaseDrive.exec(path);
 			if (m) {
-				path = m[1] + m[2].toLowerCase() + path.substr(m[1].length + m[2].length);
+				path =
+					m[1] + m[2].toLowerCase() + path.substr(m[1].length + m[2].length);
 			}
 
 			// encode every segement but not slashes
@@ -308,9 +317,12 @@ export default class URI {
 					parts.push(encoder(path.substring(lastIdx)).replace(/[#?]/, _encode));
 					break;
 				}
-				parts.push(encoder(path.substring(lastIdx, idx)).replace(/[#?]/, _encode), URI._slash);
+				parts.push(
+					encoder(path.substring(lastIdx, idx)).replace(/[#?]/, _encode),
+					URI._slash
+				);
 				lastIdx = idx + 1;
-			};
+			}
 		}
 		if (query) {
 			parts.push('?', encoder(query));

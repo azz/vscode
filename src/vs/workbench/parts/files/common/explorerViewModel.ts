@@ -3,11 +3,16 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import URI from 'vs/base/common/uri';
 import paths = require('vs/base/common/paths');
-import { IFileStat, isEqual, isParent, isEqualOrParent } from 'vs/platform/files/common/files';
+import {
+	IFileStat,
+	isEqual,
+	isParent,
+	isEqualOrParent
+} from 'vs/platform/files/common/files';
 import { IEditorInput } from 'vs/platform/editor/common/editor';
 import { IEditorGroup, toResource } from 'vs/workbench/common/editor';
 import { ResourceMap } from 'vs/base/common/map';
@@ -31,7 +36,14 @@ export class FileStat implements IFileStat {
 
 	public isDirectoryResolved: boolean;
 
-	constructor(resource: URI, isDirectory?: boolean, hasChildren?: boolean, name: string = paths.basename(resource.fsPath), mtime?: number, etag?: string) {
+	constructor(
+		resource: URI,
+		isDirectory?: boolean,
+		hasChildren?: boolean,
+		name: string = paths.basename(resource.fsPath),
+		mtime?: number,
+		etag?: string
+	) {
 		this.resource = resource;
 		this.name = name;
 		this.isDirectory = !!isDirectory;
@@ -52,17 +64,30 @@ export class FileStat implements IFileStat {
 	}
 
 	public static create(raw: IFileStat, resolveTo?: URI[]): FileStat {
-		const stat = new FileStat(raw.resource, raw.isDirectory, raw.hasChildren, raw.name, raw.mtime, raw.etag);
+		const stat = new FileStat(
+			raw.resource,
+			raw.isDirectory,
+			raw.hasChildren,
+			raw.name,
+			raw.mtime,
+			raw.etag
+		);
 
 		// Recursively add children if present
 		if (stat.isDirectory) {
-
 			// isDirectoryResolved is a very important indicator in the stat model that tells if the folder was fully resolved
 			// the folder is fully resolved if either it has a list of children or the client requested this by using the resolveTo
 			// array of resource path to resolve.
-			stat.isDirectoryResolved = !!raw.children || (!!resolveTo && resolveTo.some((r) => {
-				return isEqualOrParent(r.fsPath, stat.resource.fsPath, !isLinux /* ignorecase */);
-			}));
+			stat.isDirectoryResolved =
+				!!raw.children ||
+				(!!resolveTo &&
+					resolveTo.some(r => {
+						return isEqualOrParent(
+							r.fsPath,
+							stat.resource.fsPath,
+							!isLinux /* ignorecase */
+						);
+					}));
 
 			// Recurse into children
 			if (raw.children) {
@@ -90,7 +115,11 @@ export class FileStat implements IFileStat {
 
 		// Stop merging when a folder is not resolved to avoid loosing local data
 		const mergingDirectories = disk.isDirectory || local.isDirectory;
-		if (mergingDirectories && local.isDirectoryResolved && !disk.isDirectoryResolved) {
+		if (
+			mergingDirectories &&
+			local.isDirectoryResolved &&
+			!disk.isDirectoryResolved
+		) {
 			return;
 		}
 
@@ -104,7 +133,6 @@ export class FileStat implements IFileStat {
 
 		// Merge Children if resolved
 		if (mergingDirectories && disk.isDirectoryResolved) {
-
 			// Map resource => stat
 			const oldLocalChildren = new ResourceMap<FileStat>();
 			local.children.forEach((localChild: FileStat) => {
@@ -123,10 +151,8 @@ export class FileStat implements IFileStat {
 					FileStat.mergeLocalWithDisk(diskChild, formerLocalChild);
 					formerLocalChild.parent = local;
 					local.children.push(formerLocalChild);
-				}
-
-				// New child: add
-				else {
+				} else {
+					// New child: add
 					diskChild.parent = local;
 					local.children.push(diskChild);
 				}
@@ -138,7 +164,6 @@ export class FileStat implements IFileStat {
 	 * Adds a child element to this folder.
 	 */
 	public addChild(child: FileStat): void {
-
 		// Inherit some parent properties to child
 		child.parent = this;
 		child.updateResource(false);
@@ -153,10 +178,17 @@ export class FileStat implements IFileStat {
 	 * @param ignoreCase if true, will check for the name ignoring case.
 	 * @param type the type of stat to check for.
 	 */
-	public hasChild(name: string, ignoreCase?: boolean, type: StatType = StatType.ANY): boolean {
+	public hasChild(
+		name: string,
+		ignoreCase?: boolean,
+		type: StatType = StatType.ANY
+	): boolean {
 		for (let i = 0; i < this.children.length; i++) {
 			const child = this.children[i];
-			if ((type === StatType.FILE && child.isDirectory) || (type === StatType.FOLDER && !child.isDirectory)) {
+			if (
+				(type === StatType.FILE && child.isDirectory) ||
+				(type === StatType.FOLDER && !child.isDirectory)
+			) {
 				continue;
 			}
 
@@ -191,9 +223,15 @@ export class FileStat implements IFileStat {
 	/**
 	 * Moves this element under a new parent element.
 	 */
-	public move(newParent: FileStat, fnBetweenStates?: (callback: () => void) => void, fnDone?: () => void): void {
+	public move(
+		newParent: FileStat,
+		fnBetweenStates?: (callback: () => void) => void,
+		fnDone?: () => void
+	): void {
 		if (!fnBetweenStates) {
-			fnBetweenStates = (cb: () => void) => { cb(); };
+			fnBetweenStates = (cb: () => void) => {
+				cb();
+			};
 		}
 
 		this.parent.removeChild(this);
@@ -209,7 +247,9 @@ export class FileStat implements IFileStat {
 	}
 
 	private updateResource(recursive: boolean): void {
-		this.resource = URI.file(paths.join(this.parent.resource.fsPath, this.name));
+		this.resource = URI.file(
+			paths.join(this.parent.resource.fsPath, this.name)
+		);
 
 		if (recursive) {
 			if (this.isDirectory && this.hasChildren && this.children) {
@@ -225,7 +265,6 @@ export class FileStat implements IFileStat {
 	 * so that the path property can be updated properly.
 	 */
 	public rename(renamedStat: IFileStat): void {
-
 		// Merge a subset of Properties that can change on rename
 		this.name = renamedStat.name;
 		this.mtime = renamedStat.mtime;
@@ -239,9 +278,10 @@ export class FileStat implements IFileStat {
 	 * Will return "null" in case the child does not exist.
 	 */
 	public find(resource: URI): FileStat {
-
 		// Return if path found
-		if (isEqual(resource.fsPath, this.resource.fsPath, !isLinux /* ignorecase */)) {
+		if (
+			isEqual(resource.fsPath, this.resource.fsPath, !isLinux /* ignorecase */)
+		) {
 			return this;
 		}
 
@@ -253,11 +293,24 @@ export class FileStat implements IFileStat {
 		for (let i = 0; i < this.children.length; i++) {
 			const child = this.children[i];
 
-			if (isEqual(resource.fsPath, child.resource.fsPath, !isLinux /* ignorecase */)) {
+			if (
+				isEqual(
+					resource.fsPath,
+					child.resource.fsPath,
+					!isLinux /* ignorecase */
+				)
+			) {
 				return child;
 			}
 
-			if (child.isDirectory && isParent(resource.fsPath, child.resource.fsPath, !isLinux /* ignorecase */)) {
+			if (
+				child.isDirectory &&
+				isParent(
+					resource.fsPath,
+					child.resource.fsPath,
+					!isLinux /* ignorecase */
+				)
+			) {
 				return child.find(resource);
 			}
 		}
@@ -268,7 +321,6 @@ export class FileStat implements IFileStat {
 
 /* A helper that can be used to show a placeholder when creating a new stat */
 export class NewStatPlaceholder extends FileStat {
-
 	private static ID = 0;
 
 	private id: number;
@@ -301,7 +353,7 @@ export class NewStatPlaceholder extends FileStat {
 	}
 
 	public addChild(child: NewStatPlaceholder): void {
-		throw new Error('Can\'t perform operations in NewStatPlaceholder.');
+		throw new Error("Can't perform operations in NewStatPlaceholder.");
 	}
 
 	public hasChild(name: string, ignoreCase?: boolean): boolean {
@@ -309,22 +361,25 @@ export class NewStatPlaceholder extends FileStat {
 	}
 
 	public removeChild(child: NewStatPlaceholder): void {
-		throw new Error('Can\'t perform operations in NewStatPlaceholder.');
+		throw new Error("Can't perform operations in NewStatPlaceholder.");
 	}
 
 	public move(newParent: NewStatPlaceholder): void {
-		throw new Error('Can\'t perform operations in NewStatPlaceholder.');
+		throw new Error("Can't perform operations in NewStatPlaceholder.");
 	}
 
 	public rename(renamedStat: NewStatPlaceholder): void {
-		throw new Error('Can\'t perform operations in NewStatPlaceholder.');
+		throw new Error("Can't perform operations in NewStatPlaceholder.");
 	}
 
 	public find(resource: URI): NewStatPlaceholder {
 		return null;
 	}
 
-	public static addNewStatPlaceholder(parent: FileStat, isDirectory: boolean): NewStatPlaceholder {
+	public static addNewStatPlaceholder(
+		parent: FileStat,
+		isDirectory: boolean
+	): NewStatPlaceholder {
 		const child = new NewStatPlaceholder(isDirectory);
 
 		// Inherit some parent properties to child
@@ -338,7 +393,6 @@ export class NewStatPlaceholder extends FileStat {
 }
 
 export class OpenEditor {
-
 	constructor(private editor: IEditorInput, private group: IEditorGroup) {
 		// noop
 	}
@@ -352,7 +406,9 @@ export class OpenEditor {
 	}
 
 	public getId(): string {
-		return `openeditor:${this.group.id}:${this.group.indexOf(this.editor)}:${this.editor.getName()}:${this.editor.getDescription()}`;
+		return `openeditor:${this.group.id}:${this.group.indexOf(
+			this.editor
+		)}:${this.editor.getName()}:${this.editor.getDescription()}`;
 	}
 
 	public isPreview(): boolean {
@@ -360,7 +416,10 @@ export class OpenEditor {
 	}
 
 	public isUntitled(): boolean {
-		return !!toResource(this.editor, { supportSideBySide: true, filter: 'untitled' });
+		return !!toResource(this.editor, {
+			supportSideBySide: true,
+			filter: 'untitled'
+		});
 	}
 
 	public isDirty(): boolean {
@@ -368,6 +427,9 @@ export class OpenEditor {
 	}
 
 	public getResource(): URI {
-		return toResource(this.editor, { supportSideBySide: true, filter: ['file', 'untitled'] });
+		return toResource(this.editor, {
+			supportSideBySide: true,
+			filter: ['file', 'untitled']
+		});
 	}
 }

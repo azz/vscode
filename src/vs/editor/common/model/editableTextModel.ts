@@ -2,19 +2,31 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { Range, IRange } from 'vs/editor/common/core/range';
 import * as editorCommon from 'vs/editor/common/editorCommon';
 import { EditStack } from 'vs/editor/common/model/editStack';
-import { ILineEdit, LineMarker, ModelLine, MarkersTracker } from 'vs/editor/common/model/modelLine';
-import { TextModelWithDecorations, ModelDecorationOptions } from 'vs/editor/common/model/textModelWithDecorations';
+import {
+	ILineEdit,
+	LineMarker,
+	ModelLine,
+	MarkersTracker
+} from 'vs/editor/common/model/modelLine';
+import {
+	TextModelWithDecorations,
+	ModelDecorationOptions
+} from 'vs/editor/common/model/textModelWithDecorations';
 import * as strings from 'vs/base/common/strings';
 import { Selection } from 'vs/editor/common/core/selection';
 import { Position } from 'vs/editor/common/core/position';
 import { IDisposable } from 'vs/base/common/lifecycle';
 import { LanguageIdentifier } from 'vs/editor/common/modes';
-import { ITextSource, IRawTextSource, RawTextSource } from 'vs/editor/common/model/textSource';
+import {
+	ITextSource,
+	IRawTextSource,
+	RawTextSource
+} from 'vs/editor/common/model/textSource';
 import { TextModel } from 'vs/editor/common/model/textModel';
 import * as textModelEvents from 'vs/editor/common/model/textModelEvents';
 
@@ -32,17 +44,35 @@ interface IIdentifiedLineEdit extends ILineEdit {
 	lineNumber: number;
 }
 
-export class EditableTextModel extends TextModelWithDecorations implements editorCommon.IEditableTextModel {
-
-	public static createFromString(text: string, options: editorCommon.ITextModelCreationOptions = TextModel.DEFAULT_CREATION_OPTIONS, languageIdentifier: LanguageIdentifier = null): EditableTextModel {
-		return new EditableTextModel(RawTextSource.fromString(text), options, languageIdentifier);
+export class EditableTextModel extends TextModelWithDecorations
+	implements editorCommon.IEditableTextModel {
+	public static createFromString(
+		text: string,
+		options: editorCommon.ITextModelCreationOptions = TextModel.DEFAULT_CREATION_OPTIONS,
+		languageIdentifier: LanguageIdentifier = null
+	): EditableTextModel {
+		return new EditableTextModel(
+			RawTextSource.fromString(text),
+			options,
+			languageIdentifier
+		);
 	}
 
-	public onDidChangeRawContent(listener: (e: textModelEvents.ModelRawContentChangedEvent) => void): IDisposable {
-		return this._eventEmitter.addListener(textModelEvents.TextModelEventType.ModelRawContentChanged2, listener);
+	public onDidChangeRawContent(
+		listener: (e: textModelEvents.ModelRawContentChangedEvent) => void
+	): IDisposable {
+		return this._eventEmitter.addListener(
+			textModelEvents.TextModelEventType.ModelRawContentChanged2,
+			listener
+		);
 	}
-	public onDidChangeContent(listener: (e: textModelEvents.IModelContentChangedEvent) => void): IDisposable {
-		return this._eventEmitter.addListener(textModelEvents.TextModelEventType.ModelContentChanged, listener);
+	public onDidChangeContent(
+		listener: (e: textModelEvents.IModelContentChangedEvent) => void
+	): IDisposable {
+		return this._eventEmitter.addListener(
+			textModelEvents.TextModelEventType.ModelContentChanged,
+			listener
+		);
 	}
 
 	private _commandManager: EditStack;
@@ -57,7 +87,11 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 
 	private _trimAutoWhitespaceLines: number[];
 
-	constructor(rawTextSource: IRawTextSource, creationOptions: editorCommon.ITextModelCreationOptions, languageIdentifier: LanguageIdentifier) {
+	constructor(
+		rawTextSource: IRawTextSource,
+		creationOptions: editorCommon.ITextModelCreationOptions,
+		languageIdentifier: LanguageIdentifier
+	) {
 		super(rawTextSource, creationOptions, languageIdentifier);
 
 		this._commandManager = new EditStack(this);
@@ -89,21 +123,33 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 		this._commandManager.pushStackElement();
 	}
 
-	public pushEditOperations(beforeCursorState: Selection[], editOperations: editorCommon.IIdentifiedSingleEditOperation[], cursorStateComputer: editorCommon.ICursorStateComputer): Selection[] {
+	public pushEditOperations(
+		beforeCursorState: Selection[],
+		editOperations: editorCommon.IIdentifiedSingleEditOperation[],
+		cursorStateComputer: editorCommon.ICursorStateComputer
+	): Selection[] {
 		try {
 			this._eventEmitter.beginDeferredEmit();
-			return this._pushEditOperations(beforeCursorState, editOperations, cursorStateComputer);
+			return this._pushEditOperations(
+				beforeCursorState,
+				editOperations,
+				cursorStateComputer
+			);
 		} finally {
 			this._eventEmitter.endDeferredEmit();
 		}
 	}
 
-	private _pushEditOperations(beforeCursorState: Selection[], editOperations: editorCommon.IIdentifiedSingleEditOperation[], cursorStateComputer: editorCommon.ICursorStateComputer): Selection[] {
+	private _pushEditOperations(
+		beforeCursorState: Selection[],
+		editOperations: editorCommon.IIdentifiedSingleEditOperation[],
+		cursorStateComputer: editorCommon.ICursorStateComputer
+	): Selection[] {
 		if (this._options.trimAutoWhitespace && this._trimAutoWhitespaceLines) {
 			// Go through each saved line number and insert a trim whitespace edit
 			// if it is safe to do so (no conflicts with other edits).
 
-			let incomingEdits = editOperations.map((op) => {
+			let incomingEdits = editOperations.map(op => {
 				return {
 					range: this.validateRange(op.range),
 					text: op.text
@@ -132,7 +178,11 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 			}
 
 			if (editsAreNearCursors) {
-				for (let i = 0, len = this._trimAutoWhitespaceLines.length; i < len; i++) {
+				for (
+					let i = 0, len = this._trimAutoWhitespaceLines.length;
+					i < len;
+					i++
+				) {
 					let trimLineNumber = this._trimAutoWhitespaceLines[i];
 					let maxLineColumn = this.getLineMaxColumn(trimLineNumber);
 
@@ -141,7 +191,10 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 						let editRange = incomingEdits[j].range;
 						let editText = incomingEdits[j].text;
 
-						if (trimLineNumber < editRange.startLineNumber || trimLineNumber > editRange.endLineNumber) {
+						if (
+							trimLineNumber < editRange.startLineNumber ||
+							trimLineNumber > editRange.endLineNumber
+						) {
 							// `trimLine` is completely outside this edit
 							continue;
 						}
@@ -150,8 +203,12 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 						//   editRange.startLineNumber <= trimLine <= editRange.endLineNumber
 
 						if (
-							trimLineNumber === editRange.startLineNumber && editRange.startColumn === maxLineColumn
-							&& editRange.isEmpty() && editText && editText.length > 0 && editText.charAt(0) === '\n'
+							trimLineNumber === editRange.startLineNumber &&
+							editRange.startColumn === maxLineColumn &&
+							editRange.isEmpty() &&
+							editText &&
+							editText.length > 0 &&
+							editText.charAt(0) === '\n'
 						) {
 							// This edit inserts a new line (and maybe other text) after `trimLine`
 							continue;
@@ -165,26 +222,36 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 					if (allowTrimLine) {
 						editOperations.push({
 							identifier: null,
-							range: new Range(trimLineNumber, 1, trimLineNumber, maxLineColumn),
+							range: new Range(
+								trimLineNumber,
+								1,
+								trimLineNumber,
+								maxLineColumn
+							),
 							text: null,
 							forceMoveMarkers: false,
 							isAutoWhitespaceEdit: false
 						});
 					}
-
 				}
 			}
 
 			this._trimAutoWhitespaceLines = null;
 		}
-		return this._commandManager.pushEditOperation(beforeCursorState, editOperations, cursorStateComputer);
+		return this._commandManager.pushEditOperation(
+			beforeCursorState,
+			editOperations,
+			cursorStateComputer
+		);
 	}
 
 	/**
 	 * Transform operations such that they represent the same logic edit,
 	 * but that they also do not cause OOM crashes.
 	 */
-	private _reduceOperations(operations: IValidatedEditOperation[]): IValidatedEditOperation[] {
+	private _reduceOperations(
+		operations: IValidatedEditOperation[]
+	): IValidatedEditOperation[] {
 		if (operations.length < 1000) {
 			// We know from empirical testing that a thousand edits work fine regardless of their shape.
 			return operations;
@@ -198,11 +265,18 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 		return [this._toSingleEditOperation(operations)];
 	}
 
-	_toSingleEditOperation(operations: IValidatedEditOperation[]): IValidatedEditOperation {
+	_toSingleEditOperation(
+		operations: IValidatedEditOperation[]
+	): IValidatedEditOperation {
 		let forceMoveMarkers = false,
 			firstEditRange = operations[0].range,
 			lastEditRange = operations[operations.length - 1].range,
-			entireEditRange = new Range(firstEditRange.startLineNumber, firstEditRange.startColumn, lastEditRange.endLineNumber, lastEditRange.endColumn),
+			entireEditRange = new Range(
+				firstEditRange.startLineNumber,
+				firstEditRange.startColumn,
+				lastEditRange.endLineNumber,
+				lastEditRange.endColumn
+			),
 			lastEndLineNumber = firstEditRange.startLineNumber,
 			lastEndColumn = firstEditRange.startColumn,
 			result: string[] = [];
@@ -214,9 +288,15 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 			forceMoveMarkers = forceMoveMarkers || operation.forceMoveMarkers;
 
 			// (1) -- Push old text
-			for (let lineNumber = lastEndLineNumber; lineNumber < range.startLineNumber; lineNumber++) {
+			for (
+				let lineNumber = lastEndLineNumber;
+				lineNumber < range.startLineNumber;
+				lineNumber++
+			) {
 				if (lineNumber === lastEndLineNumber) {
-					result.push(this._lines[lineNumber - 1].text.substring(lastEndColumn - 1));
+					result.push(
+						this._lines[lineNumber - 1].text.substring(lastEndColumn - 1)
+					);
 				} else {
 					result.push('\n');
 					result.push(this._lines[lineNumber - 1].text);
@@ -224,10 +304,20 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 			}
 
 			if (range.startLineNumber === lastEndLineNumber) {
-				result.push(this._lines[range.startLineNumber - 1].text.substring(lastEndColumn - 1, range.startColumn - 1));
+				result.push(
+					this._lines[range.startLineNumber - 1].text.substring(
+						lastEndColumn - 1,
+						range.startColumn - 1
+					)
+				);
 			} else {
 				result.push('\n');
-				result.push(this._lines[range.startLineNumber - 1].text.substring(0, range.startColumn - 1));
+				result.push(
+					this._lines[range.startLineNumber - 1].text.substring(
+						0,
+						range.startColumn - 1
+					)
+				);
 			}
 
 			// (2) -- Push new text
@@ -255,7 +345,10 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 		};
 	}
 
-	private static _sortOpsAscending(a: IValidatedEditOperation, b: IValidatedEditOperation): number {
+	private static _sortOpsAscending(
+		a: IValidatedEditOperation,
+		b: IValidatedEditOperation
+	): number {
 		let r = Range.compareRangesUsingEnds(a.range, b.range);
 		if (r === 0) {
 			return a.sortIndex - b.sortIndex;
@@ -263,7 +356,10 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 		return r;
 	}
 
-	private static _sortOpsDescending(a: IValidatedEditOperation, b: IValidatedEditOperation): number {
+	private static _sortOpsDescending(
+		a: IValidatedEditOperation,
+		b: IValidatedEditOperation
+	): number {
 		let r = Range.compareRangesUsingEnds(a.range, b.range);
 		if (r === 0) {
 			return b.sortIndex - a.sortIndex;
@@ -271,7 +367,9 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 		return -r;
 	}
 
-	public applyEdits(rawOperations: editorCommon.IIdentifiedSingleEditOperation[]): editorCommon.IIdentifiedSingleEditOperation[] {
+	public applyEdits(
+		rawOperations: editorCommon.IIdentifiedSingleEditOperation[]
+	): editorCommon.IIdentifiedSingleEditOperation[] {
 		try {
 			this._eventEmitter.beginDeferredEmit();
 			let markersTracker = this._acquireMarkersTracker();
@@ -282,7 +380,10 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 		}
 	}
 
-	private _applyEdits(markersTracker: MarkersTracker, rawOperations: editorCommon.IIdentifiedSingleEditOperation[]): editorCommon.IIdentifiedSingleEditOperation[] {
+	private _applyEdits(
+		markersTracker: MarkersTracker,
+		rawOperations: editorCommon.IIdentifiedSingleEditOperation[]
+	): editorCommon.IIdentifiedSingleEditOperation[] {
 		if (rawOperations.length === 0) {
 			return [];
 		}
@@ -338,7 +439,12 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 		let editableRangeEnd = editableRange.getEndPosition();
 		for (let i = 0; i < operations.length; i++) {
 			let operationRange = operations[i].range;
-			if (!editableRangeStart.isBeforeOrEqual(operationRange.getStartPosition()) || !operationRange.getEndPosition().isBeforeOrEqual(editableRangeEnd)) {
+			if (
+				!editableRangeStart.isBeforeOrEqual(
+					operationRange.getStartPosition()
+				) ||
+				!operationRange.getEndPosition().isBeforeOrEqual(editableRangeEnd)
+			) {
 				throw new Error('Editing outside of editable range not allowed!');
 			}
 		}
@@ -347,7 +453,10 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 		let reverseRanges = EditableTextModel._getInverseEditRanges(operations);
 		let reverseOperations: editorCommon.IIdentifiedSingleEditOperation[] = [];
 
-		let newTrimAutoWhitespaceCandidates: { lineNumber: number, oldContent: string }[] = [];
+		let newTrimAutoWhitespaceCandidates: {
+			lineNumber: number;
+			oldContent: string;
+		}[] = [];
 
 		for (let i = 0; i < operations.length; i++) {
 			let op = operations[i];
@@ -360,9 +469,17 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 				forceMoveMarkers: op.forceMoveMarkers
 			};
 
-			if (this._options.trimAutoWhitespace && op.isAutoWhitespaceEdit && op.range.isEmpty()) {
+			if (
+				this._options.trimAutoWhitespace &&
+				op.isAutoWhitespaceEdit &&
+				op.range.isEmpty()
+			) {
 				// Record already the future line numbers that might be auto whitespace removal candidates on next edit
-				for (let lineNumber = reverseRange.startLineNumber; lineNumber <= reverseRange.endLineNumber; lineNumber++) {
+				for (
+					let lineNumber = reverseRange.startLineNumber;
+					lineNumber <= reverseRange.endLineNumber;
+					lineNumber++
+				) {
 					let currentLineContent = '';
 					if (lineNumber === reverseRange.startLineNumber) {
 						currentLineContent = this.getLineContent(op.range.startLineNumber);
@@ -370,7 +487,10 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 							continue;
 						}
 					}
-					newTrimAutoWhitespaceCandidates.push({ lineNumber: lineNumber, oldContent: currentLineContent });
+					newTrimAutoWhitespaceCandidates.push({
+						lineNumber: lineNumber,
+						oldContent: currentLineContent
+					});
 				}
 			}
 		}
@@ -380,14 +500,26 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 		this._doApplyEdits(markersTracker, operations);
 
 		this._trimAutoWhitespaceLines = null;
-		if (this._options.trimAutoWhitespace && newTrimAutoWhitespaceCandidates.length > 0) {
+		if (
+			this._options.trimAutoWhitespace &&
+			newTrimAutoWhitespaceCandidates.length > 0
+		) {
 			// sort line numbers auto whitespace removal candidates for next edit descending
-			newTrimAutoWhitespaceCandidates.sort((a, b) => b.lineNumber - a.lineNumber);
+			newTrimAutoWhitespaceCandidates.sort(
+				(a, b) => b.lineNumber - a.lineNumber
+			);
 
 			this._trimAutoWhitespaceLines = [];
-			for (let i = 0, len = newTrimAutoWhitespaceCandidates.length; i < len; i++) {
+			for (
+				let i = 0, len = newTrimAutoWhitespaceCandidates.length;
+				i < len;
+				i++
+			) {
 				let lineNumber = newTrimAutoWhitespaceCandidates[i].lineNumber;
-				if (i > 0 && newTrimAutoWhitespaceCandidates[i - 1].lineNumber === lineNumber) {
+				if (
+					i > 0 &&
+					newTrimAutoWhitespaceCandidates[i - 1].lineNumber === lineNumber
+				) {
 					// Do not have the same line number twice
 					continue;
 				}
@@ -395,7 +527,11 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 				let prevContent = newTrimAutoWhitespaceCandidates[i].oldContent;
 				let lineContent = this.getLineContent(lineNumber);
 
-				if (lineContent.length === 0 || lineContent === prevContent || strings.firstNonWhitespaceIndex(lineContent) !== -1) {
+				if (
+					lineContent.length === 0 ||
+					lineContent === prevContent ||
+					strings.firstNonWhitespaceIndex(lineContent) !== -1
+				) {
 					continue;
 				}
 
@@ -409,7 +545,9 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 	/**
 	 * Assumes `operations` are validated and sorted ascending
 	 */
-	public static _getInverseEditRanges(operations: IValidatedEditOperation[]): Range[] {
+	public static _getInverseEditRanges(
+		operations: IValidatedEditOperation[]
+	): Range[] {
 		let result: Range[] = [];
 
 		let prevOpEndLineNumber: number;
@@ -424,9 +562,12 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 			if (prevOp) {
 				if (prevOp.range.endLineNumber === op.range.startLineNumber) {
 					startLineNumber = prevOpEndLineNumber;
-					startColumn = prevOpEndColumn + (op.range.startColumn - prevOp.range.endColumn);
+					startColumn =
+						prevOpEndColumn + (op.range.startColumn - prevOp.range.endColumn);
 				} else {
-					startLineNumber = prevOpEndLineNumber + (op.range.startLineNumber - prevOp.range.endLineNumber);
+					startLineNumber =
+						prevOpEndLineNumber +
+						(op.range.startLineNumber - prevOp.range.endLineNumber);
 					startColumn = op.range.startColumn;
 				}
 			} else {
@@ -444,14 +585,29 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 
 				if (lineCount === 1) {
 					// single line insert
-					resultRange = new Range(startLineNumber, startColumn, startLineNumber, startColumn + firstLine.length);
+					resultRange = new Range(
+						startLineNumber,
+						startColumn,
+						startLineNumber,
+						startColumn + firstLine.length
+					);
 				} else {
 					// multi line insert
-					resultRange = new Range(startLineNumber, startColumn, startLineNumber + lineCount - 1, lastLine.length + 1);
+					resultRange = new Range(
+						startLineNumber,
+						startColumn,
+						startLineNumber + lineCount - 1,
+						lastLine.length + 1
+					);
 				}
 			} else {
 				// There is nothing to insert
-				resultRange = new Range(startLineNumber, startColumn, startLineNumber, startColumn);
+				resultRange = new Range(
+					startLineNumber,
+					startColumn,
+					startLineNumber,
+					startColumn
+				);
 			}
 
 			prevOpEndLineNumber = resultRange.endLineNumber;
@@ -464,8 +620,10 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 		return result;
 	}
 
-	private _doApplyEdits(markersTracker: MarkersTracker, operations: IValidatedEditOperation[]): void {
-
+	private _doApplyEdits(
+		markersTracker: MarkersTracker,
+		operations: IValidatedEditOperation[]
+	): void {
 		const tabSize = this._options.tabSize;
 
 		// Sort operations descending
@@ -476,7 +634,10 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 		let lineEditsQueue: IIdentifiedLineEdit[] = [];
 
 		let queueLineEdit = (lineEdit: IIdentifiedLineEdit) => {
-			if (lineEdit.startColumn === lineEdit.endColumn && lineEdit.text.length === 0) {
+			if (
+				lineEdit.startColumn === lineEdit.endColumn &&
+				lineEdit.text.length === 0
+			) {
 				// empty edit => ignore it
 				return;
 			}
@@ -502,13 +663,23 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 				}
 
 				this._invalidateLine(currentLineNumber - 1);
-				this._lines[currentLineNumber - 1].applyEdits(markersTracker, lineEditsQueue.slice(currentLineNumberStart, i), tabSize);
+				this._lines[currentLineNumber - 1].applyEdits(
+					markersTracker,
+					lineEditsQueue.slice(currentLineNumberStart, i),
+					tabSize
+				);
 				if (this._lineStarts) {
 					// update prefix sum
-					this._lineStarts.changeValue(currentLineNumber - 1, this._lines[currentLineNumber - 1].text.length + this._EOL.length);
+					this._lineStarts.changeValue(
+						currentLineNumber - 1,
+						this._lines[currentLineNumber - 1].text.length + this._EOL.length
+					);
 				}
 				rawContentChanges.push(
-					new textModelEvents.ModelRawLineChanged(currentLineNumber, this._lines[currentLineNumber - 1].text)
+					new textModelEvents.ModelRawLineChanged(
+						currentLineNumber,
+						this._lines[currentLineNumber - 1].text
+					)
 				);
 
 				currentLineNumber = lineNumber;
@@ -516,19 +687,30 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 			}
 
 			this._invalidateLine(currentLineNumber - 1);
-			this._lines[currentLineNumber - 1].applyEdits(markersTracker, lineEditsQueue.slice(currentLineNumberStart, lineEditsQueue.length), tabSize);
+			this._lines[currentLineNumber - 1].applyEdits(
+				markersTracker,
+				lineEditsQueue.slice(currentLineNumberStart, lineEditsQueue.length),
+				tabSize
+			);
 			if (this._lineStarts) {
 				// update prefix sum
-				this._lineStarts.changeValue(currentLineNumber - 1, this._lines[currentLineNumber - 1].text.length + this._EOL.length);
+				this._lineStarts.changeValue(
+					currentLineNumber - 1,
+					this._lines[currentLineNumber - 1].text.length + this._EOL.length
+				);
 			}
 			rawContentChanges.push(
-				new textModelEvents.ModelRawLineChanged(currentLineNumber, this._lines[currentLineNumber - 1].text)
+				new textModelEvents.ModelRawLineChanged(
+					currentLineNumber,
+					this._lines[currentLineNumber - 1].text
+				)
 			);
 
 			lineEditsQueue = [];
 		};
 
-		let minTouchedLineNumber = operations[operations.length - 1].range.startLineNumber;
+		let minTouchedLineNumber =
+			operations[operations.length - 1].range.startLineNumber;
 		let maxTouchedLineNumber = operations[0].range.endLineNumber + 1;
 		let totalLinesCountDelta = 0;
 
@@ -546,16 +728,20 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 			let endLineNumber = op.range.endLineNumber;
 			let endColumn = op.range.endColumn;
 
-			if (startLineNumber === endLineNumber && startColumn === endColumn && (!op.lines || op.lines.length === 0)) {
+			if (
+				startLineNumber === endLineNumber &&
+				startColumn === endColumn &&
+				(!op.lines || op.lines.length === 0)
+			) {
 				// no-op
 				continue;
 			}
 
 			let deletingLinesCnt = endLineNumber - startLineNumber;
-			let insertingLinesCnt = (op.lines ? op.lines.length - 1 : 0);
+			let insertingLinesCnt = op.lines ? op.lines.length - 1 : 0;
 			let editingLinesCnt = Math.min(deletingLinesCnt, insertingLinesCnt);
 
-			totalLinesCountDelta += (insertingLinesCnt - deletingLinesCnt);
+			totalLinesCountDelta += insertingLinesCnt - deletingLinesCnt;
 
 			// Iterating descending to overlap with previous op
 			// in case there are common lines being edited in both
@@ -564,9 +750,11 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 
 				queueLineEdit({
 					lineNumber: editLineNumber,
-					startColumn: (editLineNumber === startLineNumber ? startColumn : 1),
-					endColumn: (editLineNumber === endLineNumber ? endColumn : this.getLineMaxColumn(editLineNumber)),
-					text: (op.lines ? op.lines[j] : ''),
+					startColumn: editLineNumber === startLineNumber ? startColumn : 1,
+					endColumn: editLineNumber === endLineNumber
+						? endColumn
+						: this.getLineMaxColumn(editLineNumber),
+					text: op.lines ? op.lines[j] : '',
 					forceMoveMarkers: op.forceMoveMarkers
 				});
 			}
@@ -580,7 +768,12 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 				let spliceStartLineNumber = startLineNumber + editingLinesCnt;
 				let spliceStartColumn = this.getLineMaxColumn(spliceStartLineNumber);
 
-				let endLineRemains = this._lines[endLineNumber - 1].split(markersTracker, endColumn, false, tabSize);
+				let endLineRemains = this._lines[endLineNumber - 1].split(
+					markersTracker,
+					endColumn,
+					false,
+					tabSize
+				);
 				this._invalidateLine(spliceStartLineNumber - 1);
 
 				let spliceCnt = endLineNumber - spliceStartLineNumber;
@@ -589,7 +782,9 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 				let markersOnDeletedLines: LineMarker[] = [];
 				for (let j = 0; j < spliceCnt; j++) {
 					let deleteLineIndex = spliceStartLineNumber + j;
-					markersOnDeletedLines = markersOnDeletedLines.concat(this._lines[deleteLineIndex].deleteLine());
+					markersOnDeletedLines = markersOnDeletedLines.concat(
+						this._lines[deleteLineIndex].deleteLine()
+					);
 				}
 
 				this._lines.splice(spliceStartLineNumber, spliceCnt);
@@ -599,25 +794,47 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 				}
 
 				// Reconstruct first line
-				this._lines[spliceStartLineNumber - 1].append(markersTracker, endLineRemains, tabSize);
+				this._lines[spliceStartLineNumber - 1].append(
+					markersTracker,
+					endLineRemains,
+					tabSize
+				);
 				if (this._lineStarts) {
 					// update prefix sum
-					this._lineStarts.changeValue(spliceStartLineNumber - 1, this._lines[spliceStartLineNumber - 1].text.length + this._EOL.length);
+					this._lineStarts.changeValue(
+						spliceStartLineNumber - 1,
+						this._lines[spliceStartLineNumber - 1].text.length +
+							this._EOL.length
+					);
 				}
 
 				// Update deleted markers
-				let deletedMarkersPosition = new Position(spliceStartLineNumber, spliceStartColumn);
+				let deletedMarkersPosition = new Position(
+					spliceStartLineNumber,
+					spliceStartColumn
+				);
 				for (let j = 0, lenJ = markersOnDeletedLines.length; j < lenJ; j++) {
-					markersOnDeletedLines[j].updatePosition(markersTracker, deletedMarkersPosition);
+					markersOnDeletedLines[j].updatePosition(
+						markersTracker,
+						deletedMarkersPosition
+					);
 				}
 
-				this._lines[spliceStartLineNumber - 1].addMarkers(markersOnDeletedLines);
+				this._lines[spliceStartLineNumber - 1].addMarkers(
+					markersOnDeletedLines
+				);
 				rawContentChanges.push(
-					new textModelEvents.ModelRawLineChanged(spliceStartLineNumber, this._lines[spliceStartLineNumber - 1].text)
+					new textModelEvents.ModelRawLineChanged(
+						spliceStartLineNumber,
+						this._lines[spliceStartLineNumber - 1].text
+					)
 				);
 
 				rawContentChanges.push(
-					new textModelEvents.ModelRawLinesDeleted(spliceStartLineNumber + 1, spliceStartLineNumber + spliceCnt)
+					new textModelEvents.ModelRawLinesDeleted(
+						spliceStartLineNumber + 1,
+						spliceStartLineNumber + spliceCnt
+					)
 				);
 			}
 
@@ -628,50 +845,90 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 				flushLineEdits();
 
 				let spliceLineNumber = startLineNumber + editingLinesCnt;
-				let spliceColumn = (spliceLineNumber === startLineNumber ? startColumn : 1);
+				let spliceColumn = spliceLineNumber === startLineNumber
+					? startColumn
+					: 1;
 				if (op.lines) {
 					spliceColumn += op.lines[editingLinesCnt].length;
 				}
 
 				// Split last line
-				let leftoverLine = this._lines[spliceLineNumber - 1].split(markersTracker, spliceColumn, op.forceMoveMarkers, tabSize);
+				let leftoverLine = this._lines[spliceLineNumber - 1].split(
+					markersTracker,
+					spliceColumn,
+					op.forceMoveMarkers,
+					tabSize
+				);
 				if (this._lineStarts) {
 					// update prefix sum
-					this._lineStarts.changeValue(spliceLineNumber - 1, this._lines[spliceLineNumber - 1].text.length + this._EOL.length);
+					this._lineStarts.changeValue(
+						spliceLineNumber - 1,
+						this._lines[spliceLineNumber - 1].text.length + this._EOL.length
+					);
 				}
 				rawContentChanges.push(
-					new textModelEvents.ModelRawLineChanged(spliceLineNumber, this._lines[spliceLineNumber - 1].text)
+					new textModelEvents.ModelRawLineChanged(
+						spliceLineNumber,
+						this._lines[spliceLineNumber - 1].text
+					)
 				);
 				this._invalidateLine(spliceLineNumber - 1);
 
 				// Lines in the middle
 				let newLinesContent: string[] = [];
-				let newLinesLengths = new Uint32Array(insertingLinesCnt - editingLinesCnt);
+				let newLinesLengths = new Uint32Array(
+					insertingLinesCnt - editingLinesCnt
+				);
 				for (let j = editingLinesCnt + 1; j <= insertingLinesCnt; j++) {
 					let newLineNumber = startLineNumber + j;
-					this._lines.splice(newLineNumber - 1, 0, new ModelLine(newLineNumber, op.lines[j], tabSize));
+					this._lines.splice(
+						newLineNumber - 1,
+						0,
+						new ModelLine(newLineNumber, op.lines[j], tabSize)
+					);
 					newLinesContent.push(op.lines[j]);
-					newLinesLengths[j - editingLinesCnt - 1] = op.lines[j].length + this._EOL.length;
+					newLinesLengths[j - editingLinesCnt - 1] =
+						op.lines[j].length + this._EOL.length;
 				}
 				newLinesContent[newLinesContent.length - 1] += leftoverLine.text;
 				if (this._lineStarts) {
 					// update prefix sum
-					this._lineStarts.insertValues(startLineNumber + editingLinesCnt, newLinesLengths);
+					this._lineStarts.insertValues(
+						startLineNumber + editingLinesCnt,
+						newLinesLengths
+					);
 				}
 
 				// Last line
-				this._lines[startLineNumber + insertingLinesCnt - 1].append(markersTracker, leftoverLine, tabSize);
+				this._lines[startLineNumber + insertingLinesCnt - 1].append(
+					markersTracker,
+					leftoverLine,
+					tabSize
+				);
 				if (this._lineStarts) {
 					// update prefix sum
-					this._lineStarts.changeValue(startLineNumber + insertingLinesCnt - 1, this._lines[startLineNumber + insertingLinesCnt - 1].text.length + this._EOL.length);
+					this._lineStarts.changeValue(
+						startLineNumber + insertingLinesCnt - 1,
+						this._lines[startLineNumber + insertingLinesCnt - 1].text.length +
+							this._EOL.length
+					);
 				}
 				rawContentChanges.push(
-					new textModelEvents.ModelRawLinesInserted(spliceLineNumber + 1, startLineNumber + insertingLinesCnt, newLinesContent.join('\n'))
+					new textModelEvents.ModelRawLinesInserted(
+						spliceLineNumber + 1,
+						startLineNumber + insertingLinesCnt,
+						newLinesContent.join('\n')
+					)
 				);
 			}
 
 			contentChanges.push({
-				range: new Range(startLineNumber, startColumn, endLineNumber, endColumn),
+				range: new Range(
+					startLineNumber,
+					startColumn,
+					endLineNumber,
+					endColumn
+				),
 				rangeLength: op.rangeLength,
 				text: op.lines ? op.lines.join(this.getEOL()) : ''
 			});
@@ -682,25 +939,34 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 
 		flushLineEdits();
 
-		maxTouchedLineNumber = Math.max(1, Math.min(this.getLineCount(), maxTouchedLineNumber + totalLinesCountDelta));
+		maxTouchedLineNumber = Math.max(
+			1,
+			Math.min(this.getLineCount(), maxTouchedLineNumber + totalLinesCountDelta)
+		);
 		if (totalLinesCountDelta !== 0) {
 			// must update line numbers all the way to the bottom
 			maxTouchedLineNumber = this.getLineCount();
 		}
 
-		for (let lineNumber = minTouchedLineNumber; lineNumber <= maxTouchedLineNumber; lineNumber++) {
+		for (
+			let lineNumber = minTouchedLineNumber;
+			lineNumber <= maxTouchedLineNumber;
+			lineNumber++
+		) {
 			this._lines[lineNumber - 1].updateLineNumber(markersTracker, lineNumber);
 		}
 
 		if (rawContentChanges.length !== 0 || contentChanges.length !== 0) {
 			this._increaseVersionId();
 
-			this._emitModelRawContentChangedEvent(new textModelEvents.ModelRawContentChangedEvent(
-				rawContentChanges,
-				this.getVersionId(),
-				this._isUndoing,
-				this._isRedoing
-			));
+			this._emitModelRawContentChangedEvent(
+				new textModelEvents.ModelRawContentChangedEvent(
+					rawContentChanges,
+					this.getVersionId(),
+					this._isUndoing,
+					this._isRedoing
+				)
+			);
 
 			const e: textModelEvents.IModelContentChangedEvent = {
 				changes: contentChanges,
@@ -710,7 +976,10 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 				isRedoing: this._isRedoing,
 				isFlush: false
 			};
-			this._eventEmitter.emit(textModelEvents.TextModelEventType.ModelContentChanged, e);
+			this._eventEmitter.emit(
+				textModelEvents.TextModelEventType.ModelContentChanged,
+				e
+			);
 		}
 
 		// this._assertLineNumbersOK();
@@ -724,7 +993,12 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 			let lineNumber = i + 1;
 
 			if (line.lineNumber !== lineNumber) {
-				throw new Error('Invalid lineNumber at line: ' + lineNumber + '; text is: ' + this.getValue());
+				throw new Error(
+					'Invalid lineNumber at line: ' +
+						lineNumber +
+						'; text is: ' +
+						this.getValue()
+				);
 			}
 
 			let markers = line.getMarkers();
@@ -804,7 +1078,7 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 			return;
 		}
 
-		this.changeDecorations((changeAccessor) => {
+		this.changeDecorations(changeAccessor => {
 			if (this._hasEditableRange) {
 				changeAccessor.removeDecoration(this._editableRangeId);
 				this._editableRangeId = null;
@@ -813,7 +1087,10 @@ export class EditableTextModel extends TextModelWithDecorations implements edito
 
 			if (range) {
 				this._hasEditableRange = true;
-				this._editableRangeId = changeAccessor.addDecoration(range, EditableTextModel._DECORATION_OPTION);
+				this._editableRangeId = changeAccessor.addDecoration(
+					range,
+					EditableTextModel._DECORATION_OPTION
+				);
 			}
 		});
 	}

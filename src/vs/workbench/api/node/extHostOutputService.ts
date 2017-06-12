@@ -2,14 +2,13 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { IThreadService } from 'vs/workbench/services/thread/common/threadService';
 import { MainContext, MainThreadOutputServiceShape } from './extHost.protocol';
 import * as vscode from 'vscode';
 
 export class ExtHostOutputChannel implements vscode.OutputChannel {
-
 	private static _idPool = 1;
 
 	private _proxy: MainThreadOutputServiceShape;
@@ -19,7 +18,7 @@ export class ExtHostOutputChannel implements vscode.OutputChannel {
 
 	constructor(name: string, proxy: MainThreadOutputServiceShape) {
 		this._name = name;
-		this._id = 'extension-output-#' + (ExtHostOutputChannel._idPool++);
+		this._id = 'extension-output-#' + ExtHostOutputChannel._idPool++;
 		this._proxy = proxy;
 	}
 
@@ -47,7 +46,10 @@ export class ExtHostOutputChannel implements vscode.OutputChannel {
 		this._proxy.$clear(this._id, this._name);
 	}
 
-	show(columnOrPreserveFocus?: vscode.ViewColumn | boolean, preserveFocus?: boolean): void {
+	show(
+		columnOrPreserveFocus?: vscode.ViewColumn | boolean,
+		preserveFocus?: boolean
+	): void {
 		if (typeof columnOrPreserveFocus === 'boolean') {
 			preserveFocus = columnOrPreserveFocus;
 		}
@@ -61,7 +63,6 @@ export class ExtHostOutputChannel implements vscode.OutputChannel {
 }
 
 export class ExtHostOutputService {
-
 	private _proxy: MainThreadOutputServiceShape;
 
 	constructor(threadService: IThreadService) {

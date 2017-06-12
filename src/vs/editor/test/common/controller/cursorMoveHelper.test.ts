@@ -2,13 +2,12 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { CursorColumns } from 'vs/editor/common/controller/cursorCommon';
 
 suite('CursorMove', () => {
-
 	test('nextTabStop', () => {
 		assert.equal(CursorColumns.nextTabStop(0, 4), 4);
 		assert.equal(CursorColumns.nextTabStop(1, 4), 4);
@@ -42,9 +41,16 @@ suite('CursorMove', () => {
 	});
 
 	test('visibleColumnFromColumn', () => {
-
-		function testVisibleColumnFromColumn(text: string, tabSize: number, column: number, expected: number): void {
-			assert.equal(CursorColumns.visibleColumnFromColumn(text, column, tabSize), expected);
+		function testVisibleColumnFromColumn(
+			text: string,
+			tabSize: number,
+			column: number,
+			expected: number
+		): void {
+			assert.equal(
+				CursorColumns.visibleColumnFromColumn(text, column, tabSize),
+				expected
+			);
 		}
 
 		testVisibleColumnFromColumn('\t\tvar x = 3;', 4, 1, 0);
@@ -101,9 +107,16 @@ suite('CursorMove', () => {
 	});
 
 	test('columnFromVisibleColumn', () => {
-
-		function testColumnFromVisibleColumn(text: string, tabSize: number, visibleColumn: number, expected: number): void {
-			assert.equal(CursorColumns.columnFromVisibleColumn(text, visibleColumn, tabSize), expected);
+		function testColumnFromVisibleColumn(
+			text: string,
+			tabSize: number,
+			visibleColumn: number,
+			expected: number
+		): void {
+			assert.equal(
+				CursorColumns.columnFromVisibleColumn(text, visibleColumn, tabSize),
+				expected
+			);
 		}
 
 		// testColumnFromVisibleColumn('\t\tvar x = 3;', 4, 0, 1);

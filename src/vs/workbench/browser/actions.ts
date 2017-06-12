@@ -2,21 +2,26 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import { Registry } from 'vs/platform/platform';
 import types = require('vs/base/common/types');
 import { Action, IAction } from 'vs/base/common/actions';
-import { BaseActionItem, Separator } from 'vs/base/browser/ui/actionbar/actionbar';
+import {
+	BaseActionItem,
+	Separator
+} from 'vs/base/browser/ui/actionbar/actionbar';
 import { ITree, IActionProvider } from 'vs/base/parts/tree/browser/tree';
-import { IInstantiationService, IConstructorSignature0 } from 'vs/platform/instantiation/common/instantiation';
+import {
+	IInstantiationService,
+	IConstructorSignature0
+} from 'vs/platform/instantiation/common/instantiation';
 
 /**
  * The action bar contributor allows to add actions to an actionbar in a given context.
  */
 export class ActionBarContributor {
-
 	/**
 	 * Returns true if this contributor has actions for the given context.
 	 */
@@ -57,7 +62,6 @@ export class ActionBarContributor {
  * Some predefined scopes to contribute actions to
  */
 export const Scope = {
-
 	/**
 	 * Actions inside the global activity bar (DEPRECATED)
 	 */
@@ -161,7 +165,11 @@ export class ContributableActionProvider implements IActionProvider {
 		return TPromise.as(prepareActions(actions));
 	}
 
-	public getActionItem(tree: ITree, element: any, action: Action): BaseActionItem {
+	public getActionItem(
+		tree: ITree,
+		element: any,
+		action: Action
+	): BaseActionItem {
 		let contributors = this.registry.getActionBarContributors(Scope.VIEWER);
 		let context = this.toContext(tree, element);
 
@@ -253,7 +261,6 @@ export const Extensions = {
 };
 
 export interface IActionBarRegistry {
-
 	/**
 	 * Goes through all action bar contributors and asks them for contributed actions for
 	 * the provided scope and context. Supports primary actions.
@@ -264,19 +271,29 @@ export interface IActionBarRegistry {
 	 * Goes through all action bar contributors and asks them for contributed actions for
 	 * the provided scope and context. Supports secondary actions.
 	 */
-	getSecondaryActionBarActionsForContext(scope: string, context: any): IAction[];
+	getSecondaryActionBarActionsForContext(
+		scope: string,
+		context: any
+	): IAction[];
 
 	/**
 	 * Goes through all action bar contributors and asks them for contributed action item for
 	 * the provided scope and context.
 	 */
-	getActionItemForContext(scope: string, context: any, action: Action): BaseActionItem;
+	getActionItemForContext(
+		scope: string,
+		context: any,
+		action: Action
+	): BaseActionItem;
 
 	/**
 	 * Registers an Actionbar contributor. It will be called to contribute actions to all the action bars
 	 * that are used in the Workbench in the given scope.
 	 */
-	registerActionBarContributor(scope: string, ctor: IConstructorSignature0<ActionBarContributor>): void;
+	registerActionBarContributor(
+		scope: string,
+		ctor: IConstructorSignature0<ActionBarContributor>
+	): void;
 
 	/**
 	 * Returns an array of registered action bar contributors known to the workbench for the given scope.
@@ -287,8 +304,13 @@ export interface IActionBarRegistry {
 }
 
 class ActionBarRegistry implements IActionBarRegistry {
-	private actionBarContributorConstructors: { scope: string; ctor: IConstructorSignature0<ActionBarContributor>; }[] = [];
-	private actionBarContributorInstances: { [scope: string]: ActionBarContributor[] } = Object.create(null);
+	private actionBarContributorConstructors: {
+		scope: string;
+		ctor: IConstructorSignature0<ActionBarContributor>;
+	}[] = [];
+	private actionBarContributorInstances: {
+		[scope: string]: ActionBarContributor[];
+	} = Object.create(null);
 	private instantiationService: IInstantiationService;
 
 	public setInstantiationService(service: IInstantiationService): void {
@@ -300,7 +322,10 @@ class ActionBarRegistry implements IActionBarRegistry {
 		}
 	}
 
-	private createActionBarContributor(scope: string, ctor: IConstructorSignature0<ActionBarContributor>): void {
+	private createActionBarContributor(
+		scope: string,
+		ctor: IConstructorSignature0<ActionBarContributor>
+	): void {
 		const instance = this.instantiationService.createInstance(ctor);
 		let target = this.actionBarContributorInstances[scope];
 		if (!target) {
@@ -318,7 +343,6 @@ class ActionBarRegistry implements IActionBarRegistry {
 
 		// Go through contributors for scope
 		this.getContributors(scope).forEach((contributor: ActionBarContributor) => {
-
 			// Primary Actions
 			if (contributor.hasActions(context)) {
 				actions.push(...contributor.getActions(context));
@@ -328,12 +352,14 @@ class ActionBarRegistry implements IActionBarRegistry {
 		return actions;
 	}
 
-	public getSecondaryActionBarActionsForContext(scope: string, context: any): IAction[] {
+	public getSecondaryActionBarActionsForContext(
+		scope: string,
+		context: any
+	): IAction[] {
 		let actions: IAction[] = [];
 
 		// Go through contributors
 		this.getContributors(scope).forEach((contributor: ActionBarContributor) => {
-
 			// Secondary Actions
 			if (contributor.hasSecondaryActions(context)) {
 				actions.push(...contributor.getSecondaryActions(context));
@@ -343,7 +369,11 @@ class ActionBarRegistry implements IActionBarRegistry {
 		return actions;
 	}
 
-	public getActionItemForContext(scope: string, context: any, action: Action): BaseActionItem {
+	public getActionItemForContext(
+		scope: string,
+		context: any,
+		action: Action
+	): BaseActionItem {
 		let contributors = this.getContributors(scope);
 		for (let i = 0; i < contributors.length; i++) {
 			let contributor = contributors[i];
@@ -356,7 +386,10 @@ class ActionBarRegistry implements IActionBarRegistry {
 		return null;
 	}
 
-	public registerActionBarContributor(scope: string, ctor: IConstructorSignature0<ActionBarContributor>): void {
+	public registerActionBarContributor(
+		scope: string,
+		ctor: IConstructorSignature0<ActionBarContributor>
+	): void {
 		if (!this.instantiationService) {
 			this.actionBarContributorConstructors.push({
 				scope: scope,

@@ -7,9 +7,10 @@ import * as assert from 'assert';
 import * as vscode from 'vscode';
 
 suite('Configuration tests', () => {
-
-	test('configurations, language defaults', function () {
-		const defaultLanguageSettings = vscode.workspace.getConfiguration().get('[abcLang]');
+	test('configurations, language defaults', function() {
+		const defaultLanguageSettings = vscode.workspace
+			.getConfiguration()
+			.get('[abcLang]');
 
 		assert.deepEqual(defaultLanguageSettings, {
 			'editor.lineNumbers': 'off',
@@ -26,7 +27,7 @@ suite('Configuration tests', () => {
 		assert.equal(config['config0'], true);
 		assert.equal(config['config4'], '');
 
-		assert.throws(() => (<any>config)['config4'] = 'valuevalue');
+		assert.throws(() => ((<any>config)['config4'] = 'valuevalue'));
 
 		assert.ok(config.has('nested.config1'));
 		assert.equal(config.get('nested.config1'), 42);
@@ -40,6 +41,6 @@ suite('Configuration tests', () => {
 		assert.ok(config.has('get'));
 		assert.equal(config.get('get'), 'get-prop');
 		assert.deepEqual(config['get'], config.get);
-		assert.throws(() => config['get'] = <any>'get-prop');
+		assert.throws(() => (config['get'] = <any>'get-prop'));
 	});
 });

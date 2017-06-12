@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 /**
  * Represents a window in a possible chain of iframes
@@ -30,7 +30,11 @@ function getParentWindowIfSameOrigin(w: Window): Window {
 	try {
 		let location = w.location;
 		let parentLocation = w.parent.location;
-		if (location.protocol !== parentLocation.protocol || location.hostname !== parentLocation.hostname || location.port !== parentLocation.port) {
+		if (
+			location.protocol !== parentLocation.protocol ||
+			location.hostname !== parentLocation.hostname ||
+			location.port !== parentLocation.port
+		) {
 			hasDifferentOriginAncestorFlag = true;
 			return null;
 		}
@@ -42,8 +46,13 @@ function getParentWindowIfSameOrigin(w: Window): Window {
 	return w.parent;
 }
 
-function findIframeElementInParentWindow(parentWindow: Window, childWindow: Window): HTMLIFrameElement {
-	let parentWindowIframes = parentWindow.document.getElementsByTagName('iframe');
+function findIframeElementInParentWindow(
+	parentWindow: Window,
+	childWindow: Window
+): HTMLIFrameElement {
+	let parentWindowIframes = parentWindow.document.getElementsByTagName(
+		'iframe'
+	);
 	let iframe: HTMLIFrameElement;
 	for (let i = 0, len = parentWindowIframes.length; i < len; i++) {
 		iframe = parentWindowIframes[i];
@@ -55,7 +64,6 @@ function findIframeElementInParentWindow(parentWindow: Window, childWindow: Wind
 }
 
 export class IframeUtils {
-
 	/**
 	 * Returns a chain of embedded windows with the same origin (which can be accessed programmatically).
 	 * Having a chain of length 1 might mean that the current execution environment is running outside of an iframe or inside an iframe embedded in a window with a different origin.
@@ -64,7 +72,8 @@ export class IframeUtils {
 	public static getSameOriginWindowChain(): IWindowChainElement[] {
 		if (!sameOriginWindowChainCache) {
 			sameOriginWindowChainCache = [];
-			let w = window, parent: Window;
+			let w = window,
+				parent: Window;
 			do {
 				parent = getParentWindowIfSameOrigin(w);
 				if (parent) {
@@ -98,8 +107,10 @@ export class IframeUtils {
 	/**
 	 * Returns the position of `childWindow` relative to `ancestorWindow`
 	 */
-	public static getPositionOfChildWindowRelativeToAncestorWindow(childWindow: Window, ancestorWindow: any) {
-
+	public static getPositionOfChildWindowRelativeToAncestorWindow(
+		childWindow: Window,
+		ancestorWindow: any
+	) {
 		if (!ancestorWindow || childWindow === ancestorWindow) {
 			return {
 				top: 0,
@@ -107,7 +118,8 @@ export class IframeUtils {
 			};
 		}
 
-		let top = 0, left = 0;
+		let top = 0,
+			left = 0;
 
 		let windowChain = this.getSameOriginWindowChain();
 

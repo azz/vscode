@@ -2,11 +2,15 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { IThreadService } from 'vs/workbench/services/thread/common/threadService';
 import { StatusbarAlignment as MainThreadStatusBarAlignment } from 'vs/platform/statusbar/common/statusbar';
-import { StatusBarAlignment as ExtHostStatusBarAlignment, Disposable, ThemeColor } from './extHostTypes';
+import {
+	StatusBarAlignment as ExtHostStatusBarAlignment,
+	Disposable,
+	ThemeColor
+} from './extHostTypes';
 import { StatusBarItem, StatusBarAlignment } from 'vscode';
 import { MainContext, MainThreadStatusBarShape } from './extHost.protocol';
 
@@ -29,7 +33,12 @@ export class ExtHostStatusBarEntry implements StatusBarItem {
 
 	private _extensionId: string;
 
-	constructor(proxy: MainThreadStatusBarShape, extensionId: string, alignment: ExtHostStatusBarAlignment = ExtHostStatusBarAlignment.Left, priority?: number) {
+	constructor(
+		proxy: MainThreadStatusBarShape,
+		extensionId: string,
+		alignment: ExtHostStatusBarAlignment = ExtHostStatusBarAlignment.Left,
+		priority?: number
+	) {
 		this._id = ExtHostStatusBarEntry.ID_GEN++;
 		this._proxy = proxy;
 		this._alignment = alignment;
@@ -108,9 +117,18 @@ export class ExtHostStatusBarEntry implements StatusBarItem {
 			this._timeoutHandle = undefined;
 
 			// Set to status bar
-			this._proxy.$setEntry(this.id, this._extensionId, this.text, this.tooltip, this.command, this.color,
-				this._alignment === ExtHostStatusBarAlignment.Left ? MainThreadStatusBarAlignment.LEFT : MainThreadStatusBarAlignment.RIGHT,
-				this._priority);
+			this._proxy.$setEntry(
+				this.id,
+				this._extensionId,
+				this.text,
+				this.tooltip,
+				this.command,
+				this.color,
+				this._alignment === ExtHostStatusBarAlignment.Left
+					? MainThreadStatusBarAlignment.LEFT
+					: MainThreadStatusBarAlignment.RIGHT,
+				this._priority
+			);
 		}, 0);
 	}
 
@@ -121,12 +139,15 @@ export class ExtHostStatusBarEntry implements StatusBarItem {
 }
 
 class StatusBarMessage {
-
 	private _item: StatusBarItem;
 	private _messages: { message: string }[] = [];
 
 	constructor(statusBar: ExtHostStatusBar) {
-		this._item = statusBar.createStatusBarEntry(void 0, ExtHostStatusBarAlignment.Left, Number.MIN_VALUE);
+		this._item = statusBar.createStatusBarEntry(
+			void 0,
+			ExtHostStatusBarAlignment.Left,
+			Number.MIN_VALUE
+		);
 	}
 
 	dispose() {
@@ -159,7 +180,6 @@ class StatusBarMessage {
 }
 
 export class ExtHostStatusBar {
-
 	private _proxy: MainThreadStatusBarShape;
 	private _statusMessage: StatusBarMessage;
 
@@ -168,12 +188,23 @@ export class ExtHostStatusBar {
 		this._statusMessage = new StatusBarMessage(this);
 	}
 
-	createStatusBarEntry(extensionId: string, alignment?: ExtHostStatusBarAlignment, priority?: number): StatusBarItem {
-		return new ExtHostStatusBarEntry(this._proxy, extensionId, alignment, priority);
+	createStatusBarEntry(
+		extensionId: string,
+		alignment?: ExtHostStatusBarAlignment,
+		priority?: number
+	): StatusBarItem {
+		return new ExtHostStatusBarEntry(
+			this._proxy,
+			extensionId,
+			alignment,
+			priority
+		);
 	}
 
-	setStatusBarMessage(text: string, timeoutOrThenable?: number | Thenable<any>): Disposable {
-
+	setStatusBarMessage(
+		text: string,
+		timeoutOrThenable?: number | Thenable<any>
+	): Disposable {
 		let d = this._statusMessage.setMessage(text);
 		let handle: number;
 

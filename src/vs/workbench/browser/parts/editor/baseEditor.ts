@@ -2,17 +2,31 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import types = require('vs/base/common/types');
 import { Builder } from 'vs/base/browser/builder';
 import { Registry } from 'vs/platform/platform';
 import { Panel } from 'vs/workbench/browser/panel';
-import { EditorInput, EditorOptions, IEditorDescriptor, IEditorInputFactory, IEditorRegistry, Extensions, IFileInputFactory } from 'vs/workbench/common/editor';
+import {
+	EditorInput,
+	EditorOptions,
+	IEditorDescriptor,
+	IEditorInputFactory,
+	IEditorRegistry,
+	Extensions,
+	IFileInputFactory
+} from 'vs/workbench/common/editor';
 import { IEditor, Position } from 'vs/platform/editor/common/editor';
-import { IInstantiationService, IConstructorSignature0 } from 'vs/platform/instantiation/common/instantiation';
-import { SyncDescriptor, AsyncDescriptor } from 'vs/platform/instantiation/common/descriptors';
+import {
+	IInstantiationService,
+	IConstructorSignature0
+} from 'vs/platform/instantiation/common/instantiation';
+import {
+	SyncDescriptor,
+	AsyncDescriptor
+} from 'vs/platform/instantiation/common/descriptors';
 import { ITelemetryService } from 'vs/platform/telemetry/common/telemetry';
 import { IThemeService } from 'vs/platform/theme/common/themeService';
 
@@ -33,7 +47,11 @@ export abstract class BaseEditor extends Panel implements IEditor {
 	private _options: EditorOptions;
 	private _position: Position;
 
-	constructor(id: string, telemetryService: ITelemetryService, themeService: IThemeService) {
+	constructor(
+		id: string,
+		telemetryService: ITelemetryService,
+		themeService: IThemeService
+	) {
 		super(id, telemetryService, themeService);
 	}
 
@@ -89,7 +107,10 @@ export abstract class BaseEditor extends Panel implements IEditor {
 	 */
 	public setVisible(visible: boolean, position?: Position): void; // setVisible is sync for editors
 	public setVisible(visible: boolean, position?: Position): TPromise<void>;
-	public setVisible(visible: boolean, position: Position = null): TPromise<void> {
+	public setVisible(
+		visible: boolean,
+		position: Position = null
+	): TPromise<void> {
 		const promise = super.setVisible(visible);
 
 		// Propagate to Editor
@@ -98,7 +119,10 @@ export abstract class BaseEditor extends Panel implements IEditor {
 		return promise;
 	}
 
-	protected setEditorVisible(visible: boolean, position: Position = null): void {
+	protected setEditorVisible(
+		visible: boolean,
+		position: Position = null
+	): void {
 		this._position = position;
 	}
 
@@ -129,7 +153,8 @@ export abstract class BaseEditor extends Panel implements IEditor {
  * A lightweight descriptor of an editor. The descriptor is deferred so that heavy editors
  * can load lazily in the workbench.
  */
-export class EditorDescriptor extends AsyncDescriptor<BaseEditor> implements IEditorDescriptor {
+export class EditorDescriptor extends AsyncDescriptor<BaseEditor>
+	implements IEditorDescriptor {
 	private id: string;
 	private name: string;
 
@@ -159,8 +184,12 @@ class EditorRegistry implements IEditorRegistry {
 	private editors: EditorDescriptor[];
 	private instantiationService: IInstantiationService;
 	private fileInputFactory: IFileInputFactory;
-	private editorInputFactoryConstructors: { [editorInputId: string]: IConstructorSignature0<IEditorInputFactory> } = Object.create(null);
-	private editorInputFactoryInstances: { [editorInputId: string]: IEditorInputFactory } = Object.create(null);
+	private editorInputFactoryConstructors: {
+		[editorInputId: string]: IConstructorSignature0<IEditorInputFactory>;
+	} = Object.create(null);
+	private editorInputFactoryInstances: {
+		[editorInputId: string]: IEditorInputFactory;
+	} = Object.create(null);
 
 	constructor() {
 		this.editors = [];
@@ -177,15 +206,26 @@ class EditorRegistry implements IEditorRegistry {
 		this.editorInputFactoryConstructors = {};
 	}
 
-	private createEditorInputFactory(editorInputId: string, ctor: IConstructorSignature0<IEditorInputFactory>): void {
+	private createEditorInputFactory(
+		editorInputId: string,
+		ctor: IConstructorSignature0<IEditorInputFactory>
+	): void {
 		const instance = this.instantiationService.createInstance(ctor);
 		this.editorInputFactoryInstances[editorInputId] = instance;
 	}
 
-	public registerEditor(descriptor: EditorDescriptor, editorInputDescriptor: SyncDescriptor<EditorInput>): void;
-	public registerEditor(descriptor: EditorDescriptor, editorInputDescriptor: SyncDescriptor<EditorInput>[]): void;
-	public registerEditor(descriptor: EditorDescriptor, editorInputDescriptor: any): void {
-
+	public registerEditor(
+		descriptor: EditorDescriptor,
+		editorInputDescriptor: SyncDescriptor<EditorInput>
+	): void;
+	public registerEditor(
+		descriptor: EditorDescriptor,
+		editorInputDescriptor: SyncDescriptor<EditorInput>[]
+	): void;
+	public registerEditor(
+		descriptor: EditorDescriptor,
+		editorInputDescriptor: any
+	): void {
 		// Support both non-array and array parameter
 		let inputDescriptors: SyncDescriptor<EditorInput>[] = [];
 		if (!types.isArray(editorInputDescriptor)) {
@@ -200,12 +240,17 @@ class EditorRegistry implements IEditorRegistry {
 	}
 
 	public getEditor(input: EditorInput): EditorDescriptor {
-		const findEditorDescriptors = (input: EditorInput, byInstanceOf?: boolean): EditorDescriptor[] => {
+		const findEditorDescriptors = (
+			input: EditorInput,
+			byInstanceOf?: boolean
+		): EditorDescriptor[] => {
 			const matchingDescriptors: EditorDescriptor[] = [];
 
 			for (let i = 0; i < this.editors.length; i++) {
 				const editor = this.editors[i];
-				const inputDescriptors = <SyncDescriptor<EditorInput>[]>editor[INPUT_DESCRIPTORS_PROPERTY];
+				const inputDescriptors = <SyncDescriptor<EditorInput>[]>editor[
+					INPUT_DESCRIPTORS_PROPERTY
+				];
 				for (let j = 0; j < inputDescriptors.length; j++) {
 					const inputClass = inputDescriptors[j].ctor;
 
@@ -213,10 +258,8 @@ class EditorRegistry implements IEditorRegistry {
 					if (!byInstanceOf && input.constructor === inputClass) {
 						matchingDescriptors.push(editor);
 						break;
-					}
-
-					// Normal instanceof check
-					else if (byInstanceOf && input instanceof inputClass) {
+					} else if (byInstanceOf && input instanceof inputClass) {
+						// Normal instanceof check
 						matchingDescriptors.push(editor);
 						break;
 					}
@@ -237,9 +280,10 @@ class EditorRegistry implements IEditorRegistry {
 
 		const descriptors = findEditorDescriptors(input);
 		if (descriptors && descriptors.length > 0) {
-
 			// Ask the input for its preferred Editor
-			const preferredEditorId = input.getPreferredEditorId(descriptors.map(d => d.getId()));
+			const preferredEditorId = input.getPreferredEditorId(
+				descriptors.map(d => d.getId())
+			);
 			if (preferredEditorId) {
 				return this.getEditorById(preferredEditorId);
 			}
@@ -274,8 +318,12 @@ class EditorRegistry implements IEditorRegistry {
 		const inputClasses: any[] = [];
 		for (let i = 0; i < this.editors.length; i++) {
 			const editor = this.editors[i];
-			const editorInputDescriptors = <SyncDescriptor<EditorInput>[]>editor[INPUT_DESCRIPTORS_PROPERTY];
-			inputClasses.push(...editorInputDescriptors.map(descriptor => descriptor.ctor));
+			const editorInputDescriptors = <SyncDescriptor<EditorInput>[]>editor[
+				INPUT_DESCRIPTORS_PROPERTY
+			];
+			inputClasses.push(
+				...editorInputDescriptors.map(descriptor => descriptor.ctor)
+			);
 		}
 
 		return inputClasses;
@@ -289,7 +337,10 @@ class EditorRegistry implements IEditorRegistry {
 		return this.fileInputFactory;
 	}
 
-	public registerEditorInputFactory(editorInputId: string, ctor: IConstructorSignature0<IEditorInputFactory>): void {
+	public registerEditorInputFactory(
+		editorInputId: string,
+		ctor: IConstructorSignature0<IEditorInputFactory>
+	): void {
 		if (!this.instantiationService) {
 			this.editorInputFactoryConstructors[editorInputId] = ctor;
 		} else {

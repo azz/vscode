@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import { join, basename } from 'path';
@@ -19,30 +19,31 @@ export function startProfiling(name: string): TPromise<boolean> {
 const _isRunningOutOfDev = process.env['VSCODE_DEV'];
 
 export function stopProfiling(dir: string, prefix: string): TPromise<string> {
-	return lazyV8Profiler.value.then(profiler => {
-		return profiler.stopProfiling();
-	}).then(profile => {
-		return new TPromise<any>((resolve, reject) => {
-
-			// remove pii paths
-			if (!_isRunningOutOfDev) {
-				removePiiPaths(profile); // remove pii from our users
-			}
-
-			profile.export(function (error, result) {
-				profile.delete();
-				if (error) {
-					reject(error);
-					return;
-				}
-				let filepath = join(dir, `${prefix}_${profile.title}.cpuprofile`);
+	return lazyV8Profiler.value
+		.then(profiler => {
+			return profiler.stopProfiling();
+		})
+		.then(profile => {
+			return new TPromise<any>((resolve, reject) => {
+				// remove pii paths
 				if (!_isRunningOutOfDev) {
-					filepath += '.txt'; // github issues must be: txt, zip, png, gif
+					removePiiPaths(profile); // remove pii from our users
 				}
-				writeFile(filepath, result).then(() => resolve(filepath), reject);
+
+				profile.export(function(error, result) {
+					profile.delete();
+					if (error) {
+						reject(error);
+						return;
+					}
+					let filepath = join(dir, `${prefix}_${profile.title}.cpuprofile`);
+					if (!_isRunningOutOfDev) {
+						filepath += '.txt'; // github issues must be: txt, zip, png, gif
+					}
+					writeFile(filepath, result).then(() => resolve(filepath), reject);
+				});
 			});
 		});
-	});
 }
 
 export function removePiiPaths(profile: Profile) {
@@ -61,19 +62,19 @@ export function removePiiPaths(profile: Profile) {
 	}
 }
 
-declare interface Profiler {
+interface Profiler {
 	startProfiling(name: string);
 	stopProfiling(): Profile;
 }
 
-export declare interface Profile {
+export interface Profile {
 	title: string;
 	export(callback: (err, data) => void);
 	delete();
 	head: ProfileSample;
 }
 
-export declare interface ProfileSample {
+export interface ProfileSample {
 	// bailoutReason:""
 	// callUID:2333
 	// children:Array[39]
@@ -97,4 +98,4 @@ const lazyV8Profiler = new class {
 		}
 		return this._value;
 	}
-};
+}();

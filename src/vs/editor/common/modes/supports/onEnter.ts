@@ -2,11 +2,17 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { onUnexpectedError } from 'vs/base/common/errors';
 import * as strings from 'vs/base/common/strings';
-import { CharacterPair, IndentationRule, IndentAction, EnterAction, OnEnterRule } from 'vs/editor/common/modes/languageConfiguration';
+import {
+	CharacterPair,
+	IndentationRule,
+	IndentAction,
+	EnterAction,
+	OnEnterRule
+} from 'vs/editor/common/modes/languageConfiguration';
 
 export interface IOnEnterSupportOptions {
 	brackets?: CharacterPair[];
@@ -22,32 +28,31 @@ interface IProcessedBracketPair {
 }
 
 export class OnEnterSupport {
-
 	private readonly _brackets: IProcessedBracketPair[];
 	private readonly _indentationRules: IndentationRule;
 	private readonly _regExpRules: OnEnterRule[];
 
 	constructor(opts?: IOnEnterSupportOptions) {
 		opts = opts || {};
-		opts.brackets = opts.brackets || [
-			['(', ')'],
-			['{', '}'],
-			['[', ']']
-		];
+		opts.brackets = opts.brackets || [['(', ')'], ['{', '}'], ['[', ']']];
 
-		this._brackets = opts.brackets.map((bracket) => {
+		this._brackets = opts.brackets.map(bracket => {
 			return {
 				open: bracket[0],
 				openRegExp: OnEnterSupport._createOpenBracketRegExp(bracket[0]),
 				close: bracket[1],
-				closeRegExp: OnEnterSupport._createCloseBracketRegExp(bracket[1]),
+				closeRegExp: OnEnterSupport._createCloseBracketRegExp(bracket[1])
 			};
 		});
 		this._regExpRules = opts.regExpRules || [];
 		this._indentationRules = opts.indentationRules;
 	}
 
-	public onEnter(oneLineAboveText: string, beforeEnterText: string, afterEnterText: string): EnterAction {
+	public onEnter(
+		oneLineAboveText: string,
+		beforeEnterText: string,
+		afterEnterText: string
+	): EnterAction {
 		// (1): `regExpRules`
 		for (let i = 0, len = this._regExpRules.length; i < len; i++) {
 			let rule = this._regExpRules[i];
@@ -66,7 +71,10 @@ export class OnEnterSupport {
 		if (beforeEnterText.length > 0 && afterEnterText.length > 0) {
 			for (let i = 0, len = this._brackets.length; i < len; i++) {
 				let bracket = this._brackets[i];
-				if (bracket.openRegExp.test(beforeEnterText) && bracket.closeRegExp.test(afterEnterText)) {
+				if (
+					bracket.openRegExp.test(beforeEnterText) &&
+					bracket.closeRegExp.test(afterEnterText)
+				) {
 					return { indentAction: IndentAction.IndentOutdent };
 				}
 			}
@@ -77,10 +85,16 @@ export class OnEnterSupport {
 			let indentOffset: null | number = null;
 			let outdentCurrentLine = false;
 
-			if (this._indentationRules.increaseIndentPattern && this._indentationRules.increaseIndentPattern.test(beforeEnterText)) {
+			if (
+				this._indentationRules.increaseIndentPattern &&
+				this._indentationRules.increaseIndentPattern.test(beforeEnterText)
+			) {
 				indentOffset = 1;
 			}
-			if (this._indentationRules.indentNextLinePattern && this._indentationRules.indentNextLinePattern.test(beforeEnterText)) {
+			if (
+				this._indentationRules.indentNextLinePattern &&
+				this._indentationRules.indentNextLinePattern.test(beforeEnterText)
+			) {
 				indentOffset = 1;
 			}
 
@@ -88,13 +102,22 @@ export class OnEnterSupport {
 			 * Since the indentation of `beforeEnterText` might not be correct, we still provide the correct indent action
 			 * even if there is nothing to outdent from.
 			 */
-			if (this._indentationRules.decreaseIndentPattern && this._indentationRules.decreaseIndentPattern.test(afterEnterText)) {
+			if (
+				this._indentationRules.decreaseIndentPattern &&
+				this._indentationRules.decreaseIndentPattern.test(afterEnterText)
+			) {
 				indentOffset = indentOffset ? indentOffset - 1 : -1;
 			}
-			if (this._indentationRules.indentNextLinePattern && this._indentationRules.indentNextLinePattern.test(oneLineAboveText)) {
+			if (
+				this._indentationRules.indentNextLinePattern &&
+				this._indentationRules.indentNextLinePattern.test(oneLineAboveText)
+			) {
 				indentOffset = indentOffset ? indentOffset - 1 : -1;
 			}
-			if (this._indentationRules.decreaseIndentPattern && this._indentationRules.decreaseIndentPattern.test(beforeEnterText)) {
+			if (
+				this._indentationRules.decreaseIndentPattern &&
+				this._indentationRules.decreaseIndentPattern.test(beforeEnterText)
+			) {
 				outdentCurrentLine = true;
 			}
 
@@ -103,11 +126,20 @@ export class OnEnterSupport {
 				indentOffset = indentOffset || 0;
 				switch (indentOffset) {
 					case -1:
-						return { indentAction: IndentAction.Outdent, outdentCurrentLine: outdentCurrentLine };
+						return {
+							indentAction: IndentAction.Outdent,
+							outdentCurrentLine: outdentCurrentLine
+						};
 					case 0:
-						return { indentAction: IndentAction.None, outdentCurrentLine: outdentCurrentLine };
+						return {
+							indentAction: IndentAction.None,
+							outdentCurrentLine: outdentCurrentLine
+						};
 					case 1:
-						return { indentAction: IndentAction.Indent, outdentCurrentLine: outdentCurrentLine };
+						return {
+							indentAction: IndentAction.Indent,
+							outdentCurrentLine: outdentCurrentLine
+						};
 				}
 			}
 		}
@@ -138,7 +170,11 @@ export class OnEnterSupport {
 
 	public shouldIgnore(text: string): boolean {
 		// the text matches `unIndentedLinePattern`
-		if (this._indentationRules && this._indentationRules.unIndentedLinePattern && this._indentationRules.unIndentedLinePattern.test(text)) {
+		if (
+			this._indentationRules &&
+			this._indentationRules.unIndentedLinePattern &&
+			this._indentationRules.unIndentedLinePattern.test(text)
+		) {
 			return true;
 		}
 
@@ -172,4 +208,3 @@ export class OnEnterSupport {
 		}
 	}
 }
-

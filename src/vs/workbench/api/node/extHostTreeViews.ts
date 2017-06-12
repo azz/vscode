@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { localize } from 'vs/nls';
 import * as vscode from 'vscode';
@@ -10,17 +10,29 @@ import URI from 'vs/base/common/uri';
 import { TPromise } from 'vs/base/common/winjs.base';
 import { Disposable } from 'vs/base/common/lifecycle';
 import { IThreadService } from 'vs/workbench/services/thread/common/threadService';
-import { MainContext, ExtHostTreeViewsShape, MainThreadTreeViewsShape } from './extHost.protocol';
-import { ITreeItem, TreeViewItemHandleArg } from 'vs/workbench/parts/views/common/views';
+import {
+	MainContext,
+	ExtHostTreeViewsShape,
+	MainThreadTreeViewsShape
+} from './extHost.protocol';
+import {
+	ITreeItem,
+	TreeViewItemHandleArg
+} from 'vs/workbench/parts/views/common/views';
 import { TreeItemCollapsibleState } from './extHostTypes';
-import { ExtHostCommands, CommandsConverter } from 'vs/workbench/api/node/extHostCommands';
+import {
+	ExtHostCommands,
+	CommandsConverter
+} from 'vs/workbench/api/node/extHostCommands';
 import { asWinJsPromise } from 'vs/base/common/async';
 
 type TreeItemHandle = number;
 
 export class ExtHostTreeViews extends ExtHostTreeViewsShape {
-
-	private treeViews: Map<string, ExtHostTreeView<any>> = new Map<string, ExtHostTreeView<any>>();
+	private treeViews: Map<string, ExtHostTreeView<any>> = new Map<
+		string,
+		ExtHostTreeView<any>
+	>();
 	private _proxy: MainThreadTreeViewsShape;
 
 	constructor(
@@ -39,8 +51,16 @@ export class ExtHostTreeViews extends ExtHostTreeViewsShape {
 		});
 	}
 
-	registerTreeDataProvider<T>(id: string, treeDataProvider: vscode.TreeDataProvider<T>): vscode.Disposable {
-		const treeView = new ExtHostTreeView<T>(id, treeDataProvider, this._proxy, this.commands.converter);
+	registerTreeDataProvider<T>(
+		id: string,
+		treeDataProvider: vscode.TreeDataProvider<T>
+	): vscode.Disposable {
+		const treeView = new ExtHostTreeView<T>(
+			id,
+			treeDataProvider,
+			this._proxy,
+			this.commands.converter
+		);
 		this.treeViews.set(id, treeView);
 		return {
 			dispose: () => {
@@ -53,15 +73,30 @@ export class ExtHostTreeViews extends ExtHostTreeViewsShape {
 	$getElements(treeViewId: string): TPromise<ITreeItem[]> {
 		const treeView = this.treeViews.get(treeViewId);
 		if (!treeView) {
-			return TPromise.wrapError<ITreeItem[]>(localize('treeView.notRegistered', 'No tree view with id \'{0}\' registered.', treeViewId));
+			return TPromise.wrapError<ITreeItem[]>(
+				localize(
+					'treeView.notRegistered',
+					"No tree view with id '{0}' registered.",
+					treeViewId
+				)
+			);
 		}
 		return treeView.getTreeItems();
 	}
 
-	$getChildren(treeViewId: string, treeItemHandle?: number): TPromise<ITreeItem[]> {
+	$getChildren(
+		treeViewId: string,
+		treeItemHandle?: number
+	): TPromise<ITreeItem[]> {
 		const treeView = this.treeViews.get(treeViewId);
 		if (!treeView) {
-			return TPromise.wrapError<ITreeItem[]>(localize('treeView.notRegistered', 'No tree view with id \'{0}\' registered.', treeViewId));
+			return TPromise.wrapError<ITreeItem[]>(
+				localize(
+					'treeView.notRegistered',
+					"No tree view with id '{0}' registered.",
+					treeViewId
+				)
+			);
 		}
 		return treeView.getChildren(treeItemHandle);
 	}
@@ -73,18 +108,24 @@ export class ExtHostTreeViews extends ExtHostTreeViewsShape {
 }
 
 class ExtHostTreeView<T> extends Disposable {
-
 	private _itemHandlePool = 0;
 
 	private extElementsMap: Map<TreeItemHandle, T> = new Map<TreeItemHandle, T>();
 	private itemHandlesMap: Map<T, TreeItemHandle> = new Map<T, TreeItemHandle>();
 	private extChildrenElementsMap: Map<T, T[]> = new Map<T, T[]>();
 
-	constructor(private viewId: string, private dataProvider: vscode.TreeDataProvider<T>, private proxy: MainThreadTreeViewsShape, private commands: CommandsConverter, ) {
+	constructor(
+		private viewId: string,
+		private dataProvider: vscode.TreeDataProvider<T>,
+		private proxy: MainThreadTreeViewsShape,
+		private commands: CommandsConverter
+	) {
 		super();
 		this.proxy.$registerView(viewId);
 		if (dataProvider.onDidChangeTreeData) {
-			this._register(dataProvider.onDidChangeTreeData(element => this._refresh(element)));
+			this._register(
+				dataProvider.onDidChangeTreeData(element => this._refresh(element))
+			);
 		}
 	}
 
@@ -93,8 +134,9 @@ class ExtHostTreeView<T> extends Disposable {
 		this.extElementsMap.clear();
 		this.itemHandlesMap.clear();
 
-		return asWinJsPromise(() => this.dataProvider.getChildren())
-			.then(elements => this.processAndMapElements(elements));
+		return asWinJsPromise(() =>
+			this.dataProvider.getChildren()
+		).then(elements => this.processAndMapElements(elements));
 	}
 
 	getChildren(treeItemHandle: TreeItemHandle): TPromise<ITreeItem[]> {
@@ -102,11 +144,18 @@ class ExtHostTreeView<T> extends Disposable {
 		if (extElement) {
 			this.clearChildren(extElement);
 		} else {
-			return TPromise.wrapError<ITreeItem[]>(localize('treeItem.notFound', 'No tree item with id \'{0}\' found.', treeItemHandle));
+			return TPromise.wrapError<ITreeItem[]>(
+				localize(
+					'treeItem.notFound',
+					"No tree item with id '{0}' found.",
+					treeItemHandle
+				)
+			);
 		}
 
-		return asWinJsPromise(() => this.dataProvider.getChildren(extElement))
-			.then(childrenElements => this.processAndMapElements(childrenElements));
+		return asWinJsPromise(() =>
+			this.dataProvider.getChildren(extElement)
+		).then(childrenElements => this.processAndMapElements(childrenElements));
 	}
 
 	getExtensionElement(treeItemHandle: TreeItemHandle): T {
@@ -127,36 +176,42 @@ class ExtHostTreeView<T> extends Disposable {
 	private processAndMapElements(elements: T[]): TPromise<ITreeItem[]> {
 		if (elements && elements.length) {
 			return TPromise.join(
-				elements.filter(element => !!element)
-					.map(element => {
-						if (this.extChildrenElementsMap.has(element)) {
-							return TPromise.wrapError<ITreeItem>(localize('treeView.duplicateElement', 'Element {0} is already registered', element));
-						}
-						return this.resolveElement(element);
-					}))
-				.then(treeItems => treeItems.filter(treeItem => !!treeItem));
+				elements.filter(element => !!element).map(element => {
+					if (this.extChildrenElementsMap.has(element)) {
+						return TPromise.wrapError<ITreeItem>(
+							localize(
+								'treeView.duplicateElement',
+								'Element {0} is already registered',
+								element
+							)
+						);
+					}
+					return this.resolveElement(element);
+				})
+			).then(treeItems => treeItems.filter(treeItem => !!treeItem));
 		}
 		return TPromise.as([]);
 	}
 
 	private resolveElement(element: T): TPromise<ITreeItem> {
-		return asWinJsPromise(() => this.dataProvider.getTreeItem(element))
-			.then(extTreeItem => {
-				const treeItem = this.massageTreeItem(extTreeItem);
-				if (treeItem) {
-					this.itemHandlesMap.set(element, treeItem.handle);
-					this.extElementsMap.set(treeItem.handle, element);
-					if (treeItem.collapsibleState === TreeItemCollapsibleState.Expanded) {
-						return this.getChildren(treeItem.handle).then(children => {
-							treeItem.children = children;
-							return treeItem;
-						});
-					} else {
+		return asWinJsPromise(() =>
+			this.dataProvider.getTreeItem(element)
+		).then(extTreeItem => {
+			const treeItem = this.massageTreeItem(extTreeItem);
+			if (treeItem) {
+				this.itemHandlesMap.set(element, treeItem.handle);
+				this.extElementsMap.set(treeItem.handle, element);
+				if (treeItem.collapsibleState === TreeItemCollapsibleState.Expanded) {
+					return this.getChildren(treeItem.handle).then(children => {
+						treeItem.children = children;
 						return treeItem;
-					}
+					});
+				} else {
+					return treeItem;
 				}
-				return null;
-			});
+			}
+			return null;
+		});
 	}
 
 	private massageTreeItem(extensionTreeItem: vscode.TreeItem): ITreeItem {
@@ -167,17 +222,22 @@ class ExtHostTreeView<T> extends Disposable {
 		return {
 			handle: ++this._itemHandlePool,
 			label: extensionTreeItem.label,
-			command: extensionTreeItem.command ? this.commands.toInternal(extensionTreeItem.command) : void 0,
+			command: extensionTreeItem.command
+				? this.commands.toInternal(extensionTreeItem.command)
+				: void 0,
 			contextValue: extensionTreeItem.contextValue,
 			icon,
 			iconDark: this.getDarkIconPath(extensionTreeItem) || icon,
-			collapsibleState: extensionTreeItem.collapsibleState,
+			collapsibleState: extensionTreeItem.collapsibleState
 		};
 	}
 
 	private getLightIconPath(extensionTreeItem: vscode.TreeItem) {
 		if (extensionTreeItem.iconPath) {
-			if (typeof extensionTreeItem.iconPath === 'string' || extensionTreeItem.iconPath instanceof URI) {
+			if (
+				typeof extensionTreeItem.iconPath === 'string' ||
+				extensionTreeItem.iconPath instanceof URI
+			) {
 				return this.getIconPath(extensionTreeItem.iconPath);
 			}
 			return this.getIconPath(extensionTreeItem.iconPath['light']);

@@ -24,9 +24,9 @@ export interface IProductConfiguration {
 		serviceUrl: string;
 		itemUrl: string;
 	};
-	extensionTips: { [id: string]: string; };
-	extensionImportantTips: { [id: string]: { name: string; pattern: string; }; };
-	extensionKeywords: { [extension: string]: string[]; };
+	extensionTips: { [id: string]: string };
+	extensionImportantTips: { [id: string]: { name: string; pattern: string } };
+	extensionKeywords: { [extension: string]: string[] };
 	keymapExtensionTips: string[];
 	crashReporter: {
 		companyName: string;
@@ -38,8 +38,8 @@ export interface IProductConfiguration {
 		asimovKey: string;
 	};
 	sendASmile: {
-		reportIssueUrl: string,
-		requestFeatureUrl: string
+		reportIssueUrl: string;
+		requestFeatureUrl: string;
 	};
 	documentationUrl: string;
 	releaseNotesUrl: string;
@@ -54,7 +54,7 @@ export interface IProductConfiguration {
 	privacyStatementUrl: string;
 	npsSurveyUrl: string;
 	surveys: ISurveyData[];
-	checksums: { [path: string]: string; };
+	checksums: { [path: string]: string };
 	checksumFailMoreInfoUrl: string;
 	hockeyApp: {
 		'win32-ia32': string;
@@ -75,7 +75,9 @@ export interface ISurveyData {
 
 const rootPath = path.dirname(uri.parse(require.toUrl('')).fsPath);
 const productJsonPath = path.join(rootPath, 'product.json');
-const product = require.__$__nodeRequire(productJsonPath) as IProductConfiguration;
+const product = require.__$__nodeRequire(
+	productJsonPath
+) as IProductConfiguration;
 
 if (process.env['VSCODE_DEV']) {
 	product.nameShort += ' Dev';

@@ -2,9 +2,13 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
-export function getWordAtText(text: string, offset: number, wordDefinition: RegExp): { start: number, length: number } {
+export function getWordAtText(
+	text: string,
+	offset: number,
+	wordDefinition: RegExp
+): { start: number; length: number } {
 	let lineStart = offset;
 	while (lineStart > 0 && !isNewlineCharacter(text.charCodeAt(lineStart - 1))) {
 		lineStart--;

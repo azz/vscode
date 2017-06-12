@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { Range } from 'vs/editor/common/core/range';
@@ -20,18 +20,24 @@ export function testCommand(
 	expectedLines: string[],
 	expectedSelection: Selection
 ): void {
-	let model = Model.createFromString(lines.join('\n'), undefined, languageIdentifier);
+	let model = Model.createFromString(
+		lines.join('\n'),
+		undefined,
+		languageIdentifier
+	);
 	withMockCodeEditor(null, { model: model }, (editor, cursor) => {
-
 		cursor.setSelections('tests', [selection]);
 
-		cursor.trigger('tests', editorCommon.Handler.ExecuteCommand, commandFactory(cursor.getSelection()));
+		cursor.trigger(
+			'tests',
+			editorCommon.Handler.ExecuteCommand,
+			commandFactory(cursor.getSelection())
+		);
 
 		assert.deepEqual(model.getLinesContent(), expectedLines);
 
 		let actualSelection = cursor.getSelection();
 		assert.deepEqual(actualSelection.toString(), expectedSelection.toString());
-
 	});
 	model.dispose();
 }
@@ -39,7 +45,10 @@ export function testCommand(
 /**
  * Extract edit operations if command `command` were to execute on model `model`
  */
-export function getEditOperation(model: editorCommon.IModel, command: editorCommon.ICommand): editorCommon.IIdentifiedSingleEditOperation[] {
+export function getEditOperation(
+	model: editorCommon.IModel,
+	command: editorCommon.ICommand
+): editorCommon.IIdentifiedSingleEditOperation[] {
 	var operations: editorCommon.IIdentifiedSingleEditOperation[] = [];
 	var editOperationBuilder: editorCommon.IEditOperationBuilder = {
 		addEditOperation: (range: Range, text: string) => {
@@ -60,7 +69,6 @@ export function getEditOperation(model: editorCommon.IModel, command: editorComm
 			});
 		},
 
-
 		trackSelection: (selection: Selection) => {
 			return null;
 		}
@@ -72,10 +80,21 @@ export function getEditOperation(model: editorCommon.IModel, command: editorComm
 /**
  * Create single edit operation
  */
-export function createSingleEditOp(text: string, positionLineNumber: number, positionColumn: number, selectionLineNumber: number = positionLineNumber, selectionColumn: number = positionColumn): editorCommon.IIdentifiedSingleEditOperation {
+export function createSingleEditOp(
+	text: string,
+	positionLineNumber: number,
+	positionColumn: number,
+	selectionLineNumber: number = positionLineNumber,
+	selectionColumn: number = positionColumn
+): editorCommon.IIdentifiedSingleEditOperation {
 	return {
 		identifier: null,
-		range: new Range(selectionLineNumber, selectionColumn, positionLineNumber, positionColumn),
+		range: new Range(
+			selectionLineNumber,
+			selectionColumn,
+			positionLineNumber,
+			positionColumn
+		),
 		text: text,
 		forceMoveMarkers: false
 	};
@@ -84,10 +103,21 @@ export function createSingleEditOp(text: string, positionLineNumber: number, pos
 /**
  * Create single edit operation
  */
-export function createInsertDeleteSingleEditOp(text: string, positionLineNumber: number, positionColumn: number, selectionLineNumber: number = positionLineNumber, selectionColumn: number = positionColumn): editorCommon.IIdentifiedSingleEditOperation {
+export function createInsertDeleteSingleEditOp(
+	text: string,
+	positionLineNumber: number,
+	positionColumn: number,
+	selectionLineNumber: number = positionLineNumber,
+	selectionColumn: number = positionColumn
+): editorCommon.IIdentifiedSingleEditOperation {
 	return {
 		identifier: null,
-		range: new Range(selectionLineNumber, selectionColumn, positionLineNumber, positionColumn),
+		range: new Range(
+			selectionLineNumber,
+			selectionColumn,
+			positionLineNumber,
+			positionColumn
+		),
 		text: text,
 		forceMoveMarkers: true
 	};

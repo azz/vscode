@@ -11,10 +11,9 @@ import { TPromise } from 'vs/base/common/winjs.base';
 import { IProcessEnvironment } from 'vs/base/common/platform';
 import { BrowserWindow, ipcMain } from 'electron';
 import { PromiseSource } from 'vs/base/common/async';
-import { ISharedProcess } from "vs/platform/windows/electron-main/windows";
+import { ISharedProcess } from 'vs/platform/windows/electron-main/windows';
 
 export class SharedProcess implements ISharedProcess {
-
 	private spawnPromiseSource: PromiseSource<void>;
 
 	private window: Electron.BrowserWindow;
@@ -29,7 +28,9 @@ export class SharedProcess implements ISharedProcess {
 			userEnv: this.userEnv
 		});
 
-		const url = `${require.toUrl('vs/code/electron-browser/sharedProcess.html')}?config=${encodeURIComponent(JSON.stringify(config))}`;
+		const url = `${require.toUrl(
+			'vs/code/electron-browser/sharedProcess.html'
+		)}?config=${encodeURIComponent(JSON.stringify(config))}`;
 		this.window.loadURL(url);
 
 		// Prevent the window from dying
@@ -41,21 +42,24 @@ export class SharedProcess implements ISharedProcess {
 		};
 
 		this.window.on('close', onClose);
-		this.disposables.push(toDisposable(() => this.window.removeListener('close', onClose)));
+		this.disposables.push(
+			toDisposable(() => this.window.removeListener('close', onClose))
+		);
 
-		this.disposables.push(toDisposable(() => {
+		this.disposables.push(
+			toDisposable(() => {
+				// Electron seems to crash on Windows without this setTimeout :|
+				setTimeout(() => {
+					try {
+						this.window.close();
+					} catch (err) {
+						// ignore, as electron is already shutting down
+					}
 
-			// Electron seems to crash on Windows without this setTimeout :|
-			setTimeout(() => {
-				try {
-					this.window.close();
-				} catch (err) {
-					// ignore, as electron is already shutting down
-				}
-
-				this.window = null;
-			}, 0);
-		}));
+					this.window = null;
+				}, 0);
+			})
+		);
 
 		return new TPromise<void>((c, e) => {
 			ipcMain.once('handshake:hello', ({ sender }) => {

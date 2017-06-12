@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { Range } from 'vs/editor/common/core/range';
 import { Selection } from 'vs/editor/common/core/selection';
@@ -30,7 +30,6 @@ export const enum ViewEventType {
 }
 
 export class ViewConfigurationChangedEvent {
-
 	public readonly type = ViewEventType.ViewConfigurationChanged;
 
 	public readonly canUseTranslate3d: boolean;
@@ -61,7 +60,6 @@ export class ViewConfigurationChangedEvent {
 }
 
 export class ViewCursorStateChangedEvent {
-
 	public readonly type = ViewEventType.ViewCursorStateChanged;
 
 	/**
@@ -77,7 +75,11 @@ export class ViewCursorStateChangedEvent {
 	 */
 	public readonly screenReaderMessage: string;
 
-	constructor(selections: Selection[], isInEditableRange: boolean, screenReaderMessage: string) {
+	constructor(
+		selections: Selection[],
+		isInEditableRange: boolean,
+		screenReaderMessage: string
+	) {
 		this.selections = selections;
 		this.isInEditableRange = isInEditableRange;
 		this.screenReaderMessage = screenReaderMessage;
@@ -85,7 +87,6 @@ export class ViewCursorStateChangedEvent {
 }
 
 export class ViewDecorationsChangedEvent {
-
 	public readonly type = ViewEventType.ViewDecorationsChanged;
 
 	constructor() {
@@ -94,7 +95,6 @@ export class ViewDecorationsChangedEvent {
 }
 
 export class ViewFlushedEvent {
-
 	public readonly type = ViewEventType.ViewFlushed;
 
 	constructor() {
@@ -103,7 +103,6 @@ export class ViewFlushedEvent {
 }
 
 export class ViewFocusChangedEvent {
-
 	public readonly type = ViewEventType.ViewFocusChanged;
 
 	public readonly isFocused: boolean;
@@ -114,7 +113,6 @@ export class ViewFocusChangedEvent {
 }
 
 export class ViewLineMappingChangedEvent {
-
 	public readonly type = ViewEventType.ViewLineMappingChanged;
 
 	constructor() {
@@ -123,7 +121,6 @@ export class ViewLineMappingChangedEvent {
 }
 
 export class ViewLinesChangedEvent {
-
 	public readonly type = ViewEventType.ViewLinesChanged;
 
 	/**
@@ -142,7 +139,6 @@ export class ViewLinesChangedEvent {
 }
 
 export class ViewLinesDeletedEvent {
-
 	public readonly type = ViewEventType.ViewLinesDeleted;
 
 	/**
@@ -161,7 +157,6 @@ export class ViewLinesDeletedEvent {
 }
 
 export class ViewLinesInsertedEvent {
-
 	public readonly type = ViewEventType.ViewLinesInserted;
 
 	/**
@@ -188,7 +183,6 @@ export const enum VerticalRevealType {
 }
 
 export class ViewRevealRangeRequestEvent {
-
 	public readonly type = ViewEventType.ViewRevealRangeRequest;
 
 	/**
@@ -203,7 +197,11 @@ export class ViewRevealRangeRequestEvent {
 	 */
 	public readonly revealHorizontal: boolean;
 
-	constructor(range: Range, verticalType: VerticalRevealType, revealHorizontal: boolean) {
+	constructor(
+		range: Range,
+		verticalType: VerticalRevealType,
+		revealHorizontal: boolean
+	) {
 		this.range = range;
 		this.verticalType = verticalType;
 		this.revealHorizontal = revealHorizontal;
@@ -211,7 +209,6 @@ export class ViewRevealRangeRequestEvent {
 }
 
 export class ViewScrollChangedEvent {
-
 	public readonly type = ViewEventType.ViewScrollChanged;
 
 	public readonly scrollWidth: number;
@@ -238,7 +235,6 @@ export class ViewScrollChangedEvent {
 }
 
 export class ViewTokensChangedEvent {
-
 	public readonly type = ViewEventType.ViewTokensChanged;
 
 	public readonly ranges: {
@@ -252,21 +248,18 @@ export class ViewTokensChangedEvent {
 		readonly toLineNumber: number;
 	}[];
 
-	constructor(ranges: { fromLineNumber: number; toLineNumber: number; }[]) {
+	constructor(ranges: { fromLineNumber: number; toLineNumber: number }[]) {
 		this.ranges = ranges;
 	}
 }
 
 export class ViewThemeChangedEvent {
-
 	public readonly type = ViewEventType.ViewThemeChanged;
 
-	constructor() {
-	}
+	constructor() {}
 }
 
 export class ViewTokensColorsChangedEvent {
-
 	public readonly type = ViewEventType.ViewTokensColorsChanged;
 
 	constructor() {
@@ -275,7 +268,6 @@ export class ViewTokensColorsChangedEvent {
 }
 
 export class ViewZonesChangedEvent {
-
 	public readonly type = ViewEventType.ViewZonesChanged;
 
 	constructor() {
@@ -284,7 +276,7 @@ export class ViewZonesChangedEvent {
 }
 
 export type ViewEvent = (
-	ViewConfigurationChangedEvent
+	| ViewConfigurationChangedEvent
 	| ViewCursorStateChangedEvent
 	| ViewDecorationsChangedEvent
 	| ViewFlushedEvent
@@ -298,8 +290,7 @@ export type ViewEvent = (
 	| ViewTokensChangedEvent
 	| ViewTokensColorsChangedEvent
 	| ViewZonesChangedEvent
-	| ViewThemeChangedEvent
-);
+	| ViewThemeChangedEvent);
 
 export interface IViewEventListener {
 	(events: ViewEvent[]): void;
@@ -325,7 +316,9 @@ export class ViewEventEmitter extends Disposable {
 		}
 	}
 
-	public addEventListener(listener: (events: ViewEvent[]) => void): IDisposable {
+	public addEventListener(
+		listener: (events: ViewEvent[]) => void
+	): IDisposable {
 		this._listeners.push(listener);
 		return {
 			dispose: () => {
@@ -341,7 +334,10 @@ export class ViewEventEmitter extends Disposable {
 	}
 }
 
-function safeInvokeListener(listener: IViewEventListener, events: ViewEvent[]): void {
+function safeInvokeListener(
+	listener: IViewEventListener,
+	events: ViewEvent[]
+): void {
 	try {
 		listener(events);
 	} catch (e) {

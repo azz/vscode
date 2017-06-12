@@ -2,15 +2,22 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { Disposable } from 'vs/base/common/lifecycle';
 import URI from 'vs/base/common/uri';
 import { IConfigurationService } from 'vs/platform/configuration/common/configuration';
 import { ContextMenuService } from 'vs/platform/contextview/browser/contextMenuService';
-import { IContextMenuService, IContextViewService } from 'vs/platform/contextview/browser/contextView';
+import {
+	IContextMenuService,
+	IContextViewService
+} from 'vs/platform/contextview/browser/contextView';
 import { ContextViewService } from 'vs/platform/contextview/browser/contextViewService';
-import { createDecorator, IInstantiationService, ServiceIdentifier } from 'vs/platform/instantiation/common/instantiation';
+import {
+	createDecorator,
+	IInstantiationService,
+	ServiceIdentifier
+} from 'vs/platform/instantiation/common/instantiation';
 import { InstantiationService } from 'vs/platform/instantiation/common/instantiationService';
 import { ServiceCollection } from 'vs/platform/instantiation/common/serviceCollection';
 import { ICommandService } from 'vs/platform/commands/common/commands';
@@ -20,9 +27,15 @@ import { MarkerService } from 'vs/platform/markers/common/markerService';
 import { IMarkerService } from 'vs/platform/markers/common/markers';
 import { IMessageService } from 'vs/platform/message/common/message';
 import { IProgressService } from 'vs/platform/progress/common/progress';
-import { IStorageService, NullStorageService } from 'vs/platform/storage/common/storage';
+import {
+	IStorageService,
+	NullStorageService
+} from 'vs/platform/storage/common/storage';
 import { ITelemetryService } from 'vs/platform/telemetry/common/telemetry';
-import { IWorkspaceContextService, WorkspaceContextService } from 'vs/platform/workspace/common/workspace';
+import {
+	IWorkspaceContextService,
+	WorkspaceContextService
+} from 'vs/platform/workspace/common/workspace';
 import { ICodeEditorService } from 'vs/editor/common/services/codeEditorService';
 import { IEditorWorkerService } from 'vs/editor/common/services/editorWorkerService';
 import { EditorWorkerServiceImpl } from 'vs/editor/common/services/editorWorkerServiceImpl';
@@ -32,8 +45,12 @@ import { IModelService } from 'vs/editor/common/services/modelService';
 import { ModelServiceImpl } from 'vs/editor/common/services/modelServiceImpl';
 import { CodeEditorServiceImpl } from 'vs/editor/browser/services/codeEditorServiceImpl';
 import {
-	SimpleConfigurationService, SimpleMenuService, SimpleMessageService,
-	SimpleProgressService, StandaloneCommandService, StandaloneKeybindingService,
+	SimpleConfigurationService,
+	SimpleMenuService,
+	SimpleMessageService,
+	SimpleProgressService,
+	StandaloneCommandService,
+	StandaloneKeybindingService,
 	StandaloneTelemetryService
 } from 'vs/editor/browser/standalone/simpleServices';
 import { ContextKeyService } from 'vs/platform/contextkey/browser/contextKeyService';
@@ -50,8 +67,7 @@ export interface IEditorOverrideServices {
 	[index: string]: any;
 }
 
-export module StaticServices {
-
+export namespace StaticServices {
 	const _serviceCollection = new ServiceCollection();
 
 	export class LazyStaticService<T> {
@@ -59,9 +75,14 @@ export module StaticServices {
 		private _factory: (overrides: IEditorOverrideServices) => T;
 		private _value: T;
 
-		public get id() { return this._serviceId; }
+		public get id() {
+			return this._serviceId;
+		}
 
-		constructor(serviceId: ServiceIdentifier<T>, factory: (overrides: IEditorOverrideServices) => T) {
+		constructor(
+			serviceId: ServiceIdentifier<T>,
+			factory: (overrides: IEditorOverrideServices) => T
+		) {
 			this._serviceId = serviceId;
 			this._factory = factory;
 			this._value = null;
@@ -86,13 +107,18 @@ export module StaticServices {
 
 	let _all: LazyStaticService<any>[] = [];
 
-	function define<T>(serviceId: ServiceIdentifier<T>, factory: (overrides: IEditorOverrideServices) => T): LazyStaticService<T> {
+	function define<T>(
+		serviceId: ServiceIdentifier<T>,
+		factory: (overrides: IEditorOverrideServices) => T
+	): LazyStaticService<T> {
 		let r = new LazyStaticService(serviceId, factory);
 		_all.push(r);
 		return r;
 	}
 
-	export function init(overrides: IEditorOverrideServices): [ServiceCollection, IInstantiationService] {
+	export function init(
+		overrides: IEditorOverrideServices
+	): [ServiceCollection, IInstantiationService] {
 		// Create a fresh service collection
 		let result = new ServiceCollection();
 
@@ -113,45 +139,91 @@ export module StaticServices {
 		return [result, instantiationService];
 	}
 
-	export const instantiationService = define<IInstantiationService>(IInstantiationService, () => new InstantiationService(_serviceCollection, true));
+	export const instantiationService = define<IInstantiationService>(
+		IInstantiationService,
+		() => new InstantiationService(_serviceCollection, true)
+	);
 
-	export const contextService = define(IWorkspaceContextService, () => new WorkspaceContextService({
-		resource: URI.from({ scheme: 'inmemory', authority: 'model', path: '/' })
-	}));
+	export const contextService = define(
+		IWorkspaceContextService,
+		() =>
+			new WorkspaceContextService({
+				resource: URI.from({
+					scheme: 'inmemory',
+					authority: 'model',
+					path: '/'
+				})
+			})
+	);
 
-	export const telemetryService = define(ITelemetryService, () => new StandaloneTelemetryService());
+	export const telemetryService = define(
+		ITelemetryService,
+		() => new StandaloneTelemetryService()
+	);
 
-	export const configurationService = define(IConfigurationService, () => new SimpleConfigurationService());
+	export const configurationService = define(
+		IConfigurationService,
+		() => new SimpleConfigurationService()
+	);
 
-	export const messageService = define(IMessageService, () => new SimpleMessageService());
+	export const messageService = define(
+		IMessageService,
+		() => new SimpleMessageService()
+	);
 
-	export const markerService = define(IMarkerService, () => new MarkerService());
+	export const markerService = define(
+		IMarkerService,
+		() => new MarkerService()
+	);
 
-	export const modeService = define(IModeService, (o) => new ModeServiceImpl());
+	export const modeService = define(IModeService, o => new ModeServiceImpl());
 
-	export const modelService = define(IModelService, (o) => new ModelServiceImpl(markerService.get(o), configurationService.get(o)));
+	export const modelService = define(
+		IModelService,
+		o => new ModelServiceImpl(markerService.get(o), configurationService.get(o))
+	);
 
-	export const editorWorkerService = define(IEditorWorkerService, (o) => new EditorWorkerServiceImpl(modelService.get(o), configurationService.get(o), modeService.get(o)));
+	export const editorWorkerService = define(
+		IEditorWorkerService,
+		o =>
+			new EditorWorkerServiceImpl(
+				modelService.get(o),
+				configurationService.get(o),
+				modeService.get(o)
+			)
+	);
 
-	export const standaloneThemeService = define(IStandaloneThemeService, () => new StandaloneThemeServiceImpl());
+	export const standaloneThemeService = define(
+		IStandaloneThemeService,
+		() => new StandaloneThemeServiceImpl()
+	);
 
-	export const codeEditorService = define(ICodeEditorService, (o) => new CodeEditorServiceImpl(standaloneThemeService.get(o)));
+	export const codeEditorService = define(
+		ICodeEditorService,
+		o => new CodeEditorServiceImpl(standaloneThemeService.get(o))
+	);
 
-	export const progressService = define(IProgressService, () => new SimpleProgressService());
+	export const progressService = define(
+		IProgressService,
+		() => new SimpleProgressService()
+	);
 
-	export const storageService = define(IStorageService, () => NullStorageService);
-
+	export const storageService = define(
+		IStorageService,
+		() => NullStorageService
+	);
 }
 
 export class DynamicStandaloneServices extends Disposable {
-
 	private _serviceCollection: ServiceCollection;
 	private _instantiationService: IInstantiationService;
 
 	constructor(domElement: HTMLElement, overrides: IEditorOverrideServices) {
 		super();
 
-		const [_serviceCollection, _instantiationService] = StaticServices.init(overrides);
+		const [_serviceCollection, _instantiationService] = StaticServices.init(
+			overrides
+		);
 		this._serviceCollection = _serviceCollection;
 		this._instantiationService = _instantiationService;
 
@@ -171,15 +243,42 @@ export class DynamicStandaloneServices extends Disposable {
 			return value;
 		};
 
-		let contextKeyService = ensure(IContextKeyService, () => this._register(new ContextKeyService(configurationService)));
+		let contextKeyService = ensure(IContextKeyService, () =>
+			this._register(new ContextKeyService(configurationService))
+		);
 
-		let commandService = ensure(ICommandService, () => new StandaloneCommandService(this._instantiationService));
+		let commandService = ensure(
+			ICommandService,
+			() => new StandaloneCommandService(this._instantiationService)
+		);
 
-		ensure(IKeybindingService, () => this._register(new StandaloneKeybindingService(contextKeyService, commandService, messageService, domElement)));
+		ensure(IKeybindingService, () =>
+			this._register(
+				new StandaloneKeybindingService(
+					contextKeyService,
+					commandService,
+					messageService,
+					domElement
+				)
+			)
+		);
 
-		let contextViewService = ensure(IContextViewService, () => this._register(new ContextViewService(domElement, telemetryService, messageService)));
+		let contextViewService = ensure(IContextViewService, () =>
+			this._register(
+				new ContextViewService(domElement, telemetryService, messageService)
+			)
+		);
 
-		ensure(IContextMenuService, () => this._register(new ContextMenuService(domElement, telemetryService, messageService, contextViewService)));
+		ensure(IContextMenuService, () =>
+			this._register(
+				new ContextMenuService(
+					domElement,
+					telemetryService,
+					messageService,
+					contextViewService
+				)
+			)
+		);
 
 		ensure(IMenuService, () => new SimpleMenuService(commandService));
 	}

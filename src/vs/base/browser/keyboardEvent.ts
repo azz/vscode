@@ -3,14 +3,19 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
-import { KeyCode, KeyCodeUtils, KeyMod, SimpleKeybinding } from 'vs/base/common/keyCodes';
+import {
+	KeyCode,
+	KeyCodeUtils,
+	KeyMod,
+	SimpleKeybinding
+} from 'vs/base/common/keyCodes';
 import * as platform from 'vs/base/common/platform';
 import * as browser from 'vs/base/browser/browser';
 
 let KEY_CODE_MAP: { [keyCode: number]: KeyCode } = {};
-(function () {
+(function() {
 	KEY_CODE_MAP[3] = KeyCode.PauseBreak; // VK_CANCEL 0x03 Control-break processing
 	KEY_CODE_MAP[8] = KeyCode.Backspace;
 	KEY_CODE_MAP[9] = KeyCode.Tab;
@@ -163,7 +168,7 @@ function extractKeyCode(e: KeyboardEvent): KeyCode {
 		return KeyCodeUtils.fromString(char);
 	}
 	return KEY_CODE_MAP[e.keyCode] || KeyCode.Unknown;
-};
+}
 
 export interface IKeyboardEvent {
 	readonly browserEvent: KeyboardEvent;
@@ -186,13 +191,12 @@ export interface IKeyboardEvent {
 	stopPropagation(): void;
 }
 
-const ctrlKeyMod = (platform.isMacintosh ? KeyMod.WinCtrl : KeyMod.CtrlCmd);
+const ctrlKeyMod = platform.isMacintosh ? KeyMod.WinCtrl : KeyMod.CtrlCmd;
 const altKeyMod = KeyMod.Alt;
 const shiftKeyMod = KeyMod.Shift;
-const metaKeyMod = (platform.isMacintosh ? KeyMod.CtrlCmd : KeyMod.WinCtrl);
+const metaKeyMod = platform.isMacintosh ? KeyMod.CtrlCmd : KeyMod.WinCtrl;
 
 export class StandardKeyboardEvent implements IKeyboardEvent {
-
 	public readonly browserEvent: KeyboardEvent;
 	public readonly target: HTMLElement;
 
@@ -254,7 +258,12 @@ export class StandardKeyboardEvent implements IKeyboardEvent {
 
 	private _computeKeybinding(): number {
 		let key = KeyCode.Unknown;
-		if (this.keyCode !== KeyCode.Ctrl && this.keyCode !== KeyCode.Shift && this.keyCode !== KeyCode.Alt && this.keyCode !== KeyCode.Meta) {
+		if (
+			this.keyCode !== KeyCode.Ctrl &&
+			this.keyCode !== KeyCode.Shift &&
+			this.keyCode !== KeyCode.Alt &&
+			this.keyCode !== KeyCode.Meta
+		) {
 			key = this.keyCode;
 		}
 
@@ -278,9 +287,20 @@ export class StandardKeyboardEvent implements IKeyboardEvent {
 
 	private _computeRuntimeKeybinding(): SimpleKeybinding {
 		let key = KeyCode.Unknown;
-		if (this.keyCode !== KeyCode.Ctrl && this.keyCode !== KeyCode.Shift && this.keyCode !== KeyCode.Alt && this.keyCode !== KeyCode.Meta) {
+		if (
+			this.keyCode !== KeyCode.Ctrl &&
+			this.keyCode !== KeyCode.Shift &&
+			this.keyCode !== KeyCode.Alt &&
+			this.keyCode !== KeyCode.Meta
+		) {
 			key = this.keyCode;
 		}
-		return new SimpleKeybinding(this.ctrlKey, this.shiftKey, this.altKey, this.metaKey, key);
+		return new SimpleKeybinding(
+			this.ctrlKey,
+			this.shiftKey,
+			this.altKey,
+			this.metaKey,
+			key
+		);
 	}
 }

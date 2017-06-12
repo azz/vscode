@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import { IManyHandler } from 'vs/platform/extensions/common/ipcRemoteCom';
@@ -11,10 +11,9 @@ import { ProxyIdentifier } from 'vs/workbench/services/thread/common/threadServi
 // declare var Proxy:any; // TODO@TypeScript
 
 export abstract class AbstractThreadService implements IManyHandler {
-
 	private _isMain: boolean;
-	protected _locals: { [id: string]: any; };
-	private _proxies: { [id: string]: any; } = Object.create(null);
+	protected _locals: { [id: string]: any };
+	private _proxies: { [id: string]: any } = Object.create(null);
 
 	constructor(isMain: boolean) {
 		this._isMain = isMain;
@@ -36,7 +35,10 @@ export abstract class AbstractThreadService implements IManyHandler {
 
 	get<T>(identifier: ProxyIdentifier<T>): T {
 		if (!this._proxies[identifier.id]) {
-			this._proxies[identifier.id] = this._createProxy(identifier.id, identifier.methodNames);
+			this._proxies[identifier.id] = this._createProxy(
+				identifier.id,
+				identifier.methodNames
+			);
 		}
 		return this._proxies[identifier.id];
 	}
@@ -60,7 +62,10 @@ export abstract class AbstractThreadService implements IManyHandler {
 		// return new Proxy({}, handler);
 	}
 
-	private createMethodProxy(id: string, methodName: string): (...myArgs: any[]) => TPromise<any> {
+	private createMethodProxy(
+		id: string,
+		methodName: string
+	): (...myArgs: any[]) => TPromise<any> {
 		return (...myArgs: any[]) => {
 			return this._callOnRemote(id, methodName, myArgs);
 		};
@@ -73,5 +78,9 @@ export abstract class AbstractThreadService implements IManyHandler {
 		this._locals[identifier.id] = value;
 	}
 
-	protected abstract _callOnRemote(proxyId: string, path: string, args: any[]): TPromise<any>;
+	protected abstract _callOnRemote(
+		proxyId: string,
+		path: string,
+		args: any[]
+	): TPromise<any>;
 }

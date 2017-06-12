@@ -3,12 +3,15 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import Event, { Emitter } from 'vs/base/common/event';
 import { IDisposable } from 'vs/base/common/lifecycle';
 import { IReadOnlyModel } from 'vs/editor/common/editorCommon';
-import { LanguageSelector, score } from 'vs/editor/common/modes/languageSelector';
+import {
+	LanguageSelector,
+	score
+} from 'vs/editor/common/modes/languageSelector';
 
 interface Entry<T> {
 	selector: LanguageSelector;
@@ -18,20 +21,17 @@ interface Entry<T> {
 }
 
 export default class LanguageFeatureRegistry<T> {
-
 	private _clock: number = 0;
 	private _entries: Entry<T>[] = [];
 	private _onDidChange: Emitter<number> = new Emitter<number>();
 
-	constructor() {
-	}
+	constructor() {}
 
 	get onDidChange(): Event<number> {
 		return this._onDidChange.event;
 	}
 
 	register(selector: LanguageSelector, provider: T): IDisposable {
-
 		let entry: Entry<T> = {
 			selector,
 			provider,
@@ -104,8 +104,10 @@ export default class LanguageFeatureRegistry<T> {
 		return result;
 	}
 
-	private _orderedForEach(model: IReadOnlyModel, callback: (provider: Entry<T>) => any): void {
-
+	private _orderedForEach(
+		model: IReadOnlyModel,
+		callback: (provider: Entry<T>) => any
+	): void {
 		if (!model || model.isTooLargeForHavingARichMode()) {
 			return;
 		}
@@ -120,19 +122,19 @@ export default class LanguageFeatureRegistry<T> {
 		}
 	}
 
-	private _lastCandidate: { uri: string; language: string; };
+	private _lastCandidate: { uri: string; language: string };
 
 	private _updateScores(model: IReadOnlyModel): void {
-
 		let candidate = {
 			uri: model.uri.toString(),
 			language: model.getLanguageIdentifier().language
 		};
 
-		if (this._lastCandidate
-			&& this._lastCandidate.language === candidate.language
-			&& this._lastCandidate.uri === candidate.uri) {
-
+		if (
+			this._lastCandidate &&
+			this._lastCandidate.language === candidate.language &&
+			this._lastCandidate.uri === candidate.uri
+		) {
 			// nothing has changed
 			return;
 		}
@@ -140,7 +142,11 @@ export default class LanguageFeatureRegistry<T> {
 		this._lastCandidate = candidate;
 
 		for (let entry of this._entries) {
-			entry._score = score(entry.selector, model.uri, model.getLanguageIdentifier().language);
+			entry._score = score(
+				entry.selector,
+				model.uri,
+				model.getLanguageIdentifier().language
+			);
 		}
 
 		// needs sorting

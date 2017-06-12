@@ -9,21 +9,26 @@ import * as path from 'path';
 import * as crypto from 'crypto';
 import * as platform from 'vs/base/common/platform';
 import * as extfs from 'vs/base/node/extfs';
-import { IBackupWorkspacesFormat, IBackupMainService } from 'vs/platform/backup/common/backup';
+import {
+	IBackupWorkspacesFormat,
+	IBackupMainService
+} from 'vs/platform/backup/common/backup';
 import { IEnvironmentService } from 'vs/platform/environment/common/environment';
 import { IConfigurationService } from 'vs/platform/configuration/common/configuration';
-import { IFilesConfiguration, HotExitConfiguration } from 'vs/platform/files/common/files';
+import {
+	IFilesConfiguration,
+	HotExitConfiguration
+} from 'vs/platform/files/common/files';
 import { TPromise } from 'vs/base/common/winjs.base';
 
 export class BackupMainService implements IBackupMainService {
-
 	public _serviceBrand: any;
 
 	protected backupHome: string;
 	protected workspacesJsonPath: string;
 
 	private backups: IBackupWorkspacesFormat;
-	private mapWindowToBackupFolder: { [windowId: number]: string; };
+	private mapWindowToBackupFolder: { [windowId: number]: string };
 
 	constructor(
 		@IEnvironmentService environmentService: IEnvironmentService,
@@ -37,8 +42,14 @@ export class BackupMainService implements IBackupMainService {
 	}
 
 	public getWorkspaceBackupPaths(): string[] {
-		const config = this.configurationService.getConfiguration<IFilesConfiguration>();
-		if (config && config.files && config.files.hotExit === HotExitConfiguration.ON_EXIT_AND_WINDOW_CLOSE) {
+		const config = this.configurationService.getConfiguration<
+			IFilesConfiguration
+		>();
+		if (
+			config &&
+			config.files &&
+			config.files.hotExit === HotExitConfiguration.ON_EXIT_AND_WINDOW_CLOSE
+		) {
 			// Only non-folder windows are restored on main process launch when
 			// hot exit is configured as onExitAndWindowClose.
 			return [];
@@ -55,21 +66,38 @@ export class BackupMainService implements IBackupMainService {
 			throw new Error(`Unknown backup workspace for window ${windowId}`);
 		}
 
-		return TPromise.as(path.join(this.backupHome, this.mapWindowToBackupFolder[windowId]));
+		return TPromise.as(
+			path.join(this.backupHome, this.mapWindowToBackupFolder[windowId])
+		);
 	}
 
-	public registerWindowForBackupsSync(windowId: number, isEmptyWorkspace: boolean, backupFolder?: string, workspacePath?: string): void {
+	public registerWindowForBackupsSync(
+		windowId: number,
+		isEmptyWorkspace: boolean,
+		backupFolder?: string,
+		workspacePath?: string
+	): void {
 		// Generate a new folder if this is a new empty workspace
 		if (isEmptyWorkspace && !backupFolder) {
 			backupFolder = this.getRandomEmptyWorkspaceId();
 		}
 
-		this.mapWindowToBackupFolder[windowId] = isEmptyWorkspace ? backupFolder : this.getWorkspaceHash(workspacePath);
-		this.pushBackupPathsSync(isEmptyWorkspace ? backupFolder : workspacePath, isEmptyWorkspace);
+		this.mapWindowToBackupFolder[windowId] = isEmptyWorkspace
+			? backupFolder
+			: this.getWorkspaceHash(workspacePath);
+		this.pushBackupPathsSync(
+			isEmptyWorkspace ? backupFolder : workspacePath,
+			isEmptyWorkspace
+		);
 	}
 
-	private pushBackupPathsSync(workspaceIdentifier: string, isEmptyWorkspace: boolean): string {
-		const array = isEmptyWorkspace ? this.backups.emptyWorkspaces : this.backups.folderWorkspaces;
+	private pushBackupPathsSync(
+		workspaceIdentifier: string,
+		isEmptyWorkspace: boolean
+	): string {
+		const array = isEmptyWorkspace
+			? this.backups.emptyWorkspaces
+			: this.backups.folderWorkspaces;
 		if (this.indexOf(workspaceIdentifier, isEmptyWorkspace) === -1) {
 			array.push(workspaceIdentifier);
 			this.saveSync();
@@ -78,8 +106,13 @@ export class BackupMainService implements IBackupMainService {
 		return workspaceIdentifier;
 	}
 
-	protected removeBackupPathSync(workspaceIdentifier: string, isEmptyWorkspace: boolean): void {
-		const array = isEmptyWorkspace ? this.backups.emptyWorkspaces : this.backups.folderWorkspaces;
+	protected removeBackupPathSync(
+		workspaceIdentifier: string,
+		isEmptyWorkspace: boolean
+	): void {
+		const array = isEmptyWorkspace
+			? this.backups.emptyWorkspaces
+			: this.backups.folderWorkspaces;
 		if (!array) {
 			return;
 		}
@@ -91,8 +124,13 @@ export class BackupMainService implements IBackupMainService {
 		this.saveSync();
 	}
 
-	private indexOf(workspaceIdentifier: string, isEmptyWorkspace: boolean): number {
-		const array = isEmptyWorkspace ? this.backups.emptyWorkspaces : this.backups.folderWorkspaces;
+	private indexOf(
+		workspaceIdentifier: string,
+		isEmptyWorkspace: boolean
+	): number {
+		const array = isEmptyWorkspace
+			? this.backups.emptyWorkspaces
+			: this.backups.folderWorkspaces;
 		if (!array) {
 			return -1;
 		}
@@ -103,13 +141,18 @@ export class BackupMainService implements IBackupMainService {
 
 		// for backup workspaces, sanitize the workspace identifier to accomodate for case insensitive file systems
 		const sanitizedWorkspaceIdentifier = this.sanitizePath(workspaceIdentifier);
-		return arrays.firstIndex(array, id => this.sanitizePath(id) === sanitizedWorkspaceIdentifier);
+		return arrays.firstIndex(
+			array,
+			id => this.sanitizePath(id) === sanitizedWorkspaceIdentifier
+		);
 	}
 
 	protected loadSync(): void {
 		let backups: IBackupWorkspacesFormat;
 		try {
-			backups = JSON.parse(fs.readFileSync(this.workspacesJsonPath, 'utf8').toString()); // invalid JSON or permission issue can happen here
+			backups = JSON.parse(
+				fs.readFileSync(this.workspacesJsonPath, 'utf8').toString()
+			); // invalid JSON or permission issue can happen here
 		} catch (error) {
 			backups = Object.create(null);
 		}
@@ -140,35 +183,58 @@ export class BackupMainService implements IBackupMainService {
 		this.validateBackupWorkspaces(backups);
 	}
 
-	protected dedupeFolderWorkspaces(backups: IBackupWorkspacesFormat): IBackupWorkspacesFormat {
+	protected dedupeFolderWorkspaces(
+		backups: IBackupWorkspacesFormat
+	): IBackupWorkspacesFormat {
 		// De-duplicate folder workspaces, don't worry about cleaning them up any duplicates as
 		// they will be removed when there are no backups.
-		backups.folderWorkspaces = arrays.distinct(backups.folderWorkspaces, ws => this.sanitizePath(ws));
+		backups.folderWorkspaces = arrays.distinct(backups.folderWorkspaces, ws =>
+			this.sanitizePath(ws)
+		);
 
 		return backups;
 	}
 
 	private validateBackupWorkspaces(backups: IBackupWorkspacesFormat): void {
-		const staleBackupWorkspaces: { workspaceIdentifier: string; backupPath: string; isEmptyWorkspace: boolean }[] = [];
+		const staleBackupWorkspaces: {
+			workspaceIdentifier: string;
+			backupPath: string;
+			isEmptyWorkspace: boolean;
+		}[] = [];
 
 		// Validate Folder Workspaces
 		backups.folderWorkspaces.forEach(workspacePath => {
-			const backupPath = path.join(this.backupHome, this.getWorkspaceHash(workspacePath));
+			const backupPath = path.join(
+				this.backupHome,
+				this.getWorkspaceHash(workspacePath)
+			);
 			const hasBackups = this.hasBackupsSync(backupPath);
 			const missingWorkspace = hasBackups && !fs.existsSync(workspacePath);
 
 			// If the folder has no backups, make sure to delete it
 			// If the folder has backups, but the target workspace is missing, convert backups to empty ones
 			if (!hasBackups || missingWorkspace) {
-				staleBackupWorkspaces.push({ workspaceIdentifier: workspacePath, backupPath, isEmptyWorkspace: false });
+				staleBackupWorkspaces.push({
+					workspaceIdentifier: workspacePath,
+					backupPath,
+					isEmptyWorkspace: false
+				});
 
 				if (missingWorkspace) {
-					const identifier = this.pushBackupPathsSync(this.getRandomEmptyWorkspaceId(), true /* is empty workspace */);
-					const newEmptyWorkspaceBackupPath = path.join(path.dirname(backupPath), identifier);
+					const identifier = this.pushBackupPathsSync(
+						this.getRandomEmptyWorkspaceId(),
+						true /* is empty workspace */
+					);
+					const newEmptyWorkspaceBackupPath = path.join(
+						path.dirname(backupPath),
+						identifier
+					);
 					try {
 						fs.renameSync(backupPath, newEmptyWorkspaceBackupPath);
 					} catch (ex) {
-						console.error(`Backup: Could not rename backup folder for missing workspace: ${ex.toString()}`);
+						console.error(
+							`Backup: Could not rename backup folder for missing workspace: ${ex.toString()}`
+						);
 
 						this.removeBackupPathSync(identifier, true);
 					}
@@ -180,18 +246,28 @@ export class BackupMainService implements IBackupMainService {
 		backups.emptyWorkspaces.forEach(backupFolder => {
 			const backupPath = path.join(this.backupHome, backupFolder);
 			if (!this.hasBackupsSync(backupPath)) {
-				staleBackupWorkspaces.push({ workspaceIdentifier: backupFolder, backupPath, isEmptyWorkspace: true });
+				staleBackupWorkspaces.push({
+					workspaceIdentifier: backupFolder,
+					backupPath,
+					isEmptyWorkspace: true
+				});
 			}
 		});
 
 		// Clean up stale backups
 		staleBackupWorkspaces.forEach(staleBackupWorkspace => {
-			const { backupPath, workspaceIdentifier, isEmptyWorkspace } = staleBackupWorkspace;
+			const {
+				backupPath,
+				workspaceIdentifier,
+				isEmptyWorkspace
+			} = staleBackupWorkspace;
 
 			try {
 				extfs.delSync(backupPath);
 			} catch (ex) {
-				console.error(`Backup: Could not delete stale backup: ${ex.toString()}`);
+				console.error(
+					`Backup: Could not delete stale backup: ${ex.toString()}`
+				);
 			}
 
 			this.removeBackupPathSync(workspaceIdentifier, isEmptyWorkspace);
@@ -207,7 +283,9 @@ export class BackupMainService implements IBackupMainService {
 
 			return backupSchemas.some(backupSchema => {
 				try {
-					return extfs.readdirSync(path.join(backupPath, backupSchema)).length > 0;
+					return (
+						extfs.readdirSync(path.join(backupPath, backupSchema)).length > 0
+					);
 				} catch (error) {
 					return false; // invalid folder
 				}
@@ -238,6 +316,9 @@ export class BackupMainService implements IBackupMainService {
 	}
 
 	protected getWorkspaceHash(workspacePath: string): string {
-		return crypto.createHash('md5').update(this.sanitizePath(workspacePath)).digest('hex');
+		return crypto
+			.createHash('md5')
+			.update(this.sanitizePath(workspacePath))
+			.digest('hex');
 	}
 }

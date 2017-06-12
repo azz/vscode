@@ -4,14 +4,19 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { TPromise } from 'vs/base/common/winjs.base';
-import { Match, FileMatch, FileMatchOrMatch } from 'vs/workbench/parts/search/common/searchModel';
+import {
+	Match,
+	FileMatch,
+	FileMatchOrMatch
+} from 'vs/workbench/parts/search/common/searchModel';
 import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
 import { IProgressRunner } from 'vs/platform/progress/common/progress';
 
-export const IReplaceService = createDecorator<IReplaceService>('replaceService');
+export const IReplaceService = createDecorator<IReplaceService>(
+	'replaceService'
+);
 
 export interface IReplaceService {
-
 	_serviceBrand: any;
 
 	/**
@@ -28,7 +33,12 @@ export interface IReplaceService {
 	/**
 	 * Opens the replace preview for given file match or match
 	 */
-	openReplacePreview(element: FileMatchOrMatch, preserveFocus?: boolean, sideBySide?: boolean, pinned?: boolean): TPromise<any>;
+	openReplacePreview(
+		element: FileMatchOrMatch,
+		preserveFocus?: boolean,
+		sideBySide?: boolean,
+		pinned?: boolean
+	): TPromise<any>;
 
 	/**
 	 * Update the replace preview for the given file.

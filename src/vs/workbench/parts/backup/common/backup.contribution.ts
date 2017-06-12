@@ -3,19 +3,22 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { Registry } from 'vs/platform/platform';
-import { IWorkbenchContributionsRegistry, Extensions as WorkbenchExtensions } from 'vs/workbench/common/contributions';
+import {
+	IWorkbenchContributionsRegistry,
+	Extensions as WorkbenchExtensions
+} from 'vs/workbench/common/contributions';
 import { BackupModelTracker } from 'vs/workbench/parts/backup/common/backupModelTracker';
 import { BackupRestorer } from 'vs/workbench/parts/backup/common/backupRestorer';
 
 // Register Backup Model Tracker
-Registry.as<IWorkbenchContributionsRegistry>(WorkbenchExtensions.Workbench).registerWorkbenchContribution(
-	BackupModelTracker
-);
+Registry.as<IWorkbenchContributionsRegistry>(
+	WorkbenchExtensions.Workbench
+).registerWorkbenchContribution(BackupModelTracker);
 
 // Register Backup Restorer
-Registry.as<IWorkbenchContributionsRegistry>(WorkbenchExtensions.Workbench).registerWorkbenchContribution(
-	BackupRestorer
-);
+Registry.as<IWorkbenchContributionsRegistry>(
+	WorkbenchExtensions.Workbench
+).registerWorkbenchContribution(BackupRestorer);

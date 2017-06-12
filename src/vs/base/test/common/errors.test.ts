@@ -2,13 +2,13 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { toErrorMessage } from 'vs/base/common/errorMessage';
 
 suite('Errors', () => {
-	test('Get Error Message', function () {
+	test('Get Error Message', function() {
 		assert.strictEqual(toErrorMessage('Foo Bar'), 'Foo Bar');
 		assert.strictEqual(toErrorMessage(new Error('Foo Bar')), 'Foo Bar');
 

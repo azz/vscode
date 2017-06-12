@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./media/shell';
 
@@ -20,20 +20,49 @@ import product from 'vs/platform/node/product';
 import { SyncDescriptor } from 'vs/platform/instantiation/common/descriptors';
 import pkg from 'vs/platform/node/package';
 import { ContextViewService } from 'vs/platform/contextview/browser/contextViewService';
-import { Workbench, IWorkbenchStartedInfo } from 'vs/workbench/electron-browser/workbench';
-import { StorageService, inMemoryLocalStorageInstance } from 'vs/platform/storage/common/storageService';
+import {
+	Workbench,
+	IWorkbenchStartedInfo
+} from 'vs/workbench/electron-browser/workbench';
+import {
+	StorageService,
+	inMemoryLocalStorageInstance
+} from 'vs/platform/storage/common/storageService';
 import { ITelemetryService } from 'vs/platform/telemetry/common/telemetry';
-import { NullTelemetryService, configurationTelemetry, loadExperiments, lifecycleTelemetry } from 'vs/platform/telemetry/common/telemetryUtils';
-import { ITelemetryAppenderChannel, TelemetryAppenderClient } from 'vs/platform/telemetry/common/telemetryIpc';
-import { TelemetryService, ITelemetryServiceConfig } from 'vs/platform/telemetry/common/telemetryService';
-import { IdleMonitor, UserStatus } from 'vs/platform/telemetry/browser/idleMonitor';
+import {
+	NullTelemetryService,
+	configurationTelemetry,
+	loadExperiments,
+	lifecycleTelemetry
+} from 'vs/platform/telemetry/common/telemetryUtils';
+import {
+	ITelemetryAppenderChannel,
+	TelemetryAppenderClient
+} from 'vs/platform/telemetry/common/telemetryIpc';
+import {
+	TelemetryService,
+	ITelemetryServiceConfig
+} from 'vs/platform/telemetry/common/telemetryService';
+import {
+	IdleMonitor,
+	UserStatus
+} from 'vs/platform/telemetry/browser/idleMonitor';
 import ErrorTelemetry from 'vs/platform/telemetry/browser/errorTelemetry';
 import { ElectronWindow } from 'vs/workbench/electron-browser/window';
-import { resolveWorkbenchCommonProperties, getOrCreateMachineId } from 'vs/platform/telemetry/node/workbenchCommonProperties';
+import {
+	resolveWorkbenchCommonProperties,
+	getOrCreateMachineId
+} from 'vs/platform/telemetry/node/workbenchCommonProperties';
 import { machineIdIpcChannel } from 'vs/platform/telemetry/node/commonProperties';
 import { WorkspaceStats } from 'vs/workbench/services/telemetry/common/workspaceStats';
-import { IWindowIPCService, WindowIPCService } from 'vs/workbench/services/window/electron-browser/windowService';
-import { IWindowsService, IWindowService } from 'vs/platform/windows/common/windows';
+import {
+	IWindowIPCService,
+	WindowIPCService
+} from 'vs/workbench/services/window/electron-browser/windowService';
+import {
+	IWindowsService,
+	IWindowService
+} from 'vs/platform/windows/common/windows';
 import { WindowsChannelClient } from 'vs/platform/windows/common/windowsIpc';
 import { WindowService } from 'vs/platform/windows/electron-browser/windowService';
 import { MessageService } from 'vs/workbench/services/message/electron-browser/messageService';
@@ -59,10 +88,17 @@ import { IInstantiationService } from 'vs/platform/instantiation/common/instanti
 import { ServiceCollection } from 'vs/platform/instantiation/common/serviceCollection';
 import { InstantiationService } from 'vs/platform/instantiation/common/instantiationService';
 import { IContextViewService } from 'vs/platform/contextview/browser/contextView';
-import { ILifecycleService, LifecyclePhase } from 'vs/platform/lifecycle/common/lifecycle';
+import {
+	ILifecycleService,
+	LifecyclePhase
+} from 'vs/platform/lifecycle/common/lifecycle';
 import { IMarkerService } from 'vs/platform/markers/common/markers';
 import { IEnvironmentService } from 'vs/platform/environment/common/environment';
-import { IMessageService, IChoiceService, Severity } from 'vs/platform/message/common/message';
+import {
+	IMessageService,
+	IChoiceService,
+	Severity
+} from 'vs/platform/message/common/message';
 import { ChoiceChannel } from 'vs/platform/message/common/messageIpc';
 import { ISearchService } from 'vs/platform/search/common/search';
 import { IThreadService } from 'vs/workbench/services/thread/common/threadService';
@@ -72,15 +108,27 @@ import { IWorkspaceContextService } from 'vs/platform/workspace/common/workspace
 import { IExtensionService } from 'vs/platform/extensions/common/extensions';
 import { WorkbenchModeServiceImpl } from 'vs/workbench/services/mode/common/workbenchModeService';
 import { IModeService } from 'vs/editor/common/services/modeService';
-import { IUntitledEditorService, UntitledEditorService } from 'vs/workbench/services/untitled/common/untitledEditorService';
-import { ICrashReporterService, NullCrashReporterService } from 'vs/workbench/services/crashReporter/common/crashReporterService';
+import {
+	IUntitledEditorService,
+	UntitledEditorService
+} from 'vs/workbench/services/untitled/common/untitledEditorService';
+import {
+	ICrashReporterService,
+	NullCrashReporterService
+} from 'vs/workbench/services/crashReporter/common/crashReporterService';
 import { CrashReporterService } from 'vs/workbench/services/crashReporter/electron-browser/crashReporterService';
 import { NodeCachedDataManager } from 'vs/workbench/electron-browser/nodeCachedDataManager';
 import { getDelayedChannel } from 'vs/base/parts/ipc/common/ipc';
 import { connect as connectNet } from 'vs/base/parts/ipc/node/ipc.net';
 import { Client as ElectronIPCClient } from 'vs/base/parts/ipc/electron-browser/ipc.electron-browser';
-import { IExtensionManagementChannel, ExtensionManagementChannelClient } from 'vs/platform/extensionManagement/common/extensionManagementIpc';
-import { IExtensionManagementService, IExtensionEnablementService } from 'vs/platform/extensionManagement/common/extensionManagement';
+import {
+	IExtensionManagementChannel,
+	ExtensionManagementChannelClient
+} from 'vs/platform/extensionManagement/common/extensionManagementIpc';
+import {
+	IExtensionManagementService,
+	IExtensionEnablementService
+} from 'vs/platform/extensionManagement/common/extensionManagement';
 import { ExtensionEnablementService } from 'vs/platform/extensionManagement/common/extensionEnablementService';
 import { UpdateChannelClient } from 'vs/platform/update/common/updateIpc';
 import { IUpdateService } from 'vs/platform/update/common/update';
@@ -94,13 +142,31 @@ import { remote, ipcRenderer as ipc } from 'electron';
 import { ITextMateService } from 'vs/editor/node/textMate/textMateService';
 import { MainProcessTextMateSyntax } from 'vs/editor/electron-browser/textMate/TMSyntax';
 import { BareFontInfo } from 'vs/editor/common/config/fontInfo';
-import { restoreFontInfo, readFontInfo, saveFontInfo } from 'vs/editor/browser/config/configuration';
+import {
+	restoreFontInfo,
+	readFontInfo,
+	saveFontInfo
+} from 'vs/editor/browser/config/configuration';
 import * as browser from 'vs/base/browser/browser';
 import 'vs/platform/opener/browser/opener.contribution';
 import { IWorkbenchThemeService } from 'vs/workbench/services/themes/common/workbenchThemeService';
 import { WorkbenchThemeService } from 'vs/workbench/services/themes/electron-browser/workbenchThemeService';
-import { registerThemingParticipant, ITheme, ICssStyleCollector } from 'vs/platform/theme/common/themeService';
-import { foreground, selectionBackground, focusBorder, scrollbarShadow, scrollbarSliderActiveBackground, scrollbarSliderBackground, scrollbarSliderHoverBackground, listHighlightForeground, inputPlaceholderForeground } from 'vs/platform/theme/common/colorRegistry';
+import {
+	registerThemingParticipant,
+	ITheme,
+	ICssStyleCollector
+} from 'vs/platform/theme/common/themeService';
+import {
+	foreground,
+	selectionBackground,
+	focusBorder,
+	scrollbarShadow,
+	scrollbarSliderActiveBackground,
+	scrollbarSliderBackground,
+	scrollbarSliderHoverBackground,
+	listHighlightForeground,
+	inputPlaceholderForeground
+} from 'vs/platform/theme/common/colorRegistry';
 
 /**
  * Services that we require for the Shell
@@ -144,7 +210,11 @@ export class WorkbenchShell {
 	private options: IOptions;
 	private workbench: Workbench;
 
-	constructor(container: HTMLElement, services: ICoreServices, options: IOptions) {
+	constructor(
+		container: HTMLElement,
+		services: ICoreServices,
+		options: IOptions
+	) {
 		this.container = container;
 
 		this.options = options;
@@ -159,7 +229,6 @@ export class WorkbenchShell {
 	}
 
 	private createContents(parent: Builder): Builder {
-
 		// ARIA
 		aria.setARIAContainer(document.body);
 
@@ -167,13 +236,21 @@ export class WorkbenchShell {
 		const workbenchContainer = $(parent).div();
 
 		// Instantiation service with services
-		const [instantiationService, serviceCollection] = this.initServiceCollection(parent.getHTMLElement());
+		const [
+			instantiationService,
+			serviceCollection
+		] = this.initServiceCollection(parent.getHTMLElement());
 
 		// Workbench
-		this.workbench = instantiationService.createInstance(Workbench, parent.getHTMLElement(), workbenchContainer.getHTMLElement(), this.options, serviceCollection);
+		this.workbench = instantiationService.createInstance(
+			Workbench,
+			parent.getHTMLElement(),
+			workbenchContainer.getHTMLElement(),
+			this.options,
+			serviceCollection
+		);
 		this.workbench.startup({
 			onWorkbenchStarted: (info: IWorkbenchStartedInfo) => {
-
 				// run workbench started logic
 				this.onWorkbenchStarted(info);
 
@@ -187,12 +264,16 @@ export class WorkbenchShell {
 		});
 
 		// Window
-		const activeWindow = this.workbench.getInstantiationService().createInstance(ElectronWindow, currentWindow, this.container);
+		const activeWindow = this.workbench
+			.getInstantiationService()
+			.createInstance(ElectronWindow, currentWindow, this.container);
 		this.windowIPCService.registerWindow(activeWindow);
 
 		// Handle case where workbench is not starting up properly
 		const timeoutHandle = setTimeout(() => {
-			console.warn('Workbench did not finish loading in 10 seconds, that might be a problem that should be reported.');
+			console.warn(
+				'Workbench did not finish loading in 10 seconds, that might be a problem that should be reported.'
+			);
 		}, 10000);
 
 		this.workbench.joinCreation().then(() => {
@@ -203,16 +284,21 @@ export class WorkbenchShell {
 	}
 
 	private onWorkbenchStarted(info: IWorkbenchStartedInfo): void {
-
 		// Telemetry: workspace info
 		const { filesToOpen, filesToCreate, filesToDiff } = this.options;
 		this.telemetryService.publicLog('workspaceLoad', {
 			userAgent: navigator.userAgent,
-			windowSize: { innerHeight: window.innerHeight, innerWidth: window.innerWidth, outerHeight: window.outerHeight, outerWidth: window.outerWidth },
+			windowSize: {
+				innerHeight: window.innerHeight,
+				innerWidth: window.innerWidth,
+				outerHeight: window.outerHeight,
+				outerWidth: window.outerWidth
+			},
 			emptyWorkbench: !this.contextService.hasWorkspace(),
-			'workbench.filesToOpen': filesToOpen && filesToOpen.length || undefined,
-			'workbench.filesToCreate': filesToCreate && filesToCreate.length || undefined,
-			'workbench.filesToDiff': filesToDiff && filesToDiff.length || undefined,
+			'workbench.filesToOpen': (filesToOpen && filesToOpen.length) || undefined,
+			'workbench.filesToCreate':
+				(filesToCreate && filesToCreate.length) || undefined,
+			'workbench.filesToDiff': (filesToDiff && filesToDiff.length) || undefined,
 			customKeybindingsCount: info.customKeybindingsCount,
 			theme: this.themeService.getColorTheme().id,
 			language: platform.language,
@@ -228,20 +314,33 @@ export class WorkbenchShell {
 		this.timerService.restoreEditorsDuration = info.restoreEditorsDuration;
 		this.timerService.restoreViewletDuration = info.restoreViewletDuration;
 		this.extensionService.onReady().done(() => {
-			this.telemetryService.publicLog('startupTime', this.timerService.startupMetrics);
+			this.telemetryService.publicLog(
+				'startupTime',
+				this.timerService.startupMetrics
+			);
 		});
 
 		// Telemetry: workspace tags
-		const workspaceStats: WorkspaceStats = <WorkspaceStats>this.workbench.getInstantiationService().createInstance(WorkspaceStats);
+		const workspaceStats: WorkspaceStats = <WorkspaceStats>this.workbench
+			.getInstantiationService()
+			.createInstance(WorkspaceStats);
 		workspaceStats.reportWorkspaceTags(this.options);
 		workspaceStats.reportCloudStats();
 
 		if ((platform.isLinux || platform.isMacintosh) && process.getuid() === 0) {
-			this.messageService.show(Severity.Warning, nls.localize('runningAsRoot', "It is recommended not to run Code as 'root'."));
+			this.messageService.show(
+				Severity.Warning,
+				nls.localize(
+					'runningAsRoot',
+					"It is recommended not to run Code as 'root'."
+				)
+			);
 		}
 	}
 
-	private initServiceCollection(container: HTMLElement): [IInstantiationService, ServiceCollection] {
+	private initServiceCollection(
+		container: HTMLElement
+	): [IInstantiationService, ServiceCollection] {
 		const disposables = new Disposables();
 
 		const serviceCollection = new ServiceCollection();
@@ -250,156 +349,283 @@ export class WorkbenchShell {
 		serviceCollection.set(IEnvironmentService, this.environmentService);
 		serviceCollection.set(ITimerService, this.timerService);
 
-		const instantiationService: IInstantiationService = new InstantiationService(serviceCollection, true);
+		const instantiationService: IInstantiationService = new InstantiationService(
+			serviceCollection,
+			true
+		);
 
 		// TODO@joao remove this
-		this.windowIPCService = instantiationService.createInstance<IWindowIPCService>(WindowIPCService);
+		this.windowIPCService = instantiationService.createInstance<
+			IWindowIPCService
+		>(WindowIPCService);
 		serviceCollection.set(IWindowIPCService, this.windowIPCService);
 
-		const mainProcessClient = new ElectronIPCClient(String(`window${currentWindow.id}`));
+		const mainProcessClient = new ElectronIPCClient(
+			String(`window${currentWindow.id}`)
+		);
 		disposables.add(mainProcessClient);
 
 		const windowsChannel = mainProcessClient.getChannel('windows');
 		this.windowsService = new WindowsChannelClient(windowsChannel);
 		serviceCollection.set(IWindowsService, this.windowsService);
 
-		serviceCollection.set(IWindowService, new SyncDescriptor(WindowService, this.windowIPCService.getWindowId()));
+		serviceCollection.set(
+			IWindowService,
+			new SyncDescriptor(WindowService, this.windowIPCService.getWindowId())
+		);
 
-		const sharedProcess = this.windowsService.whenSharedProcessReady()
-			.then(() => connectNet(this.environmentService.sharedIPCHandle, `window:${this.windowIPCService.getWindowId()}`));
+		const sharedProcess = this.windowsService
+			.whenSharedProcessReady()
+			.then(() =>
+				connectNet(
+					this.environmentService.sharedIPCHandle,
+					`window:${this.windowIPCService.getWindowId()}`
+				)
+			);
 
-		sharedProcess
-			.done(client => client.registerChannel('choice', instantiationService.createInstance(ChoiceChannel)));
+		sharedProcess.done(client =>
+			client.registerChannel(
+				'choice',
+				instantiationService.createInstance(ChoiceChannel)
+			)
+		);
 
 		// Storage Sevice
-		const disableWorkspaceStorage = this.environmentService.extensionTestsPath || (!this.contextService.hasWorkspace() && !this.environmentService.isExtensionDevelopment); // without workspace or in any extension test, we use inMemory storage unless we develop an extension where we want to preserve state
-		this.storageService = instantiationService.createInstance(StorageService, window.localStorage, disableWorkspaceStorage ? inMemoryLocalStorageInstance : window.localStorage);
+		const disableWorkspaceStorage =
+			this.environmentService.extensionTestsPath ||
+			(!this.contextService.hasWorkspace() &&
+				!this.environmentService.isExtensionDevelopment); // without workspace or in any extension test, we use inMemory storage unless we develop an extension where we want to preserve state
+		this.storageService = instantiationService.createInstance(
+			StorageService,
+			window.localStorage,
+			disableWorkspaceStorage
+				? inMemoryLocalStorageInstance
+				: window.localStorage
+		);
 		serviceCollection.set(IStorageService, this.storageService);
 
 		// Warm up font cache information before building up too many dom elements
 		restoreFontInfo(this.storageService);
-		readFontInfo(BareFontInfo.createFromRawSettings(this.configurationService.getConfiguration('editor'), browser.getZoomLevel()));
+		readFontInfo(
+			BareFontInfo.createFromRawSettings(
+				this.configurationService.getConfiguration('editor'),
+				browser.getZoomLevel()
+			)
+		);
 
 		// Telemetry
 		this.sendMachineIdToMain(this.storageService);
-		if (this.environmentService.isBuilt && !this.environmentService.isExtensionDevelopment && !!product.enableTelemetry) {
-			const channel = getDelayedChannel<ITelemetryAppenderChannel>(sharedProcess.then(c => c.getChannel('telemetryAppender')));
+		if (
+			this.environmentService.isBuilt &&
+			!this.environmentService.isExtensionDevelopment &&
+			!!product.enableTelemetry
+		) {
+			const channel = getDelayedChannel<ITelemetryAppenderChannel>(
+				sharedProcess.then(c => c.getChannel('telemetryAppender'))
+			);
 			const commit = product.commit;
 			const version = pkg.version;
 
 			const config: ITelemetryServiceConfig = {
 				appender: new TelemetryAppenderClient(channel),
-				commonProperties: resolveWorkbenchCommonProperties(this.storageService, commit, version),
-				piiPaths: [this.environmentService.appRoot, this.environmentService.extensionsPath],
+				commonProperties: resolveWorkbenchCommonProperties(
+					this.storageService,
+					commit,
+					version
+				),
+				piiPaths: [
+					this.environmentService.appRoot,
+					this.environmentService.extensionsPath
+				],
 				experiments: instantiationService.invokeFunction(loadExperiments)
 			};
 
-			const telemetryService = instantiationService.createInstance(TelemetryService, config);
+			const telemetryService = instantiationService.createInstance(
+				TelemetryService,
+				config
+			);
 			this.telemetryService = telemetryService;
 
 			const errorTelemetry = new ErrorTelemetry(telemetryService);
 			const idleMonitor = new IdleMonitor(2 * 60 * 1000); // 2 minutes
 
 			const listener = idleMonitor.onStatusChange(status =>
-				this.telemetryService.publicLog(status === UserStatus.Active
-					? TelemetryService.IDLE_STOP_EVENT_NAME
-					: TelemetryService.IDLE_START_EVENT_NAME
-				));
+				this.telemetryService.publicLog(
+					status === UserStatus.Active
+						? TelemetryService.IDLE_STOP_EVENT_NAME
+						: TelemetryService.IDLE_START_EVENT_NAME
+				)
+			);
 
 			disposables.add(telemetryService, errorTelemetry, listener, idleMonitor);
 		} else {
-			NullTelemetryService._experiments = instantiationService.invokeFunction(loadExperiments);
+			NullTelemetryService._experiments = instantiationService.invokeFunction(
+				loadExperiments
+			);
 			this.telemetryService = NullTelemetryService;
 		}
 
 		serviceCollection.set(ITelemetryService, this.telemetryService);
-		disposables.add(configurationTelemetry(this.telemetryService, this.configurationService));
+		disposables.add(
+			configurationTelemetry(this.telemetryService, this.configurationService)
+		);
 
 		let crashReporterService = NullCrashReporterService;
 		if (product.crashReporter && product.hockeyApp) {
-			crashReporterService = instantiationService.createInstance(CrashReporterService);
+			crashReporterService = instantiationService.createInstance(
+				CrashReporterService
+			);
 		}
 		serviceCollection.set(ICrashReporterService, crashReporterService);
 
-		this.messageService = instantiationService.createInstance(MessageService, container);
+		this.messageService = instantiationService.createInstance(
+			MessageService,
+			container
+		);
 		serviceCollection.set(IMessageService, this.messageService);
 		serviceCollection.set(IChoiceService, this.messageService);
 
-		const lifecycleService = instantiationService.createInstance(LifecycleService);
-		this.toUnbind.push(lifecycleService.onShutdown(reason => disposables.dispose()));
-		this.toUnbind.push(lifecycleService.onShutdown(reason => saveFontInfo(this.storageService)));
+		const lifecycleService = instantiationService.createInstance(
+			LifecycleService
+		);
+		this.toUnbind.push(
+			lifecycleService.onShutdown(reason => disposables.dispose())
+		);
+		this.toUnbind.push(
+			lifecycleService.onShutdown(reason => saveFontInfo(this.storageService))
+		);
 		serviceCollection.set(ILifecycleService, lifecycleService);
-		disposables.add(lifecycleTelemetry(this.telemetryService, lifecycleService));
+		disposables.add(
+			lifecycleTelemetry(this.telemetryService, lifecycleService)
+		);
 		this.lifecycleService = lifecycleService;
 
-		const extensionManagementChannel = getDelayedChannel<IExtensionManagementChannel>(sharedProcess.then(c => c.getChannel('extensions')));
-		serviceCollection.set(IExtensionManagementService, new SyncDescriptor(ExtensionManagementChannelClient, extensionManagementChannel));
+		const extensionManagementChannel = getDelayedChannel<
+			IExtensionManagementChannel
+		>(sharedProcess.then(c => c.getChannel('extensions')));
+		serviceCollection.set(
+			IExtensionManagementService,
+			new SyncDescriptor(
+				ExtensionManagementChannelClient,
+				extensionManagementChannel
+			)
+		);
 
-		const extensionEnablementService = instantiationService.createInstance(ExtensionEnablementService);
-		serviceCollection.set(IExtensionEnablementService, extensionEnablementService);
+		const extensionEnablementService = instantiationService.createInstance(
+			ExtensionEnablementService
+		);
+		serviceCollection.set(
+			IExtensionEnablementService,
+			extensionEnablementService
+		);
 		disposables.add(extensionEnablementService);
 
-		const extensionHostProcessWorker = instantiationService.createInstance(ExtensionHostProcessWorker);
-		this.threadService = instantiationService.createInstance(MainThreadService, extensionHostProcessWorker.messagingProtocol);
+		const extensionHostProcessWorker = instantiationService.createInstance(
+			ExtensionHostProcessWorker
+		);
+		this.threadService = instantiationService.createInstance(
+			MainThreadService,
+			extensionHostProcessWorker.messagingProtocol
+		);
 		serviceCollection.set(IThreadService, this.threadService);
 
 		this.timerService.beforeExtensionLoad = Date.now();
 
-		this.extensionService = instantiationService.createInstance(MainProcessExtensionService);
+		this.extensionService = instantiationService.createInstance(
+			MainProcessExtensionService
+		);
 		serviceCollection.set(IExtensionService, this.extensionService);
 		extensionHostProcessWorker.start(this.extensionService);
 		this.extensionService.onReady().done(() => {
 			this.timerService.afterExtensionLoad = Date.now();
 		});
 
-		this.themeService = instantiationService.createInstance(WorkbenchThemeService, document.body);
+		this.themeService = instantiationService.createInstance(
+			WorkbenchThemeService,
+			document.body
+		);
 		serviceCollection.set(IWorkbenchThemeService, this.themeService);
 
 		serviceCollection.set(ICommandService, new SyncDescriptor(CommandService));
 
-		this.contextViewService = instantiationService.createInstance(ContextViewService, this.container);
+		this.contextViewService = instantiationService.createInstance(
+			ContextViewService,
+			this.container
+		);
 		serviceCollection.set(IContextViewService, this.contextViewService);
 
 		serviceCollection.set(IRequestService, new SyncDescriptor(RequestService));
 
 		serviceCollection.set(IMarkerService, new SyncDescriptor(MarkerService));
 
-		serviceCollection.set(IModeService, new SyncDescriptor(WorkbenchModeServiceImpl));
+		serviceCollection.set(
+			IModeService,
+			new SyncDescriptor(WorkbenchModeServiceImpl)
+		);
 
 		serviceCollection.set(IModelService, new SyncDescriptor(ModelServiceImpl));
 
-		serviceCollection.set(IEditorWorkerService, new SyncDescriptor(EditorWorkerServiceImpl));
+		serviceCollection.set(
+			IEditorWorkerService,
+			new SyncDescriptor(EditorWorkerServiceImpl)
+		);
 
-		serviceCollection.set(IUntitledEditorService, new SyncDescriptor(UntitledEditorService));
+		serviceCollection.set(
+			IUntitledEditorService,
+			new SyncDescriptor(UntitledEditorService)
+		);
 
-		serviceCollection.set(ITextMateService, new SyncDescriptor(MainProcessTextMateSyntax));
+		serviceCollection.set(
+			ITextMateService,
+			new SyncDescriptor(MainProcessTextMateSyntax)
+		);
 
 		serviceCollection.set(ISearchService, new SyncDescriptor(SearchService));
 
-		serviceCollection.set(ICodeEditorService, new SyncDescriptor(CodeEditorServiceImpl));
+		serviceCollection.set(
+			ICodeEditorService,
+			new SyncDescriptor(CodeEditorServiceImpl)
+		);
 
-		serviceCollection.set(IIntegrityService, new SyncDescriptor(IntegrityServiceImpl));
+		serviceCollection.set(
+			IIntegrityService,
+			new SyncDescriptor(IntegrityServiceImpl)
+		);
 
 		const updateChannel = mainProcessClient.getChannel('update');
-		serviceCollection.set(IUpdateService, new SyncDescriptor(UpdateChannelClient, updateChannel));
+		serviceCollection.set(
+			IUpdateService,
+			new SyncDescriptor(UpdateChannelClient, updateChannel)
+		);
 
 		const urlChannel = mainProcessClient.getChannel('url');
-		serviceCollection.set(IURLService, new SyncDescriptor(URLChannelClient, urlChannel, this.windowIPCService.getWindowId()));
+		serviceCollection.set(
+			IURLService,
+			new SyncDescriptor(
+				URLChannelClient,
+				urlChannel,
+				this.windowIPCService.getWindowId()
+			)
+		);
 
 		const backupChannel = mainProcessClient.getChannel('backup');
-		serviceCollection.set(IBackupService, new SyncDescriptor(BackupChannelClient, backupChannel));
+		serviceCollection.set(
+			IBackupService,
+			new SyncDescriptor(BackupChannelClient, backupChannel)
+		);
 
 		return [instantiationService, serviceCollection];
 	}
 
 	private sendMachineIdToMain(storageService: IStorageService) {
-		getOrCreateMachineId(storageService).then(machineId => {
-			ipc.send(machineIdIpcChannel, machineId);
-		}).then(null, errors.onUnexpectedError);
+		getOrCreateMachineId(storageService)
+			.then(machineId => {
+				ipc.send(machineIdIpcChannel, machineId);
+			})
+			.then(null, errors.onUnexpectedError);
 	}
 
 	public open(): void {
-
 		// Listen on unexpected errors
 		errors.setUnexpectedErrorHandler((error: any) => {
 			this.onUnexpectedError(error);
@@ -409,7 +635,9 @@ export class WorkbenchShell {
 		$(this.container).addClass('monaco-shell');
 
 		// Controls
-		this.content = $('.monaco-shell-content').appendTo(this.container).getHTMLElement();
+		this.content = $('.monaco-shell-content')
+			.appendTo(this.container)
+			.getHTMLElement();
 
 		// Create Contents
 		this.contentsContainer = this.createContents($(this.content));
@@ -422,7 +650,6 @@ export class WorkbenchShell {
 	}
 
 	private registerListeners(): void {
-
 		// Resize
 		$(window).on(dom.EventType.RESIZE, () => this.layout(), this.toUnbind);
 	}
@@ -434,7 +661,10 @@ export class WorkbenchShell {
 		}
 
 		const now = Date.now();
-		if (errorMsg === this.previousErrorValue && now - this.previousErrorTime <= 1000) {
+		if (
+			errorMsg === this.previousErrorValue &&
+			now - this.previousErrorTime <= 1000
+		) {
 			return; // Return if error message identical to previous and shorter than 1 second
 		}
 
@@ -465,7 +695,6 @@ export class WorkbenchShell {
 	}
 
 	public dispose(): void {
-
 		// Workbench
 		if (this.workbench) {
 			this.workbench.dispose();
@@ -482,7 +711,6 @@ export class WorkbenchShell {
 }
 
 registerThemingParticipant((theme: ITheme, collector: ICssStyleCollector) => {
-
 	// Foreground
 	const windowForeground = theme.getColor(foreground);
 	if (windowForeground) {
@@ -492,14 +720,20 @@ registerThemingParticipant((theme: ITheme, collector: ICssStyleCollector) => {
 	// Selection
 	const windowSelectionBackground = theme.getColor(selectionBackground);
 	if (windowSelectionBackground) {
-		collector.addRule(`.monaco-shell ::selection { background-color: ${windowSelectionBackground}; }`);
+		collector.addRule(
+			`.monaco-shell ::selection { background-color: ${windowSelectionBackground}; }`
+		);
 	}
 
 	// Input placeholder
 	const placeholderForeground = theme.getColor(inputPlaceholderForeground);
 	if (placeholderForeground) {
-		collector.addRule(`.monaco-shell input::-webkit-input-placeholder { color: ${placeholderForeground}; }`);
-		collector.addRule(`.monaco-shell textarea::-webkit-input-placeholder { color: ${placeholderForeground}; }`);
+		collector.addRule(
+			`.monaco-shell input::-webkit-input-placeholder { color: ${placeholderForeground}; }`
+		);
+		collector.addRule(
+			`.monaco-shell textarea::-webkit-input-placeholder { color: ${placeholderForeground}; }`
+		);
 	}
 
 	// List highlight
@@ -525,7 +759,9 @@ registerThemingParticipant((theme: ITheme, collector: ICssStyleCollector) => {
 		default:
 			workbenchBackground = '#000000';
 	}
-	collector.addRule(`.monaco-workbench { background-color: ${workbenchBackground}; }`);
+	collector.addRule(
+		`.monaco-workbench { background-color: ${workbenchBackground}; }`
+	);
 
 	// Scrollbars
 	const scrollbarShadowColor = theme.getColor(scrollbarShadow);
@@ -545,7 +781,9 @@ registerThemingParticipant((theme: ITheme, collector: ICssStyleCollector) => {
 		`);
 	}
 
-	const scrollbarSliderBackgroundColor = theme.getColor(scrollbarSliderBackground);
+	const scrollbarSliderBackgroundColor = theme.getColor(
+		scrollbarSliderBackground
+	);
 	if (scrollbarSliderBackgroundColor) {
 		collector.addRule(`
 			.monaco-shell .monaco-scrollable-element > .scrollbar > .slider {
@@ -554,7 +792,9 @@ registerThemingParticipant((theme: ITheme, collector: ICssStyleCollector) => {
 		`);
 	}
 
-	const scrollbarSliderHoverBackgroundColor = theme.getColor(scrollbarSliderHoverBackground);
+	const scrollbarSliderHoverBackgroundColor = theme.getColor(
+		scrollbarSliderHoverBackground
+	);
 	if (scrollbarSliderHoverBackgroundColor) {
 		collector.addRule(`
 			.monaco-shell .monaco-scrollable-element > .scrollbar > .slider:hover {
@@ -563,7 +803,9 @@ registerThemingParticipant((theme: ITheme, collector: ICssStyleCollector) => {
 		`);
 	}
 
-	const scrollbarSliderActiveBackgroundColor = theme.getColor(scrollbarSliderActiveBackground);
+	const scrollbarSliderActiveBackgroundColor = theme.getColor(
+		scrollbarSliderActiveBackground
+	);
 	if (scrollbarSliderActiveBackgroundColor) {
 		collector.addRule(`
 			.monaco-shell .monaco-scrollable-element > .scrollbar > .slider.active {

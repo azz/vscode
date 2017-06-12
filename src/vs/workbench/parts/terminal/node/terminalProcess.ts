@@ -51,13 +51,13 @@ var exitCode;
 // Allow any trailing data events to be sent before the exit event is sent.
 // See https://github.com/Tyriar/node-pty/issues/72
 function queueProcessExit() {
-	closeTimeout = setTimeout(function () {
+	closeTimeout = setTimeout(function() {
 		ptyProcess.kill();
 		process.exit(exitCode);
 	}, 250);
 }
 
-ptyProcess.on('data', function (data) {
+ptyProcess.on('data', function(data) {
 	process.send({
 		type: 'data',
 		content: data
@@ -68,12 +68,12 @@ ptyProcess.on('data', function (data) {
 	}
 });
 
-ptyProcess.on('exit', function (code) {
+ptyProcess.on('exit', function(code) {
 	exitCode = code;
 	queueProcessExit();
 });
 
-process.on('message', function (message) {
+process.on('message', function(message) {
 	if (message.event === 'input') {
 		ptyProcess.write(message.data);
 	} else if (message.event === 'resize') {
@@ -108,7 +108,7 @@ function cleanEnv() {
 		'PTYROWS',
 		'PTYSHELLCMDLINE'
 	];
-	keys.forEach(function (key) {
+	keys.forEach(function(key) {
 		if (process.env[key]) {
 			delete process.env[key];
 		}
@@ -120,7 +120,7 @@ function cleanEnv() {
 }
 
 function setupPlanB(parentPid) {
-	setInterval(function () {
+	setInterval(function() {
 		try {
 			process.kill(parentPid, 0); // throws an exception if the main process doesn't exist anymore.
 		} catch (e) {
@@ -138,7 +138,7 @@ function sendProcessId() {
 
 function setupTitlePolling() {
 	sendProcessTitle();
-	setInterval(function () {
+	setInterval(function() {
 		if (currentTitle !== ptyProcess.process) {
 			sendProcessTitle();
 		}

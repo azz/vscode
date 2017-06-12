@@ -7,13 +7,11 @@ import * as path from 'path';
 import VsCodeTelemetryReporter from 'vscode-extension-telemetry';
 import { Disposable } from 'vscode';
 
-
 interface IPackageInfo {
 	name: string;
 	version: string;
 	aiKey: string;
 }
-
 
 export default class TelemetryReporter extends Disposable {
 	private _packageInfo: IPackageInfo | null;
@@ -31,7 +29,10 @@ export default class TelemetryReporter extends Disposable {
 		}
 	}
 
-	public logTelemetry(eventName: string, properties?: { [prop: string]: string }) {
+	public logTelemetry(
+		eventName: string,
+		properties?: { [prop: string]: string }
+	) {
 		if (this.reporter) {
 			this.reporter.sendTelemetryEvent(eventName, properties);
 		}
@@ -46,7 +47,8 @@ export default class TelemetryReporter extends Disposable {
 			this._reporter = new VsCodeTelemetryReporter(
 				this.packageInfo.name,
 				this.packageInfo.version,
-				this.packageInfo.aiKey);
+				this.packageInfo.aiKey
+			);
 		} else {
 			this._reporter = null;
 		}

@@ -3,15 +3,22 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
-import { illegalArgument, onUnexpectedExternalError } from 'vs/base/common/errors';
+import {
+	illegalArgument,
+	onUnexpectedExternalError
+} from 'vs/base/common/errors';
 import { stableSort } from 'vs/base/common/arrays';
 import URI from 'vs/base/common/uri';
 import { TPromise } from 'vs/base/common/winjs.base';
 import { IModel } from 'vs/editor/common/editorCommon';
 import { CommonEditorRegistry } from 'vs/editor/common/editorCommonExtensions';
-import { CodeLensProviderRegistry, CodeLensProvider, ICodeLensSymbol } from 'vs/editor/common/modes';
+import {
+	CodeLensProviderRegistry,
+	CodeLensProvider,
+	ICodeLensSymbol
+} from 'vs/editor/common/modes';
 import { IModelService } from 'vs/editor/common/services/modelService';
 import { asWinJsPromise } from 'vs/base/common/async';
 
@@ -21,25 +28,29 @@ export interface ICodeLensData {
 }
 
 export function getCodeLensData(model: IModel): TPromise<ICodeLensData[]> {
-
 	const symbols: ICodeLensData[] = [];
 	const provider = CodeLensProviderRegistry.ordered(model);
 
-	const promises = provider.map(provider => asWinJsPromise(token => provider.provideCodeLenses(model, token)).then(result => {
-		if (Array.isArray(result)) {
-			for (let symbol of result) {
-				symbols.push({ symbol, provider });
+	const promises = provider.map(provider =>
+		asWinJsPromise(token =>
+			provider.provideCodeLenses(model, token)
+		).then(result => {
+			if (Array.isArray(result)) {
+				for (let symbol of result) {
+					symbols.push({ symbol, provider });
+				}
 			}
-		}
-	}, onUnexpectedExternalError));
+		}, onUnexpectedExternalError)
+	);
 
 	return TPromise.join(promises).then(() => {
-
 		return stableSort(symbols, (a, b) => {
 			// sort by lineNumber, provider-rank, and column
 			if (a.symbol.range.startLineNumber < b.symbol.range.startLineNumber) {
 				return -1;
-			} else if (a.symbol.range.startLineNumber > b.symbol.range.startLineNumber) {
+			} else if (
+				a.symbol.range.startLineNumber > b.symbol.range.startLineNumber
+			) {
 				return 1;
 			} else if (provider.indexOf(a.provider) < provider.indexOf(b.provider)) {
 				return -1;
@@ -56,17 +67,19 @@ export function getCodeLensData(model: IModel): TPromise<ICodeLensData[]> {
 	});
 }
 
-CommonEditorRegistry.registerLanguageCommand('_executeCodeLensProvider', function (accessor, args) {
+CommonEditorRegistry.registerLanguageCommand(
+	'_executeCodeLensProvider',
+	function(accessor, args) {
+		const { resource } = args;
+		if (!(resource instanceof URI)) {
+			throw illegalArgument();
+		}
 
-	const { resource } = args;
-	if (!(resource instanceof URI)) {
-		throw illegalArgument();
+		const model = accessor.get(IModelService).getModel(resource);
+		if (!model) {
+			throw illegalArgument();
+		}
+
+		return getCodeLensData(model);
 	}
-
-	const model = accessor.get(IModelService).getModel(resource);
-	if (!model) {
-		throw illegalArgument();
-	}
-
-	return getCodeLensData(model);
-});
+);

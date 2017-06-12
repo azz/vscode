@@ -18,87 +18,133 @@ suite('RangeMap', () => {
 	});
 
 	test('intersection', () => {
-		assert.deepEqual(intersect({ start: 0, end: 0 }, { start: 0, end: 0 }), null);
-		assert.deepEqual(intersect({ start: 0, end: 0 }, { start: 5, end: 5 }), null);
-		assert.deepEqual(intersect({ start: 0, end: 1 }, { start: 5, end: 6 }), null);
-		assert.deepEqual(intersect({ start: 5, end: 6 }, { start: 0, end: 1 }), null);
-		assert.deepEqual(intersect({ start: 0, end: 5 }, { start: 2, end: 2 }), null);
-		assert.deepEqual(intersect({ start: 0, end: 1 }, { start: 0, end: 1 }), { start: 0, end: 1 });
-		assert.deepEqual(intersect({ start: 0, end: 10 }, { start: 0, end: 5 }), { start: 0, end: 5 });
-		assert.deepEqual(intersect({ start: 0, end: 5 }, { start: 0, end: 10 }), { start: 0, end: 5 });
-		assert.deepEqual(intersect({ start: 0, end: 10 }, { start: 5, end: 10 }), { start: 5, end: 10 });
-		assert.deepEqual(intersect({ start: 5, end: 10 }, { start: 0, end: 10 }), { start: 5, end: 10 });
-		assert.deepEqual(intersect({ start: 0, end: 10 }, { start: 2, end: 8 }), { start: 2, end: 8 });
-		assert.deepEqual(intersect({ start: 2, end: 8 }, { start: 0, end: 10 }), { start: 2, end: 8 });
-		assert.deepEqual(intersect({ start: 0, end: 10 }, { start: 5, end: 15 }), { start: 5, end: 10 });
-		assert.deepEqual(intersect({ start: 5, end: 15 }, { start: 0, end: 10 }), { start: 5, end: 10 });
+		assert.deepEqual(
+			intersect({ start: 0, end: 0 }, { start: 0, end: 0 }),
+			null
+		);
+		assert.deepEqual(
+			intersect({ start: 0, end: 0 }, { start: 5, end: 5 }),
+			null
+		);
+		assert.deepEqual(
+			intersect({ start: 0, end: 1 }, { start: 5, end: 6 }),
+			null
+		);
+		assert.deepEqual(
+			intersect({ start: 5, end: 6 }, { start: 0, end: 1 }),
+			null
+		);
+		assert.deepEqual(
+			intersect({ start: 0, end: 5 }, { start: 2, end: 2 }),
+			null
+		);
+		assert.deepEqual(intersect({ start: 0, end: 1 }, { start: 0, end: 1 }), {
+			start: 0,
+			end: 1
+		});
+		assert.deepEqual(intersect({ start: 0, end: 10 }, { start: 0, end: 5 }), {
+			start: 0,
+			end: 5
+		});
+		assert.deepEqual(intersect({ start: 0, end: 5 }, { start: 0, end: 10 }), {
+			start: 0,
+			end: 5
+		});
+		assert.deepEqual(intersect({ start: 0, end: 10 }, { start: 5, end: 10 }), {
+			start: 5,
+			end: 10
+		});
+		assert.deepEqual(intersect({ start: 5, end: 10 }, { start: 0, end: 10 }), {
+			start: 5,
+			end: 10
+		});
+		assert.deepEqual(intersect({ start: 0, end: 10 }, { start: 2, end: 8 }), {
+			start: 2,
+			end: 8
+		});
+		assert.deepEqual(intersect({ start: 2, end: 8 }, { start: 0, end: 10 }), {
+			start: 2,
+			end: 8
+		});
+		assert.deepEqual(intersect({ start: 0, end: 10 }, { start: 5, end: 15 }), {
+			start: 5,
+			end: 10
+		});
+		assert.deepEqual(intersect({ start: 5, end: 15 }, { start: 0, end: 10 }), {
+			start: 5,
+			end: 10
+		});
 	});
 
 	test('multiIntersect', () => {
 		assert.deepEqual(
-			groupIntersect(
-				{ start: 0, end: 0 },
-				[{ range: { start: 0, end: 10 }, size: 1 }]
-			),
+			groupIntersect({ start: 0, end: 0 }, [
+				{ range: { start: 0, end: 10 }, size: 1 }
+			]),
 			[]
 		);
 
 		assert.deepEqual(
-			groupIntersect(
-				{ start: 10, end: 20 },
-				[{ range: { start: 0, end: 10 }, size: 1 }]
-			),
+			groupIntersect({ start: 10, end: 20 }, [
+				{ range: { start: 0, end: 10 }, size: 1 }
+			]),
 			[]
 		);
 
 		assert.deepEqual(
-			groupIntersect(
-				{ start: 2, end: 8 },
-				[{ range: { start: 0, end: 10 }, size: 1 }]
-			),
+			groupIntersect({ start: 2, end: 8 }, [
+				{ range: { start: 0, end: 10 }, size: 1 }
+			]),
 			[{ range: { start: 2, end: 8 }, size: 1 }]
 		);
 
 		assert.deepEqual(
-			groupIntersect(
-				{ start: 2, end: 8 },
-				[{ range: { start: 0, end: 10 }, size: 1 }, { range: { start: 10, end: 20 }, size: 5 }]
-			),
+			groupIntersect({ start: 2, end: 8 }, [
+				{ range: { start: 0, end: 10 }, size: 1 },
+				{ range: { start: 10, end: 20 }, size: 5 }
+			]),
 			[{ range: { start: 2, end: 8 }, size: 1 }]
 		);
 
 		assert.deepEqual(
-			groupIntersect(
-				{ start: 12, end: 18 },
-				[{ range: { start: 0, end: 10 }, size: 1 }, { range: { start: 10, end: 20 }, size: 5 }]
-			),
+			groupIntersect({ start: 12, end: 18 }, [
+				{ range: { start: 0, end: 10 }, size: 1 },
+				{ range: { start: 10, end: 20 }, size: 5 }
+			]),
 			[{ range: { start: 12, end: 18 }, size: 5 }]
 		);
 
 		assert.deepEqual(
-			groupIntersect(
-				{ start: 2, end: 18 },
-				[{ range: { start: 0, end: 10 }, size: 1 }, { range: { start: 10, end: 20 }, size: 5 }]
-			),
-			[{ range: { start: 2, end: 10 }, size: 1 }, { range: { start: 10, end: 18 }, size: 5 }]
+			groupIntersect({ start: 2, end: 18 }, [
+				{ range: { start: 0, end: 10 }, size: 1 },
+				{ range: { start: 10, end: 20 }, size: 5 }
+			]),
+			[
+				{ range: { start: 2, end: 10 }, size: 1 },
+				{ range: { start: 10, end: 18 }, size: 5 }
+			]
 		);
 
 		assert.deepEqual(
-			groupIntersect(
-				{ start: 2, end: 28 },
-				[{ range: { start: 0, end: 10 }, size: 1 }, { range: { start: 10, end: 20 }, size: 5 }, { range: { start: 20, end: 30 }, size: 10 }]
-			),
-			[{ range: { start: 2, end: 10 }, size: 1 }, { range: { start: 10, end: 20 }, size: 5 }, { range: { start: 20, end: 28 }, size: 10 }]
+			groupIntersect({ start: 2, end: 28 }, [
+				{ range: { start: 0, end: 10 }, size: 1 },
+				{ range: { start: 10, end: 20 }, size: 5 },
+				{ range: { start: 20, end: 30 }, size: 10 }
+			]),
+			[
+				{ range: { start: 2, end: 10 }, size: 1 },
+				{ range: { start: 10, end: 20 }, size: 5 },
+				{ range: { start: 20, end: 28 }, size: 10 }
+			]
 		);
 	});
 
 	test('consolidate', () => {
 		assert.deepEqual(consolidate([]), []);
 
-		assert.deepEqual(
-			consolidate([{ range: { start: 0, end: 10 }, size: 1 }]),
-			[{ range: { start: 0, end: 10 }, size: 1 }]
-		);
+		assert.deepEqual(consolidate([{ range: { start: 0, end: 10 }, size: 1 }]), [
+			{ range: { start: 0, end: 10 }, size: 1 }
+		]);
 
 		assert.deepEqual(
 			consolidate([
@@ -197,10 +243,30 @@ suite('RangeMap', () => {
 	});
 
 	test('delete', () => {
-		rangeMap.splice(0, 0, five, five, five, five, five,
-			five, five, five, five, five,
-			five, five, five, five, five,
-			five, five, five, five, five);
+		rangeMap.splice(
+			0,
+			0,
+			five,
+			five,
+			five,
+			five,
+			five,
+			five,
+			five,
+			five,
+			five,
+			five,
+			five,
+			five,
+			five,
+			five,
+			five,
+			five,
+			five,
+			five,
+			five,
+			five
+		);
 		assert.equal(rangeMap.size, 100);
 		assert.equal(rangeMap.count, 20);
 
@@ -235,28 +301,67 @@ suite('RangeMap', () => {
 	});
 
 	test('insert & delete #2', () => {
-		rangeMap.splice(0, 0, one, one, one, one, one,
-			one, one, one, one, one);
+		rangeMap.splice(0, 0, one, one, one, one, one, one, one, one, one, one);
 		rangeMap.splice(2, 6);
 		assert.equal(rangeMap.count, 4);
 		assert.equal(rangeMap.size, 4);
 	});
 
 	test('insert & delete #3', () => {
-		rangeMap.splice(0, 0, one, one, one, one, one,
-			one, one, one, one, one,
-			two, two, two, two, two,
-			two, two, two, two, two);
+		rangeMap.splice(
+			0,
+			0,
+			one,
+			one,
+			one,
+			one,
+			one,
+			one,
+			one,
+			one,
+			one,
+			one,
+			two,
+			two,
+			two,
+			two,
+			two,
+			two,
+			two,
+			two,
+			two,
+			two
+		);
 		rangeMap.splice(8, 4);
 		assert.equal(rangeMap.count, 16);
 		assert.equal(rangeMap.size, 24);
 	});
 
 	test('insert & delete #3', () => {
-		rangeMap.splice(0, 0, one, one, one, one, one,
-			one, one, one, one, one,
-			two, two, two, two, two,
-			two, two, two, two, two);
+		rangeMap.splice(
+			0,
+			0,
+			one,
+			one,
+			one,
+			one,
+			one,
+			one,
+			one,
+			one,
+			one,
+			one,
+			two,
+			two,
+			two,
+			two,
+			two,
+			two,
+			two,
+			two,
+			two,
+			two
+		);
 		rangeMap.splice(5, 0, three, three, three, three, three);
 		assert.equal(rangeMap.count, 25);
 		assert.equal(rangeMap.size, 45);

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import nls = require('vs/nls');
 import { BasicEmmetEditorAction } from 'vs/workbench/parts/emmet/electron-browser/emmetActions';
@@ -18,11 +18,10 @@ import { ContextKeyExpr } from 'vs/platform/contextkey/common/contextkey';
 
 @editorAction
 class ExpandAbbreviationAction extends BasicEmmetEditorAction {
-
 	constructor() {
 		super(
 			'editor.emmet.action.expandAbbreviation',
-			nls.localize('expandAbbreviationAction', "Emmet: Expand Abbreviation"),
+			nls.localize('expandAbbreviationAction', 'Emmet: Expand Abbreviation'),
 			'Emmet: Expand Abbreviation',
 			'expand_abbreviation',
 			{

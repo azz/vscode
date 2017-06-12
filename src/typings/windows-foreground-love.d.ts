@@ -4,7 +4,5 @@
  *--------------------------------------------------------------------------------------------*/
 
 declare module 'windows-foreground-love' {
-
 	export function allowSetForegroundWindow(pid?: number): boolean;
-
 }

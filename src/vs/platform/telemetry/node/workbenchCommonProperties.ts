@@ -10,18 +10,29 @@ import * as errors from 'vs/base/common/errors';
 import * as uuid from 'vs/base/common/uuid';
 import { IStorageService } from 'vs/platform/storage/common/storage';
 import { getMachineId } from 'vs/base/node/id';
-import { resolveCommonProperties, machineIdStorageKey } from '../node/commonProperties';
+import {
+	resolveCommonProperties,
+	machineIdStorageKey
+} from '../node/commonProperties';
 
 const SQM_KEY: string = '\\Software\\Microsoft\\SQMClient';
 
-export function resolveWorkbenchCommonProperties(storageService: IStorageService, commit: string, version: string): TPromise<{ [name: string]: string }> {
+export function resolveWorkbenchCommonProperties(
+	storageService: IStorageService,
+	commit: string,
+	version: string
+): TPromise<{ [name: string]: string }> {
 	return resolveCommonProperties(commit, version).then(result => {
-		result['common.version.shell'] = process.versions && (<any>process).versions['electron'];
-		result['common.version.renderer'] = process.versions && (<any>process).versions['chrome'];
+		result['common.version.shell'] =
+			process.versions && (<any>process).versions['electron'];
+		result['common.version.renderer'] =
+			process.versions && (<any>process).versions['chrome'];
 		result['common.osVersion'] = os.release();
 
 		const lastSessionDate = storageService.get('telemetry.lastSessionDate');
-		const firstSessionDate = storageService.get('telemetry.firstSessionDate') || new Date().toUTCString();
+		const firstSessionDate =
+			storageService.get('telemetry.firstSessionDate') ||
+			new Date().toUTCString();
 		storageService.store('telemetry.firstSessionDate', firstSessionDate);
 		storageService.store('telemetry.lastSessionDate', new Date().toUTCString());
 
@@ -30,25 +41,46 @@ export function resolveWorkbenchCommonProperties(storageService: IStorageService
 		result['common.isNewSession'] = !lastSessionDate ? '1' : '0';
 
 		const promises: TPromise<any>[] = [];
-		promises.push(getOrCreateInstanceId(storageService).then(value => result['common.instanceId'] = value));
-		promises.push(getOrCreateMachineId(storageService).then(value => result['common.machineId'] = value));
+		promises.push(
+			getOrCreateInstanceId(storageService).then(
+				value => (result['common.instanceId'] = value)
+			)
+		);
+		promises.push(
+			getOrCreateMachineId(storageService).then(
+				value => (result['common.machineId'] = value)
+			)
+		);
 
 		if (process.platform === 'win32') {
-			promises.push(getSqmUserId(storageService).then(value => result['common.sqm.userid'] = value));
-			promises.push(getSqmMachineId(storageService).then(value => result['common.sqm.machineid'] = value));
+			promises.push(
+				getSqmUserId(storageService).then(
+					value => (result['common.sqm.userid'] = value)
+				)
+			);
+			promises.push(
+				getSqmMachineId(storageService).then(
+					value => (result['common.sqm.machineid'] = value)
+				)
+			);
 		}
 
 		return TPromise.join(promises).then(() => result);
 	});
 }
 
-function getOrCreateInstanceId(storageService: IStorageService): TPromise<string> {
-	let result = storageService.get('telemetry.instanceId') || uuid.generateUuid();
+function getOrCreateInstanceId(
+	storageService: IStorageService
+): TPromise<string> {
+	let result =
+		storageService.get('telemetry.instanceId') || uuid.generateUuid();
 	storageService.store('telemetry.instanceId', result);
 	return TPromise.as(result);
 }
 
-export function getOrCreateMachineId(storageService: IStorageService): TPromise<string> {
+export function getOrCreateMachineId(
+	storageService: IStorageService
+): TPromise<string> {
 	let result = storageService.get(machineIdStorageKey);
 
 	if (result) {
@@ -89,7 +121,11 @@ function getSqmMachineId(storageService: IStorageService): TPromise<string> {
 	});
 }
 
-function getWinRegKeyData(key: string, name: string, hive: string): TPromise<string> {
+function getWinRegKeyData(
+	key: string,
+	name: string,
+	hive: string
+): TPromise<string> {
 	return new TPromise<string>((resolve, reject) => {
 		if (process.platform === 'win32') {
 			try {

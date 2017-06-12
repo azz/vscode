@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as Types from 'vs/base/common/types';
 import { IStringDictionary } from 'vs/base/common/collections';
@@ -50,7 +50,6 @@ export interface IProblemReporter {
 }
 
 export abstract class Parser {
-
 	private _problemReporter: IProblemReporter;
 
 	constructor(problemReporter: IProblemReporter) {
@@ -81,7 +80,14 @@ export abstract class Parser {
 		this._problemReporter.fatal(message);
 	}
 
-	protected is(value: any, func: (value: any) => boolean, wrongTypeState?: ValidationState, wrongTypeMessage?: string, undefinedState?: ValidationState, undefinedMessage?: string): boolean {
+	protected is(
+		value: any,
+		func: (value: any) => boolean,
+		wrongTypeState?: ValidationState,
+		wrongTypeMessage?: string,
+		undefinedState?: ValidationState,
+		undefinedMessage?: string
+	): boolean {
 		if (Types.isUndefined(value)) {
 			if (undefinedState) {
 				this._problemReporter.status.state = undefinedState;
@@ -103,8 +109,12 @@ export abstract class Parser {
 		return true;
 	}
 
-	protected static merge<T>(destination: T, source: T, overwrite: boolean): void {
-		Object.keys(source).forEach((key) => {
+	protected static merge<T>(
+		destination: T,
+		source: T,
+		overwrite: boolean
+	): void {
+		Object.keys(source).forEach(key => {
 			let destValue = destination[key];
 			let sourceValue = source[key];
 			if (Types.isUndefined(sourceValue)) {
@@ -130,18 +140,23 @@ export interface ISystemVariables {
 	resolve(value: string[]): string[];
 	resolve(value: IStringDictionary<string>): IStringDictionary<string>;
 	resolve(value: IStringDictionary<string[]>): IStringDictionary<string[]>;
-	resolve(value: IStringDictionary<IStringDictionary<string>>): IStringDictionary<IStringDictionary<string>>;
+	resolve(
+		value: IStringDictionary<IStringDictionary<string>>
+	): IStringDictionary<IStringDictionary<string>>;
 	resolveAny<T>(value: T): T;
 	[key: string]: any;
 }
 
 export abstract class AbstractSystemVariables implements ISystemVariables {
-
 	public resolve(value: string): string;
 	public resolve(value: string[]): string[];
 	public resolve(value: IStringDictionary<string>): IStringDictionary<string>;
-	public resolve(value: IStringDictionary<string[]>): IStringDictionary<string[]>;
-	public resolve(value: IStringDictionary<IStringDictionary<string>>): IStringDictionary<IStringDictionary<string>>;
+	public resolve(
+		value: IStringDictionary<string[]>
+	): IStringDictionary<string[]>;
+	public resolve(
+		value: IStringDictionary<IStringDictionary<string>>
+	): IStringDictionary<IStringDictionary<string>>;
 	public resolve(value: any): any {
 		if (Types.isString(value)) {
 			return this.resolveString(value);
@@ -179,8 +194,12 @@ export abstract class AbstractSystemVariables implements ISystemVariables {
 		});
 	}
 
-	private __resolveLiteral(values: IStringDictionary<string | IStringDictionary<string> | string[]>): IStringDictionary<string | IStringDictionary<string> | string[]> {
-		let result: IStringDictionary<string | IStringDictionary<string> | string[]> = Object.create(null);
+	private __resolveLiteral(
+		values: IStringDictionary<string | IStringDictionary<string> | string[]>
+	): IStringDictionary<string | IStringDictionary<string> | string[]> {
+		let result: IStringDictionary<
+			string | IStringDictionary<string> | string[]
+		> = Object.create(null);
 		Object.keys(values).forEach(key => {
 			let value = values[key];
 			result[key] = <any>this.resolve(<any>value);
@@ -190,7 +209,9 @@ export abstract class AbstractSystemVariables implements ISystemVariables {
 
 	private __resolveAnyLiteral<T>(values: T): T;
 	private __resolveAnyLiteral<T>(values: any): any {
-		let result: IStringDictionary<string | IStringDictionary<string> | string[]> = Object.create(null);
+		let result: IStringDictionary<
+			string | IStringDictionary<string> | string[]
+		> = Object.create(null);
 		Object.keys(values).forEach(key => {
 			let value = values[key];
 			result[key] = <any>this.resolveAny(<any>value);

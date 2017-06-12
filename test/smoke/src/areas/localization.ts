@@ -13,13 +13,14 @@ export enum ViewletType {
 }
 
 export class Localization {
-
 	constructor(private spectron: SpectronApplication) {
 		// noop
 	}
 
 	public async getOpenEditorsText(): Promise<string> {
-		const explorerTitles = await this.spectron.client.getText('div[id="workbench.view.explorer"] .title span');
+		const explorerTitles = await this.spectron.client.getText(
+			'div[id="workbench.view.explorer"] .title span'
+		);
 		return explorerTitles[0];
 	}
 
@@ -45,11 +46,15 @@ export class Localization {
 	}
 
 	public getOpenedViewletTitle(): Promise<string> {
-		return this.spectron.client.getText('div[id="workbench.parts.sidebar"] .title-label span');
+		return this.spectron.client.getText(
+			'div[id="workbench.parts.sidebar"] .title-label span'
+		);
 	}
 
 	public getExtensionsSearchPlaceholder(): Promise<string> {
-		return this.spectron.client.getAttribute('div[id="workbench.view.extensions"] .search-box', 'placeholder');
+		return this.spectron.client.getAttribute(
+			'div[id="workbench.view.extensions"] .search-box',
+			'placeholder'
+		);
 	}
-
 }

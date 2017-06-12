@@ -2,33 +2,51 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import nls = require('vs/nls');
 import URI from 'vs/base/common/uri';
 import { TPromise } from 'vs/base/common/winjs.base';
 import { onUnexpectedError } from 'vs/base/common/errors';
 import { ThrottledDelayer } from 'vs/base/common/async';
-import { QuickOpenHandler, EditorQuickOpenEntry } from 'vs/workbench/browser/quickopen';
-import { QuickOpenModel, QuickOpenEntry } from 'vs/base/parts/quickopen/browser/quickOpenModel';
-import { IAutoFocus, Mode, IEntryRunContext } from 'vs/base/parts/quickopen/common/quickOpen';
+import {
+	QuickOpenHandler,
+	EditorQuickOpenEntry
+} from 'vs/workbench/browser/quickopen';
+import {
+	QuickOpenModel,
+	QuickOpenEntry
+} from 'vs/base/parts/quickopen/browser/quickOpenModel';
+import {
+	IAutoFocus,
+	Mode,
+	IEntryRunContext
+} from 'vs/base/parts/quickopen/common/quickOpen';
 import filters = require('vs/base/common/filters');
 import strings = require('vs/base/common/strings');
 import { Range } from 'vs/editor/common/core/range';
-import { EditorInput, IWorkbenchEditorConfiguration } from 'vs/workbench/common/editor';
+import {
+	EditorInput,
+	IWorkbenchEditorConfiguration
+} from 'vs/workbench/common/editor';
 import labels = require('vs/base/common/labels');
-import { SymbolInformation, symbolKindToCssClass } from 'vs/editor/common/modes';
+import {
+	SymbolInformation,
+	symbolKindToCssClass
+} from 'vs/editor/common/modes';
 import { IResourceInput } from 'vs/platform/editor/common/editor';
 import { IWorkbenchEditorService } from 'vs/workbench/services/editor/common/editorService';
 import { IInstantiationService } from 'vs/platform/instantiation/common/instantiation';
 import { IWorkspaceContextService } from 'vs/platform/workspace/common/workspace';
 import { IConfigurationService } from 'vs/platform/configuration/common/configuration';
-import { IWorkspaceSymbolProvider, getWorkspaceSymbols } from 'vs/workbench/parts/search/common/search';
+import {
+	IWorkspaceSymbolProvider,
+	getWorkspaceSymbols
+} from 'vs/workbench/parts/search/common/search';
 import { IEnvironmentService } from 'vs/platform/environment/common/environment';
 import { basename } from 'vs/base/common/paths';
 
 class SymbolEntry extends EditorQuickOpenEntry {
-
 	private _bearingResolve: TPromise<this>;
 
 	constructor(
@@ -47,16 +65,26 @@ class SymbolEntry extends EditorQuickOpenEntry {
 	}
 
 	public getAriaLabel(): string {
-		return nls.localize('entryAriaLabel', "{0}, symbols picker", this.getLabel());
+		return nls.localize(
+			'entryAriaLabel',
+			'{0}, symbols picker',
+			this.getLabel()
+		);
 	}
 
 	public getDescription(): string {
 		const containerName = this._bearing.containerName;
 		if (this._bearing.location.uri) {
 			if (containerName) {
-				return `${containerName} — ${basename(this._bearing.location.uri.fsPath)}`;
+				return `${containerName} — ${basename(
+					this._bearing.location.uri.fsPath
+				)}`;
 			} else {
-				return labels.getPathLabel(this._bearing.location.uri, this._contextService, this._environmentService);
+				return labels.getPathLabel(
+					this._bearing.location.uri,
+					this._contextService,
+					this._environmentService
+				);
 			}
 		}
 		return containerName;
@@ -71,17 +99,18 @@ class SymbolEntry extends EditorQuickOpenEntry {
 	}
 
 	public run(mode: Mode, context: IEntryRunContext): boolean {
-
 		// resolve this type bearing if neccessary
-		if (!this._bearingResolve
-			&& typeof this._provider.resolveWorkspaceSymbol === 'function'
-			&& !this._bearing.location.range
+		if (
+			!this._bearingResolve &&
+			typeof this._provider.resolveWorkspaceSymbol === 'function' &&
+			!this._bearing.location.range
 		) {
-
-			this._bearingResolve = this._provider.resolveWorkspaceSymbol(this._bearing).then(result => {
-				this._bearing = result || this._bearing;
-				return this;
-			}, onUnexpectedError);
+			this._bearingResolve = this._provider
+				.resolveWorkspaceSymbol(this._bearing)
+				.then(result => {
+					this._bearing = result || this._bearing;
+					return this;
+				}, onUnexpectedError);
 		}
 
 		TPromise.as(this._bearingResolve)
@@ -96,19 +125,26 @@ class SymbolEntry extends EditorQuickOpenEntry {
 		let input: IResourceInput = {
 			resource: this._bearing.location.uri,
 			options: {
-				pinned: !this._configurationService.getConfiguration<IWorkbenchEditorConfiguration>().workbench.editor.enablePreviewFromQuickOpen
+				pinned: !this._configurationService.getConfiguration<
+					IWorkbenchEditorConfiguration
+				>().workbench.editor.enablePreviewFromQuickOpen
 			}
 		};
 
 		if (this._bearing.location.range) {
-			input.options.selection = Range.collapseToStart(this._bearing.location.range);
+			input.options.selection = Range.collapseToStart(
+				this._bearing.location.range
+			);
 		}
 
 		return input;
 	}
 
-	public static compare(elementA: SymbolEntry, elementB: SymbolEntry, searchValue: string): number {
-
+	public static compare(
+		elementA: SymbolEntry,
+		elementB: SymbolEntry,
+		searchValue: string
+	): number {
 		// Sort by Type if name is identical
 		const elementAName = elementA.getLabel().toLowerCase();
 		const elementBName = elementB.getLabel().toLowerCase();
@@ -129,16 +165,19 @@ export interface IOpenSymbolOptions {
 }
 
 export class OpenSymbolHandler extends QuickOpenHandler {
-
 	private static SEARCH_DELAY = 500; // This delay accommodates for the user typing a word and then stops typing to start searching
 
 	private delayer: ThrottledDelayer<QuickOpenEntry[]>;
 	private options: IOpenSymbolOptions;
 
-	constructor( @IInstantiationService private instantiationService: IInstantiationService) {
+	constructor(
+		@IInstantiationService private instantiationService: IInstantiationService
+	) {
 		super();
 
-		this.delayer = new ThrottledDelayer<QuickOpenEntry[]>(OpenSymbolHandler.SEARCH_DELAY);
+		this.delayer = new ThrottledDelayer<QuickOpenEntry[]>(
+			OpenSymbolHandler.SEARCH_DELAY
+		);
 		this.options = Object.create(null);
 	}
 
@@ -173,7 +212,9 @@ export class OpenSymbolHandler extends QuickOpenHandler {
 
 			// Sort (Standalone only)
 			if (!this.options.skipSorting) {
-				searchValue = searchValue ? strings.stripWildcards(searchValue.toLowerCase()) : searchValue;
+				searchValue = searchValue
+					? strings.stripWildcards(searchValue.toLowerCase())
+					: searchValue;
 				return result.sort((a, b) => SymbolEntry.compare(a, b, searchValue));
 			} else {
 				return result;
@@ -181,29 +222,37 @@ export class OpenSymbolHandler extends QuickOpenHandler {
 		});
 	}
 
-	private fillInSymbolEntries(bucket: SymbolEntry[], provider: IWorkspaceSymbolProvider, types: SymbolInformation[], searchValue: string): void {
-
+	private fillInSymbolEntries(
+		bucket: SymbolEntry[],
+		provider: IWorkspaceSymbolProvider,
+		types: SymbolInformation[],
+		searchValue: string
+	): void {
 		// Convert to Entries
 		for (let element of types) {
 			if (this.options.skipLocalSymbols && !!element.containerName) {
 				continue; // ignore local symbols if we are told so
 			}
 
-			const entry = this.instantiationService.createInstance(SymbolEntry, element, provider);
+			const entry = this.instantiationService.createInstance(
+				SymbolEntry,
+				element,
+				provider
+			);
 			entry.setHighlights(filters.matchesFuzzy(searchValue, entry.getLabel()));
 			bucket.push(entry);
 		}
 	}
 
 	public getGroupLabel(): string {
-		return nls.localize('symbols', "symbol results");
+		return nls.localize('symbols', 'symbol results');
 	}
 
 	public getEmptyLabel(searchString: string): string {
 		if (searchString.length > 0) {
-			return nls.localize('noSymbolsMatching', "No symbols matching");
+			return nls.localize('noSymbolsMatching', 'No symbols matching');
 		}
-		return nls.localize('noSymbolsWithoutInput', "Type to search for symbols");
+		return nls.localize('noSymbolsWithoutInput', 'Type to search for symbols');
 	}
 
 	public getAutoFocus(searchValue: string): IAutoFocus {

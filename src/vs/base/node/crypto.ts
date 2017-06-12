@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as fs from 'fs';
 import * as crypto from 'crypto';
@@ -15,7 +15,7 @@ export function checksum(path: string, sha1hash: string): TPromise<void> {
 	const promise = new TPromise<string>((c, e) => {
 		const input = fs.createReadStream(path);
 		const hash = crypto.createHash('sha1');
-		const hashStream = hash as any as stream.PassThrough;
+		const hashStream = (hash as any) as stream.PassThrough;
 		input.pipe(hashStream);
 
 		const done = once((err?: Error, result?: string) => {

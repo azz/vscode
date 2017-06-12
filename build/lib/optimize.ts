@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as path from 'path';
 import * as gulp from 'gulp';
@@ -31,8 +31,8 @@ function log(prefix: string, message: string): void {
 export function loaderConfig(emptyPaths: string[]) {
 	const result = {
 		paths: {
-			'vs': 'out-build/vs',
-			'vscode': 'empty:'
+			vs: 'out-build/vs',
+			vscode: 'empty:'
 		},
 		nodeModules: emptyPaths || []
 	};
@@ -48,44 +48,53 @@ declare class FileSourceMap extends VinylFile {
 	public sourceMap: sm.RawSourceMap;
 }
 
-function loader(bundledFileHeader: string, bundleLoader: boolean): NodeJS.ReadWriteStream {
-	let sources = [
-		'out-build/vs/loader.js'
-	];
+function loader(
+	bundledFileHeader: string,
+	bundleLoader: boolean
+): NodeJS.ReadWriteStream {
+	let sources = ['out-build/vs/loader.js'];
 	if (bundleLoader) {
-		sources = sources.concat([
-			'out-build/vs/css.js',
-			'out-build/vs/nls.js'
-		]);
+		sources = sources.concat(['out-build/vs/css.js', 'out-build/vs/nls.js']);
 	}
 
 	let isFirst = true;
-	return (
-		gulp
-			.src(sources, { base: 'out-build' })
-			.pipe(es.through(function (data) {
+	return gulp
+		.src(sources, { base: 'out-build' })
+		.pipe(
+			es.through(function(data) {
 				if (isFirst) {
 					isFirst = false;
-					this.emit('data', new VinylFile({
-						path: 'fake',
-						base: '',
-						contents: new Buffer(bundledFileHeader)
-					}));
+					this.emit(
+						'data',
+						new VinylFile({
+							path: 'fake',
+							base: '',
+							contents: new Buffer(bundledFileHeader)
+						})
+					);
 					this.emit('data', data);
 				} else {
 					this.emit('data', data);
 				}
-			}))
-			.pipe(util.loadSourcemaps())
-			.pipe(concat('vs/loader.js'))
-			.pipe(es.mapSync<FileSourceMap, FileSourceMap>(function (f) {
-				f.sourceMap.sourceRoot = util.toFileUri(path.join(REPO_ROOT_PATH, 'src'));
+			})
+		)
+		.pipe(util.loadSourcemaps())
+		.pipe(concat('vs/loader.js'))
+		.pipe(
+			es.mapSync<FileSourceMap, FileSourceMap>(function(f) {
+				f.sourceMap.sourceRoot = util.toFileUri(
+					path.join(REPO_ROOT_PATH, 'src')
+				);
 				return f;
-			}))
-	);
+			})
+		);
 }
 
-function toConcatStream(bundledFileHeader: string, sources: bundle.IFile[], dest: string): NodeJS.ReadWriteStream {
+function toConcatStream(
+	bundledFileHeader: string,
+	sources: bundle.IFile[],
+	dest: string
+): NodeJS.ReadWriteStream {
 	const useSourcemaps = /\.js$/.test(dest) && !/\.nls\.js$/.test(dest);
 
 	// If a bundle ends up including in any of the sources our copyright, then
@@ -106,7 +115,7 @@ function toConcatStream(bundledFileHeader: string, sources: bundle.IFile[], dest
 		});
 	}
 
-	const treatedSources = sources.map(function (source) {
+	const treatedSources = sources.map(function(source) {
 		const root = source.path ? REPO_ROOT_PATH.replace(/\\/g, '/') : '';
 		const base = source.path ? root + '/out-build' : '';
 
@@ -117,15 +126,21 @@ function toConcatStream(bundledFileHeader: string, sources: bundle.IFile[], dest
 		});
 	});
 
-	return es.readArray(treatedSources)
+	return es
+		.readArray(treatedSources)
 		.pipe(useSourcemaps ? util.loadSourcemaps() : es.through())
 		.pipe(concat(dest));
 }
 
-function toBundleStream(bundledFileHeader: string, bundles: bundle.IConcatFile[]): NodeJS.ReadWriteStream {
-	return es.merge(bundles.map(function (bundle) {
-		return toConcatStream(bundledFileHeader, bundle.sources, bundle.dest);
-	}));
+function toBundleStream(
+	bundledFileHeader: string,
+	bundles: bundle.IConcatFile[]
+): NodeJS.ReadWriteStream {
+	return es.merge(
+		bundles.map(function(bundle) {
+			return toConcatStream(bundledFileHeader, bundle.sources, bundle.dest);
+		})
+	);
 }
 
 export interface IOptimizeTaskOpts {
@@ -163,28 +178,34 @@ export interface IOptimizeTaskOpts {
 	 */
 	languages: string[];
 }
-export function optimizeTask(opts: IOptimizeTaskOpts): () => NodeJS.ReadWriteStream {
+export function optimizeTask(
+	opts: IOptimizeTaskOpts
+): () => NodeJS.ReadWriteStream {
 	const entryPoints = opts.entryPoints;
 	const otherSources = opts.otherSources;
 	const resources = opts.resources;
 	const loaderConfig = opts.loaderConfig;
 	const bundledFileHeader = opts.header;
-	const bundleLoader = (typeof opts.bundleLoader === 'undefined' ? true : opts.bundleLoader);
+	const bundleLoader = typeof opts.bundleLoader === 'undefined'
+		? true
+		: opts.bundleLoader;
 	const out = opts.out;
 
-	return function () {
+	return function() {
 		const bundlesStream = es.through(); // this stream will contain the bundled files
 		const resourcesStream = es.through(); // this stream will contain the resources
 		const bundleInfoStream = es.through(); // this stream will contain bundleInfo.json
 
-		bundle.bundle(entryPoints, loaderConfig, function (err, result) {
-			if (err) { return bundlesStream.emit('error', JSON.stringify(err)); }
+		bundle.bundle(entryPoints, loaderConfig, function(err, result) {
+			if (err) {
+				return bundlesStream.emit('error', JSON.stringify(err));
+			}
 
 			toBundleStream(bundledFileHeader, result.files).pipe(bundlesStream);
 
 			// Remove css inlined resources
 			const filteredResources = resources.slice();
-			result.cssInlinedResources.forEach(function (resource) {
+			result.cssInlinedResources.forEach(function(resource) {
 				if (process.env['VSCODE_BUILD_VERBOSE']) {
 					log('optimizer', 'excluding inlined: ' + resource);
 				}
@@ -194,11 +215,13 @@ export function optimizeTask(opts: IOptimizeTaskOpts): () => NodeJS.ReadWriteStr
 
 			const bundleInfoArray: VinylFile[] = [];
 			if (opts.bundleInfo) {
-				bundleInfoArray.push(new VinylFile({
-					path: 'bundleInfo.json',
-					base: '.',
-					contents: new Buffer(JSON.stringify(result.bundleData, null, '\t'))
-				}));
+				bundleInfoArray.push(
+					new VinylFile({
+						path: 'bundleInfo.json',
+						base: '.',
+						contents: new Buffer(JSON.stringify(result.bundleData, null, '\t'))
+					})
+				);
 			}
 			es.readArray(bundleInfoArray).pipe(bundleInfoStream);
 		});
@@ -206,16 +229,24 @@ export function optimizeTask(opts: IOptimizeTaskOpts): () => NodeJS.ReadWriteStr
 		const otherSourcesStream = es.through();
 		const otherSourcesStreamArr: NodeJS.ReadWriteStream[] = [];
 
-		gulp.src(otherSources, { base: 'out-build' })
-			.pipe(es.through(function (data) {
-				otherSourcesStreamArr.push(toConcatStream(bundledFileHeader, [data], data.relative));
-			}, function () {
-				if (!otherSourcesStreamArr.length) {
-					setTimeout(function () { otherSourcesStream.emit('end'); }, 0);
-				} else {
-					es.merge(otherSourcesStreamArr).pipe(otherSourcesStream);
+		gulp.src(otherSources, { base: 'out-build' }).pipe(
+			es.through(
+				function(data) {
+					otherSourcesStreamArr.push(
+						toConcatStream(bundledFileHeader, [data], data.relative)
+					);
+				},
+				function() {
+					if (!otherSourcesStreamArr.length) {
+						setTimeout(function() {
+							otherSourcesStream.emit('end');
+						}, 0);
+					} else {
+						es.merge(otherSourcesStreamArr).pipe(otherSourcesStream);
+					}
 				}
-			}));
+			)
+		);
 
 		const result = es.merge(
 			loader(bundledFileHeader, bundleLoader),
@@ -226,18 +257,22 @@ export function optimizeTask(opts: IOptimizeTaskOpts): () => NodeJS.ReadWriteStr
 		);
 
 		return result
-			.pipe(sourcemaps.write('./', {
-				sourceRoot: null,
-				addComment: true,
-				includeContent: true
-			}))
-			.pipe(i18n.processNlsFiles({
-				fileHeader: bundledFileHeader,
-				languages: opts.languages
-			}))
+			.pipe(
+				sourcemaps.write('./', {
+					sourceRoot: null,
+					addComment: true,
+					includeContent: true
+				})
+			)
+			.pipe(
+				i18n.processNlsFiles({
+					fileHeader: bundledFileHeader,
+					languages: opts.languages
+				})
+			)
 			.pipe(gulp.dest(out));
 	};
-};
+}
 
 declare class FileWithCopyright extends VinylFile {
 	public __hasOurCopyright: boolean;
@@ -248,7 +283,7 @@ declare class FileWithCopyright extends VinylFile {
  */
 function uglifyWithCopyrights(): NodeJS.ReadWriteStream {
 	const preserveComments = (f: FileWithCopyright) => {
-		return (node, comment: { value: string; type: string; }) => {
+		return (node, comment: { value: string; type: string }) => {
 			const text = comment.value;
 			const type = comment.type;
 
@@ -268,7 +303,10 @@ function uglifyWithCopyrights(): NodeJS.ReadWriteStream {
 
 			if ('comment2' === type) {
 				// check for /*!. Note that text doesn't contain leading /*
-				return (text.length > 0 && text[0] === '!') || /@preserve|license|@cc_on|copyright/i.test(text);
+				return (
+					(text.length > 0 && text[0] === '!') ||
+					/@preserve|license|@cc_on|copyright/i.test(text)
+				);
 			} else if ('comment1' === type) {
 				return /license|copyright/i.test(text);
 			}
@@ -277,22 +315,29 @@ function uglifyWithCopyrights(): NodeJS.ReadWriteStream {
 	};
 
 	const input = es.through();
-	const output = input
-		.pipe(flatmap((stream, f) => {
-			return stream.pipe(uglify({
-				preserveComments: preserveComments(<FileWithCopyright>f),
-				output: {
-					// linux tfs build agent is crashing, does this help?§
-					max_line_len: 3200000
-				}
-			}));
-		}));
+	const output = input.pipe(
+		flatmap((stream, f) => {
+			return stream.pipe(
+				uglify({
+					preserveComments: preserveComments(<FileWithCopyright>f),
+					output: {
+						// linux tfs build agent is crashing, does this help?§
+						max_line_len: 3200000
+					}
+				})
+			);
+		})
+	);
 
 	return es.duplex(input, output);
 }
 
-export function minifyTask(src: string, sourceMapBaseUrl: string): (cb: any) => void {
-	const sourceMappingURL = sourceMapBaseUrl && (f => `${sourceMapBaseUrl}/${f.relative}.map`);
+export function minifyTask(
+	src: string,
+	sourceMapBaseUrl: string
+): (cb: any) => void {
+	const sourceMappingURL =
+		sourceMapBaseUrl && (f => `${sourceMapBaseUrl}/${f.relative}.map`);
 
 	return cb => {
 		const jsFilter = filter('**/*.js', { restore: true });
@@ -313,13 +358,14 @@ export function minifyTask(src: string, sourceMapBaseUrl: string): (cb: any) => 
 				includeContent: true,
 				addComment: true
 			}),
-			gulp.dest(src + '-min')
-			, (err: any) => {
+			gulp.dest(src + '-min'),
+			(err: any) => {
 				if (err instanceof uglify.GulpUglifyError) {
 					console.error(`Uglify error in '${err.cause && err.cause.filename}'`);
 				}
 
 				cb(err);
-			});
+			}
+		);
 	};
-};
+}

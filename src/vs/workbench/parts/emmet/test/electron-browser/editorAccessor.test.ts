@@ -3,9 +3,13 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
-import { EditorAccessor, ILanguageIdentifierResolver, IGrammarContributions } from 'vs/workbench/parts/emmet/electron-browser/editorAccessor';
+import {
+	EditorAccessor,
+	ILanguageIdentifierResolver,
+	IGrammarContributions
+} from 'vs/workbench/parts/emmet/electron-browser/editorAccessor';
 import { withMockCodeEditor } from 'vs/editor/test/common/mocks/mockCodeEditor';
 import assert = require('assert');
 import { LanguageId, LanguageIdentifier } from 'vs/editor/common/modes';
@@ -45,11 +49,15 @@ export interface IGrammarContributions {
 }
 
 suite('Emmet', () => {
-
 	test('emmet isEnabled', () => {
-		withMockCodeEditor([], {}, (editor) => {
-
-			function testIsEnabled(mode: string, scopeName: string, isEnabled = true, profile = {}, excluded = []) {
+		withMockCodeEditor([], {}, editor => {
+			function testIsEnabled(
+				mode: string,
+				scopeName: string,
+				isEnabled = true,
+				profile = {},
+				excluded = []
+			) {
 				const languageIdentifier = new LanguageIdentifier(mode, 73);
 				const languageIdentifierResolver: ILanguageIdentifierResolver = {
 					getLanguageIdentifier: (languageId: LanguageId) => {
@@ -60,12 +68,32 @@ suite('Emmet', () => {
 					}
 				};
 				editor.getModel().setMode(languageIdentifier);
-				let editorAccessor = new EditorAccessor(languageIdentifierResolver, editor, profile, excluded, new MockGrammarContributions(scopeName));
+				let editorAccessor = new EditorAccessor(
+					languageIdentifierResolver,
+					editor,
+					profile,
+					excluded,
+					new MockGrammarContributions(scopeName)
+				);
 				assert.equal(editorAccessor.isEmmetEnabledMode(), isEnabled);
 			}
 
 			// emmet supported languages, null is used as the scopeName since it should not be consulted, they map to to mode to the same syntax name
-			let emmetSupportedModes = ['html', 'css', 'xml', 'xsl', 'haml', 'jade', 'jsx', 'slim', 'scss', 'sass', 'less', 'stylus', 'styl'];
+			let emmetSupportedModes = [
+				'html',
+				'css',
+				'xml',
+				'xsl',
+				'haml',
+				'jade',
+				'jsx',
+				'slim',
+				'scss',
+				'sass',
+				'less',
+				'stylus',
+				'styl'
+			];
 			emmetSupportedModes.forEach(each => {
 				testIsEnabled(each, null);
 			});
@@ -92,15 +120,18 @@ suite('Emmet', () => {
 
 			// enabled syntax with user configured setting
 			testIsEnabled('java', 'source.java', true, {
-				'java': 'html'
+				java: 'html'
 			});
 		});
 
-		withMockCodeEditor([
-			'<?'
-		], {}, (editor) => {
-
-			function testIsEnabled(mode: string, scopeName: string, isEnabled = true, profile = {}, excluded = []) {
+		withMockCodeEditor(['<?'], {}, editor => {
+			function testIsEnabled(
+				mode: string,
+				scopeName: string,
+				isEnabled = true,
+				profile = {},
+				excluded = []
+			) {
 				const languageIdentifier = new LanguageIdentifier(mode, 73);
 				const languageIdentifierResolver: ILanguageIdentifierResolver = {
 					getLanguageIdentifier: (languageId: LanguageId) => {
@@ -112,7 +143,13 @@ suite('Emmet', () => {
 				};
 				editor.getModel().setMode(languageIdentifier);
 				editor.setPosition({ lineNumber: 1, column: 3 });
-				let editorAccessor = new EditorAccessor(languageIdentifierResolver, editor, profile, excluded, new MockGrammarContributions(scopeName));
+				let editorAccessor = new EditorAccessor(
+					languageIdentifierResolver,
+					editor,
+					profile,
+					excluded,
+					new MockGrammarContributions(scopeName)
+				);
 				assert.equal(editorAccessor.isEmmetEnabledMode(), isEnabled);
 			}
 
@@ -122,9 +159,14 @@ suite('Emmet', () => {
 	});
 
 	test('emmet syntax profiles', () => {
-		withMockCodeEditor([], {}, (editor) => {
-
-			function testSyntax(mode: string, scopeName: string, expectedSyntax: string, profile = {}, excluded = []) {
+		withMockCodeEditor([], {}, editor => {
+			function testSyntax(
+				mode: string,
+				scopeName: string,
+				expectedSyntax: string,
+				profile = {},
+				excluded = []
+			) {
 				const languageIdentifier = new LanguageIdentifier(mode, 73);
 				const languageIdentifierResolver: ILanguageIdentifierResolver = {
 					getLanguageIdentifier: (languageId: LanguageId) => {
@@ -135,12 +177,32 @@ suite('Emmet', () => {
 					}
 				};
 				editor.getModel().setMode(languageIdentifier);
-				let editorAccessor = new EditorAccessor(languageIdentifierResolver, editor, profile, excluded, new MockGrammarContributions(scopeName));
+				let editorAccessor = new EditorAccessor(
+					languageIdentifierResolver,
+					editor,
+					profile,
+					excluded,
+					new MockGrammarContributions(scopeName)
+				);
 				assert.equal(editorAccessor.getSyntax(), expectedSyntax);
 			}
 
 			// emmet supported languages, null is used as the scopeName since it should not be consulted, they map to to mode to the same syntax name
-			let emmetSupportedModes = ['html', 'css', 'xml', 'xsl', 'haml', 'jade', 'jsx', 'slim', 'scss', 'sass', 'less', 'stylus', 'styl'];
+			let emmetSupportedModes = [
+				'html',
+				'css',
+				'xml',
+				'xsl',
+				'haml',
+				'jade',
+				'jsx',
+				'slim',
+				'scss',
+				'sass',
+				'less',
+				'stylus',
+				'styl'
+			];
 			emmetSupportedModes.forEach(each => {
 				testSyntax(each, null, each);
 			});
@@ -163,14 +225,21 @@ suite('Emmet', () => {
 
 			// user define mapping
 			testSyntax('java', 'source.java', 'html', {
-				'java': 'html'
+				java: 'html'
 			});
 		});
 	});
 
 	test('emmet replace range', () => {
-		withMockCodeEditor(['This is line 1'], {}, (editor) => {
-			let editorAccessor = new EditorAccessor(null, editor, null, [], new MockGrammarContributions(''), 'expand_abbreviation');
+		withMockCodeEditor(['This is line 1'], {}, editor => {
+			let editorAccessor = new EditorAccessor(
+				null,
+				editor,
+				null,
+				[],
+				new MockGrammarContributions(''),
+				'expand_abbreviation'
+			);
 			editor.getModel().setValue('This is line 1');
 			assert.equal(editorAccessor.getRangeToReplace('line', 8, 12), null);
 

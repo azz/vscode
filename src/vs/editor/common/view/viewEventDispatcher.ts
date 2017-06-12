@@ -2,13 +2,12 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { ViewEventHandler } from 'vs/editor/common/viewModel/viewEventHandler';
 import { ViewEvent } from 'vs/editor/common/view/viewEvents';
 
 export class ViewEventDispatcher {
-
 	private _eventHandlerGateKeeper: (callback: () => void) => void;
 	private _eventHandlers: ViewEventHandler[];
 	private _eventQueue: ViewEvent[];
@@ -24,7 +23,10 @@ export class ViewEventDispatcher {
 	public addEventHandler(eventHandler: ViewEventHandler): void {
 		for (let i = 0, len = this._eventHandlers.length; i < len; i++) {
 			if (this._eventHandlers[i] === eventHandler) {
-				console.warn('Detected duplicate listener in ViewEventDispatcher', eventHandler);
+				console.warn(
+					'Detected duplicate listener in ViewEventDispatcher',
+					eventHandler
+				);
 			}
 		}
 		this._eventHandlers.push(eventHandler);
@@ -40,7 +42,6 @@ export class ViewEventDispatcher {
 	}
 
 	public emit(event: ViewEvent): void {
-
 		if (this._eventQueue) {
 			this._eventQueue.push(event);
 		} else {
@@ -70,7 +71,6 @@ export class ViewEventDispatcher {
 				this._isConsumingQueue = true;
 
 				this._doConsumeQueue();
-
 			} finally {
 				this._isConsumingQueue = false;
 			}

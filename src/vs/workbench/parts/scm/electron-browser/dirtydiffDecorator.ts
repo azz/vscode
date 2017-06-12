@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./media/dirtydiffDecorator';
 import { ThrottledDelayer, always } from 'vs/base/common/async';
@@ -23,13 +23,16 @@ import URI from 'vs/base/common/uri';
 import { IEditorGroupService } from 'vs/workbench/services/group/common/groupService';
 import { ISCMService } from 'vs/workbench/services/scm/common/scm';
 import { ModelDecorationOptions } from 'vs/editor/common/model/textModelWithDecorations';
-import { registerThemingParticipant, ITheme, ICssStyleCollector } from 'vs/platform/theme/common/themeService';
+import {
+	registerThemingParticipant,
+	ITheme,
+	ICssStyleCollector
+} from 'vs/platform/theme/common/themeService';
 import { registerColor } from 'vs/platform/theme/common/colorRegistry';
 import { localize } from 'vs/nls';
 import { Color } from 'vs/base/common/color';
 
 class DirtyDiffModelDecorator {
-
 	static MODIFIED_DECORATION_OPTIONS = ModelDecorationOptions.register({
 		linesDecorationsClassName: 'dirty-diff-modified-glyph',
 		isWholeLine: true,
@@ -74,14 +77,17 @@ class DirtyDiffModelDecorator {
 		@IEditorWorkerService private editorWorkerService: IEditorWorkerService,
 		@IWorkbenchEditorService private editorService: IWorkbenchEditorService,
 		@IWorkspaceContextService private contextService: IWorkspaceContextService,
-		@ITextModelResolverService private textModelResolverService: ITextModelResolverService
+		@ITextModelResolverService
+		private textModelResolverService: ITextModelResolverService
 	) {
 		this.decorations = [];
 		this.diffDelayer = new ThrottledDelayer<common.IChange[]>(200);
 		this.toDispose = [];
 		this.triggerDiff();
 		this.toDispose.push(model.onDidChangeContent(() => this.triggerDiff()));
-		this.toDispose.push(scmService.onDidChangeProvider(() => this.triggerDiff()));
+		this.toDispose.push(
+			scmService.onDidChangeProvider(() => this.triggerDiff())
+		);
 	}
 
 	private triggerDiff(): winjs.Promise {
@@ -92,7 +98,12 @@ class DirtyDiffModelDecorator {
 		return this.diffDelayer
 			.trigger(() => this.diff())
 			.then((diff: common.IChange[]) => {
-				if (!this.model || this.model.isDisposed() || !this.baselineModel || this.baselineModel.isDisposed()) {
+				if (
+					!this.model ||
+					this.model.isDisposed() ||
+					!this.baselineModel ||
+					this.baselineModel.isDisposed()
+				) {
 					return undefined; // disposed
 				}
 
@@ -100,7 +111,10 @@ class DirtyDiffModelDecorator {
 					diff = [];
 				}
 
-				return this.decorations = this.model.deltaDecorations(this.decorations, DirtyDiffModelDecorator.changesToDecorations(diff || []));
+				return (this.decorations = this.model.deltaDecorations(
+					this.decorations,
+					DirtyDiffModelDecorator.changesToDecorations(diff || [])
+				));
 			});
 	}
 
@@ -110,7 +124,11 @@ class DirtyDiffModelDecorator {
 				return winjs.TPromise.as([]); // disposed
 			}
 
-			return this.editorWorkerService.computeDirtyDiff(originalURI, this.model.uri, true);
+			return this.editorWorkerService.computeDirtyDiff(
+				originalURI,
+				this.model.uri,
+				true
+			);
 		});
 	}
 
@@ -125,18 +143,24 @@ class DirtyDiffModelDecorator {
 			return winjs.TPromise.as(null);
 		}
 
-		this._originalURIPromise = provider.getOriginalResource(this.uri)
+		this._originalURIPromise = provider
+			.getOriginalResource(this.uri)
 			.then(originalUri => {
 				if (!originalUri) {
 					return null;
 				}
 
-				return this.textModelResolverService.createModelReference(originalUri)
+				return this.textModelResolverService
+					.createModelReference(originalUri)
 					.then(ref => {
 						this.baselineModel = ref.object.textEditorModel;
 
 						this.toDispose.push(ref);
-						this.toDispose.push(ref.object.textEditorModel.onDidChangeContent(() => this.triggerDiff()));
+						this.toDispose.push(
+							ref.object.textEditorModel.onDidChangeContent(() =>
+								this.triggerDiff()
+							)
+						);
 
 						return originalUri;
 					});
@@ -147,8 +171,10 @@ class DirtyDiffModelDecorator {
 		});
 	}
 
-	private static changesToDecorations(diff: common.IChange[]): common.IModelDeltaDecoration[] {
-		return diff.map((change) => {
+	private static changesToDecorations(
+		diff: common.IChange[]
+	): common.IModelDeltaDecoration[] {
+		return diff.map(change => {
 			const startLineNumber = change.modifiedStartLineNumber;
 			const endLineNumber = change.modifiedEndLineNumber || startLineNumber;
 
@@ -156,8 +182,10 @@ class DirtyDiffModelDecorator {
 			if (change.originalEndLineNumber === 0) {
 				return {
 					range: {
-						startLineNumber: startLineNumber, startColumn: 1,
-						endLineNumber: endLineNumber, endColumn: 1
+						startLineNumber: startLineNumber,
+						startColumn: 1,
+						endLineNumber: endLineNumber,
+						endColumn: 1
 					},
 					options: DirtyDiffModelDecorator.ADDED_DECORATION_OPTIONS
 				};
@@ -167,8 +195,10 @@ class DirtyDiffModelDecorator {
 			if (change.modifiedEndLineNumber === 0) {
 				return {
 					range: {
-						startLineNumber: startLineNumber, startColumn: 1,
-						endLineNumber: startLineNumber, endColumn: 1
+						startLineNumber: startLineNumber,
+						startColumn: 1,
+						endLineNumber: startLineNumber,
+						endColumn: 1
 					},
 					options: DirtyDiffModelDecorator.DELETED_DECORATION_OPTIONS
 				};
@@ -177,8 +207,10 @@ class DirtyDiffModelDecorator {
 			// Modified
 			return {
 				range: {
-					startLineNumber: startLineNumber, startColumn: 1,
-					endLineNumber: endLineNumber, endColumn: 1
+					startLineNumber: startLineNumber,
+					startColumn: 1,
+					endLineNumber: endLineNumber,
+					endColumn: 1
 				},
 				options: DirtyDiffModelDecorator.MODIFIED_DECORATION_OPTIONS
 			};
@@ -204,9 +236,10 @@ class DirtyDiffModelDecorator {
 }
 
 export class DirtyDiffDecorator implements ext.IWorkbenchContribution {
-
 	private models: common.IModel[] = [];
-	private decorators: { [modelId: string]: DirtyDiffModelDecorator } = Object.create(null);
+	private decorators: {
+		[modelId: string]: DirtyDiffModelDecorator;
+	} = Object.create(null);
 	private toDispose: IDisposable[] = [];
 
 	constructor(
@@ -216,7 +249,9 @@ export class DirtyDiffDecorator implements ext.IWorkbenchContribution {
 		@IWorkspaceContextService private contextService: IWorkspaceContextService,
 		@IInstantiationService private instantiationService: IInstantiationService
 	) {
-		this.toDispose.push(editorGroupService.onEditorsChanged(() => this.onEditorsChanged()));
+		this.toDispose.push(
+			editorGroupService.onEditorsChanged(() => this.onEditorsChanged())
+		);
 	}
 
 	getId(): string {
@@ -228,20 +263,16 @@ export class DirtyDiffDecorator implements ext.IWorkbenchContribution {
 		// or not. Needs context from the editor, to know whether it is a diff editor, in place editor
 		// etc.
 
-		const models = this.editorService.getVisibleEditors()
-
+		const models = this.editorService
+			.getVisibleEditors()
 			// map to the editor controls
 			.map(e => e.getControl())
-
 			// only interested in code editor widgets
 			.filter(c => c instanceof widget.CodeEditor)
-
 			// map to models
 			.map(e => (<widget.CodeEditor>e).getModel())
-
 			// remove nulls and duplicates
 			.filter((m, i, a) => !!m && !!m.uri && a.indexOf(m, i + 1) === -1)
-
 			// get the associated resource
 			.map(m => ({ model: m, uri: m.uri }));
 
@@ -255,7 +286,11 @@ export class DirtyDiffDecorator implements ext.IWorkbenchContribution {
 	}
 
 	private onModelVisible(model: common.IModel, uri: URI): void {
-		this.decorators[model.id] = this.instantiationService.createInstance(DirtyDiffModelDecorator, model, uri);
+		this.decorators[model.id] = this.instantiationService.createInstance(
+			DirtyDiffModelDecorator,
+			model,
+			uri
+		);
 	}
 
 	private onModelInvisible(model: common.IModel): void {
@@ -271,36 +306,67 @@ export class DirtyDiffDecorator implements ext.IWorkbenchContribution {
 	}
 }
 
-export const editorGutterModifiedBackground = registerColor('editorGutter.modifiedBackground', {
-	dark: Color.fromHex('#00bcf2').transparent(0.6),
-	light: Color.fromHex('#007acc').transparent(0.6),
-	hc: Color.fromHex('#007acc').transparent(0.6)
-}, localize('editorGutterModifiedBackground', "Editor gutter background color for lines that are modified."));
+export const editorGutterModifiedBackground = registerColor(
+	'editorGutter.modifiedBackground',
+	{
+		dark: Color.fromHex('#00bcf2').transparent(0.6),
+		light: Color.fromHex('#007acc').transparent(0.6),
+		hc: Color.fromHex('#007acc').transparent(0.6)
+	},
+	localize(
+		'editorGutterModifiedBackground',
+		'Editor gutter background color for lines that are modified.'
+	)
+);
 
-export const editorGutterAddedBackground = registerColor('editorGutter.addedBackground', {
-	dark: Color.fromHex('#7fba00').transparent(0.6),
-	light: Color.fromHex('#2d883e').transparent(0.6),
-	hc: Color.fromHex('#2d883e').transparent(0.6)
-}, localize('editorGutterAddedBackground', "Editor gutter background color for lines that are added."));
+export const editorGutterAddedBackground = registerColor(
+	'editorGutter.addedBackground',
+	{
+		dark: Color.fromHex('#7fba00').transparent(0.6),
+		light: Color.fromHex('#2d883e').transparent(0.6),
+		hc: Color.fromHex('#2d883e').transparent(0.6)
+	},
+	localize(
+		'editorGutterAddedBackground',
+		'Editor gutter background color for lines that are added.'
+	)
+);
 
-export const editorGutteDeletedBackground = registerColor('editorGutter.deletedBackground', {
-	dark: Color.fromHex('#b9131a').transparent(0.76),
-	light: Color.fromHex('#b9131a').transparent(0.76),
-	hc: Color.fromHex('#b9131a').transparent(0.76)
-}, localize('editorGutterDeletedBackground', "Editor gutter background color for lines that are deleted."));
+export const editorGutteDeletedBackground = registerColor(
+	'editorGutter.deletedBackground',
+	{
+		dark: Color.fromHex('#b9131a').transparent(0.76),
+		light: Color.fromHex('#b9131a').transparent(0.76),
+		hc: Color.fromHex('#b9131a').transparent(0.76)
+	},
+	localize(
+		'editorGutterDeletedBackground',
+		'Editor gutter background color for lines that are deleted.'
+	)
+);
 
 registerThemingParticipant((theme: ITheme, collector: ICssStyleCollector) => {
-	const editorGutterModifiedBackgroundColor = theme.getColor(editorGutterModifiedBackground);
+	const editorGutterModifiedBackgroundColor = theme.getColor(
+		editorGutterModifiedBackground
+	);
 	if (editorGutterModifiedBackgroundColor) {
-		collector.addRule(`.monaco-editor .dirty-diff-modified-glyph { border-left: 3px solid ${editorGutterModifiedBackgroundColor}; }`);
+		collector.addRule(
+			`.monaco-editor .dirty-diff-modified-glyph { border-left: 3px solid ${editorGutterModifiedBackgroundColor}; }`
+		);
 	}
 
-	const editorGutterAddedBackgroundColor = theme.getColor(editorGutterAddedBackground);
+	const editorGutterAddedBackgroundColor = theme.getColor(
+		editorGutterAddedBackground
+	);
 	if (editorGutterAddedBackgroundColor) {
-		collector.addRule(`.monaco-editor .dirty-diff-added-glyph { border-left: 3px solid ${editorGutterAddedBackgroundColor}; }`);
+		collector.addRule(
+			`.monaco-editor .dirty-diff-added-glyph { border-left: 3px solid ${editorGutterAddedBackgroundColor}; }`
+		);
 	}
 
-	const editorGutteDeletedBackgroundColor = theme.getColor(editorGutteDeletedBackground);
+	const editorGutteDeletedBackgroundColor = theme.getColor(
+		editorGutteDeletedBackground
+	);
 	if (editorGutteDeletedBackgroundColor) {
 		collector.addRule(`
 			.monaco-editor .dirty-diff-deleted-glyph:after {

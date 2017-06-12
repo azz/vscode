@@ -3,25 +3,25 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
-import { IEditorContribution, ICommonCodeEditor } from 'vs/editor/common/editorCommon';
+import {
+	IEditorContribution,
+	ICommonCodeEditor
+} from 'vs/editor/common/editorCommon';
 import { ICodeEditor, IViewZone } from 'vs/editor/browser/editorBrowser';
 import { IDisposable, dispose } from 'vs/base/common/lifecycle';
 import { editorContribution } from 'vs/editor/browser/editorBrowserExtensions';
 import Webview from './webview';
 
 class HtmlZone implements IViewZone {
-
 	zoneId: number;
 
 	private _domNode: HTMLElement;
 	private _webview: Webview;
 	private _disposables: IDisposable[] = [];
 
-	constructor(public lineNumber: number, public htmlContent: string) {
-
-	}
+	constructor(public lineNumber: number, public htmlContent: string) {}
 
 	dispose(): void {
 		dispose(this._disposables);
@@ -32,7 +32,10 @@ class HtmlZone implements IViewZone {
 			this._domNode = document.createElement('div');
 
 			const observer = new MutationObserver(_ => this._onVisibilityChanged());
-			observer.observe(this._domNode, { attributes: true, attributeFilter: ['monaco-visible-view-zone'] });
+			observer.observe(this._domNode, {
+				attributes: true,
+				attributeFilter: ['monaco-visible-view-zone']
+			});
 			this._disposables.push({ dispose: () => observer.disconnect() });
 		}
 
@@ -40,8 +43,14 @@ class HtmlZone implements IViewZone {
 	}
 
 	private _onVisibilityChanged(): void {
-		if (this._domNode.hasAttribute('monaco-visible-view-zone') && !this._webview) {
-			this._webview = new Webview(this.domNode, document.querySelector('.monaco-editor'));
+		if (
+			this._domNode.hasAttribute('monaco-visible-view-zone') &&
+			!this._webview
+		) {
+			this._webview = new Webview(
+				this.domNode,
+				document.querySelector('.monaco-editor')
+			);
 			this._disposables.push(this._webview);
 			this._webview.contents = [this.htmlContent];
 		}
@@ -62,7 +71,6 @@ class HtmlZone implements IViewZone {
 
 @editorContribution
 export class HtmlZoneController implements IEditorContribution {
-
 	static getInstance(editor: ICommonCodeEditor): HtmlZoneController {
 		return <HtmlZoneController>editor.getContribution('htmlZoneContribution');
 	}
@@ -72,7 +80,7 @@ export class HtmlZoneController implements IEditorContribution {
 
 	constructor(editor: ICodeEditor) {
 		this._editor = editor;
-		this._editor.onDidChangeModel(() => this._zones = dispose(this._zones));
+		this._editor.onDidChangeModel(() => (this._zones = dispose(this._zones)));
 	}
 
 	getId(): string {

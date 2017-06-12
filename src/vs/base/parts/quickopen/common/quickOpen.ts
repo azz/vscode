@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { ResolvedKeybinding } from 'vs/base/common/keyCodes';
 
@@ -11,7 +11,6 @@ export interface IQuickNavigateConfiguration {
 }
 
 export interface IAutoFocus {
-
 	/**
 	 * The index of the element to focus in the result list.
 	 */
@@ -65,7 +64,12 @@ export interface IRenderer<T> {
 	getHeight(entry: T): number;
 	getTemplateId(entry: T): string;
 	renderTemplate(templateId: string, container: HTMLElement, styles: any): any;
-	renderElement(entry: T, templateId: string, templateData: any, styles: any): void;
+	renderElement(
+		entry: T,
+		templateId: string,
+		templateData: any,
+		styles: any
+	): void;
 	disposeTemplate(templateId: string, templateData: any): void;
 }
 

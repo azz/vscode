@@ -11,7 +11,11 @@ export interface IDelegate<T> {
 export interface IRenderer<TElement, TTemplateData> {
 	templateId: string;
 	renderTemplate(container: HTMLElement): TTemplateData;
-	renderElement(element: TElement, index: number, templateData: TTemplateData): void;
+	renderElement(
+		element: TElement,
+		index: number,
+		templateData: TTemplateData
+	): void;
 	disposeTemplate(templateData: TTemplateData): void;
 }
 
@@ -34,5 +38,5 @@ export interface IListMouseEvent<T> extends MouseEvent {
 export interface IListContextMenuEvent<T> {
 	element: T;
 	index: number;
-	anchor: HTMLElement | { x: number; y: number; };
+	anchor: HTMLElement | { x: number; y: number };
 }

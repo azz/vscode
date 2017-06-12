@@ -3,15 +3,21 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { KeybindingEditorDecorationsRenderer } from 'vs/workbench/parts/preferences/browser/keybindingsEditorContribution';
 
 suite('KeybindingsEditorContribution', () => {
-
-	function assertUserSettingsFuzzyEquals(a: string, b: string, expected: boolean): void {
-		const actual = KeybindingEditorDecorationsRenderer._userSettingsFuzzyEquals(a, b);
+	function assertUserSettingsFuzzyEquals(
+		a: string,
+		b: string,
+		expected: boolean
+	): void {
+		const actual = KeybindingEditorDecorationsRenderer._userSettingsFuzzyEquals(
+			a,
+			b
+		);
 		const message = expected ? `${a} == ${b}` : `${a} != ${b}`;
 		assert.equal(actual, expected, 'fuzzy: ' + message);
 	}

@@ -3,17 +3,27 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { localize } from 'vs/nls';
-import { IDisposable, dispose, empty as EmptyDisposable, OneDisposable } from 'vs/base/common/lifecycle';
+import {
+	IDisposable,
+	dispose,
+	empty as EmptyDisposable,
+	OneDisposable
+} from 'vs/base/common/lifecycle';
 import { VIEWLET_ID } from 'vs/workbench/parts/scm/common/scm';
-import { ISCMService, ISCMProvider } from 'vs/workbench/services/scm/common/scm';
-import { IActivityBarService, NumberBadge } from 'vs/workbench/services/activity/common/activityBarService';
+import {
+	ISCMService,
+	ISCMProvider
+} from 'vs/workbench/services/scm/common/scm';
+import {
+	IActivityBarService,
+	NumberBadge
+} from 'vs/workbench/services/activity/common/activityBarService';
 import { IWorkbenchContribution } from 'vs/workbench/common/contributions';
 
 export class StatusUpdater implements IWorkbenchContribution {
-
 	static ID = 'vs.scm.statusUpdater';
 
 	private providerChangeDisposable: IDisposable = EmptyDisposable;
@@ -24,7 +34,11 @@ export class StatusUpdater implements IWorkbenchContribution {
 		@ISCMService private scmService: ISCMService,
 		@IActivityBarService private activityBarService: IActivityBarService
 	) {
-		this.scmService.onDidChangeProvider(this.setActiveProvider, this, this.disposables);
+		this.scmService.onDidChangeProvider(
+			this.setActiveProvider,
+			this,
+			this.disposables
+		);
 		this.setActiveProvider(this.scmService.activeProvider);
 		this.disposables.push(this.badgeHandle);
 	}
@@ -35,7 +49,9 @@ export class StatusUpdater implements IWorkbenchContribution {
 
 	private setActiveProvider(activeProvider: ISCMProvider | undefined): void {
 		this.providerChangeDisposable.dispose();
-		this.providerChangeDisposable = activeProvider ? activeProvider.onDidChange(this.update, this) : EmptyDisposable;
+		this.providerChangeDisposable = activeProvider
+			? activeProvider.onDidChange(this.update, this)
+			: EmptyDisposable;
 		this.update();
 	}
 
@@ -47,13 +63,22 @@ export class StatusUpdater implements IWorkbenchContribution {
 			if (typeof provider.count === 'number') {
 				count = provider.count;
 			} else {
-				count = provider.resources.reduce<number>((r, g) => r + g.resources.length, 0);
+				count = provider.resources.reduce<number>(
+					(r, g) => r + g.resources.length,
+					0
+				);
 			}
 		}
 
 		if (count > 0) {
-			const badge = new NumberBadge(count, num => localize('scmPendingChangesBadge', '{0} pending changes', num));
-			this.badgeHandle.value = this.activityBarService.showActivity(VIEWLET_ID, badge, 'scm-viewlet-label');
+			const badge = new NumberBadge(count, num =>
+				localize('scmPendingChangesBadge', '{0} pending changes', num)
+			);
+			this.badgeHandle.value = this.activityBarService.showActivity(
+				VIEWLET_ID,
+				badge,
+				'scm-viewlet-label'
+			);
 		} else {
 			this.badgeHandle.value = null;
 		}

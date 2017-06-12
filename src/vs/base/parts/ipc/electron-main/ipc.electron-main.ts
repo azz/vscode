@@ -14,25 +14,36 @@ interface WebContents extends Electron.WebContents {
 }
 
 interface IIPCEvent {
-	event: { sender: WebContents; };
+	event: { sender: WebContents };
 	message: string;
 }
 
 function createScopedOnMessageEvent(senderId: number): Event<any> {
-	const onMessage = fromEventEmitter<IIPCEvent>(ipcMain, 'ipc:message', (event, message) => ({ event, message }));
-	const onMessageFromSender = filterEvent(onMessage, ({ event }) => event.sender.getId() === senderId);
+	const onMessage = fromEventEmitter<
+		IIPCEvent
+	>(ipcMain, 'ipc:message', (event, message) => ({ event, message }));
+	const onMessageFromSender = filterEvent(
+		onMessage,
+		({ event }) => event.sender.getId() === senderId
+	);
 	return mapEvent(onMessageFromSender, ({ message }) => message);
 }
 
 export class Server extends IPCServer {
-
 	private static getOnDidClientConnect(): Event<ClientConnectionEvent> {
-		const onHello = fromEventEmitter<WebContents>(ipcMain, 'ipc:hello', ({ sender }) => sender);
+		const onHello = fromEventEmitter<WebContents>(
+			ipcMain,
+			'ipc:hello',
+			({ sender }) => sender
+		);
 
 		return mapEvent(onHello, webContents => {
 			const onMessage = createScopedOnMessageEvent(webContents.getId());
 			const protocol = new Protocol(webContents, onMessage);
-			const onDidClientDisconnect = fromEventEmitter<void>(webContents, 'destroyed');
+			const onDidClientDisconnect = fromEventEmitter<void>(
+				webContents,
+				'destroyed'
+			);
 
 			return { protocol, onDidClientDisconnect };
 		});

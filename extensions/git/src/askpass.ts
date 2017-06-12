@@ -3,14 +3,13 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { Disposable, window, InputBoxOptions } from 'vscode';
 import * as path from 'path';
 import * as http from 'http';
 
 export class Askpass implements Disposable {
-
 	private server: http.Server;
 	private portPromise: Promise<number>;
 	private enabled = true;
@@ -20,7 +19,9 @@ export class Askpass implements Disposable {
 
 		try {
 			this.server.listen(0);
-			this.portPromise = new Promise<number>(c => this.server.on('listening', () => c(this.server.address().port)));
+			this.portPromise = new Promise<number>(c =>
+				this.server.on('listening', () => c(this.server.address().port))
+			);
 			this.server.on('error', err => console.error(err));
 		} catch (err) {
 			this.enabled = false;
@@ -34,13 +35,16 @@ export class Askpass implements Disposable {
 		req.on('end', () => {
 			const { request, host } = JSON.parse(chunks.join(''));
 
-			this.prompt(host, request).then(result => {
-				res.writeHead(200);
-				res.end(JSON.stringify(result));
-			}, () => {
-				res.writeHead(500);
-				res.end();
-			});
+			this.prompt(host, request).then(
+				result => {
+					res.writeHead(200);
+					res.end(JSON.stringify(result));
+				},
+				() => {
+					res.writeHead(500);
+					res.end();
+				}
+			);
 		});
 	}
 
@@ -52,7 +56,7 @@ export class Askpass implements Disposable {
 			ignoreFocusOut: true
 		};
 
-		return await window.showInputBox(options) || '';
+		return (await window.showInputBox(options)) || '';
 	}
 
 	async getEnv(): Promise<any> {

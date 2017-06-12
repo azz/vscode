@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 /**
  * A position in the editor. This interface is suitable for serialization.
@@ -50,12 +50,7 @@ export class Position {
 		if (!a && !b) {
 			return true;
 		}
-		return (
-			!!a &&
-			!!b &&
-			a.lineNumber === b.lineNumber &&
-			a.column === b.column
-		);
+		return !!a && !!b && a.lineNumber === b.lineNumber && a.column === b.column;
 	}
 
 	/**
@@ -146,9 +141,9 @@ export class Position {
 	 */
 	public static isIPosition(obj: any): obj is IPosition {
 		return (
-			obj
-			&& (typeof obj.lineNumber === 'number')
-			&& (typeof obj.column === 'number')
+			obj &&
+			typeof obj.lineNumber === 'number' &&
+			typeof obj.column === 'number'
 		);
 	}
 }

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { IAction, IActionItem } from 'vs/base/common/actions';
@@ -11,7 +11,10 @@ import { Promise, TPromise } from 'vs/base/common/winjs.base';
 import { IEditorControl } from 'vs/platform/editor/common/editor';
 import { Viewlet, ViewletDescriptor } from 'vs/workbench/browser/viewlet';
 import { IPanel } from 'vs/workbench/common/panel';
-import { WorkbenchProgressService, ScopedService } from 'vs/workbench/services/progress/browser/progressService';
+import {
+	WorkbenchProgressService,
+	ScopedService
+} from 'vs/workbench/services/progress/browser/progressService';
 import { IViewletService } from 'vs/workbench/services/viewlet/browser/viewlet';
 import { IPanelService } from 'vs/workbench/services/panel/common/panelService';
 import { IViewlet } from 'vs/workbench/common/viewlet';
@@ -40,8 +43,7 @@ class TestViewletService implements IViewletService {
 		return activeViewlet;
 	}
 
-	public dispose() {
-	}
+	public dispose() {}
 
 	public getDefaultViewletId(): string {
 		return 'workbench.view.explorer';
@@ -74,13 +76,11 @@ class TestPanelService implements IPanelService {
 		return activeViewlet;
 	}
 
-	public dispose() {
-	}
+	public dispose() {}
 }
 
 class TestViewlet implements IViewlet {
-
-	constructor(private id: string) { }
+	constructor(private id: string) {}
 
 	getId(): string {
 		return this.id;
@@ -124,8 +124,7 @@ class TestViewlet implements IViewlet {
 	/**
 	 * Asks the underlying control to focus.
 	 */
-	focus(): void {
-	}
+	focus(): void {}
 
 	getOptimalWidth(): number {
 		return 10;
@@ -135,7 +134,11 @@ class TestViewlet implements IViewlet {
 class TestScopedService extends ScopedService {
 	public isActive: boolean;
 
-	constructor(viewletService: IViewletService, panelService: IPanelService, scopeId: string) {
+	constructor(
+		viewletService: IViewletService,
+		panelService: IPanelService,
+		scopeId: string
+	) {
 		super(viewletService, panelService, scopeId);
 	}
 	public onScopeActivated() {
@@ -153,8 +156,7 @@ class TestProgressBar {
 	public fInfinite: boolean;
 	public fDone: boolean;
 
-	constructor() {
-	}
+	constructor() {}
 
 	public infinite() {
 		this.fDone = null;
@@ -202,18 +204,21 @@ class TestProgressBar {
 
 	public getContainer() {
 		return {
-			show: function () { },
-			hide: function () { }
+			show: function() {},
+			hide: function() {}
 		};
 	}
 }
 
 suite('Progress Service', () => {
-
 	test('ScopedService', () => {
 		let viewletService = new TestViewletService();
 		let panelService = new TestPanelService();
-		let service = new TestScopedService(viewletService, panelService, 'test.scopeId');
+		let service = new TestScopedService(
+			viewletService,
+			panelService,
+			'test.scopeId'
+		);
 		const testViewlet = new TestViewlet('test.scopeId');
 
 		assert(!service.isActive);
@@ -222,14 +227,19 @@ suite('Progress Service', () => {
 
 		viewletService.onDidViewletCloseEmitter.fire(testViewlet);
 		assert(!service.isActive);
-
 	});
 
-	test('WorkbenchProgressService', function () {
+	test('WorkbenchProgressService', function() {
 		let testProgressBar = new TestProgressBar();
 		let viewletService = new TestViewletService();
 		let panelService = new TestPanelService();
-		let service = new WorkbenchProgressService((<any>testProgressBar), 'test.scopeId', true, viewletService, panelService);
+		let service = new WorkbenchProgressService(
+			<any>testProgressBar,
+			'test.scopeId',
+			true,
+			viewletService,
+			panelService
+		);
 
 		// Active: Show (Infinite)
 		let fn = service.show(true);

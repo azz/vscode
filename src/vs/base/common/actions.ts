@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import { IEventEmitter, EventEmitter } from 'vs/base/common/eventEmitter';
@@ -73,7 +73,6 @@ export interface IActionChangeEvent {
 }
 
 export class Action implements IAction {
-
 	protected _onDidChange = new Emitter<IActionChangeEvent>();
 	protected _id: string;
 	protected _label: string;
@@ -85,7 +84,13 @@ export class Action implements IAction {
 	protected _order: number;
 	protected _actionCallback: (event?: any) => TPromise<any>;
 
-	constructor(id: string, label: string = '', cssClass: string = '', enabled: boolean = true, actionCallback?: (event?: any) => TPromise<any>) {
+	constructor(
+		id: string,
+		label: string = '',
+		cssClass: string = '',
+		enabled: boolean = true,
+		actionCallback?: (event?: any) => TPromise<any>
+	) {
 		this._id = id;
 		this._label = label;
 		this._cssClass = cssClass;
@@ -218,7 +223,6 @@ export interface IRunEvent {
 }
 
 export class ActionRunner extends EventEmitter implements IActionRunner {
-
 	public run(action: IAction, context?: any): TPromise<any> {
 		if (!action.enabled) {
 			return TPromise.as(null);
@@ -226,11 +230,20 @@ export class ActionRunner extends EventEmitter implements IActionRunner {
 
 		this.emit(Events.EventType.BEFORE_RUN, { action: action });
 
-		return this.runAction(action, context).then((result: any) => {
-			this.emit(Events.EventType.RUN, <IRunEvent>{ action: action, result: result });
-		}, (error: any) => {
-			this.emit(Events.EventType.RUN, <IRunEvent>{ action: action, error: error });
-		});
+		return this.runAction(action, context).then(
+			(result: any) => {
+				this.emit(
+					Events.EventType.RUN,
+					<IRunEvent>{ action: action, result: result }
+				);
+			},
+			(error: any) => {
+				this.emit(
+					Events.EventType.RUN,
+					<IRunEvent>{ action: action, error: error }
+				);
+			}
+		);
 	}
 
 	protected runAction(action: IAction, context?: any): TPromise<any> {

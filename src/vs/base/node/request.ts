@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { Promise, TPromise } from 'vs/base/common/winjs.base';
 import { isBoolean, isNumber } from 'vs/base/common/types';
@@ -18,7 +18,9 @@ import { createGunzip } from 'zlib';
 export type Agent = any;
 
 export interface IRawRequestFunction {
-	(options: http.RequestOptions, callback?: (res: http.IncomingMessage) => void): http.ClientRequest;
+	(options: http.RequestOptions, callback?: (
+		res: http.IncomingMessage
+	) => void): http.ClientRequest;
 }
 
 export interface IRequestOptions {
@@ -63,13 +65,17 @@ export function request(options: IRequestOptions): TPromise<IRequestContext> {
 		const rawRequest = getRawRequest(options);
 		const opts: https.RequestOptions = {
 			hostname: endpoint.hostname,
-			port: endpoint.port ? parseInt(endpoint.port) : (endpoint.protocol === 'https:' ? 443 : 80),
+			port: endpoint.port
+				? parseInt(endpoint.port)
+				: endpoint.protocol === 'https:' ? 443 : 80,
 			protocol: endpoint.protocol,
 			path: endpoint.path,
 			method: options.type || 'GET',
 			headers: options.headers,
 			agent: options.agent,
-			rejectUnauthorized: isBoolean(options.strictSSL) ? options.strictSSL : true
+			rejectUnauthorized: isBoolean(options.strictSSL)
+				? options.strictSSL
+				: true
 		};
 
 		if (options.user && options.password) {
@@ -77,13 +83,22 @@ export function request(options: IRequestOptions): TPromise<IRequestContext> {
 		}
 
 		req = rawRequest(opts, (res: http.ClientResponse) => {
-			const followRedirects = isNumber(options.followRedirects) ? options.followRedirects : 3;
+			const followRedirects = isNumber(options.followRedirects)
+				? options.followRedirects
+				: 3;
 
-			if (res.statusCode >= 300 && res.statusCode < 400 && followRedirects > 0 && res.headers['location']) {
-				request(assign({}, options, {
-					url: res.headers['location'],
-					followRedirects: followRedirects - 1
-				})).done(c, e);
+			if (
+				res.statusCode >= 300 &&
+				res.statusCode < 400 &&
+				followRedirects > 0 &&
+				res.headers['location']
+			) {
+				request(
+					assign({}, options, {
+						url: res.headers['location'],
+						followRedirects: followRedirects - 1
+					})
+				).done(c, e);
 			} else {
 				let stream: Stream = res;
 
@@ -106,19 +121,24 @@ export function request(options: IRequestOptions): TPromise<IRequestContext> {
 		}
 
 		req.end();
-	},
-		() => req && req.abort());
+	}, () => req && req.abort());
 }
 
 function isSuccess(context: IRequestContext): boolean {
-	return (context.res.statusCode >= 200 && context.res.statusCode < 300) || context.res.statusCode === 1223;
+	return (
+		(context.res.statusCode >= 200 && context.res.statusCode < 300) ||
+		context.res.statusCode === 1223
+	);
 }
 
 function hasNoContent(context: IRequestContext): boolean {
 	return context.res.statusCode === 204;
 }
 
-export function download(filePath: string, context: IRequestContext): TPromise<void> {
+export function download(
+	filePath: string,
+	context: IRequestContext
+): TPromise<void> {
 	return new TPromise<void>((c, e) => {
 		const out = createWriteStream(filePath);
 
@@ -156,7 +176,7 @@ export function asJson<T>(context: IRequestContext): TPromise<T> {
 		}
 
 		if (!/application\/json/.test(context.res.headers['content-type'])) {
-			return e('Response doesn\'t appear to be JSON');
+			return e("Response doesn't appear to be JSON");
 		}
 
 		const buffer: string[] = [];

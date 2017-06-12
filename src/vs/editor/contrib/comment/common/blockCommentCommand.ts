@@ -2,17 +2,19 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { EditOperation } from 'vs/editor/common/core/editOperation';
 import { Position } from 'vs/editor/common/core/position';
 import { Range } from 'vs/editor/common/core/range';
 import { Selection } from 'vs/editor/common/core/selection';
 import * as editorCommon from 'vs/editor/common/editorCommon';
-import { ICommentsConfiguration, LanguageConfigurationRegistry } from 'vs/editor/common/modes/languageConfigurationRegistry';
+import {
+	ICommentsConfiguration,
+	LanguageConfigurationRegistry
+} from 'vs/editor/common/modes/languageConfigurationRegistry';
 
 export class BlockCommentCommand implements editorCommon.ICommand {
-
 	private _selection: Selection;
 	private _usedEndToken: string;
 
@@ -21,7 +23,11 @@ export class BlockCommentCommand implements editorCommon.ICommand {
 		this._usedEndToken = null;
 	}
 
-	public static _haystackHasNeedleAtOffset(haystack: string, needle: string, offset: number): boolean {
+	public static _haystackHasNeedleAtOffset(
+		haystack: string,
+		needle: string,
+		offset: number
+	): boolean {
 		if (offset < 0) {
 			return false;
 		}
@@ -38,7 +44,12 @@ export class BlockCommentCommand implements editorCommon.ICommand {
 		return true;
 	}
 
-	private _createOperationsForBlockComment(selection: Range, config: ICommentsConfiguration, model: editorCommon.ITokenizedModel, builder: editorCommon.IEditOperationBuilder): void {
+	private _createOperationsForBlockComment(
+		selection: Range,
+		config: ICommentsConfiguration,
+		model: editorCommon.ITokenizedModel,
+		builder: editorCommon.IEditOperationBuilder
+	): void {
 		var startLineNumber = selection.startLineNumber;
 		var startColumn = selection.startColumn;
 		var endLineNumber = selection.endLineNumber;
@@ -47,17 +58,32 @@ export class BlockCommentCommand implements editorCommon.ICommand {
 		var startToken = config.blockCommentStartToken;
 		var endToken = config.blockCommentEndToken;
 
-		var startTokenIndex = model.getLineContent(startLineNumber).lastIndexOf(startToken, startColumn - 1 + startToken.length);
-		var endTokenIndex = model.getLineContent(endLineNumber).indexOf(endToken, endColumn - 1 - endToken.length);
+		var startTokenIndex = model
+			.getLineContent(startLineNumber)
+			.lastIndexOf(startToken, startColumn - 1 + startToken.length);
+		var endTokenIndex = model
+			.getLineContent(endLineNumber)
+			.indexOf(endToken, endColumn - 1 - endToken.length);
 
 		var ops: editorCommon.IIdentifiedSingleEditOperation[];
 
 		if (startTokenIndex !== -1 && endTokenIndex !== -1) {
 			ops = BlockCommentCommand._createRemoveBlockCommentOperations(
-				new Range(startLineNumber, startTokenIndex + 1 + startToken.length, endLineNumber, endTokenIndex + 1), startToken, endToken
+				new Range(
+					startLineNumber,
+					startTokenIndex + 1 + startToken.length,
+					endLineNumber,
+					endTokenIndex + 1
+				),
+				startToken,
+				endToken
 			);
 		} else {
-			ops = BlockCommentCommand._createAddBlockCommentOperations(selection, startToken, endToken);
+			ops = BlockCommentCommand._createAddBlockCommentOperations(
+				selection,
+				startToken,
+				endToken
+			);
 			this._usedEndToken = ops.length === 1 ? endToken : null;
 		}
 
@@ -66,72 +92,131 @@ export class BlockCommentCommand implements editorCommon.ICommand {
 		}
 	}
 
-	public static _createRemoveBlockCommentOperations(r: Range, startToken: string, endToken: string): editorCommon.IIdentifiedSingleEditOperation[] {
+	public static _createRemoveBlockCommentOperations(
+		r: Range,
+		startToken: string,
+		endToken: string
+	): editorCommon.IIdentifiedSingleEditOperation[] {
 		var res: editorCommon.IIdentifiedSingleEditOperation[] = [];
 
 		if (!Range.isEmpty(r)) {
 			// Remove block comment start
-			res.push(EditOperation.delete(new Range(
-				r.startLineNumber, r.startColumn - startToken.length,
-				r.startLineNumber, r.startColumn
-			)));
+			res.push(
+				EditOperation.delete(
+					new Range(
+						r.startLineNumber,
+						r.startColumn - startToken.length,
+						r.startLineNumber,
+						r.startColumn
+					)
+				)
+			);
 
 			// Remove block comment end
-			res.push(EditOperation.delete(new Range(
-				r.endLineNumber, r.endColumn,
-				r.endLineNumber, r.endColumn + endToken.length
-			)));
+			res.push(
+				EditOperation.delete(
+					new Range(
+						r.endLineNumber,
+						r.endColumn,
+						r.endLineNumber,
+						r.endColumn + endToken.length
+					)
+				)
+			);
 		} else {
 			// Remove both continuously
-			res.push(EditOperation.delete(new Range(
-				r.startLineNumber, r.startColumn - startToken.length,
-				r.endLineNumber, r.endColumn + endToken.length
-			)));
+			res.push(
+				EditOperation.delete(
+					new Range(
+						r.startLineNumber,
+						r.startColumn - startToken.length,
+						r.endLineNumber,
+						r.endColumn + endToken.length
+					)
+				)
+			);
 		}
 
 		return res;
 	}
 
-	public static _createAddBlockCommentOperations(r: Range, startToken: string, endToken: string): editorCommon.IIdentifiedSingleEditOperation[] {
+	public static _createAddBlockCommentOperations(
+		r: Range,
+		startToken: string,
+		endToken: string
+	): editorCommon.IIdentifiedSingleEditOperation[] {
 		var res: editorCommon.IIdentifiedSingleEditOperation[] = [];
 
 		if (!Range.isEmpty(r)) {
 			// Insert block comment start
-			res.push(EditOperation.insert(new Position(r.startLineNumber, r.startColumn), startToken));
+			res.push(
+				EditOperation.insert(
+					new Position(r.startLineNumber, r.startColumn),
+					startToken
+				)
+			);
 
 			// Insert block comment end
-			res.push(EditOperation.insert(new Position(r.endLineNumber, r.endColumn), endToken));
+			res.push(
+				EditOperation.insert(
+					new Position(r.endLineNumber, r.endColumn),
+					endToken
+				)
+			);
 		} else {
 			// Insert both continuously
-			res.push(EditOperation.replace(new Range(
-				r.startLineNumber, r.startColumn,
-				r.endLineNumber, r.endColumn
-			), startToken + endToken));
+			res.push(
+				EditOperation.replace(
+					new Range(
+						r.startLineNumber,
+						r.startColumn,
+						r.endLineNumber,
+						r.endColumn
+					),
+					startToken + endToken
+				)
+			);
 		}
 
 		return res;
 	}
 
-	public getEditOperations(model: editorCommon.ITokenizedModel, builder: editorCommon.IEditOperationBuilder): void {
+	public getEditOperations(
+		model: editorCommon.ITokenizedModel,
+		builder: editorCommon.IEditOperationBuilder
+	): void {
 		var startLineNumber = this._selection.startLineNumber;
 		var startColumn = this._selection.startColumn;
 		var endLineNumber = this._selection.endLineNumber;
 		var endColumn = this._selection.endColumn;
 
 		model.forceTokenization(startLineNumber);
-		let languageId = model.getLanguageIdAtPosition(startLineNumber, startColumn);
+		let languageId = model.getLanguageIdAtPosition(
+			startLineNumber,
+			startColumn
+		);
 		let config = LanguageConfigurationRegistry.getComments(languageId);
-		if (!config || !config.blockCommentStartToken || !config.blockCommentEndToken) {
+		if (
+			!config ||
+			!config.blockCommentStartToken ||
+			!config.blockCommentEndToken
+		) {
 			// Mode does not support block comments
 			return;
 		}
 
 		this._createOperationsForBlockComment(
-			new Range(startLineNumber, startColumn, endLineNumber, endColumn), config, model, builder
+			new Range(startLineNumber, startColumn, endLineNumber, endColumn),
+			config,
+			model,
+			builder
 		);
 	}
 
-	public computeCursorState(model: editorCommon.ITokenizedModel, helper: editorCommon.ICursorStateComputerData): Selection {
+	public computeCursorState(
+		model: editorCommon.ITokenizedModel,
+		helper: editorCommon.ICursorStateComputerData
+	): Selection {
 		var inverseEditOperations = helper.getInverseEditOperations();
 		if (inverseEditOperations.length === 2) {
 			var startTokenEditOperation = inverseEditOperations[0];

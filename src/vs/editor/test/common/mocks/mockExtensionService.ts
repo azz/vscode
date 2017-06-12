@@ -2,12 +2,17 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import Severity from 'vs/base/common/severity';
-import { AbstractExtensionService, ActivatedExtension } from 'vs/platform/extensions/common/abstractExtensionService';
+import {
+	AbstractExtensionService,
+	ActivatedExtension
+} from 'vs/platform/extensions/common/abstractExtensionService';
 
-export class MockExtensionService extends AbstractExtensionService<ActivatedExtension> {
+export class MockExtensionService extends AbstractExtensionService<
+	ActivatedExtension
+> {
 	constructor() {
 		super(true);
 	}

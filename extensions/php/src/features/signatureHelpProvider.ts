@@ -3,9 +3,17 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
-import { SignatureHelpProvider, SignatureHelp, SignatureInformation, CancellationToken, TextDocument, Position, workspace } from 'vscode';
+import {
+	SignatureHelpProvider,
+	SignatureHelp,
+	SignatureInformation,
+	CancellationToken,
+	TextDocument,
+	Position,
+	workspace
+} from 'vscode';
 import phpGlobals = require('./phpGlobals');
 
 var _NL = '\n'.charCodeAt(0);
@@ -18,7 +26,7 @@ var _RCurly = '}'.charCodeAt(0);
 var _LParent = '('.charCodeAt(0);
 var _RParent = ')'.charCodeAt(0);
 var _Comma = ','.charCodeAt(0);
-var _Quote = '\''.charCodeAt(0);
+var _Quote = "'".charCodeAt(0);
 var _DQuote = '"'.charCodeAt(0);
 var _USC = '_'.charCodeAt(0);
 var _a = 'a'.charCodeAt(0);
@@ -29,7 +37,6 @@ var _0 = '0'.charCodeAt(0);
 var _9 = '9'.charCodeAt(0);
 
 var BOF = 0;
-
 
 class BackwardIterator {
 	private lineNumber: number;
@@ -63,19 +70,26 @@ class BackwardIterator {
 		this.offset--;
 		return ch;
 	}
-
 }
 
-
 export default class PHPSignatureHelpProvider implements SignatureHelpProvider {
-
-	public provideSignatureHelp(document: TextDocument, position: Position, token: CancellationToken): Promise<SignatureHelp> {
-		let enable = workspace.getConfiguration('php').get<boolean>('suggest.basic', true);
+	public provideSignatureHelp(
+		document: TextDocument,
+		position: Position,
+		token: CancellationToken
+	): Promise<SignatureHelp> {
+		let enable = workspace
+			.getConfiguration('php')
+			.get<boolean>('suggest.basic', true);
 		if (!enable) {
 			return null;
 		}
 
-		var iterator = new BackwardIterator(document, position.character - 1, position.line);
+		var iterator = new BackwardIterator(
+			document,
+			position.character - 1,
+			position.line
+		);
 
 		var paramCount = this.readArguments(iterator);
 		if (paramCount < 0) {
@@ -91,8 +105,14 @@ export default class PHPSignatureHelpProvider implements SignatureHelpProvider {
 		if (!entry || !entry.signature) {
 			return null;
 		}
-		var paramsString = entry.signature.substring(0, entry.signature.lastIndexOf(')') + 1);
-		let signatureInfo = new SignatureInformation(ident + paramsString, entry.description);
+		var paramsString = entry.signature.substring(
+			0,
+			entry.signature.lastIndexOf(')') + 1
+		);
+		let signatureInfo = new SignatureInformation(
+			ident + paramsString,
+			entry.description
+		);
 
 		var re = /\w*\s+\&?\$[\w_\.]+|void/g;
 		var match: RegExpExecArray = null;
@@ -102,7 +122,10 @@ export default class PHPSignatureHelpProvider implements SignatureHelpProvider {
 		let ret = new SignatureHelp();
 		ret.signatures.push(signatureInfo);
 		ret.activeSignature = 0;
-		ret.activeParameter = Math.min(paramCount, signatureInfo.parameters.length - 1);
+		ret.activeParameter = Math.min(
+			paramCount,
+			signatureInfo.parameters.length - 1
+		);
 		return Promise.resolve(ret);
 	}
 
@@ -120,11 +143,21 @@ export default class PHPSignatureHelpProvider implements SignatureHelpProvider {
 						return paramCount;
 					}
 					break;
-				case _RParent: parentNesting++; break;
-				case _LCurly: curlyNesting--; break;
-				case _RCurly: curlyNesting++; break;
-				case _LBracket: bracketNesting--; break;
-				case _RBracket: bracketNesting++; break;
+				case _RParent:
+					parentNesting++;
+					break;
+				case _LCurly:
+					curlyNesting--;
+					break;
+				case _RCurly:
+					curlyNesting++;
+					break;
+				case _LBracket:
+					bracketNesting--;
+					break;
+				case _RBracket:
+					bracketNesting++;
+					break;
 				case _DQuote:
 				case _Quote:
 					while (iterator.hasNext() && ch !== iterator.next()) {
@@ -142,11 +175,14 @@ export default class PHPSignatureHelpProvider implements SignatureHelpProvider {
 	}
 
 	private isIdentPart(ch: number): boolean {
-		if (ch === _USC || // _
-			ch >= _a && ch <= _z || // a-z
-			ch >= _A && ch <= _Z || // A-Z
-			ch >= _0 && ch <= _9 || // 0/9
-			ch >= 0x80 && ch <= 0xFFFF) { // nonascii
+		if (
+			ch === _USC || // _
+			(ch >= _a && ch <= _z) || // a-z
+			(ch >= _A && ch <= _Z) || // A-Z
+			(ch >= _0 && ch <= _9) || // 0/9
+			(ch >= 0x80 && ch <= 0xffff)
+		) {
+			// nonascii
 
 			return true;
 		}
@@ -170,5 +206,4 @@ export default class PHPSignatureHelpProvider implements SignatureHelpProvider {
 		}
 		return ident;
 	}
-
 }

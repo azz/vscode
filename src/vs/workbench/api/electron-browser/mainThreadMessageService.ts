@@ -2,10 +2,13 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import nls = require('vs/nls');
-import { IMessageService, IChoiceService } from 'vs/platform/message/common/message';
+import {
+	IMessageService,
+	IChoiceService
+} from 'vs/platform/message/common/message';
 import Severity from 'vs/base/common/severity';
 import { Action } from 'vs/base/common/actions';
 import { TPromise as Promise } from 'vs/base/common/winjs.base';
@@ -13,7 +16,6 @@ import { MainThreadMessageServiceShape } from '../node/extHost.protocol';
 import * as vscode from 'vscode';
 
 export class MainThreadMessageService extends MainThreadMessageServiceShape {
-
 	constructor(
 		@IMessageService private _messageService: IMessageService,
 		@IChoiceService private _choiceService: IChoiceService
@@ -21,7 +23,12 @@ export class MainThreadMessageService extends MainThreadMessageServiceShape {
 		super();
 	}
 
-	$showMessage(severity: Severity, message: string, options: vscode.MessageOptions, commands: { title: string; isCloseAffordance: boolean; handle: number; }[]): Thenable<number> {
+	$showMessage(
+		severity: Severity,
+		message: string,
+		options: vscode.MessageOptions,
+		commands: { title: string; isCloseAffordance: boolean; handle: number }[]
+	): Thenable<number> {
 		if (options.modal) {
 			return this.showModalMessage(severity, message, commands);
 		} else {
@@ -29,10 +36,12 @@ export class MainThreadMessageService extends MainThreadMessageServiceShape {
 		}
 	}
 
-	private showMessage(severity: Severity, message: string, commands: { title: string; isCloseAffordance: boolean; handle: number; }[]): Thenable<number> {
-
+	private showMessage(
+		severity: Severity,
+		message: string,
+		commands: { title: string; isCloseAffordance: boolean; handle: number }[]
+	): Thenable<number> {
 		return new Promise<number>(resolve => {
-
 			let messageHide: Function;
 			let actions: MessageItemAction[] = [];
 			let hasCloseAffordance = false;
@@ -54,11 +63,23 @@ export class MainThreadMessageService extends MainThreadMessageServiceShape {
 				if (command.isCloseAffordance === true) {
 					hasCloseAffordance = true;
 				}
-				actions.push(new MessageItemAction('_extension_message_handle_' + command.handle, command.title, command.handle));
+				actions.push(
+					new MessageItemAction(
+						'_extension_message_handle_' + command.handle,
+						command.title,
+						command.handle
+					)
+				);
 			});
 
 			if (!hasCloseAffordance) {
-				actions.push(new MessageItemAction('__close', nls.localize('close', "Close"), undefined));
+				actions.push(
+					new MessageItemAction(
+						'__close',
+						nls.localize('close', 'Close'),
+						undefined
+					)
+				);
 			}
 
 			messageHide = this._messageService.show(severity, {
@@ -68,7 +89,11 @@ export class MainThreadMessageService extends MainThreadMessageServiceShape {
 		});
 	}
 
-	private showModalMessage(severity: Severity, message: string, commands: { title: string; isCloseAffordance: boolean; handle: number; }[]): Thenable<number> {
+	private showModalMessage(
+		severity: Severity,
+		message: string,
+		commands: { title: string; isCloseAffordance: boolean; handle: number }[]
+	): Thenable<number> {
 		let cancelId: number | undefined = void 0;
 
 		const options = commands.map((command, index) => {
@@ -81,15 +106,19 @@ export class MainThreadMessageService extends MainThreadMessageServiceShape {
 
 		if (cancelId === void 0) {
 			if (options.length > 0) {
-				options.push(nls.localize('cancel', "Cancel"));
+				options.push(nls.localize('cancel', 'Cancel'));
 			} else {
-				options.push(nls.localize('ok', "OK"));
+				options.push(nls.localize('ok', 'OK'));
 			}
 
 			cancelId = options.length - 1;
 		}
 
-		return this._choiceService.choose(severity, message, options, cancelId, true)
-			.then(result => result === commands.length ? undefined : commands[result].handle);
+		return this._choiceService
+			.choose(severity, message, options, cancelId, true)
+			.then(
+				result =>
+					result === commands.length ? undefined : commands[result].handle
+			);
 	}
 }

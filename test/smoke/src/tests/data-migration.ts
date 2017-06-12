@@ -5,7 +5,14 @@
 
 import * as assert from 'assert';
 
-import { SpectronApplication, USER_DIR, STABLE_PATH, LATEST_PATH, WORKSPACE_PATH, EXTENSIONS_DIR } from "../spectron/application";
+import {
+	SpectronApplication,
+	USER_DIR,
+	STABLE_PATH,
+	LATEST_PATH,
+	WORKSPACE_PATH,
+	EXTENSIONS_DIR
+} from '../spectron/application';
 import { CommonActions } from '../areas/common';
 
 let app: SpectronApplication;
@@ -17,24 +24,33 @@ export function testDataMigration() {
 	}
 
 	context('Data Migration', () => {
-
-		afterEach(async function () {
+		afterEach(async function() {
 			await app.stop();
 			await common.removeDirectory(USER_DIR);
 			return await common.removeDirectory(EXTENSIONS_DIR);
 		});
 
-		function setupSpectron(context: Mocha.ITestCallbackContext, appPath: string, args?: string[]): void {
+		function setupSpectron(
+			context: Mocha.ITestCallbackContext,
+			appPath: string,
+			args?: string[]
+		): void {
 			if (!args) {
 				args = [];
 			}
 			args.push(`--extensions-dir=${EXTENSIONS_DIR}`);
 
-			app = new SpectronApplication(appPath, context.test.fullTitle(), context.test.currentRetry(), args, [`--user-data-dir=${USER_DIR}`]);
+			app = new SpectronApplication(
+				appPath,
+				context.test.fullTitle(),
+				context.test.currentRetry(),
+				args,
+				[`--user-data-dir=${USER_DIR}`]
+			);
 			common = new CommonActions(app);
 		}
 
-		it('checks if the Untitled file is restored migrating from stable to latest', async function () {
+		it('checks if the Untitled file is restored migrating from stable to latest', async function() {
 			const textToType = 'Very dirty file';
 
 			// Setting up stable version
@@ -57,9 +73,10 @@ export function testDataMigration() {
 			assert.equal(editorText, textToType);
 		});
 
-		it('checks if the newly created dirty file is restored migrating from stable to latest', async function () {
+		it('checks if the newly created dirty file is restored migrating from stable to latest', async function() {
 			const fileName = 'test_data/plainFile',
-				firstTextPart = 'This is going to be an unsaved file', secondTextPart = '_that is dirty.';
+				firstTextPart = 'This is going to be an unsaved file',
+				secondTextPart = '_that is dirty.';
 
 			// Setting up stable version
 			setupSpectron(this, STABLE_PATH, [fileName]);
@@ -86,8 +103,10 @@ export function testDataMigration() {
 			await common.removeFile(`${fileName}`);
 		});
 
-		it('cheks if opened tabs are restored migrating from stable to latest', async function () {
-			const fileName1 = 'app.js', fileName2 = 'jsconfig.json', fileName3 = 'readme.md';
+		it('cheks if opened tabs are restored migrating from stable to latest', async function() {
+			const fileName1 = 'app.js',
+				fileName2 = 'jsconfig.json',
+				fileName3 = 'readme.md';
 			setupSpectron(this, STABLE_PATH, [WORKSPACE_PATH]);
 			await app.start();
 			await common.openFile(fileName1, true);

@@ -8,7 +8,6 @@ export interface ITask<T> {
 }
 
 export class Delayer<T> {
-
 	public defaultDelay: number;
 	private timeout: any; // Timer
 	private completionPromise: Promise<T | null> | null;
@@ -23,14 +22,17 @@ export class Delayer<T> {
 		this.task = null;
 	}
 
-	public trigger(task: ITask<T>, delay: number = this.defaultDelay): Promise<T | null> {
+	public trigger(
+		task: ITask<T>,
+		delay: number = this.defaultDelay
+	): Promise<T | null> {
 		this.task = task;
 		if (delay >= 0) {
 			this.cancelTimeout();
 		}
 
 		if (!this.completionPromise) {
-			this.completionPromise = new Promise<T>((resolve) => {
+			this.completionPromise = new Promise<T>(resolve => {
 				this.onSuccess = resolve;
 			}).then(() => {
 				this.completionPromise = null;

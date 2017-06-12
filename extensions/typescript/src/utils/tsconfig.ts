@@ -17,20 +17,31 @@ export function openOrCreateConfigFile(
 		return Promise.resolve(null);
 	}
 
-	const configFile = vscode.Uri.file(path.join(vscode.workspace.rootPath, isTypeScriptProject ? 'tsconfig.json' : 'jsconfig.json'));
-	const col = vscode.window.activeTextEditor ? vscode.window.activeTextEditor.viewColumn : undefined;
-	return vscode.workspace.openTextDocument(configFile)
-		.then(doc => {
+	const configFile = vscode.Uri.file(
+		path.join(
+			vscode.workspace.rootPath,
+			isTypeScriptProject ? 'tsconfig.json' : 'jsconfig.json'
+		)
+	);
+	const col = vscode.window.activeTextEditor
+		? vscode.window.activeTextEditor.viewColumn
+		: undefined;
+	return vscode.workspace.openTextDocument(configFile).then(
+		doc => {
 			return vscode.window.showTextDocument(doc, col);
-		}, _ => {
-			return vscode.workspace.openTextDocument(configFile.with({ scheme: 'untitled' }))
+		},
+		_ => {
+			return vscode.workspace
+				.openTextDocument(configFile.with({ scheme: 'untitled' }))
 				.then(doc => vscode.window.showTextDocument(doc, col))
 				.then(editor => {
 					if (editor.document.getText().length === 0) {
-						return editor.insertSnippet(new vscode.SnippetString('{\n\t$0\n}'))
+						return editor
+							.insertSnippet(new vscode.SnippetString('{\n\t$0\n}'))
 							.then(_ => editor);
 					}
 					return editor;
 				});
-		});
+		}
+	);
 }

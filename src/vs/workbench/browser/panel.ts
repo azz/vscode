@@ -7,19 +7,30 @@ import * as DOM from 'vs/base/browser/dom';
 import { Registry } from 'vs/platform/platform';
 import { TPromise } from 'vs/base/common/winjs.base';
 import { IPanel } from 'vs/workbench/common/panel';
-import { Composite, CompositeDescriptor, CompositeRegistry } from 'vs/workbench/browser/composite';
+import {
+	Composite,
+	CompositeDescriptor,
+	CompositeRegistry
+} from 'vs/workbench/browser/composite';
 import { Action } from 'vs/base/common/actions';
 import { IPanelService } from 'vs/workbench/services/panel/common/panelService';
 import { IPartService } from 'vs/workbench/services/part/common/partService';
 
-export abstract class Panel extends Composite implements IPanel { }
+export abstract class Panel extends Composite implements IPanel {}
 
 /**
  * A panel descriptor is a leightweight descriptor of a panel in the workbench.
  */
 export class PanelDescriptor extends CompositeDescriptor<Panel> {
-
-	constructor(moduleId: string, ctorName: string, id: string, name: string, cssClass?: string, order?: number, private _commandId?: string) {
+	constructor(
+		moduleId: string,
+		ctorName: string,
+		id: string,
+		name: string,
+		cssClass?: string,
+		order?: number,
+		private _commandId?: string
+	) {
 		super(moduleId, ctorName, id, name, cssClass, order);
 	}
 
@@ -71,7 +82,6 @@ export class PanelRegistry extends CompositeRegistry<Panel> {
  * A reusable action to toggle a panel with a specific id.
  */
 export abstract class TogglePanelAction extends Action {
-
 	private panelId: string;
 
 	constructor(
@@ -87,7 +97,6 @@ export abstract class TogglePanelAction extends Action {
 	}
 
 	public run(): TPromise<any> {
-
 		if (this.isPanelShowing()) {
 			return this.partService.setPanelHidden(true);
 		}
@@ -105,7 +114,14 @@ export abstract class TogglePanelAction extends Action {
 		const activePanel = this.panelService.getActivePanel();
 		const activeElement = document.activeElement;
 
-		return activePanel && activeElement && DOM.isAncestor(activeElement, (<Panel>activePanel).getContainer().getHTMLElement());
+		return (
+			activePanel &&
+			activeElement &&
+			DOM.isAncestor(
+				activeElement,
+				(<Panel>activePanel).getContainer().getHTMLElement()
+			)
+		);
 	}
 }
 

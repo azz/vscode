@@ -9,13 +9,18 @@ import * as Lint from 'tslint';
 export class Rule extends Lint.Rules.AbstractRule {
 	public apply(sourceFile: ts.SourceFile): Lint.RuleFailure[] {
 		const allowed = this.getOptions().ruleArguments[0] as string[];
-		return this.applyWithWalker(new AsyncRuleWalker(sourceFile, this.getOptions(), allowed));
+		return this.applyWithWalker(
+			new AsyncRuleWalker(sourceFile, this.getOptions(), allowed)
+		);
 	}
 }
 
 class AsyncRuleWalker extends Lint.RuleWalker {
-
-	constructor(file: ts.SourceFile, opts: Lint.IOptions, private allowed: string[]) {
+	constructor(
+		file: ts.SourceFile,
+		opts: Lint.IOptions,
+		private allowed: string[]
+	) {
 		super(file, opts);
 	}
 
@@ -37,11 +42,14 @@ class AsyncRuleWalker extends Lint.RuleWalker {
 		const path = (node.getSourceFile() as any).path;
 		const pathParts = path.split(/\\|\//);
 
-		if (pathParts.some(part => this.allowed.some(allowed => part === allowed))) {
+		if (
+			pathParts.some(part => this.allowed.some(allowed => part === allowed))
+		) {
 			return;
 		}
 
-		const message = `You are not allowed to use async function in this layer. Allowed layers are: [${this.allowed}]`;
+		const message = `You are not allowed to use async function in this layer. Allowed layers are: [${this
+			.allowed}]`;
 		this.addFailureAtNode(node, message);
 	}
 }

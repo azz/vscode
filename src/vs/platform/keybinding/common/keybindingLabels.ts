@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as nls from 'vs/nls';
 import { OperatingSystem } from 'vs/base/common/platform';
@@ -24,21 +24,36 @@ export interface Modifiers {
 }
 
 export class ModifierLabelProvider {
-
 	public readonly modifierLabels: ModifierLabels[];
 
-	constructor(mac: ModifierLabels, windows: ModifierLabels, linux: ModifierLabels = windows) {
+	constructor(
+		mac: ModifierLabels,
+		windows: ModifierLabels,
+		linux: ModifierLabels = windows
+	) {
 		this.modifierLabels = [null];
 		this.modifierLabels[OperatingSystem.Macintosh] = mac;
 		this.modifierLabels[OperatingSystem.Windows] = windows;
 		this.modifierLabels[OperatingSystem.Linux] = linux;
 	}
 
-	public toLabel(firstPartMod: Modifiers, firstPartKey: string, chordPartMod: Modifiers, chordPartKey: string, OS: OperatingSystem): string {
+	public toLabel(
+		firstPartMod: Modifiers,
+		firstPartKey: string,
+		chordPartMod: Modifiers,
+		chordPartKey: string,
+		OS: OperatingSystem
+	): string {
 		if (firstPartKey === null && chordPartKey === null) {
 			return null;
 		}
-		return _asString(firstPartMod, firstPartKey, chordPartMod, chordPartKey, this.modifierLabels[OS]);
+		return _asString(
+			firstPartMod,
+			firstPartKey,
+			chordPartMod,
+			chordPartKey,
+			this.modifierLabels[OS]
+		);
 	}
 }
 
@@ -51,14 +66,14 @@ export const UILabelProvider = new ModifierLabelProvider(
 		shiftKey: '⇧',
 		altKey: '⌥',
 		metaKey: '⌘',
-		separator: '',
+		separator: ''
 	},
 	{
-		ctrlKey: nls.localize('ctrlKey', "Ctrl"),
-		shiftKey: nls.localize('shiftKey', "Shift"),
-		altKey: nls.localize('altKey', "Alt"),
-		metaKey: nls.localize('windowsKey', "Windows"),
-		separator: '+',
+		ctrlKey: nls.localize('ctrlKey', 'Ctrl'),
+		shiftKey: nls.localize('shiftKey', 'Shift'),
+		altKey: nls.localize('altKey', 'Alt'),
+		metaKey: nls.localize('windowsKey', 'Windows'),
+		separator: '+'
 	}
 );
 
@@ -67,18 +82,18 @@ export const UILabelProvider = new ModifierLabelProvider(
  */
 export const AriaLabelProvider = new ModifierLabelProvider(
 	{
-		ctrlKey: nls.localize('ctrlKey.long', "Control"),
-		shiftKey: nls.localize('shiftKey.long', "Shift"),
-		altKey: nls.localize('altKey.long', "Alt"),
-		metaKey: nls.localize('cmdKey.long', "Command"),
-		separator: '+',
+		ctrlKey: nls.localize('ctrlKey.long', 'Control'),
+		shiftKey: nls.localize('shiftKey.long', 'Shift'),
+		altKey: nls.localize('altKey.long', 'Alt'),
+		metaKey: nls.localize('cmdKey.long', 'Command'),
+		separator: '+'
 	},
 	{
-		ctrlKey: nls.localize('ctrlKey.long', "Control"),
-		shiftKey: nls.localize('shiftKey.long', "Shift"),
-		altKey: nls.localize('altKey.long', "Alt"),
-		metaKey: nls.localize('windowsKey.long', "Windows"),
-		separator: '+',
+		ctrlKey: nls.localize('ctrlKey.long', 'Control'),
+		shiftKey: nls.localize('shiftKey.long', 'Shift'),
+		altKey: nls.localize('altKey.long', 'Alt'),
+		metaKey: nls.localize('windowsKey.long', 'Windows'),
+		separator: '+'
 	}
 );
 
@@ -92,14 +107,14 @@ export const ElectronAcceleratorLabelProvider = new ModifierLabelProvider(
 		shiftKey: 'Shift',
 		altKey: 'Alt',
 		metaKey: 'Cmd',
-		separator: '+',
+		separator: '+'
 	},
 	{
 		ctrlKey: 'Ctrl',
 		shiftKey: 'Shift',
 		altKey: 'Alt',
 		metaKey: 'Super',
-		separator: '+',
+		separator: '+'
 	}
 );
 
@@ -112,25 +127,29 @@ export const UserSettingsLabelProvider = new ModifierLabelProvider(
 		shiftKey: 'shift',
 		altKey: 'alt',
 		metaKey: 'cmd',
-		separator: '+',
+		separator: '+'
 	},
 	{
 		ctrlKey: 'ctrl',
 		shiftKey: 'shift',
 		altKey: 'alt',
 		metaKey: 'win',
-		separator: '+',
+		separator: '+'
 	},
 	{
 		ctrlKey: 'ctrl',
 		shiftKey: 'shift',
 		altKey: 'alt',
 		metaKey: 'meta',
-		separator: '+',
+		separator: '+'
 	}
 );
 
-function _simpleAsString(modifiers: Modifiers, key: string, labels: ModifierLabels): string {
+function _simpleAsString(
+	modifiers: Modifiers,
+	key: string,
+	labels: ModifierLabels
+): string {
 	if (key === null) {
 		return '';
 	}
@@ -160,7 +179,13 @@ function _simpleAsString(modifiers: Modifiers, key: string, labels: ModifierLabe
 	return result.join(labels.separator);
 }
 
-function _asString(firstPartMod: Modifiers, firstPartKey: string, chordPartMod: Modifiers, chordPartKey: string, labels: ModifierLabels): string {
+function _asString(
+	firstPartMod: Modifiers,
+	firstPartKey: string,
+	chordPartMod: Modifiers,
+	chordPartKey: string,
+	labels: ModifierLabels
+): string {
 	let result = _simpleAsString(firstPartMod, firstPartKey, labels);
 
 	if (chordPartKey !== null) {

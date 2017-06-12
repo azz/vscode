@@ -2,11 +2,21 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
-import { ScopedLineTokens, ignoreBracketsInToken } from 'vs/editor/common/modes/supports';
-import { BracketsUtils, RichEditBrackets } from 'vs/editor/common/modes/supports/richEditBrackets';
-import { IAutoClosingPairConditional, IBracketElectricCharacterContribution, StandardAutoClosingPairConditional } from 'vs/editor/common/modes/languageConfiguration';
+import {
+	ScopedLineTokens,
+	ignoreBracketsInToken
+} from 'vs/editor/common/modes/supports';
+import {
+	BracketsUtils,
+	RichEditBrackets
+} from 'vs/editor/common/modes/supports/richEditBrackets';
+import {
+	IAutoClosingPairConditional,
+	IBracketElectricCharacterContribution,
+	StandardAutoClosingPairConditional
+} from 'vs/editor/common/modes/languageConfiguration';
 
 /**
  * Interface used to support electric characters
@@ -24,17 +34,27 @@ export interface IElectricAction {
 }
 
 export class BracketElectricCharacterSupport {
-
 	private readonly _richEditBrackets: RichEditBrackets;
 	private readonly _complexAutoClosePairs: StandardAutoClosingPairConditional[];
 
-	constructor(richEditBrackets: RichEditBrackets, autoClosePairs: IAutoClosingPairConditional[], contribution: IBracketElectricCharacterContribution) {
+	constructor(
+		richEditBrackets: RichEditBrackets,
+		autoClosePairs: IAutoClosingPairConditional[],
+		contribution: IBracketElectricCharacterContribution
+	) {
 		contribution = contribution || {};
 		this._richEditBrackets = richEditBrackets;
-		this._complexAutoClosePairs = autoClosePairs.filter(pair => pair.open.length > 1 && !!pair.close).map(el => new StandardAutoClosingPairConditional(el));
+		this._complexAutoClosePairs = autoClosePairs
+			.filter(pair => pair.open.length > 1 && !!pair.close)
+			.map(el => new StandardAutoClosingPairConditional(el));
 		if (contribution.docComment) {
 			// IDocComment is legacy, only partially supported
-			this._complexAutoClosePairs.push(new StandardAutoClosingPairConditional({ open: contribution.docComment.open, close: contribution.docComment.close }));
+			this._complexAutoClosePairs.push(
+				new StandardAutoClosingPairConditional({
+					open: contribution.docComment.open,
+					close: contribution.docComment.close
+				})
+			);
 		}
 	}
 
@@ -42,7 +62,11 @@ export class BracketElectricCharacterSupport {
 		var result: string[] = [];
 
 		if (this._richEditBrackets) {
-			for (let i = 0, len = this._richEditBrackets.brackets.length; i < len; i++) {
+			for (
+				let i = 0, len = this._richEditBrackets.brackets.length;
+				i < len;
+				i++
+			) {
 				let bracketPair = this._richEditBrackets.brackets[i];
 				let lastChar = bracketPair.close.charAt(bracketPair.close.length - 1);
 				result.push(lastChar);
@@ -62,14 +86,26 @@ export class BracketElectricCharacterSupport {
 		return result;
 	}
 
-	public onElectricCharacter(character: string, context: ScopedLineTokens, column: number): IElectricAction {
-		return (this._onElectricAutoClose(character, context, column) ||
-			this._onElectricAutoIndent(character, context, column));
+	public onElectricCharacter(
+		character: string,
+		context: ScopedLineTokens,
+		column: number
+	): IElectricAction {
+		return (
+			this._onElectricAutoClose(character, context, column) ||
+			this._onElectricAutoIndent(character, context, column)
+		);
 	}
 
-	private _onElectricAutoIndent(character: string, context: ScopedLineTokens, column: number): IElectricAction {
-
-		if (!this._richEditBrackets || this._richEditBrackets.brackets.length === 0) {
+	private _onElectricAutoIndent(
+		character: string,
+		context: ScopedLineTokens,
+		column: number
+	): IElectricAction {
+		if (
+			!this._richEditBrackets ||
+			this._richEditBrackets.brackets.length === 0
+		) {
 			return null;
 		}
 
@@ -81,7 +117,13 @@ export class BracketElectricCharacterSupport {
 		let reversedBracketRegex = this._richEditBrackets.reversedRegex;
 		let text = context.getLineContent().substring(0, column - 1) + character;
 
-		let r = BracketsUtils.findPrevBracketInToken(reversedBracketRegex, 1, text, 0, text.length);
+		let r = BracketsUtils.findPrevBracketInToken(
+			reversedBracketRegex,
+			1,
+			text,
+			0,
+			text.length
+		);
 		if (!r) {
 			return null;
 		}
@@ -105,7 +147,11 @@ export class BracketElectricCharacterSupport {
 		};
 	}
 
-	private _onElectricAutoClose(character: string, context: ScopedLineTokens, column: number): IElectricAction {
+	private _onElectricAutoClose(
+		character: string,
+		context: ScopedLineTokens,
+		column: number
+	): IElectricAction {
 		if (!this._complexAutoClosePairs.length) {
 			return null;
 		}
@@ -121,7 +167,8 @@ export class BracketElectricCharacterSupport {
 			}
 
 			// check if the full open bracket matches
-			let actual = line.substring(line.length - pair.open.length + 1) + character;
+			let actual =
+				line.substring(line.length - pair.open.length + 1) + character;
 			if (actual !== pair.open) {
 				continue;
 			}

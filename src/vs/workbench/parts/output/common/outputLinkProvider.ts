@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import URI from 'vs/base/common/uri';
@@ -12,11 +12,16 @@ import { IModelService } from 'vs/editor/common/services/modelService';
 import { LinkProviderRegistry, ILink } from 'vs/editor/common/modes';
 import { IWorkspaceContextService } from 'vs/platform/workspace/common/workspace';
 import { OUTPUT_MODE_ID } from 'vs/workbench/parts/output/common/output';
-import { MonacoWebWorker, createWebWorker } from 'vs/editor/common/services/webWorker';
-import { ICreateData, OutputLinkComputer } from 'vs/workbench/parts/output/common/outputLinkComputer';
+import {
+	MonacoWebWorker,
+	createWebWorker
+} from 'vs/editor/common/services/webWorker';
+import {
+	ICreateData,
+	OutputLinkComputer
+} from 'vs/workbench/parts/output/common/outputLinkComputer';
 
 export class OutputLinkProvider {
-
 	private static DISPOSE_WORKER_TIME = 3 * 60 * 1000; // dispose worker after 3 minutes of inactivity
 
 	private _modelService: IModelService;
@@ -37,11 +42,14 @@ export class OutputLinkProvider {
 
 			this._workspaceResource = workspace.resource;
 
-			LinkProviderRegistry.register({ language: OUTPUT_MODE_ID, scheme: '*' }, {
-				provideLinks: (model, token): Thenable<ILink[]> => {
-					return wireCancellationToken(token, this._provideLinks(model.uri));
+			LinkProviderRegistry.register(
+				{ language: OUTPUT_MODE_ID, scheme: '*' },
+				{
+					provideLinks: (model, token): Thenable<ILink[]> => {
+						return wireCancellationToken(token, this._provideLinks(model.uri));
+					}
 				}
-			});
+			);
 
 			this._worker = null;
 			this._disposeWorker = new RunOnceScheduler(() => {
@@ -69,8 +77,10 @@ export class OutputLinkProvider {
 	}
 
 	private _provideLinks(modelUri: URI): TPromise<ILink[]> {
-		return this._getOrCreateWorker().withSyncedResources([modelUri]).then((linkComputer) => {
-			return linkComputer.computeLinks(modelUri.toString());
-		});
+		return this._getOrCreateWorker()
+			.withSyncedResources([modelUri])
+			.then(linkComputer => {
+				return linkComputer.computeLinks(modelUri.toString());
+			});
 	}
 }

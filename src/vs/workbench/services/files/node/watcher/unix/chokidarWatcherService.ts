@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import chokidar = require('chokidar');
 import fs = require('fs');
@@ -21,7 +21,6 @@ import watcher = require('vs/workbench/services/files/node/watcher/common');
 import { IWatcherRequest, IWatcherService } from './watcher';
 
 export class ChokidarWatcherService implements IWatcherService {
-
 	private static FS_EVENT_DELAY = 50; // aggregate and only emit events when changes have stopped for this duration (in ms)
 	private static EVENT_SPAM_WARNING_THRESHOLD = 60 * 1000; // warn after certain time span of event spam
 
@@ -43,101 +42,133 @@ export class ChokidarWatcherService implements IWatcherService {
 		// so we have to find the real casing of the path and do some path massaging to fix this
 		// see https://github.com/paulmillr/chokidar/issues/418
 		const originalBasePath = request.basePath;
-		const realBasePath = isMacintosh ? (realpathSync(originalBasePath) || originalBasePath) : originalBasePath;
+		const realBasePath = isMacintosh
+			? realpathSync(originalBasePath) || originalBasePath
+			: originalBasePath;
 		const realBasePathLength = realBasePath.length;
-		const realBasePathDiffers = (originalBasePath !== realBasePath);
+		const realBasePathDiffers = originalBasePath !== realBasePath;
 
 		if (realBasePathDiffers) {
-			console.warn(`Watcher basePath does not match version on disk and was corrected (original: ${originalBasePath}, real: ${realBasePath})`);
+			console.warn(
+				`Watcher basePath does not match version on disk and was corrected (original: ${originalBasePath}, real: ${realBasePath})`
+			);
 		}
 
 		const chokidarWatcher = chokidar.watch(realBasePath, watcherOpts);
 
 		// Detect if for some reason the native watcher library fails to load
 		if (isMacintosh && !chokidarWatcher.options.useFsEvents) {
-			console.error('Watcher is not using native fsevents library and is falling back to unefficient polling.');
+			console.error(
+				'Watcher is not using native fsevents library and is falling back to unefficient polling.'
+			);
 		}
 
 		let undeliveredFileEvents: watcher.IRawFileChange[] = [];
-		const fileEventDelayer = new ThrottledDelayer(ChokidarWatcherService.FS_EVENT_DELAY);
+		const fileEventDelayer = new ThrottledDelayer(
+			ChokidarWatcherService.FS_EVENT_DELAY
+		);
 
-		return new TPromise<void>((c, e, p) => {
-			chokidarWatcher.on('all', (type: string, path: string) => {
-				if (path.indexOf(realBasePath) < 0) {
-					return; // we really only care about absolute paths here in our basepath context here
-				}
-
-				// Make sure to convert the path back to its original basePath form if the realpath is different
-				if (realBasePathDiffers) {
-					path = originalBasePath + path.substr(realBasePathLength);
-				}
-
-				let event: watcher.IRawFileChange = null;
-
-				// Change
-				if (type === 'change') {
-					event = { type: 0, path };
-				}
-
-				// Add
-				else if (type === 'add' || type === 'addDir') {
-					event = { type: 1, path };
-				}
-
-				// Delete
-				else if (type === 'unlink' || type === 'unlinkDir') {
-					event = { type: 2, path };
-				}
-
-				if (event) {
-
-					// Logging
-					if (request.verboseLogging) {
-						console.log(event.type === FileChangeType.ADDED ? '[ADDED]' : event.type === FileChangeType.DELETED ? '[DELETED]' : '[CHANGED]', event.path);
+		return new TPromise<void>(
+			(c, e, p) => {
+				chokidarWatcher.on('all', (type: string, path: string) => {
+					if (path.indexOf(realBasePath) < 0) {
+						return; // we really only care about absolute paths here in our basepath context here
 					}
 
-					// Check for spam
-					const now = Date.now();
-					if (undeliveredFileEvents.length === 0) {
-						this.spamWarningLogged = false;
-						this.spamCheckStartTime = now;
-					} else if (!this.spamWarningLogged && this.spamCheckStartTime + ChokidarWatcherService.EVENT_SPAM_WARNING_THRESHOLD < now) {
-						this.spamWarningLogged = true;
-						console.warn(strings.format('Watcher is busy catching up with {0} file changes in 60 seconds. Latest changed path is "{1}"', undeliveredFileEvents.length, event.path));
+					// Make sure to convert the path back to its original basePath form if the realpath is different
+					if (realBasePathDiffers) {
+						path = originalBasePath + path.substr(realBasePathLength);
 					}
 
-					// Add to buffer
-					undeliveredFileEvents.push(event);
+					let event: watcher.IRawFileChange = null;
 
-					// Delay and send buffer
-					fileEventDelayer.trigger(() => {
-						const events = undeliveredFileEvents;
-						undeliveredFileEvents = [];
+					// Change
+					if (type === 'change') {
+						event = { type: 0, path };
+					} else if (type === 'add' || type === 'addDir') {
+						// Add
+						event = { type: 1, path };
+					} else if (type === 'unlink' || type === 'unlinkDir') {
+						// Delete
+						event = { type: 2, path };
+					}
 
-						// Broadcast to clients normalized
-						const res = watcher.normalize(events);
-						p(res);
-
+					if (event) {
 						// Logging
 						if (request.verboseLogging) {
-							res.forEach(r => {
-								console.log(' >> normalized', r.type === FileChangeType.ADDED ? '[ADDED]' : r.type === FileChangeType.DELETED ? '[DELETED]' : '[CHANGED]', r.path);
-							});
+							console.log(
+								event.type === FileChangeType.ADDED
+									? '[ADDED]'
+									: event.type === FileChangeType.DELETED
+										? '[DELETED]'
+										: '[CHANGED]',
+								event.path
+							);
 						}
 
-						return TPromise.as(null);
-					});
-				}
-			});
+						// Check for spam
+						const now = Date.now();
+						if (undeliveredFileEvents.length === 0) {
+							this.spamWarningLogged = false;
+							this.spamCheckStartTime = now;
+						} else if (
+							!this.spamWarningLogged &&
+							this.spamCheckStartTime +
+								ChokidarWatcherService.EVENT_SPAM_WARNING_THRESHOLD <
+								now
+						) {
+							this.spamWarningLogged = true;
+							console.warn(
+								strings.format(
+									'Watcher is busy catching up with {0} file changes in 60 seconds. Latest changed path is "{1}"',
+									undeliveredFileEvents.length,
+									event.path
+								)
+							);
+						}
 
-			chokidarWatcher.on('error', (error: Error) => {
-				if (error) {
-					console.error(error.toString());
-				}
-			});
-		}, () => {
-			chokidarWatcher.close();
-			fileEventDelayer.cancel();
-		});
+						// Add to buffer
+						undeliveredFileEvents.push(event);
+
+						// Delay and send buffer
+						fileEventDelayer.trigger(() => {
+							const events = undeliveredFileEvents;
+							undeliveredFileEvents = [];
+
+							// Broadcast to clients normalized
+							const res = watcher.normalize(events);
+							p(res);
+
+							// Logging
+							if (request.verboseLogging) {
+								res.forEach(r => {
+									console.log(
+										' >> normalized',
+										r.type === FileChangeType.ADDED
+											? '[ADDED]'
+											: r.type === FileChangeType.DELETED
+												? '[DELETED]'
+												: '[CHANGED]',
+										r.path
+									);
+								});
+							}
+
+							return TPromise.as(null);
+						});
+					}
+				});
+
+				chokidarWatcher.on('error', (error: Error) => {
+					if (error) {
+						console.error(error.toString());
+					}
+				});
+			},
+			() => {
+				chokidarWatcher.close();
+				fileEventDelayer.cancel();
+			}
+		);
 	}
 }

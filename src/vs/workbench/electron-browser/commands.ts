@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import nls = require('vs/nls');
 import { KeyMod, KeyChord, KeyCode } from 'vs/base/common/keyCodes';
@@ -12,20 +12,28 @@ import { KeybindingsRegistry } from 'vs/platform/keybinding/common/keybindingsRe
 import { IPartService } from 'vs/workbench/services/part/common/partService';
 import { CommonEditorRegistry } from 'vs/editor/common/editorCommonExtensions';
 import { IWindowIPCService } from 'vs/workbench/services/window/electron-browser/windowService';
-import { NoEditorsVisibleContext, InZenModeContext } from 'vs/workbench/electron-browser/workbench';
+import {
+	NoEditorsVisibleContext,
+	InZenModeContext
+} from 'vs/workbench/electron-browser/workbench';
 import { IWindowsService } from 'vs/platform/windows/common/windows';
-import { IListService, ListFocusContext } from 'vs/platform/list/browser/listService';
+import {
+	IListService,
+	ListFocusContext
+} from 'vs/platform/list/browser/listService';
 import { List } from 'vs/base/browser/ui/list/listWidget';
 import errors = require('vs/base/common/errors');
 import { CommandsRegistry } from 'vs/platform/commands/common/commands';
 import { IWorkbenchEditorService } from 'vs/workbench/services/editor/common/editorService';
 import URI from 'vs/base/common/uri';
-import { IEditorOptions, Position as EditorPosition } from 'vs/platform/editor/common/editor';
+import {
+	IEditorOptions,
+	Position as EditorPosition
+} from 'vs/platform/editor/common/editor';
 
 // --- List Commands
 
 export function registerCommands(): void {
-
 	KeybindingsRegistry.registerCommandAndKeybindingRule({
 		id: 'list.focusDown',
 		weight: KeybindingsRegistry.WEIGHT.workbenchContrib(),
@@ -46,10 +54,8 @@ export function registerCommands(): void {
 
 				list.focusNext(count);
 				list.reveal(list.getFocus()[0]);
-			}
-
-			// Tree
-			else if (focused) {
+			} else if (focused) {
+				// Tree
 				const tree = focused;
 
 				tree.focusNext(count, { origin: 'keyboard' });
@@ -78,10 +84,8 @@ export function registerCommands(): void {
 
 				list.focusPrevious(count);
 				list.reveal(list.getFocus()[0]);
-			}
-
-			// Tree
-			else if (focused) {
+			} else if (focused) {
+				// Tree
 				const tree = focused;
 
 				tree.focusPrevious(count, { origin: 'keyboard' });
@@ -99,7 +103,7 @@ export function registerCommands(): void {
 			primary: KeyCode.LeftArrow,
 			secondary: [KeyMod.CtrlCmd | KeyCode.UpArrow]
 		},
-		handler: (accessor) => {
+		handler: accessor => {
 			const listService = accessor.get(IListService);
 			const focused = listService.getFocused();
 
@@ -108,15 +112,18 @@ export function registerCommands(): void {
 				const tree = focused;
 				const focus = tree.getFocus();
 
-				tree.collapse(focus).then(didCollapse => {
-					if (focus && !didCollapse) {
-						tree.focusParent({ origin: 'keyboard' });
+				tree
+					.collapse(focus)
+					.then(didCollapse => {
+						if (focus && !didCollapse) {
+							tree.focusParent({ origin: 'keyboard' });
 
-						return tree.reveal(tree.getFocus());
-					}
+							return tree.reveal(tree.getFocus());
+						}
 
-					return void 0;
-				}).done(null, errors.onUnexpectedError);
+						return void 0;
+					})
+					.done(null, errors.onUnexpectedError);
 			}
 		}
 	});
@@ -126,7 +133,7 @@ export function registerCommands(): void {
 		weight: KeybindingsRegistry.WEIGHT.workbenchContrib(),
 		when: ListFocusContext,
 		primary: KeyCode.RightArrow,
-		handler: (accessor) => {
+		handler: accessor => {
 			const listService = accessor.get(IListService);
 			const focused = listService.getFocused();
 
@@ -135,15 +142,18 @@ export function registerCommands(): void {
 				const tree = focused;
 				const focus = tree.getFocus();
 
-				tree.expand(focus).then(didExpand => {
-					if (focus && !didExpand) {
-						tree.focusFirstChild({ origin: 'keyboard' });
+				tree
+					.expand(focus)
+					.then(didExpand => {
+						if (focus && !didExpand) {
+							tree.focusFirstChild({ origin: 'keyboard' });
 
-						return tree.reveal(tree.getFocus());
-					}
+							return tree.reveal(tree.getFocus());
+						}
 
-					return void 0;
-				}).done(null, errors.onUnexpectedError);
+						return void 0;
+					})
+					.done(null, errors.onUnexpectedError);
 			}
 		}
 	});
@@ -153,7 +163,7 @@ export function registerCommands(): void {
 		weight: KeybindingsRegistry.WEIGHT.workbenchContrib(),
 		when: ListFocusContext,
 		primary: KeyCode.PageUp,
-		handler: (accessor) => {
+		handler: accessor => {
 			const listService = accessor.get(IListService);
 			const focused = listService.getFocused();
 
@@ -163,10 +173,8 @@ export function registerCommands(): void {
 
 				list.focusPreviousPage();
 				list.reveal(list.getFocus()[0]);
-			}
-
-			// Tree
-			else if (focused) {
+			} else if (focused) {
+				// Tree
 				const tree = focused;
 
 				tree.focusPreviousPage({ origin: 'keyboard' });
@@ -180,7 +188,7 @@ export function registerCommands(): void {
 		weight: KeybindingsRegistry.WEIGHT.workbenchContrib(),
 		when: ListFocusContext,
 		primary: KeyCode.PageDown,
-		handler: (accessor) => {
+		handler: accessor => {
 			const listService = accessor.get(IListService);
 			const focused = listService.getFocused();
 
@@ -190,10 +198,8 @@ export function registerCommands(): void {
 
 				list.focusNextPage();
 				list.reveal(list.getFocus()[0]);
-			}
-
-			// Tree
-			else if (focused) {
+			} else if (focused) {
+				// Tree
 				const tree = focused;
 
 				tree.focusNextPage({ origin: 'keyboard' });
@@ -218,7 +224,10 @@ export function registerCommands(): void {
 		handler: accessor => listFocusFirst(accessor, { fromFocused: true })
 	});
 
-	function listFocusFirst(accessor: ServicesAccessor, options?: { fromFocused: boolean }): void {
+	function listFocusFirst(
+		accessor: ServicesAccessor,
+		options?: { fromFocused: boolean }
+	): void {
 		const listService = accessor.get(IListService);
 		const focused = listService.getFocused();
 
@@ -228,13 +237,14 @@ export function registerCommands(): void {
 
 			list.setFocus([0]);
 			list.reveal(0);
-		}
-
-		// Tree
-		else if (focused) {
+		} else if (focused) {
+			// Tree
 			const tree = focused;
 
-			tree.focusFirst({ origin: 'keyboard' }, options && options.fromFocused ? tree.getFocus() : void 0);
+			tree.focusFirst(
+				{ origin: 'keyboard' },
+				options && options.fromFocused ? tree.getFocus() : void 0
+			);
 			tree.reveal(tree.getFocus()).done(null, errors.onUnexpectedError);
 		}
 	}
@@ -255,7 +265,10 @@ export function registerCommands(): void {
 		handler: accessor => listFocusLast(accessor, { fromFocused: true })
 	});
 
-	function listFocusLast(accessor: ServicesAccessor, options?: { fromFocused: boolean }): void {
+	function listFocusLast(
+		accessor: ServicesAccessor,
+		options?: { fromFocused: boolean }
+	): void {
 		const listService = accessor.get(IListService);
 		const focused = listService.getFocused();
 
@@ -265,13 +278,14 @@ export function registerCommands(): void {
 
 			list.setFocus([list.length - 1]);
 			list.reveal(list.length - 1);
-		}
-
-		// Tree
-		else if (focused) {
+		} else if (focused) {
+			// Tree
 			const tree = focused;
 
-			tree.focusLast({ origin: 'keyboard' }, options && options.fromFocused ? tree.getFocus() : void 0);
+			tree.focusLast(
+				{ origin: 'keyboard' },
+				options && options.fromFocused ? tree.getFocus() : void 0
+			);
 			tree.reveal(tree.getFocus()).done(null, errors.onUnexpectedError);
 		}
 	}
@@ -284,9 +298,12 @@ export function registerCommands(): void {
 		secondary: [KeyMod.CtrlCmd | KeyCode.Enter],
 		mac: {
 			primary: KeyCode.Enter,
-			secondary: [KeyMod.CtrlCmd | KeyCode.Enter, KeyMod.CtrlCmd | KeyCode.DownArrow]
+			secondary: [
+				KeyMod.CtrlCmd | KeyCode.Enter,
+				KeyMod.CtrlCmd | KeyCode.DownArrow
+			]
 		},
-		handler: (accessor) => {
+		handler: accessor => {
 			const listService = accessor.get(IListService);
 			const focused = listService.getFocused();
 
@@ -295,10 +312,8 @@ export function registerCommands(): void {
 				const list = focused;
 				list.setSelection(list.getFocus());
 				list.open(list.getFocus());
-			}
-
-			// Tree
-			else if (focused) {
+			} else if (focused) {
+				// Tree
 				const tree = focused;
 				const focus = tree.getFocus();
 
@@ -314,7 +329,7 @@ export function registerCommands(): void {
 		weight: KeybindingsRegistry.WEIGHT.workbenchContrib(),
 		when: ListFocusContext,
 		primary: KeyCode.Space,
-		handler: (accessor) => {
+		handler: accessor => {
 			const listService = accessor.get(IListService);
 			const focused = listService.getFocused();
 
@@ -335,7 +350,7 @@ export function registerCommands(): void {
 		weight: KeybindingsRegistry.WEIGHT.workbenchContrib(),
 		when: ListFocusContext,
 		primary: KeyCode.Escape,
-		handler: (accessor) => {
+		handler: accessor => {
 			const listService = accessor.get(IListService);
 			const focused = listService.getFocused();
 
@@ -394,9 +409,19 @@ export function registerCommands(): void {
 		win: { primary: void 0 }
 	});
 
-	CommandsRegistry.registerCommand('_workbench.diff', function (accessor: ServicesAccessor, args: [URI, URI, string, string, IEditorOptions, EditorPosition]) {
+	CommandsRegistry.registerCommand('_workbench.diff', function(
+		accessor: ServicesAccessor,
+		args: [URI, URI, string, string, IEditorOptions, EditorPosition]
+	) {
 		const editorService = accessor.get(IWorkbenchEditorService);
-		let [leftResource, rightResource, label, description, options, position] = args;
+		let [
+			leftResource,
+			rightResource,
+			label,
+			description,
+			options,
+			position
+		] = args;
 
 		if (!options || typeof options !== 'object') {
 			options = {
@@ -406,15 +431,28 @@ export function registerCommands(): void {
 		}
 
 		if (!label) {
-			label = nls.localize('diffLeftRightLabel', "{0} ⟷ {1}", leftResource.toString(true), rightResource.toString(true));
+			label = nls.localize(
+				'diffLeftRightLabel',
+				'{0} ⟷ {1}',
+				leftResource.toString(true),
+				rightResource.toString(true)
+			);
 		}
 
-		return editorService.openEditor({ leftResource, rightResource, label, description, options }, position).then(() => {
-			return void 0;
-		});
+		return editorService
+			.openEditor(
+				{ leftResource, rightResource, label, description, options },
+				position
+			)
+			.then(() => {
+				return void 0;
+			});
 	});
 
-	CommandsRegistry.registerCommand('_workbench.open', function (accessor: ServicesAccessor, args: [URI, number]) {
+	CommandsRegistry.registerCommand('_workbench.open', function(
+		accessor: ServicesAccessor,
+		args: [URI, number]
+	) {
 		const editorService = accessor.get(IWorkbenchEditorService);
 		const [resource, column] = args;
 

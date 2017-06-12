@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import nls = require('vs/nls');
 import { TPromise } from 'vs/base/common/winjs.base';
@@ -13,17 +13,32 @@ import { ITree, IActionProvider } from 'vs/base/parts/tree/browser/tree';
 import filters = require('vs/base/common/filters');
 import strings = require('vs/base/common/strings');
 import paths = require('vs/base/common/paths');
-import { IconLabel, IIconLabelOptions } from 'vs/base/browser/ui/iconLabel/iconLabel';
-import { IQuickNavigateConfiguration, IModel, IDataSource, IFilter, IAccessiblityProvider, IRenderer, IRunner, Mode } from 'vs/base/parts/quickopen/common/quickOpen';
+import {
+	IconLabel,
+	IIconLabelOptions
+} from 'vs/base/browser/ui/iconLabel/iconLabel';
+import {
+	IQuickNavigateConfiguration,
+	IModel,
+	IDataSource,
+	IFilter,
+	IAccessiblityProvider,
+	IRenderer,
+	IRunner,
+	Mode
+} from 'vs/base/parts/quickopen/common/quickOpen';
 import { Action, IAction, IActionRunner } from 'vs/base/common/actions';
-import { compareAnything, compareByScore as doCompareByScore } from 'vs/base/common/comparers';
+import {
+	compareAnything,
+	compareByScore as doCompareByScore
+} from 'vs/base/common/comparers';
 import { ActionBar, IActionItem } from 'vs/base/browser/ui/actionbar/actionbar';
 import { HighlightedLabel } from 'vs/base/browser/ui/highlightedlabel/highlightedLabel';
 import DOM = require('vs/base/browser/dom');
 import { IQuickOpenStyles } from 'vs/base/parts/quickopen/browser/quickOpenWidget';
-import { KeybindingLabel } from "vs/base/browser/ui/keybindingLabel/keybindingLabel";
-import { OS } from "vs/base/common/platform";
-import { ResolvedKeybinding } from "vs/base/common/keyCodes";
+import { KeybindingLabel } from 'vs/base/browser/ui/keybindingLabel/keybindingLabel';
+import { OS } from 'vs/base/common/platform';
+import { ResolvedKeybinding } from 'vs/base/common/keyCodes';
 
 export interface IContext {
 	event: any;
@@ -38,7 +53,6 @@ export interface IHighlight {
 let IDS = 0;
 
 class EntryAccessor {
-
 	public static getLabel(entry: QuickOpenEntry) {
 		return entry.getLabel();
 	}
@@ -143,7 +157,11 @@ export class QuickOpenEntry {
 	/**
 	 * Allows to set highlight ranges that should show up for the entry label and optionally description if set.
 	 */
-	public setHighlights(labelHighlights: IHighlight[], descriptionHighlights?: IHighlight[], detailHighlights?: IHighlight[]): void {
+	public setHighlights(
+		labelHighlights: IHighlight[],
+		descriptionHighlights?: IHighlight[],
+		detailHighlights?: IHighlight[]
+	): void {
 		this.labelHighlights = labelHighlights;
 		this.descriptionHighlights = descriptionHighlights;
 		this.detailHighlights = detailHighlights;
@@ -152,8 +170,16 @@ export class QuickOpenEntry {
 	/**
 	 * Allows to return highlight ranges that should show up for the entry label and description.
 	 */
-	public getHighlights(): [IHighlight[] /* Label */, IHighlight[] /* Description */, IHighlight[] /* Detail */] {
-		return [this.labelHighlights, this.descriptionHighlights, this.detailHighlights];
+	public getHighlights(): [
+		IHighlight[] /* Label */,
+		IHighlight[] /* Description */,
+		IHighlight[] /* Detail */
+	] {
+		return [
+			this.labelHighlights,
+			this.descriptionHighlights,
+			this.detailHighlights
+		];
 	}
 
 	/**
@@ -170,8 +196,11 @@ export class QuickOpenEntry {
 	 * A good default sort implementation for quick open entries respecting highlight information
 	 * as well as associated resources.
 	 */
-	public static compare(elementA: QuickOpenEntry, elementB: QuickOpenEntry, lookFor: string): number {
-
+	public static compare(
+		elementA: QuickOpenEntry,
+		elementB: QuickOpenEntry,
+		lookFor: string
+	): number {
 		// Give matches with label highlights higher priority over
 		// those with only description highlights
 		const labelHighlightsA = elementA.getHighlights()[0] || [];
@@ -198,14 +227,31 @@ export class QuickOpenEntry {
 		return compareAnything(nameA, nameB, lookFor);
 	}
 
-	public static compareByScore(elementA: QuickOpenEntry, elementB: QuickOpenEntry, lookFor: string, lookForNormalizedLower: string, scorerCache?: { [key: string]: number }): number {
-		return doCompareByScore(elementA, elementB, EntryAccessor, lookFor, lookForNormalizedLower, scorerCache);
+	public static compareByScore(
+		elementA: QuickOpenEntry,
+		elementB: QuickOpenEntry,
+		lookFor: string,
+		lookForNormalizedLower: string,
+		scorerCache?: { [key: string]: number }
+	): number {
+		return doCompareByScore(
+			elementA,
+			elementB,
+			EntryAccessor,
+			lookFor,
+			lookForNormalizedLower,
+			scorerCache
+		);
 	}
 
 	/**
 	 * A good default highlight implementation for an entry with label and description.
 	 */
-	public static highlight(entry: QuickOpenEntry, lookFor: string, fuzzyHighlight = false): { labelHighlights: IHighlight[], descriptionHighlights: IHighlight[] } {
+	public static highlight(
+		entry: QuickOpenEntry,
+		lookFor: string,
+		fuzzyHighlight = false
+	): { labelHighlights: IHighlight[]; descriptionHighlights: IHighlight[] } {
 		let labelHighlights: IHighlight[] = [];
 		const descriptionHighlights: IHighlight[] = [];
 
@@ -215,44 +261,60 @@ export class QuickOpenEntry {
 
 		// Highlight file aware
 		if (entry.getResource()) {
-
 			// Highlight entire label and description if searching for full absolute path
 			const fsPath = entry.getResource().fsPath;
-			if (lookFor.length === fsPath.length && lookFor.toLowerCase() === fsPath.toLowerCase()) {
+			if (
+				lookFor.length === fsPath.length &&
+				lookFor.toLowerCase() === fsPath.toLowerCase()
+			) {
 				labelHighlights.push({ start: 0, end: label.length });
 				descriptionHighlights.push({ start: 0, end: description.length });
-			}
-
-			// Fuzzy/Full-Path: Highlight is special
-			else if (fuzzyHighlight || lookFor.indexOf(paths.nativeSep) >= 0) {
-				const candidateLabelHighlights = filters.matchesFuzzy(lookFor, label, fuzzyHighlight);
+			} else if (fuzzyHighlight || lookFor.indexOf(paths.nativeSep) >= 0) {
+				// Fuzzy/Full-Path: Highlight is special
+				const candidateLabelHighlights = filters.matchesFuzzy(
+					lookFor,
+					label,
+					fuzzyHighlight
+				);
 				if (!candidateLabelHighlights) {
-					const pathPrefix = description ? (description + paths.nativeSep) : '';
+					const pathPrefix = description ? description + paths.nativeSep : '';
 					const pathPrefixLength = pathPrefix.length;
 
 					// If there are no highlights in the label, build a path out of description and highlight and match on both,
 					// then extract the individual label and description highlights back to the original positions
-					let pathHighlights = filters.matchesFuzzy(lookFor, pathPrefix + label, fuzzyHighlight);
+					let pathHighlights = filters.matchesFuzzy(
+						lookFor,
+						pathPrefix + label,
+						fuzzyHighlight
+					);
 					if (!pathHighlights && lookFor !== normalizedLookFor) {
-						pathHighlights = filters.matchesFuzzy(normalizedLookFor, pathPrefix + label, fuzzyHighlight);
+						pathHighlights = filters.matchesFuzzy(
+							normalizedLookFor,
+							pathPrefix + label,
+							fuzzyHighlight
+						);
 					}
 
 					if (pathHighlights) {
 						pathHighlights.forEach(h => {
-
 							// Match overlaps label and description part, we need to split it up
 							if (h.start < pathPrefixLength && h.end > pathPrefixLength) {
-								labelHighlights.push({ start: 0, end: h.end - pathPrefixLength });
-								descriptionHighlights.push({ start: h.start, end: pathPrefixLength });
-							}
-
-							// Match on label part
-							else if (h.start >= pathPrefixLength) {
-								labelHighlights.push({ start: h.start - pathPrefixLength, end: h.end - pathPrefixLength });
-							}
-
-							// Match on description part
-							else {
+								labelHighlights.push({
+									start: 0,
+									end: h.end - pathPrefixLength
+								});
+								descriptionHighlights.push({
+									start: h.start,
+									end: pathPrefixLength
+								});
+							} else if (h.start >= pathPrefixLength) {
+								// Match on label part
+								labelHighlights.push({
+									start: h.start - pathPrefixLength,
+									end: h.end - pathPrefixLength
+								});
+							} else {
+								// Match on description part
 								descriptionHighlights.push(h);
 							}
 						});
@@ -260,16 +322,12 @@ export class QuickOpenEntry {
 				} else {
 					labelHighlights = candidateLabelHighlights;
 				}
-			}
-
-			// Highlight only inside label
-			else {
+			} else {
+				// Highlight only inside label
 				labelHighlights = filters.matchesFuzzy(lookFor, label);
 			}
-		}
-
-		// Highlight by label otherwise
-		else {
+		} else {
+			// Highlight by label otherwise
 			labelHighlights = filters.matchesFuzzy(lookFor, label);
 		}
 
@@ -286,7 +344,11 @@ export class QuickOpenEntryGroup extends QuickOpenEntry {
 	private groupLabel: string;
 	private withBorder: boolean;
 
-	constructor(entry?: QuickOpenEntry, groupLabel?: string, withBorder?: boolean) {
+	constructor(
+		entry?: QuickOpenEntry,
+		groupLabel?: string,
+		withBorder?: boolean
+	) {
 		super();
 
 		this.entry = entry;
@@ -356,8 +418,22 @@ export class QuickOpenEntryGroup extends QuickOpenEntry {
 		return this.entry ? this.entry.isHidden() : super.isHidden();
 	}
 
-	public setHighlights(labelHighlights: IHighlight[], descriptionHighlights?: IHighlight[], detailHighlights?: IHighlight[]): void {
-		this.entry ? this.entry.setHighlights(labelHighlights, descriptionHighlights, detailHighlights) : super.setHighlights(labelHighlights, descriptionHighlights, detailHighlights);
+	public setHighlights(
+		labelHighlights: IHighlight[],
+		descriptionHighlights?: IHighlight[],
+		detailHighlights?: IHighlight[]
+	): void {
+		this.entry
+			? this.entry.setHighlights(
+					labelHighlights,
+					descriptionHighlights,
+					detailHighlights
+				)
+			: super.setHighlights(
+					labelHighlights,
+					descriptionHighlights,
+					detailHighlights
+				);
 	}
 
 	public setHidden(hidden: boolean): void {
@@ -365,12 +441,13 @@ export class QuickOpenEntryGroup extends QuickOpenEntry {
 	}
 
 	public run(mode: Mode, context: IContext): boolean {
-		return this.entry ? this.entry.run(mode, context) : super.run(mode, context);
+		return this.entry
+			? this.entry.run(mode, context)
+			: super.run(mode, context);
 	}
 }
 
 class NoActionProvider implements IActionProvider {
-
 	public hasActions(tree: ITree, element: any): boolean {
 		return false;
 	}
@@ -403,7 +480,8 @@ export interface IQuickOpenEntryTemplateData {
 	actionBar: ActionBar;
 }
 
-export interface IQuickOpenEntryGroupTemplateData extends IQuickOpenEntryTemplateData {
+export interface IQuickOpenEntryGroupTemplateData
+	extends IQuickOpenEntryTemplateData {
 	group: HTMLDivElement;
 }
 
@@ -411,11 +489,13 @@ const templateEntry = 'quickOpenEntry';
 const templateEntryGroup = 'quickOpenEntryGroup';
 
 class Renderer implements IRenderer<QuickOpenEntry> {
-
 	private actionProvider: IActionProvider;
 	private actionRunner: IActionRunner;
 
-	constructor(actionProvider: IActionProvider = new NoActionProvider(), actionRunner: IActionRunner = null) {
+	constructor(
+		actionProvider: IActionProvider = new NoActionProvider(),
+		actionRunner: IActionRunner = null
+	) {
 		this.actionProvider = actionProvider;
 		this.actionRunner = actionRunner;
 	}
@@ -436,7 +516,11 @@ class Renderer implements IRenderer<QuickOpenEntry> {
 		return templateEntry;
 	}
 
-	public renderTemplate(templateId: string, container: HTMLElement, styles: IQuickOpenStyles): IQuickOpenEntryGroupTemplateData {
+	public renderTemplate(
+		templateId: string,
+		container: HTMLElement,
+		styles: IQuickOpenStyles
+	): IQuickOpenEntryGroupTemplateData {
 		const entryContainer = document.createElement('div');
 		DOM.addClass(entryContainer, 'sub-content');
 		container.appendChild(entryContainer);
@@ -504,7 +588,12 @@ class Renderer implements IRenderer<QuickOpenEntry> {
 		};
 	}
 
-	public renderElement(entry: QuickOpenEntry, templateId: string, templateData: any, styles: IQuickOpenStyles): void {
+	public renderElement(
+		entry: QuickOpenEntry,
+		templateId: string,
+		templateData: any,
+		styles: IQuickOpenStyles
+	): void {
 		const data: IQuickOpenEntryTemplateData = templateData;
 
 		// Action Bar
@@ -516,12 +605,15 @@ class Renderer implements IRenderer<QuickOpenEntry> {
 
 		data.actionBar.context = entry; // make sure the context is the current element
 
-		this.actionProvider.getActions(null, entry).then((actions) => {
+		this.actionProvider.getActions(null, entry).then(actions => {
 			// TODO@Ben this will not work anymore as soon as quick open has more actions
 			// but as long as there is only one are ok
 			if (data.actionBar.isEmpty() && actions && actions.length > 0) {
 				data.actionBar.push(actions, { icon: true, label: false });
-			} else if (!data.actionBar.isEmpty() && (!actions || actions.length === 0)) {
+			} else if (
+				!data.actionBar.isEmpty() &&
+				(!actions || actions.length === 0)
+			) {
 				data.actionBar.clear();
 			}
 		});
@@ -555,14 +647,21 @@ class Renderer implements IRenderer<QuickOpenEntry> {
 
 		// Normal Entry
 		if (entry instanceof QuickOpenEntry) {
-			const [labelHighlights, descriptionHighlights, detailHighlights] = entry.getHighlights();
+			const [
+				labelHighlights,
+				descriptionHighlights,
+				detailHighlights
+			] = entry.getHighlights();
 
 			// Icon
-			const iconClass = entry.getIcon() ? ('quick-open-entry-icon ' + entry.getIcon()) : '';
+			const iconClass = entry.getIcon()
+				? 'quick-open-entry-icon ' + entry.getIcon()
+				: '';
 			data.icon.className = iconClass;
 
 			// Label
-			const options: IIconLabelOptions = entry.getLabelOptions() || Object.create(null);
+			const options: IIconLabelOptions =
+				entry.getLabelOptions() || Object.create(null);
 			options.matches = labelHighlights || [];
 			data.label.setValue(entry.getLabel(), null, options);
 
@@ -597,12 +696,11 @@ class Renderer implements IRenderer<QuickOpenEntry> {
 	}
 }
 
-export class QuickOpenModel implements
-	IModel<QuickOpenEntry>,
-	IDataSource<QuickOpenEntry>,
-	IFilter<QuickOpenEntry>,
-	IRunner<QuickOpenEntry>
-{
+export class QuickOpenModel
+	implements IModel<QuickOpenEntry>,
+		IDataSource<QuickOpenEntry>,
+		IFilter<QuickOpenEntry>,
+		IRunner<QuickOpenEntry> {
 	private _entries: QuickOpenEntry[];
 	private _dataSource: IDataSource<QuickOpenEntry>;
 	private _renderer: IRenderer<QuickOpenEntry>;
@@ -610,7 +708,10 @@ export class QuickOpenModel implements
 	private _runner: IRunner<QuickOpenEntry>;
 	private _accessibilityProvider: IAccessiblityProvider<QuickOpenEntry>;
 
-	constructor(entries: QuickOpenEntry[] = [], actionProvider: IActionProvider = new NoActionProvider()) {
+	constructor(
+		entries: QuickOpenEntry[] = [],
+		actionProvider: IActionProvider = new NoActionProvider()
+	) {
 		this._entries = entries;
 		this._dataSource = this;
 		this._renderer = new Renderer(actionProvider);
@@ -619,12 +720,24 @@ export class QuickOpenModel implements
 		this._accessibilityProvider = this;
 	}
 
-	public get entries() { return this._entries; }
-	public get dataSource() { return this._dataSource; }
-	public get renderer() { return this._renderer; }
-	public get filter() { return this._filter; }
-	public get runner() { return this._runner; }
-	public get accessibilityProvider() { return this._accessibilityProvider; }
+	public get entries() {
+		return this._entries;
+	}
+	public get dataSource() {
+		return this._dataSource;
+	}
+	public get renderer() {
+		return this._renderer;
+	}
+	public get filter() {
+		return this._filter;
+	}
+	public get runner() {
+		return this._runner;
+	}
+	public get accessibilityProvider() {
+		return this._accessibilityProvider;
+	}
 
 	public set entries(entries: QuickOpenEntry[]) {
 		this._entries = entries;
@@ -655,7 +768,7 @@ export class QuickOpenModel implements
 	 */
 	public getEntries(visibleOnly?: boolean): QuickOpenEntry[] {
 		if (visibleOnly) {
-			return this._entries.filter((e) => !e.isHidden());
+			return this._entries.filter(e => !e.isHidden());
 		}
 
 		return this._entries;
@@ -672,10 +785,14 @@ export class QuickOpenModel implements
 	public getAriaLabel(entry: QuickOpenEntry): string {
 		const ariaLabel = entry.getAriaLabel();
 		if (ariaLabel) {
-			return nls.localize('quickOpenAriaLabelEntry', "{0}, picker", entry.getAriaLabel());
+			return nls.localize(
+				'quickOpenAriaLabelEntry',
+				'{0}, picker',
+				entry.getAriaLabel()
+			);
 		}
 
-		return nls.localize('quickOpenAriaLabel', "picker");
+		return nls.localize('quickOpenAriaLabel', 'picker');
 	}
 
 	public isVisible(entry: QuickOpenEntry): boolean {

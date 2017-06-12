@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./iconlabel';
 import dom = require('vs/base/browser/dom');
@@ -12,7 +12,11 @@ import { IMatch } from 'vs/base/common/filters';
 import uri from 'vs/base/common/uri';
 import paths = require('vs/base/common/paths');
 import types = require('vs/base/common/types');
-import { IWorkspaceProvider, getPathLabel, IUserHomeProvider } from 'vs/base/common/labels';
+import {
+	IWorkspaceProvider,
+	getPathLabel,
+	IUserHomeProvider
+} from 'vs/base/common/labels';
 
 export interface IIconLabelCreationOptions {
 	supportHighlights?: boolean;
@@ -33,11 +37,16 @@ export class IconLabel {
 	constructor(container: HTMLElement, options?: IIconLabelCreationOptions) {
 		this.domNode = dom.append(container, dom.$('.monaco-icon-label'));
 		if (options && options.supportHighlights) {
-			this.labelNode = new HighlightedLabel(dom.append(this.domNode, dom.$('a.label-name')));
+			this.labelNode = new HighlightedLabel(
+				dom.append(this.domNode, dom.$('a.label-name'))
+			);
 		} else {
 			this.labelNode = dom.append(this.domNode, dom.$('a.label-name'));
 		}
-		this.descriptionNode = dom.append(this.domNode, dom.$('span.label-description'));
+		this.descriptionNode = dom.append(
+			this.domNode,
+			dom.$('span.label-description')
+		);
 	}
 
 	public get element(): HTMLElement {
@@ -57,7 +66,11 @@ export class IconLabel {
 		return this.descriptionNode;
 	}
 
-	public setValue(label?: string, description?: string, options?: IIconLabelOptions): void {
+	public setValue(
+		label?: string,
+		description?: string,
+		options?: IIconLabelOptions
+	): void {
 		const labelNode = this.labelNode;
 		if (labelNode instanceof HighlightedLabel) {
 			labelNode.set(label || '', options ? options.matches : void 0);
@@ -98,18 +111,30 @@ export class IconLabel {
 }
 
 export class FileLabel extends IconLabel {
-
-	constructor(container: HTMLElement, file: uri, provider: IWorkspaceProvider, userHome?: IUserHomeProvider) {
+	constructor(
+		container: HTMLElement,
+		file: uri,
+		provider: IWorkspaceProvider,
+		userHome?: IUserHomeProvider
+	) {
 		super(container);
 
 		this.setFile(file, provider, userHome);
 	}
 
-	public setFile(file: uri, provider: IWorkspaceProvider, userHome: IUserHomeProvider): void {
+	public setFile(
+		file: uri,
+		provider: IWorkspaceProvider,
+		userHome: IUserHomeProvider
+	): void {
 		const path = getPath(file);
 		const parent = paths.dirname(path);
 
-		this.setValue(paths.basename(path), parent && parent !== '.' ? getPathLabel(parent, provider, userHome) : '', { title: path });
+		this.setValue(
+			paths.basename(path),
+			parent && parent !== '.' ? getPathLabel(parent, provider, userHome) : '',
+			{ title: path }
+		);
 	}
 }
 

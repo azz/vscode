@@ -3,18 +3,36 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
-import { IDisposable, toDisposable, empty as EmptyDisposable, combinedDisposable } from 'vs/base/common/lifecycle';
+import {
+	IDisposable,
+	toDisposable,
+	empty as EmptyDisposable,
+	combinedDisposable
+} from 'vs/base/common/lifecycle';
 import Event, { Emitter } from 'vs/base/common/event';
 import { memoize } from 'vs/base/common/decorators';
-import { IContextKeyService, IContextKey } from 'vs/platform/contextkey/common/contextkey';
-import { IStatusbarService, StatusbarAlignment as MainThreadStatusBarAlignment } from 'vs/platform/statusbar/common/statusbar';
-import { IStorageService, StorageScope } from 'vs/platform/storage/common/storage';
-import { ISCMService, ISCMProvider, ISCMInput, DefaultSCMProviderIdStorageKey } from './scm';
+import {
+	IContextKeyService,
+	IContextKey
+} from 'vs/platform/contextkey/common/contextkey';
+import {
+	IStatusbarService,
+	StatusbarAlignment as MainThreadStatusBarAlignment
+} from 'vs/platform/statusbar/common/statusbar';
+import {
+	IStorageService,
+	StorageScope
+} from 'vs/platform/storage/common/storage';
+import {
+	ISCMService,
+	ISCMProvider,
+	ISCMInput,
+	DefaultSCMProviderIdStorageKey
+} from './scm';
 
 class SCMInput implements ISCMInput {
-
 	private _value = '';
 
 	get value(): string {
@@ -27,11 +45,12 @@ class SCMInput implements ISCMInput {
 	}
 
 	private _onDidChange = new Emitter<string>();
-	get onDidChange(): Event<string> { return this._onDidChange.event; }
+	get onDidChange(): Event<string> {
+		return this._onDidChange.event;
+	}
 }
 
 export class SCMService implements ISCMService {
-
 	_serviceBrand;
 
 	private activeProviderDisposable: IDisposable = EmptyDisposable;
@@ -46,24 +65,36 @@ export class SCMService implements ISCMService {
 
 	set activeProvider(provider: ISCMProvider | undefined) {
 		this.setActiveSCMProdiver(provider);
-		this.storageService.store(DefaultSCMProviderIdStorageKey, provider.id, StorageScope.WORKSPACE);
+		this.storageService.store(
+			DefaultSCMProviderIdStorageKey,
+			provider.id,
+			StorageScope.WORKSPACE
+		);
 	}
 
 	private _providers: ISCMProvider[] = [];
-	get providers(): ISCMProvider[] { return [...this._providers]; }
+	get providers(): ISCMProvider[] {
+		return [...this._providers];
+	}
 
 	private _onDidChangeProvider = new Emitter<ISCMProvider>();
-	get onDidChangeProvider(): Event<ISCMProvider> { return this._onDidChangeProvider.event; }
+	get onDidChangeProvider(): Event<ISCMProvider> {
+		return this._onDidChangeProvider.event;
+	}
 
 	@memoize
-	get input(): ISCMInput { return new SCMInput(); }
+	get input(): ISCMInput {
+		return new SCMInput();
+	}
 
 	constructor(
 		@IContextKeyService contextKeyService: IContextKeyService,
 		@IStorageService private storageService: IStorageService,
 		@IStatusbarService private statusbarService: IStatusbarService
 	) {
-		this.activeProviderContextKey = contextKeyService.createKey<string | undefined>('scmProvider', void 0);
+		this.activeProviderContextKey = contextKeyService.createKey<
+			string | undefined
+		>('scmProvider', void 0);
 	}
 
 	private setActiveSCMProdiver(provider: ISCMProvider): void {
@@ -79,7 +110,9 @@ export class SCMService implements ISCMService {
 
 		this._activeProvider = provider;
 
-		this.activeProviderDisposable = provider.onDidChange(() => this.onDidProviderChange(provider));
+		this.activeProviderDisposable = provider.onDidChange(() =>
+			this.onDidProviderChange(provider)
+		);
 		this.onDidProviderChange(provider);
 
 		this.activeProviderContextKey.set(provider ? provider.id : void 0);
@@ -89,7 +122,10 @@ export class SCMService implements ISCMService {
 	registerSCMProvider(provider: ISCMProvider): IDisposable {
 		this._providers.push(provider);
 
-		const defaultProviderId = this.storageService.get(DefaultSCMProviderIdStorageKey, StorageScope.WORKSPACE);
+		const defaultProviderId = this.storageService.get(
+			DefaultSCMProviderIdStorageKey,
+			StorageScope.WORKSPACE
+		);
 
 		if (this._providers.length === 1 || defaultProviderId === provider.id) {
 			this.setActiveSCMProdiver(provider);
@@ -114,11 +150,17 @@ export class SCMService implements ISCMService {
 		this.statusBarDisposable.dispose();
 
 		const commands = provider.statusBarCommands || [];
-		const disposables = commands.map(c => this.statusbarService.addEntry({
-			text: c.title,
-			tooltip: c.tooltip,
-			command: c.id
-		}, MainThreadStatusBarAlignment.LEFT, 10000));
+		const disposables = commands.map(c =>
+			this.statusbarService.addEntry(
+				{
+					text: c.title,
+					tooltip: c.tooltip,
+					command: c.id
+				},
+				MainThreadStatusBarAlignment.LEFT,
+				10000
+			)
+		);
 
 		this.statusBarDisposable = combinedDisposable(disposables);
 	}

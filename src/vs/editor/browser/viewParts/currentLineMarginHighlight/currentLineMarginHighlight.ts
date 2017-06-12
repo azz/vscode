@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./currentLineMarginHighlight';
 import { DynamicViewOverlay } from 'vs/editor/browser/view/dynamicViewOverlay';
@@ -11,7 +11,10 @@ import { ViewContext } from 'vs/editor/common/view/viewContext';
 import { RenderingContext } from 'vs/editor/common/view/renderingContext';
 import * as viewEvents from 'vs/editor/common/view/viewEvents';
 import { registerThemingParticipant } from 'vs/platform/theme/common/themeService';
-import { editorLineHighlight, editorLineHighlightBorder } from 'vs/editor/common/view/editorColorRegistry';
+import {
+	editorLineHighlight,
+	editorLineHighlightBorder
+} from 'vs/editor/common/view/editorColorRegistry';
 
 export class CurrentLineMarginHighlightOverlay extends DynamicViewOverlay {
 	private _context: ViewContext;
@@ -42,7 +45,9 @@ export class CurrentLineMarginHighlightOverlay extends DynamicViewOverlay {
 
 	// --- begin event handlers
 
-	public onConfigurationChanged(e: viewEvents.ViewConfigurationChangedEvent): boolean {
+	public onConfigurationChanged(
+		e: viewEvents.ViewConfigurationChangedEvent
+	): boolean {
 		if (e.lineHeight) {
 			this._lineHeight = this._context.configuration.editor.lineHeight;
 		}
@@ -54,7 +59,9 @@ export class CurrentLineMarginHighlightOverlay extends DynamicViewOverlay {
 		}
 		return true;
 	}
-	public onCursorStateChanged(e: viewEvents.ViewCursorStateChangedEvent): boolean {
+	public onCursorStateChanged(
+		e: viewEvents.ViewCursorStateChangedEvent
+	): boolean {
 		let hasChanged = false;
 
 		if (this._primaryCursorIsInEditableRange !== e.isInEditableRange) {
@@ -84,18 +91,17 @@ export class CurrentLineMarginHighlightOverlay extends DynamicViewOverlay {
 	}
 	// --- end event handlers
 
-	public prepareRender(ctx: RenderingContext): void {
-	}
+	public prepareRender(ctx: RenderingContext): void {}
 
 	public render(startLineNumber: number, lineNumber: number): string {
 		if (lineNumber === this._primaryCursorLineNumber) {
 			if (this._shouldShowCurrentLine()) {
 				return (
-					'<div class="current-line-margin" style="width:'
-					+ String(this._contentLeft)
-					+ 'px; height:'
-					+ String(this._lineHeight)
-					+ 'px;"></div>'
+					'<div class="current-line-margin" style="width:' +
+					String(this._contentLeft) +
+					'px; height:' +
+					String(this._lineHeight) +
+					'px;"></div>'
 				);
 			} else {
 				return '';
@@ -105,21 +111,31 @@ export class CurrentLineMarginHighlightOverlay extends DynamicViewOverlay {
 	}
 
 	private _shouldShowCurrentLine(): boolean {
-		return (this._renderLineHighlight === 'gutter' || this._renderLineHighlight === 'all') && this._primaryCursorIsInEditableRange;
+		return (
+			(this._renderLineHighlight === 'gutter' ||
+				this._renderLineHighlight === 'all') &&
+			this._primaryCursorIsInEditableRange
+		);
 	}
 }
 
 registerThemingParticipant((theme, collector) => {
 	let lineHighlight = theme.getColor(editorLineHighlight);
 	if (lineHighlight) {
-		collector.addRule(`.monaco-editor .margin-view-overlays .current-line-margin { background-color: ${lineHighlight}; border: none; }`);
+		collector.addRule(
+			`.monaco-editor .margin-view-overlays .current-line-margin { background-color: ${lineHighlight}; border: none; }`
+		);
 	} else {
 		let lineHighlightBorder = theme.getColor(editorLineHighlightBorder);
 		if (lineHighlightBorder) {
-			collector.addRule(`.monaco-editor .margin-view-overlays .current-line-margin { border: 2px solid ${lineHighlightBorder}; }`);
+			collector.addRule(
+				`.monaco-editor .margin-view-overlays .current-line-margin { border: 2px solid ${lineHighlightBorder}; }`
+			);
 		}
 		if (theme.type === 'hc') {
-			collector.addRule(`.monaco-editor .margin-view-overlays .current-line-margin { border-width: 1px; }`);
+			collector.addRule(
+				`.monaco-editor .margin-view-overlays .current-line-margin { border-width: 1px; }`
+			);
 		}
 	}
 });

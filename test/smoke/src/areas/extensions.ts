@@ -4,14 +4,15 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { SpectronApplication } from '../spectron/application';
-import { CommonActions } from "./common";
+import { CommonActions } from './common';
 
 export class Extensions {
-	
 	private readonly extensionsViewletSelector = 'div[id="workbench.view.extensions"]';
 
-	constructor(private spectron: SpectronApplication, private common: CommonActions) {
-	}
+	constructor(
+		private spectron: SpectronApplication,
+		private common: CommonActions
+	) {}
 
 	public async openExtensionsViewlet(): Promise<any> {
 		await this.spectron.command('workbench.view.extensions');
@@ -28,11 +29,18 @@ export class Extensions {
 	}
 
 	public installFirstResult(): Promise<any> {
-		return this.spectron.client.click(`${this.extensionsViewletSelector} .monaco-list-rows>:nth-child(1) .extension .extension-action.install`);
+		return this.spectron.client.click(
+			`${this
+				.extensionsViewletSelector} .monaco-list-rows>:nth-child(1) .extension .extension-action.install`
+		);
 	}
 
 	public getFirstReloadText(): Promise<any> {
-		return this.spectron.waitFor(this.spectron.client.getText, `${this.extensionsViewletSelector} .monaco-list-rows>:nth-child(1) .extension .extension-action.reload`);
+		return this.spectron.waitFor(
+			this.spectron.client.getText,
+			`${this
+				.extensionsViewletSelector} .monaco-list-rows>:nth-child(1) .extension .extension-action.reload`
+		);
 	}
 
 	public async selectMinimalIconsTheme(): Promise<any> {
@@ -44,6 +52,9 @@ export class Extensions {
 	}
 
 	public async verifyFolderIconAppearance(): Promise<any> {
-		return this.spectron.waitFor(this.spectron.client.getHTML, 'style[class="contributedIconTheme"]');
+		return this.spectron.waitFor(
+			this.spectron.client.getHTML,
+			'style[class="contributedIconTheme"]'
+		);
 	}
 }

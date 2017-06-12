@@ -9,13 +9,14 @@ import * as Lint from 'tslint';
 
 export class Rule extends Lint.Rules.AbstractRule {
 	public apply(sourceFile: ts.SourceFile): Lint.RuleFailure[] {
-		return this.applyWithWalker(new ImportPatterns(sourceFile, this.getOptions()));
+		return this.applyWithWalker(
+			new ImportPatterns(sourceFile, this.getOptions())
+		);
 	}
 }
 
 class ImportPatterns extends Lint.RuleWalker {
-
-	private imports: { [path: string]: boolean; } = Object.create(null);
+	private imports: { [path: string]: boolean } = Object.create(null);
 
 	constructor(file: ts.SourceFile, opts: Lint.IOptions) {
 		super(file, opts);
@@ -32,7 +33,13 @@ class ImportPatterns extends Lint.RuleWalker {
 		}
 
 		if (this.imports[path]) {
-			this.addFailure(this.createFailure(node.getStart(), node.getWidth(), `Duplicate imports for '${path}'.`));
+			this.addFailure(
+				this.createFailure(
+					node.getStart(),
+					node.getWidth(),
+					`Duplicate imports for '${path}'.`
+				)
+			);
 		}
 
 		this.imports[path] = true;

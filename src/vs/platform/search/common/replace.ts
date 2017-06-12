@@ -8,13 +8,12 @@ import { IPatternInfo } from 'vs/platform/search/common/search';
 import { CharCode } from 'vs/base/common/charCode';
 
 export class ReplacePattern {
-
 	private _replacePattern: string;
 	private _hasParameters: boolean = false;
 	private _regExp: RegExp;
 
-	constructor(replaceString: string, searchPatternInfo: IPatternInfo)
-	constructor(replaceString: string, parseParameters: boolean, regEx: RegExp)
+	constructor(replaceString: string, searchPatternInfo: IPatternInfo);
+	constructor(replaceString: string, parseParameters: boolean, regEx: RegExp);
 	constructor(replaceString: string, arg2: any, arg3?: any) {
 		this._replacePattern = replaceString;
 		let searchPatternInfo: IPatternInfo;
@@ -28,9 +27,25 @@ export class ReplacePattern {
 		if (parseParameters) {
 			this.parseReplaceString(replaceString);
 		}
-		this._regExp = arg3 ? arg3 : strings.createRegExp(searchPatternInfo.pattern, searchPatternInfo.isRegExp, { matchCase: searchPatternInfo.isCaseSensitive, wholeWord: searchPatternInfo.isWordMatch, multiline: searchPatternInfo.isMultiline, global: false });
+		this._regExp = arg3
+			? arg3
+			: strings.createRegExp(
+					searchPatternInfo.pattern,
+					searchPatternInfo.isRegExp,
+					{
+						matchCase: searchPatternInfo.isCaseSensitive,
+						wholeWord: searchPatternInfo.isWordMatch,
+						multiline: searchPatternInfo.isMultiline,
+						global: false
+					}
+				);
 		if (this._regExp.global) {
-			this._regExp = strings.createRegExp(this._regExp.source, true, { matchCase: !this._regExp.ignoreCase, wholeWord: false, multiline: this._regExp.multiline, global: false });
+			this._regExp = strings.createRegExp(this._regExp.source, true, {
+				matchCase: !this._regExp.ignoreCase,
+				wholeWord: false,
+				multiline: this._regExp.multiline,
+				global: false
+			});
 		}
 	}
 
@@ -59,7 +74,10 @@ export class ReplacePattern {
 					return text.replace(this._regExp, this.pattern);
 				}
 				let replaceString = text.replace(this._regExp, this.pattern);
-				return replaceString.substr(match.index, match[0].length - (text.length - replaceString.length));
+				return replaceString.substr(
+					match.index,
+					match[0].length - (text.length - replaceString.length)
+				);
 			}
 			return this.pattern;
 		}
@@ -78,12 +96,12 @@ export class ReplacePattern {
 			return;
 		}
 
-		let substrFrom = 0, result = '';
+		let substrFrom = 0,
+			result = '';
 		for (let i = 0, len = replaceString.length; i < len; i++) {
 			let chCode = replaceString.charCodeAt(i);
 
 			if (chCode === CharCode.Backslash) {
-
 				// move to next char
 				i++;
 
@@ -111,13 +129,13 @@ export class ReplacePattern {
 				}
 
 				if (replaceWithCharacter) {
-					result += replaceString.substring(substrFrom, i - 1) + replaceWithCharacter;
+					result +=
+						replaceString.substring(substrFrom, i - 1) + replaceWithCharacter;
 					substrFrom = i + 1;
 				}
 			}
 
 			if (chCode === CharCode.DollarSign) {
-
 				// move to next char
 				i++;
 
@@ -168,7 +186,8 @@ export class ReplacePattern {
 				}
 
 				if (replaceWithCharacter) {
-					result += replaceString.substring(substrFrom, i - 1) + replaceWithCharacter;
+					result +=
+						replaceString.substring(substrFrom, i - 1) + replaceWithCharacter;
 					substrFrom = i + 1;
 				}
 			}

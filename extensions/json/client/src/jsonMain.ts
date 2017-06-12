@@ -2,24 +2,42 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as path from 'path';
 
-import { workspace, languages, ExtensionContext, extensions, Uri, Range } from 'vscode';
-import { LanguageClient, LanguageClientOptions, RequestType, ServerOptions, TransportKind, NotificationType } from 'vscode-languageclient';
+import {
+	workspace,
+	languages,
+	ExtensionContext,
+	extensions,
+	Uri,
+	Range
+} from 'vscode';
+import {
+	LanguageClient,
+	LanguageClientOptions,
+	RequestType,
+	ServerOptions,
+	TransportKind,
+	NotificationType
+} from 'vscode-languageclient';
 import TelemetryReporter from 'vscode-extension-telemetry';
-import { activateColorDecorations } from "./colorDecorators";
+import { activateColorDecorations } from './colorDecorators';
 
 import * as nls from 'vscode-nls';
 let localize = nls.loadMessageBundle();
 
 namespace VSCodeContentRequest {
-	export const type: RequestType<string, string, any, any> = new RequestType('vscode/content');
+	export const type: RequestType<string, string, any, any> = new RequestType(
+		'vscode/content'
+	);
 }
 
 namespace ColorSymbolRequest {
-	export const type: RequestType<string, Range[], any, any> = new RequestType('json/colorSymbols');
+	export const type: RequestType<string, Range[], any, any> = new RequestType(
+		'json/colorSymbols'
+	);
 }
 
 export interface ISchemaAssociations {
@@ -27,7 +45,10 @@ export interface ISchemaAssociations {
 }
 
 namespace SchemaAssociationNotification {
-	export const type: NotificationType<ISchemaAssociations, any> = new NotificationType('json/schemaAssociations');
+	export const type: NotificationType<
+		ISchemaAssociations,
+		any
+	> = new NotificationType('json/schemaAssociations');
 }
 
 interface IPackageInfo {
@@ -37,13 +58,20 @@ interface IPackageInfo {
 }
 
 export function activate(context: ExtensionContext) {
-
 	let packageInfo = getPackageInfo(context);
-	let telemetryReporter: TelemetryReporter = packageInfo && new TelemetryReporter(packageInfo.name, packageInfo.version, packageInfo.aiKey);
+	let telemetryReporter: TelemetryReporter =
+		packageInfo &&
+		new TelemetryReporter(
+			packageInfo.name,
+			packageInfo.version,
+			packageInfo.aiKey
+		);
 	context.subscriptions.push(telemetryReporter);
 
 	// The server is implemented in node
-	let serverModule = context.asAbsolutePath(path.join('server', 'out', 'jsonServerMain.js'));
+	let serverModule = context.asAbsolutePath(
+		path.join('server', 'out', 'jsonServerMain.js')
+	);
 	// The debug options for the server
 	let debugOptions = { execArgv: ['--nolazy', '--debug=6004'] };
 
@@ -51,7 +79,11 @@ export function activate(context: ExtensionContext) {
 	// Otherwise the run options are used
 	let serverOptions: ServerOptions = {
 		run: { module: serverModule, transport: TransportKind.ipc },
-		debug: { module: serverModule, transport: TransportKind.ipc, options: debugOptions }
+		debug: {
+			module: serverModule,
+			transport: TransportKind.ipc,
+			options: debugOptions
+		}
 	};
 
 	// Options to control the language client
@@ -66,7 +98,12 @@ export function activate(context: ExtensionContext) {
 	};
 
 	// Create the language client and start the client.
-	let client = new LanguageClient('json', localize('jsonserver.name', 'JSON Language Server'), serverOptions, clientOptions);
+	let client = new LanguageClient(
+		'json',
+		localize('jsonserver.name', 'JSON Language Server'),
+		serverOptions,
+		clientOptions
+	);
 	let disposable = client.start();
 	client.onReady().then(() => {
 		client.onTelemetry(e => {
@@ -78,22 +115,36 @@ export function activate(context: ExtensionContext) {
 		// handle content request
 		client.onRequest(VSCodeContentRequest.type, (uriPath: string) => {
 			let uri = Uri.parse(uriPath);
-			return workspace.openTextDocument(uri).then(doc => {
-				return doc.getText();
-			}, error => {
-				return Promise.reject(error);
-			});
+			return workspace.openTextDocument(uri).then(
+				doc => {
+					return doc.getText();
+				},
+				error => {
+					return Promise.reject(error);
+				}
+			);
 		});
 
-		client.sendNotification(SchemaAssociationNotification.type, getSchemaAssociation(context));
+		client.sendNotification(
+			SchemaAssociationNotification.type,
+			getSchemaAssociation(context)
+		);
 
 		let colorRequestor = (uri: string) => {
-			return client.sendRequest(ColorSymbolRequest.type, uri).then(ranges => ranges.map(client.protocol2CodeConverter.asRange));
+			return client
+				.sendRequest(ColorSymbolRequest.type, uri)
+				.then(ranges => ranges.map(client.protocol2CodeConverter.asRange));
 		};
 		let isDecoratorEnabled = (languageId: string) => {
-			return workspace.getConfiguration().get<boolean>(languageId + '.colorDecorators.enable');
+			return workspace
+				.getConfiguration()
+				.get<boolean>(languageId + '.colorDecorators.enable');
 		};
-		disposable = activateColorDecorations(colorRequestor, { json: true }, isDecoratorEnabled);
+		disposable = activateColorDecorations(
+			colorRequestor,
+			{ json: true },
+			isDecoratorEnabled
+		);
 		context.subscriptions.push(disposable);
 	});
 
@@ -110,18 +161,27 @@ function getSchemaAssociation(context: ExtensionContext): ISchemaAssociations {
 	let associations: ISchemaAssociations = {};
 	extensions.all.forEach(extension => {
 		let packageJSON = extension.packageJSON;
-		if (packageJSON && packageJSON.contributes && packageJSON.contributes.jsonValidation) {
+		if (
+			packageJSON &&
+			packageJSON.contributes &&
+			packageJSON.contributes.jsonValidation
+		) {
 			let jsonValidation = packageJSON.contributes.jsonValidation;
 			if (Array.isArray(jsonValidation)) {
 				jsonValidation.forEach(jv => {
 					let { fileMatch, url } = jv;
 					if (fileMatch && url) {
 						if (url[0] === '.' && url[1] === '/') {
-							url = Uri.file(path.join(extension.extensionPath, url)).toString();
+							url = Uri.file(
+								path.join(extension.extensionPath, url)
+							).toString();
 						}
 						if (fileMatch[0] === '%') {
 							fileMatch = fileMatch.replace(/%APP_SETTINGS_HOME%/, '/User');
-						} else if (fileMatch.charAt(0) !== '/' && !fileMatch.match(/\w+:\/\//)) {
+						} else if (
+							fileMatch.charAt(0) !== '/' &&
+							!fileMatch.match(/\w+:\/\//)
+						) {
 							fileMatch = '/' + fileMatch;
 						}
 						let association = associations[fileMatch];

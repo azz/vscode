@@ -12,16 +12,22 @@ import * as objects from 'vs/base/common/objects';
 import * as paths from 'vs/base/common/paths';
 import * as platform from 'vs/base/common/platform';
 import { IJSONSchema, IJSONSchemaSnippet } from 'vs/base/common/jsonSchema';
-import { IRawAdapter, IAdapterExecutable, INTERNAL_CONSOLE_OPTIONS_SCHEMA } from 'vs/workbench/parts/debug/common/debug';
+import {
+	IRawAdapter,
+	IAdapterExecutable,
+	INTERNAL_CONSOLE_OPTIONS_SCHEMA
+} from 'vs/workbench/parts/debug/common/debug';
 import { IExtensionDescription } from 'vs/platform/extensions/common/extensions';
 import { IConfigurationResolverService } from 'vs/workbench/services/configurationResolver/common/configurationResolver';
 import { IConfigurationService } from 'vs/platform/configuration/common/configuration';
 import { ICommandService } from 'vs/platform/commands/common/commands';
 
 export class Adapter {
-
-	constructor(private rawAdapter: IRawAdapter, public extensionDescription: IExtensionDescription,
-		@IConfigurationResolverService private configurationResolverService: IConfigurationResolverService,
+	constructor(
+		private rawAdapter: IRawAdapter,
+		public extensionDescription: IExtensionDescription,
+		@IConfigurationResolverService
+		private configurationResolverService: IConfigurationResolverService,
 		@IConfigurationService private configurationService: IConfigurationService,
 		@ICommandService private commandService: ICommandService
 	) {
@@ -30,12 +36,17 @@ export class Adapter {
 		}
 	}
 
-	public getAdapterExecutable(verifyAgainstFS = true): TPromise<IAdapterExecutable> {
-
+	public getAdapterExecutable(
+		verifyAgainstFS = true
+	): TPromise<IAdapterExecutable> {
 		if (this.rawAdapter.adapterExecutableCommand) {
-			return this.commandService.executeCommand<IAdapterExecutable>(this.rawAdapter.adapterExecutableCommand).then(ad => {
-				return this.verifyAdapterDetails(ad, verifyAgainstFS);
-			});
+			return this.commandService
+				.executeCommand<IAdapterExecutable>(
+					this.rawAdapter.adapterExecutableCommand
+				)
+				.then(ad => {
+					return this.verifyAdapterDetails(ad, verifyAgainstFS);
+				});
 		}
 
 		const adapterExecutable = <IAdapterExecutable>{
@@ -45,14 +56,18 @@ export class Adapter {
 		const runtime = this.getRuntime();
 		if (runtime) {
 			const runtimeArgs = this.getAttributeBasedOnPlatform('runtimeArgs');
-			adapterExecutable.args = (runtimeArgs || []).concat([adapterExecutable.command]).concat(adapterExecutable.args || []);
+			adapterExecutable.args = (runtimeArgs || [])
+				.concat([adapterExecutable.command])
+				.concat(adapterExecutable.args || []);
 			adapterExecutable.command = runtime;
 		}
 		return this.verifyAdapterDetails(adapterExecutable, verifyAgainstFS);
 	}
 
-	private verifyAdapterDetails(details: IAdapterExecutable, verifyAgainstFS: boolean): TPromise<IAdapterExecutable> {
-
+	private verifyAdapterDetails(
+		details: IAdapterExecutable,
+		verifyAgainstFS: boolean
+	): TPromise<IAdapterExecutable> {
 		if (details.command) {
 			if (verifyAgainstFS) {
 				if (path.isAbsolute(details.command)) {
@@ -61,15 +76,26 @@ export class Adapter {
 							if (exists) {
 								c(details);
 							} else {
-								e(new Error(nls.localize('debugAdapterBinNotFound', "Debug adapter executable '{0}' does not exist.", details.command)));
+								e(
+									new Error(
+										nls.localize(
+											'debugAdapterBinNotFound',
+											"Debug adapter executable '{0}' does not exist.",
+											details.command
+										)
+									)
+								);
 							}
 						});
 					});
 				} else {
 					// relative path
-					if (details.command.indexOf('/') < 0 && details.command.indexOf('\\') < 0) {
+					if (
+						details.command.indexOf('/') < 0 &&
+						details.command.indexOf('\\') < 0
+					) {
 						// no separators: command looks like a runtime name like 'node' or 'mono'
-						return TPromise.as(details);	// TODO: check that the runtime is available on PATH
+						return TPromise.as(details); // TODO: check that the runtime is available on PATH
 					}
 				}
 			} else {
@@ -77,15 +103,30 @@ export class Adapter {
 			}
 		}
 
-		return TPromise.wrapError(new Error(nls.localize({ key: 'debugAdapterCannotDetermineExecutable', comment: ['Adapter executable file not found'] },
-			"Cannot determine executable for debug adapter '{0}'.", details.command)));
+		return TPromise.wrapError(
+			new Error(
+				nls.localize(
+					{
+						key: 'debugAdapterCannotDetermineExecutable',
+						comment: ['Adapter executable file not found']
+					},
+					"Cannot determine executable for debug adapter '{0}'.",
+					details.command
+				)
+			)
+		);
 	}
 
 	private getRuntime(): string {
 		let runtime = this.getAttributeBasedOnPlatform('runtime');
 		if (runtime && runtime.indexOf('./') === 0) {
-			runtime = this.configurationResolverService ? this.configurationResolverService.resolve(runtime) : runtime;
-			runtime = paths.join(this.extensionDescription.extensionFolderPath, runtime);
+			runtime = this.configurationResolverService
+				? this.configurationResolverService.resolve(runtime)
+				: runtime;
+			runtime = paths.join(
+				this.extensionDescription.extensionFolderPath,
+				runtime
+			);
 		}
 		return runtime;
 	}
@@ -93,8 +134,13 @@ export class Adapter {
 	private getProgram(): string {
 		let program = this.getAttributeBasedOnPlatform('program');
 		if (program) {
-			program = this.configurationResolverService ? this.configurationResolverService.resolve(program) : program;
-			program = paths.join(this.extensionDescription.extensionFolderPath, program);
+			program = this.configurationResolverService
+				? this.configurationResolverService.resolve(program)
+				: program;
+			program = paths.join(
+				this.extensionDescription.extensionFolderPath,
+				program
+			);
 		}
 		return program;
 	}
@@ -127,12 +173,19 @@ export class Adapter {
 		return this.rawAdapter.startSessionCommand;
 	}
 
-	public merge(secondRawAdapter: IRawAdapter, extensionDescription: IExtensionDescription): void {
+	public merge(
+		secondRawAdapter: IRawAdapter,
+		extensionDescription: IExtensionDescription
+	): void {
 		// Give priority to built in debug adapters
 		if (extensionDescription.isBuiltin) {
 			this.extensionDescription = extensionDescription;
 		}
-		objects.mixin(this.rawAdapter, secondRawAdapter, extensionDescription.isBuiltin);
+		objects.mixin(
+			this.rawAdapter,
+			secondRawAdapter,
+			extensionDescription.isBuiltin
+		);
 	}
 
 	public hasInitialConfiguration(): boolean {
@@ -144,25 +197,34 @@ export class Adapter {
 		if (typeof this.rawAdapter.initialConfigurations === 'string') {
 			// Contributed initialConfigurations is a command that needs to be invoked
 			// Debug adapter will dynamically provide the full launch.json
-			return this.commandService.executeCommand<string>(<string>this.rawAdapter.initialConfigurations).then(content => {
-				// Debug adapter returned the full content of the launch.json - return it after format
-				if (editorConfig.editor.insertSpaces) {
-					content = content.replace(new RegExp('\t', 'g'), strings.repeat(' ', editorConfig.editor.tabSize));
-				}
+			return this.commandService
+				.executeCommand<string>(<string>this.rawAdapter.initialConfigurations)
+				.then(content => {
+					// Debug adapter returned the full content of the launch.json - return it after format
+					if (editorConfig.editor.insertSpaces) {
+						content = content.replace(
+							new RegExp('\t', 'g'),
+							strings.repeat(' ', editorConfig.editor.tabSize)
+						);
+					}
 
-				return content;
-			});
+					return content;
+				});
 		}
 
-		return TPromise.as(JSON.stringify(
-			{
-				version: '0.2.0',
-				configurations: this.rawAdapter.initialConfigurations || []
-			},
-			null,
-			editorConfig.editor && editorConfig.editor.insertSpaces ? strings.repeat(' ', editorConfig.editor.tabSize) : '\t'
-		));
-	};
+		return TPromise.as(
+			JSON.stringify(
+				{
+					version: '0.2.0',
+					configurations: this.rawAdapter.initialConfigurations || []
+				},
+				null,
+				editorConfig.editor && editorConfig.editor.insertSpaces
+					? strings.repeat(' ', editorConfig.editor.tabSize)
+					: '\t'
+			)
+		);
+	}
 
 	public getSchemaAttributes(): IJSONSchema[] {
 		if (!this.rawAdapter.configurationAttributes) {
@@ -170,9 +232,13 @@ export class Adapter {
 		}
 		// fill in the default configuration attributes shared by all adapters.
 		return Object.keys(this.rawAdapter.configurationAttributes).map(request => {
-			const attributes: IJSONSchema = this.rawAdapter.configurationAttributes[request];
+			const attributes: IJSONSchema = this.rawAdapter.configurationAttributes[
+				request
+			];
 			const defaultRequired = ['name', 'type', 'request'];
-			attributes.required = attributes.required && attributes.required.length ? defaultRequired.concat(attributes.required) : defaultRequired;
+			attributes.required = attributes.required && attributes.required.length
+				? defaultRequired.concat(attributes.required)
+				: defaultRequired;
 			attributes.additionalProperties = false;
 			attributes.type = 'object';
 			if (!attributes.properties) {
@@ -181,53 +247,86 @@ export class Adapter {
 			const properties = attributes.properties;
 			properties['type'] = {
 				enum: [this.type],
-				description: nls.localize('debugType', "Type of configuration."),
+				description: nls.localize('debugType', 'Type of configuration.'),
 				pattern: '^(?!node2)',
-				errorMessage: nls.localize('debugTypeNotRecognised', "The debug type is not recognized. Make sure that you have a corresponding debug extension installed and that it is enabled."),
-				patternErrorMessage: nls.localize('node2NotSupported', "\"node2\" is no longer supported, use \"node\" instead and set the \"protocol\" attribute to \"inspector\".")
+				errorMessage: nls.localize(
+					'debugTypeNotRecognised',
+					'The debug type is not recognized. Make sure that you have a corresponding debug extension installed and that it is enabled.'
+				),
+				patternErrorMessage: nls.localize(
+					'node2NotSupported',
+					'"node2" is no longer supported, use "node" instead and set the "protocol" attribute to "inspector".'
+				)
 			};
 			properties['name'] = {
 				type: 'string',
-				description: nls.localize('debugName', "Name of configuration; appears in the launch configuration drop down menu."),
+				description: nls.localize(
+					'debugName',
+					'Name of configuration; appears in the launch configuration drop down menu.'
+				),
 				default: 'Launch'
 			};
 			properties['request'] = {
 				enum: [request],
-				description: nls.localize('debugRequest', "Request type of configuration. Can be \"launch\" or \"attach\"."),
+				description: nls.localize(
+					'debugRequest',
+					'Request type of configuration. Can be "launch" or "attach".'
+				)
 			};
 			properties['debugServer'] = {
 				type: 'number',
-				description: nls.localize('debugServer', "For debug extension development only: if a port is specified VS Code tries to connect to a debug adapter running in server mode"),
+				description: nls.localize(
+					'debugServer',
+					'For debug extension development only: if a port is specified VS Code tries to connect to a debug adapter running in server mode'
+				),
 				default: 4711
 			};
 			properties['preLaunchTask'] = {
 				type: ['string', 'null'],
 				default: null,
-				description: nls.localize('debugPrelaunchTask', "Task to run before debug session starts.")
+				description: nls.localize(
+					'debugPrelaunchTask',
+					'Task to run before debug session starts.'
+				)
 			};
 			properties['internalConsoleOptions'] = INTERNAL_CONSOLE_OPTIONS_SCHEMA;
 
 			const osProperties = objects.deepClone(properties);
 			properties['windows'] = {
 				type: 'object',
-				description: nls.localize('debugWindowsConfiguration', "Windows specific launch configuration attributes."),
+				description: nls.localize(
+					'debugWindowsConfiguration',
+					'Windows specific launch configuration attributes.'
+				),
 				properties: osProperties
 			};
 			properties['osx'] = {
 				type: 'object',
-				description: nls.localize('debugOSXConfiguration', "OS X specific launch configuration attributes."),
+				description: nls.localize(
+					'debugOSXConfiguration',
+					'OS X specific launch configuration attributes.'
+				),
 				properties: osProperties
 			};
 			properties['linux'] = {
 				type: 'object',
-				description: nls.localize('debugLinuxConfiguration', "Linux specific launch configuration attributes."),
+				description: nls.localize(
+					'debugLinuxConfiguration',
+					'Linux specific launch configuration attributes.'
+				),
 				properties: osProperties
 			};
 			Object.keys(attributes.properties).forEach(name => {
 				// Use schema allOf property to get independent error reporting #21113
-				attributes.properties[name].pattern = attributes.properties[name].pattern || '^(?!.*\\$\\{(env|config|command)\\.)';
-				attributes.properties[name].patternErrorMessage = attributes.properties[name].patternErrorMessage ||
-					nls.localize('deprecatedVariables', "'env.', 'config.' and 'command.' are deprecated, use 'env:', 'config:' and 'command:' instead.");
+				attributes.properties[name].pattern =
+					attributes.properties[name].pattern ||
+					'^(?!.*\\$\\{(env|config|command)\\.)';
+				attributes.properties[name].patternErrorMessage =
+					attributes.properties[name].patternErrorMessage ||
+					nls.localize(
+						'deprecatedVariables',
+						"'env.', 'config.' and 'command.' are deprecated, use 'env:', 'config:' and 'command:' instead."
+					);
 			});
 
 			return attributes;
@@ -236,7 +335,11 @@ export class Adapter {
 
 	private getAttributeBasedOnPlatform(key: string): any {
 		let result: any;
-		if (platform.isWindows && !process.env.hasOwnProperty('PROCESSOR_ARCHITEW6432') && this.rawAdapter.winx86) {
+		if (
+			platform.isWindows &&
+			!process.env.hasOwnProperty('PROCESSOR_ARCHITEW6432') &&
+			this.rawAdapter.winx86
+		) {
 			result = this.rawAdapter.winx86[key];
 		} else if (platform.isWindows && this.rawAdapter.win) {
 			result = this.rawAdapter.win[key];

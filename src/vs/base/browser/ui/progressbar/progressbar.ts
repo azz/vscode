@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./progressbar';
 import { TPromise, ValueCallback } from 'vs/base/common/winjs.base';
@@ -21,8 +21,7 @@ const css_discrete = 'discrete';
 const css_progress_container = 'progress-container';
 const css_progress_bit = 'progress-bit';
 
-export interface IProgressBarOptions extends IProgressBarStyles {
-}
+export interface IProgressBarOptions extends IProgressBarStyles {}
 
 export interface IProgressBarStyles {
 	progressBarBackground?: Color;
@@ -59,24 +58,31 @@ export class ProgressBar {
 	}
 
 	private create(parent: Builder): void {
-		parent.div({ 'class': css_progress_container }, (builder) => {
+		parent.div({ class: css_progress_container }, builder => {
 			this.element = builder.clone();
 
-			builder.div({ 'class': css_progress_bit }).on([DOM.EventType.ANIMATION_START, DOM.EventType.ANIMATION_END, DOM.EventType.ANIMATION_ITERATION], (e: Event) => {
-				switch (e.type) {
-					case DOM.EventType.ANIMATION_START:
-					case DOM.EventType.ANIMATION_END:
-						this.animationRunning = e.type === DOM.EventType.ANIMATION_START;
-						break;
+			builder.div({ class: css_progress_bit }).on(
+				[
+					DOM.EventType.ANIMATION_START,
+					DOM.EventType.ANIMATION_END,
+					DOM.EventType.ANIMATION_ITERATION
+				],
+				(e: Event) => {
+					switch (e.type) {
+						case DOM.EventType.ANIMATION_START:
+						case DOM.EventType.ANIMATION_END:
+							this.animationRunning = e.type === DOM.EventType.ANIMATION_START;
+							break;
 
-					case DOM.EventType.ANIMATION_ITERATION:
-						if (this.animationStopToken) {
-							this.animationStopToken(null);
-						}
-						break;
-				}
-
-			}, this.toUnbind);
+						case DOM.EventType.ANIMATION_ITERATION:
+							if (this.animationStopToken) {
+								this.animationStopToken(null);
+							}
+							break;
+					}
+				},
+				this.toUnbind
+			);
 
 			this.bit = builder.getHTMLElement();
 		});
@@ -121,10 +127,8 @@ export class ProgressBar {
 			} else {
 				this.off();
 			}
-		}
-
-		// let it fade out and hide afterwards
-		else {
+		} else {
+			// let it fade out and hide afterwards
 			this.bit.style.opacity = '0';
 			if (delayed) {
 				TPromise.timeout(200).then(() => this.off());
@@ -218,7 +222,9 @@ export class ProgressBar {
 
 	protected applyStyles(): void {
 		if (this.bit) {
-			const background = this.progressBarBackground ? this.progressBarBackground.toString() : null;
+			const background = this.progressBarBackground
+				? this.progressBarBackground.toString()
+				: null;
 
 			this.bit.style.backgroundColor = background;
 		}

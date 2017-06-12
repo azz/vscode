@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./media/tabstitle';
 import nls = require('vs/nls');
@@ -14,7 +14,12 @@ import { isMacintosh } from 'vs/base/common/platform';
 import { MIME_BINARY } from 'vs/base/common/mime';
 import { shorten } from 'vs/base/common/labels';
 import { ActionRunner, IAction } from 'vs/base/common/actions';
-import { Position, IEditorInput, Verbosity, IUntitledResourceInput } from 'vs/platform/editor/common/editor';
+import {
+	Position,
+	IEditorInput,
+	Verbosity,
+	IUntitledResourceInput
+} from 'vs/platform/editor/common/editor';
 import { IEditorGroup, toResource } from 'vs/workbench/common/editor';
 import { StandardKeyboardEvent } from 'vs/base/browser/keyboardEvent';
 import { KeyCode } from 'vs/base/common/keyCodes';
@@ -32,16 +37,37 @@ import { IMenuService } from 'vs/platform/actions/common/actions';
 import { IWindowService } from 'vs/platform/windows/common/windows';
 import { TitleControl } from 'vs/workbench/browser/parts/editor/titleControl';
 import { IQuickOpenService } from 'vs/platform/quickOpen/common/quickOpen';
-import { IDisposable, dispose, combinedDisposable } from 'vs/base/common/lifecycle';
+import {
+	IDisposable,
+	dispose,
+	combinedDisposable
+} from 'vs/base/common/lifecycle';
 import { ScrollableElement } from 'vs/base/browser/ui/scrollbar/scrollableElement';
 import { ScrollbarVisibility } from 'vs/base/common/scrollable';
 import { extractResources } from 'vs/base/browser/dnd';
 import { SimpleMap } from 'vs/base/common/map';
 import { DelegatingWorkbenchEditorService } from 'vs/workbench/services/editor/browser/editorService';
 import { ServiceCollection } from 'vs/platform/instantiation/common/serviceCollection';
-import { IThemeService, registerThemingParticipant, ITheme, ICssStyleCollector } from 'vs/platform/theme/common/themeService';
-import { TAB_INACTIVE_BACKGROUND, TAB_ACTIVE_BACKGROUND, TAB_ACTIVE_FOREGROUND, TAB_INACTIVE_FOREGROUND, TAB_BORDER, EDITOR_DRAG_AND_DROP_BACKGROUND, TAB_UNFOCUSED_ACTIVE_FOREGROUND, TAB_UNFOCUSED_INACTIVE_FOREGROUND } from 'vs/workbench/common/theme';
-import { activeContrastBorder, contrastBorder } from 'vs/platform/theme/common/colorRegistry';
+import {
+	IThemeService,
+	registerThemingParticipant,
+	ITheme,
+	ICssStyleCollector
+} from 'vs/platform/theme/common/themeService';
+import {
+	TAB_INACTIVE_BACKGROUND,
+	TAB_ACTIVE_BACKGROUND,
+	TAB_ACTIVE_FOREGROUND,
+	TAB_INACTIVE_FOREGROUND,
+	TAB_BORDER,
+	EDITOR_DRAG_AND_DROP_BACKGROUND,
+	TAB_UNFOCUSED_ACTIVE_FOREGROUND,
+	TAB_UNFOCUSED_INACTIVE_FOREGROUND
+} from 'vs/workbench/common/theme';
+import {
+	activeContrastBorder,
+	contrastBorder
+} from 'vs/platform/theme/common/colorRegistry';
 
 interface IEditorInputLabel {
 	editor: IEditorInput;
@@ -74,7 +100,19 @@ export class TabsTitleControl extends TitleControl {
 		@IWindowService private windowService: IWindowService,
 		@IThemeService themeService: IThemeService
 	) {
-		super(contextMenuService, instantiationService, editorService, editorGroupService, contextKeyService, keybindingService, telemetryService, messageService, menuService, quickOpenService, themeService);
+		super(
+			contextMenuService,
+			instantiationService,
+			editorService,
+			editorGroupService,
+			contextKeyService,
+			keybindingService,
+			telemetryService,
+			messageService,
+			menuService,
+			quickOpenService,
+			themeService
+		);
 
 		this.tabDisposeables = [];
 		this.editorLabels = [];
@@ -86,7 +124,9 @@ export class TabsTitleControl extends TitleControl {
 
 	private createScopedInstantiationService(): IInstantiationService {
 		const stacks = this.editorGroupService.getStacksModel();
-		const delegatingEditorService = this.instantiationService.createInstance(DelegatingWorkbenchEditorService);
+		const delegatingEditorService = this.instantiationService.createInstance(
+			DelegatingWorkbenchEditorService
+		);
 
 		// We create a scoped instantiation service to override the behaviour when closing an inactive editor
 		// Specifically we want to move focus back to the editor when an inactive editor is closed from anywhere
@@ -105,7 +145,9 @@ export class TabsTitleControl extends TitleControl {
 			return TPromise.as(void 0);
 		});
 
-		return this.instantiationService.createChild(new ServiceCollection([IWorkbenchEditorService, delegatingEditorService]));
+		return this.instantiationService.createChild(
+			new ServiceCollection([IWorkbenchEditorService, delegatingEditorService])
+		);
 	}
 
 	public setContext(group: IEditorGroup): void {
@@ -125,26 +167,46 @@ export class TabsTitleControl extends TitleControl {
 		DOM.addClass(this.tabsContainer, 'tabs-container');
 
 		// Forward scrolling inside the container to our custom scrollbar
-		this.toUnbind.push(DOM.addDisposableListener(this.tabsContainer, DOM.EventType.SCROLL, e => {
-			if (DOM.hasClass(this.tabsContainer, 'scroll')) {
-				this.scrollbar.updateState({
-					scrollLeft: this.tabsContainer.scrollLeft // during DND the  container gets scrolled so we need to update the custom scrollbar
-				});
-			}
-		}));
+		this.toUnbind.push(
+			DOM.addDisposableListener(this.tabsContainer, DOM.EventType.SCROLL, e => {
+				if (DOM.hasClass(this.tabsContainer, 'scroll')) {
+					this.scrollbar.updateState({
+						scrollLeft: this.tabsContainer.scrollLeft // during DND the  container gets scrolled so we need to update the custom scrollbar
+					});
+				}
+			})
+		);
 
 		// New file when double clicking on tabs container (but not tabs)
-		this.toUnbind.push(DOM.addDisposableListener(this.tabsContainer, DOM.EventType.DBLCLICK, e => {
-			const target = e.target;
-			if (target instanceof HTMLElement && target.className.indexOf('tabs-container') === 0) {
-				DOM.EventHelper.stop(e);
+		this.toUnbind.push(
+			DOM.addDisposableListener(
+				this.tabsContainer,
+				DOM.EventType.DBLCLICK,
+				e => {
+					const target = e.target;
+					if (
+						target instanceof HTMLElement &&
+						target.className.indexOf('tabs-container') === 0
+					) {
+						DOM.EventHelper.stop(e);
 
-				const group = this.context;
-				if (group) {
-					this.editorService.openEditor({ options: { pinned: true, index: group.count /* always at the end */ } } as IUntitledResourceInput).done(null, errors.onUnexpectedError); // untitled are always pinned
+						const group = this.context;
+						if (group) {
+							this.editorService
+								.openEditor(
+									{
+										options: {
+											pinned: true,
+											index: group.count /* always at the end */
+										}
+									} as IUntitledResourceInput
+								)
+								.done(null, errors.onUnexpectedError); // untitled are always pinned
+						}
+					}
 				}
-			}
-		}));
+			)
+		);
 
 		// Custom Scrollbar
 		this.scrollbar = new ScrollableElement(this.tabsContainer, {
@@ -163,43 +225,73 @@ export class TabsTitleControl extends TitleControl {
 		this.titleContainer.appendChild(this.scrollbar.getDomNode());
 
 		// Drag over
-		this.toUnbind.push(DOM.addDisposableListener(this.tabsContainer, DOM.EventType.DRAG_OVER, (e: DragEvent) => {
-			DOM.addClass(this.tabsContainer, 'scroll'); // enable support to scroll while dragging
+		this.toUnbind.push(
+			DOM.addDisposableListener(
+				this.tabsContainer,
+				DOM.EventType.DRAG_OVER,
+				(e: DragEvent) => {
+					DOM.addClass(this.tabsContainer, 'scroll'); // enable support to scroll while dragging
 
-			const target = e.target;
-			if (target instanceof HTMLElement && target.className.indexOf('tabs-container') === 0) {
-				this.updateDropFeedback(this.tabsContainer, true);
-			}
-		}));
+					const target = e.target;
+					if (
+						target instanceof HTMLElement &&
+						target.className.indexOf('tabs-container') === 0
+					) {
+						this.updateDropFeedback(this.tabsContainer, true);
+					}
+				}
+			)
+		);
 
 		// Drag leave
-		this.toUnbind.push(DOM.addDisposableListener(this.tabsContainer, DOM.EventType.DRAG_LEAVE, (e: DragEvent) => {
-			this.updateDropFeedback(this.tabsContainer, false);
-			DOM.removeClass(this.tabsContainer, 'scroll');
-		}));
+		this.toUnbind.push(
+			DOM.addDisposableListener(
+				this.tabsContainer,
+				DOM.EventType.DRAG_LEAVE,
+				(e: DragEvent) => {
+					this.updateDropFeedback(this.tabsContainer, false);
+					DOM.removeClass(this.tabsContainer, 'scroll');
+				}
+			)
+		);
 
 		// Drag end
-		this.toUnbind.push(DOM.addDisposableListener(this.tabsContainer, DOM.EventType.DRAG_END, (e: DragEvent) => {
-			this.updateDropFeedback(this.tabsContainer, false);
-			DOM.removeClass(this.tabsContainer, 'scroll');
-		}));
+		this.toUnbind.push(
+			DOM.addDisposableListener(
+				this.tabsContainer,
+				DOM.EventType.DRAG_END,
+				(e: DragEvent) => {
+					this.updateDropFeedback(this.tabsContainer, false);
+					DOM.removeClass(this.tabsContainer, 'scroll');
+				}
+			)
+		);
 
 		// Drop onto tabs container
-		this.toUnbind.push(DOM.addDisposableListener(this.tabsContainer, DOM.EventType.DROP, (e: DragEvent) => {
-			this.updateDropFeedback(this.tabsContainer, false);
-			DOM.removeClass(this.tabsContainer, 'scroll');
+		this.toUnbind.push(
+			DOM.addDisposableListener(
+				this.tabsContainer,
+				DOM.EventType.DROP,
+				(e: DragEvent) => {
+					this.updateDropFeedback(this.tabsContainer, false);
+					DOM.removeClass(this.tabsContainer, 'scroll');
 
-			const target = e.target;
-			if (target instanceof HTMLElement && target.className.indexOf('tabs-container') === 0) {
-				const group = this.context;
-				if (group) {
-					const targetPosition = this.stacks.positionOfGroup(group);
-					const targetIndex = group.count;
+					const target = e.target;
+					if (
+						target instanceof HTMLElement &&
+						target.className.indexOf('tabs-container') === 0
+					) {
+						const group = this.context;
+						if (group) {
+							const targetPosition = this.stacks.positionOfGroup(group);
+							const targetIndex = group.count;
 
-					this.onDrop(e, group, targetPosition, targetIndex);
+							this.onDrop(e, group, targetPosition, targetIndex);
+						}
+					}
 				}
-			}
-		}));
+			)
+		);
 
 		// Editor Actions Container
 		const editorActionsContainer = document.createElement('div');
@@ -210,13 +302,26 @@ export class TabsTitleControl extends TitleControl {
 		this.createEditorActionsToolBar(editorActionsContainer);
 	}
 
-	private updateDropFeedback(element: HTMLElement, isDND: boolean, index?: number): void {
-		const isTab = (typeof index === 'number');
-		const isActiveTab = isTab && this.context && this.context.isActive(this.context.getEditor(index));
+	private updateDropFeedback(
+		element: HTMLElement,
+		isDND: boolean,
+		index?: number
+	): void {
+		const isTab = typeof index === 'number';
+		const isActiveTab =
+			isTab &&
+			this.context &&
+			this.context.isActive(this.context.getEditor(index));
 
 		// Background
-		const noDNDBackgroundColor = isTab ? this.getColor(isActiveTab ? TAB_ACTIVE_BACKGROUND : TAB_INACTIVE_BACKGROUND) : null;
-		element.style.backgroundColor = isDND ? this.getColor(EDITOR_DRAG_AND_DROP_BACKGROUND) : noDNDBackgroundColor;
+		const noDNDBackgroundColor = isTab
+			? this.getColor(
+					isActiveTab ? TAB_ACTIVE_BACKGROUND : TAB_INACTIVE_BACKGROUND
+				)
+			: null;
+		element.style.backgroundColor = isDND
+			? this.getColor(EDITOR_DRAG_AND_DROP_BACKGROUND)
+			: noDNDBackgroundColor;
 
 		// Outline
 		const activeContrastBorderColor = this.getColor(activeContrastBorder);
@@ -234,7 +339,7 @@ export class TabsTitleControl extends TitleControl {
 	}
 
 	public allowDragging(element: HTMLElement): boolean {
-		return (element.className === 'tabs-container');
+		return element.className === 'tabs-container';
 	}
 
 	protected doUpdate(): void {
@@ -266,39 +371,67 @@ export class TabsTitleControl extends TitleControl {
 
 				const label = labels[index];
 				const name = label.name;
-				const description = label.hasAmbiguousName && label.description ? label.description : '';
+				const description = label.hasAmbiguousName && label.description
+					? label.description
+					: '';
 				const title = label.title || '';
 
 				// Container
 				tabContainer.setAttribute('aria-label', `${name}, tab`);
 				tabContainer.title = title;
-				tabContainer.style.borderLeftColor = (index !== 0) ? (this.getColor(TAB_BORDER) || this.getColor(contrastBorder)) : null;
-				tabContainer.style.borderRightColor = (index === editorsOfGroup.length - 1) ? (this.getColor(TAB_BORDER) || this.getColor(contrastBorder)) : null;
+				tabContainer.style.borderLeftColor = index !== 0
+					? this.getColor(TAB_BORDER) || this.getColor(contrastBorder)
+					: null;
+				tabContainer.style.borderRightColor = index ===
+					editorsOfGroup.length - 1
+					? this.getColor(TAB_BORDER) || this.getColor(contrastBorder)
+					: null;
 				tabContainer.style.outlineColor = this.getColor(activeContrastBorder);
 
 				const tabOptions = this.editorGroupService.getTabOptions();
 				['off', 'left'].forEach(option => {
-					const domAction = tabOptions.tabCloseButton === option ? DOM.addClass : DOM.removeClass;
+					const domAction = tabOptions.tabCloseButton === option
+						? DOM.addClass
+						: DOM.removeClass;
 					domAction(tabContainer, `close-button-${option}`);
 				});
 
 				// Label
 				const tabLabel = this.editorLabels[index];
-				tabLabel.setLabel({ name, description, resource: toResource(editor, { supportSideBySide: true }) }, { extraClasses: ['tab-label'], italic: !isPinned });
+				tabLabel.setLabel(
+					{
+						name,
+						description,
+						resource: toResource(editor, { supportSideBySide: true })
+					},
+					{ extraClasses: ['tab-label'], italic: !isPinned }
+				);
 
 				// Active state
 				if (isTabActive) {
 					DOM.addClass(tabContainer, 'active');
 					tabContainer.setAttribute('aria-selected', 'true');
-					tabContainer.style.backgroundColor = this.getColor(TAB_ACTIVE_BACKGROUND);
-					tabLabel.element.style.color = this.getColor(isGroupActive ? TAB_ACTIVE_FOREGROUND : TAB_UNFOCUSED_ACTIVE_FOREGROUND);
+					tabContainer.style.backgroundColor = this.getColor(
+						TAB_ACTIVE_BACKGROUND
+					);
+					tabLabel.element.style.color = this.getColor(
+						isGroupActive
+							? TAB_ACTIVE_FOREGROUND
+							: TAB_UNFOCUSED_ACTIVE_FOREGROUND
+					);
 
 					this.activeTab = tabContainer;
 				} else {
 					DOM.removeClass(tabContainer, 'active');
 					tabContainer.setAttribute('aria-selected', 'false');
-					tabContainer.style.backgroundColor = this.getColor(TAB_INACTIVE_BACKGROUND);
-					tabLabel.element.style.color = this.getColor(isGroupActive ? TAB_INACTIVE_FOREGROUND : TAB_UNFOCUSED_INACTIVE_FOREGROUND);
+					tabContainer.style.backgroundColor = this.getColor(
+						TAB_INACTIVE_BACKGROUND
+					);
+					tabLabel.element.style.color = this.getColor(
+						isGroupActive
+							? TAB_INACTIVE_FOREGROUND
+							: TAB_UNFOCUSED_INACTIVE_FOREGROUND
+					);
 				}
 
 				// Dirty State
@@ -321,7 +454,10 @@ export class TabsTitleControl extends TitleControl {
 		const labels: IEditorInputLabel[] = [];
 
 		const mapLabelToDuplicates = new SimpleMap<string, IEditorInputLabel[]>();
-		const mapLabelAndDescriptionToDuplicates = new SimpleMap<string, IEditorInputLabel[]>();
+		const mapLabelAndDescriptionToDuplicates = new SimpleMap<
+			string,
+			IEditorInputLabel[]
+		>();
 
 		// Build labels and descriptions for each editor
 		editors.forEach(editor => {
@@ -337,7 +473,9 @@ export class TabsTitleControl extends TitleControl {
 			mapLabelToDuplicates.getOrSet(item.name, []).push(item);
 
 			if (typeof description === 'string') {
-				mapLabelAndDescriptionToDuplicates.getOrSet(`${item.name}${item.description}`, []).push(item);
+				mapLabelAndDescriptionToDuplicates
+					.getOrSet(`${item.name}${item.description}`, [])
+					.push(item);
 			}
 		});
 
@@ -348,11 +486,17 @@ export class TabsTitleControl extends TitleControl {
 				duplicates = duplicates.filter(d => {
 					// we could have items with equal label and description. in that case it does not make much
 					// sense to produce a shortened version of the label, so we ignore those kind of items
-					return typeof d.description === 'string' && mapLabelAndDescriptionToDuplicates.get(`${d.name}${d.description}`).length === 1;
+					return (
+						typeof d.description === 'string' &&
+						mapLabelAndDescriptionToDuplicates.get(`${d.name}${d.description}`)
+							.length === 1
+					);
 				});
 
 				if (duplicates.length > 1) {
-					const shortenedDescriptions = shorten(duplicates.map(duplicate => duplicate.editor.getDescription()));
+					const shortenedDescriptions = shorten(
+						duplicates.map(duplicate => duplicate.editor.getDescription())
+					);
 					duplicates.forEach((duplicate, i) => {
 						duplicate.description = shortenedDescriptions[i];
 						duplicate.hasAmbiguousName = true;
@@ -406,10 +550,8 @@ export class TabsTitleControl extends TitleControl {
 			for (let i = tabsCount; i < tabsNeeded; i++) {
 				this.tabsContainer.appendChild(this.createTab(i));
 			}
-		}
-
-		// We need less tabs: delete the ones we do not need
-		else {
+		} else {
+			// We need less tabs: delete the ones we do not need
 			for (let i = 0; i < tabsCount - tabsNeeded; i++) {
 				(this.tabsContainer.lastChild as HTMLElement).remove();
 				this.editorLabels.pop();
@@ -419,7 +561,6 @@ export class TabsTitleControl extends TitleControl {
 	}
 
 	private createTab(index: number): HTMLElement {
-
 		// Tab Container
 		const tabContainer = document.createElement('div');
 		tabContainer.draggable = true;
@@ -428,7 +569,11 @@ export class TabsTitleControl extends TitleControl {
 		DOM.addClass(tabContainer, 'tab');
 
 		// Tab Editor Label
-		const editorLabel = this.instantiationService.createInstance(EditorLabel, tabContainer, void 0);
+		const editorLabel = this.instantiationService.createInstance(
+			EditorLabel,
+			tabContainer,
+			void 0
+		);
 		this.editorLabels.push(editorLabel);
 
 		// Tab Close
@@ -436,13 +581,22 @@ export class TabsTitleControl extends TitleControl {
 		DOM.addClass(tabCloseContainer, 'tab-close');
 		tabContainer.appendChild(tabCloseContainer);
 
-		const bar = new ActionBar(tabCloseContainer, { ariaLabel: nls.localize('araLabelTabActions', "Tab actions"), actionRunner: new TabActionRunner(() => this.context, index) });
-		bar.push(this.closeEditorAction, { icon: true, label: false, keybinding: this.getKeybindingLabel(this.closeEditorAction) });
+		const bar = new ActionBar(tabCloseContainer, {
+			ariaLabel: nls.localize('araLabelTabActions', 'Tab actions'),
+			actionRunner: new TabActionRunner(() => this.context, index)
+		});
+		bar.push(this.closeEditorAction, {
+			icon: true,
+			label: false,
+			keybinding: this.getKeybindingLabel(this.closeEditorAction)
+		});
 
 		// Eventing
 		const disposable = this.hookTabListeners(tabContainer, index);
 
-		this.tabDisposeables.push(combinedDisposable([disposable, bar, editorLabel]));
+		this.tabDisposeables.push(
+			combinedDisposable([disposable, bar, editorLabel])
+		);
 
 		return tabContainer;
 	}
@@ -475,14 +629,21 @@ export class TabsTitleControl extends TitleControl {
 
 		// Tab is overflowing to the right: Scroll minimally until the element is fully visible to the right
 		// Note: only try to do this if we actually have enough width to give to show the tab fully!
-		if (activeTabFits && containerScrollPosX + visibleContainerWidth < activeTabPosX + activeTabWidth) {
+		if (
+			activeTabFits &&
+			containerScrollPosX + visibleContainerWidth <
+				activeTabPosX + activeTabWidth
+		) {
 			this.scrollbar.updateState({
-				scrollLeft: containerScrollPosX + ((activeTabPosX + activeTabWidth) /* right corner of tab */ - (containerScrollPosX + visibleContainerWidth) /* right corner of view port */)
+				scrollLeft:
+					containerScrollPosX +
+						(activeTabPosX +
+						activeTabWidth /* right corner of tab */ -
+							(containerScrollPosX +
+								visibleContainerWidth)) /* right corner of view port */
 			});
-		}
-
-		// Tab is overlflowng to the left or does not fit: Scroll it into view to the left
-		else if (containerScrollPosX > activeTabPosX || !activeTabFits) {
+		} else if (containerScrollPosX > activeTabPosX || !activeTabFits) {
+			// Tab is overlflowng to the left or does not fit: Scroll it into view to the left
 			this.scrollbar.updateState({
 				scrollLeft: this.activeTab.offsetLeft
 			});
@@ -493,113 +654,191 @@ export class TabsTitleControl extends TitleControl {
 		const disposables: IDisposable[] = [];
 
 		// Open on Click
-		disposables.push(DOM.addDisposableListener(tab, DOM.EventType.MOUSE_DOWN, (e: MouseEvent) => {
-			tab.blur();
+		disposables.push(
+			DOM.addDisposableListener(
+				tab,
+				DOM.EventType.MOUSE_DOWN,
+				(e: MouseEvent) => {
+					tab.blur();
 
-			const { editor, position } = this.toTabContext(index);
-			if (e.button === 0 /* Left Button */ && !this.isTabActionBar((e.target || e.srcElement) as HTMLElement)) {
-				setTimeout(() => this.editorService.openEditor(editor, null, position).done(null, errors.onUnexpectedError)); // timeout to keep focus in editor after mouse up
-			}
-		}));
+					const { editor, position } = this.toTabContext(index);
+					if (
+						e.button === 0 /* Left Button */ &&
+						!this.isTabActionBar((e.target || e.srcElement) as HTMLElement)
+					) {
+						setTimeout(() =>
+							this.editorService
+								.openEditor(editor, null, position)
+								.done(null, errors.onUnexpectedError)
+						); // timeout to keep focus in editor after mouse up
+					}
+				}
+			)
+		);
 
 		// Close on mouse middle click
-		disposables.push(DOM.addDisposableListener(tab, DOM.EventType.MOUSE_UP, (e: MouseEvent) => {
-			DOM.EventHelper.stop(e);
-			tab.blur();
+		disposables.push(
+			DOM.addDisposableListener(
+				tab,
+				DOM.EventType.MOUSE_UP,
+				(e: MouseEvent) => {
+					DOM.EventHelper.stop(e);
+					tab.blur();
 
-			if (e.button === 1 /* Middle Button*/ && !this.isTabActionBar((e.target || e.srcElement) as HTMLElement)) {
-				this.closeEditorAction.run(this.toTabContext(index)).done(null, errors.onUnexpectedError);
-			}
-		}));
+					if (
+						e.button === 1 /* Middle Button*/ &&
+						!this.isTabActionBar((e.target || e.srcElement) as HTMLElement)
+					) {
+						this.closeEditorAction
+							.run(this.toTabContext(index))
+							.done(null, errors.onUnexpectedError);
+					}
+				}
+			)
+		);
 
 		// Context menu on Shift+F10
-		disposables.push(DOM.addDisposableListener(tab, DOM.EventType.KEY_DOWN, (e: KeyboardEvent) => {
-			const event = new StandardKeyboardEvent(e);
-			if (event.shiftKey && event.keyCode === KeyCode.F10) {
-				DOM.EventHelper.stop(e);
+		disposables.push(
+			DOM.addDisposableListener(
+				tab,
+				DOM.EventType.KEY_DOWN,
+				(e: KeyboardEvent) => {
+					const event = new StandardKeyboardEvent(e);
+					if (event.shiftKey && event.keyCode === KeyCode.F10) {
+						DOM.EventHelper.stop(e);
 
-				const { group, editor } = this.toTabContext(index);
+						const { group, editor } = this.toTabContext(index);
 
-				this.onContextMenu({ group, editor }, e, tab);
-			}
-		}));
+						this.onContextMenu({ group, editor }, e, tab);
+					}
+				}
+			)
+		);
 
 		// Keyboard accessibility
-		disposables.push(DOM.addDisposableListener(tab, DOM.EventType.KEY_UP, (e: KeyboardEvent) => {
-			const event = new StandardKeyboardEvent(e);
-			let handled = false;
+		disposables.push(
+			DOM.addDisposableListener(
+				tab,
+				DOM.EventType.KEY_UP,
+				(e: KeyboardEvent) => {
+					const event = new StandardKeyboardEvent(e);
+					let handled = false;
 
-			const { group, position, editor } = this.toTabContext(index);
+					const { group, position, editor } = this.toTabContext(index);
 
-			// Run action on Enter/Space
-			if (event.equals(KeyCode.Enter) || event.equals(KeyCode.Space)) {
-				handled = true;
-				this.editorService.openEditor(editor, null, position).done(null, errors.onUnexpectedError);
-			}
+					// Run action on Enter/Space
+					if (event.equals(KeyCode.Enter) || event.equals(KeyCode.Space)) {
+						handled = true;
+						this.editorService
+							.openEditor(editor, null, position)
+							.done(null, errors.onUnexpectedError);
+					} else if (
+						[
+							KeyCode.LeftArrow,
+							KeyCode.RightArrow,
+							KeyCode.UpArrow,
+							KeyCode.DownArrow,
+							KeyCode.Home,
+							KeyCode.End
+						].some(kb => event.equals(kb))
+					) {
+						// Navigate in editors
+						let targetIndex: number;
+						if (
+							event.equals(KeyCode.LeftArrow) ||
+							event.equals(KeyCode.UpArrow)
+						) {
+							targetIndex = index - 1;
+						} else if (
+							event.equals(KeyCode.RightArrow) ||
+							event.equals(KeyCode.DownArrow)
+						) {
+							targetIndex = index + 1;
+						} else if (event.equals(KeyCode.Home)) {
+							targetIndex = 0;
+						} else {
+							targetIndex = group.count - 1;
+						}
 
-			// Navigate in editors
-			else if ([KeyCode.LeftArrow, KeyCode.RightArrow, KeyCode.UpArrow, KeyCode.DownArrow, KeyCode.Home, KeyCode.End].some(kb => event.equals(kb))) {
-				let targetIndex: number;
-				if (event.equals(KeyCode.LeftArrow) || event.equals(KeyCode.UpArrow)) {
-					targetIndex = index - 1;
-				} else if (event.equals(KeyCode.RightArrow) || event.equals(KeyCode.DownArrow)) {
-					targetIndex = index + 1;
-				} else if (event.equals(KeyCode.Home)) {
-					targetIndex = 0;
-				} else {
-					targetIndex = group.count - 1;
+						const target = group.getEditor(targetIndex);
+						if (target) {
+							handled = true;
+							this.editorService
+								.openEditor(target, { preserveFocus: true }, position)
+								.done(null, errors.onUnexpectedError);
+							(<HTMLElement>this.tabsContainer.childNodes[targetIndex]).focus();
+						}
+					}
+
+					if (handled) {
+						DOM.EventHelper.stop(e, true);
+					}
+
+					// moving in the tabs container can have an impact on scrolling position, so we need to update the custom scrollbar
+					this.scrollbar.updateState({
+						scrollLeft: this.tabsContainer.scrollLeft
+					});
 				}
-
-				const target = group.getEditor(targetIndex);
-				if (target) {
-					handled = true;
-					this.editorService.openEditor(target, { preserveFocus: true }, position).done(null, errors.onUnexpectedError);
-					(<HTMLElement>this.tabsContainer.childNodes[targetIndex]).focus();
-				}
-			}
-
-			if (handled) {
-				DOM.EventHelper.stop(e, true);
-			}
-
-			// moving in the tabs container can have an impact on scrolling position, so we need to update the custom scrollbar
-			this.scrollbar.updateState({
-				scrollLeft: this.tabsContainer.scrollLeft
-			});
-		}));
+			)
+		);
 
 		// Pin on double click
-		disposables.push(DOM.addDisposableListener(tab, DOM.EventType.DBLCLICK, (e: MouseEvent) => {
-			DOM.EventHelper.stop(e);
+		disposables.push(
+			DOM.addDisposableListener(
+				tab,
+				DOM.EventType.DBLCLICK,
+				(e: MouseEvent) => {
+					DOM.EventHelper.stop(e);
 
-			const { group, editor } = this.toTabContext(index);
+					const { group, editor } = this.toTabContext(index);
 
-			this.editorGroupService.pinEditor(group, editor);
-		}));
+					this.editorGroupService.pinEditor(group, editor);
+				}
+			)
+		);
 
 		// Context menu
-		disposables.push(DOM.addDisposableListener(tab, DOM.EventType.CONTEXT_MENU, (e: Event) => {
-			DOM.EventHelper.stop(e, true);
-			const { group, editor } = this.toTabContext(index);
+		disposables.push(
+			DOM.addDisposableListener(
+				tab,
+				DOM.EventType.CONTEXT_MENU,
+				(e: Event) => {
+					DOM.EventHelper.stop(e, true);
+					const { group, editor } = this.toTabContext(index);
 
-			this.onContextMenu({ group, editor }, e, tab);
-		}, true /* use capture to fix https://github.com/Microsoft/vscode/issues/19145 */));
+					this.onContextMenu({ group, editor }, e, tab);
+				},
+				true /* use capture to fix https://github.com/Microsoft/vscode/issues/19145 */
+			)
+		);
 
 		// Drag start
-		disposables.push(DOM.addDisposableListener(tab, DOM.EventType.DRAG_START, (e: DragEvent) => {
-			const { group, editor } = this.toTabContext(index);
+		disposables.push(
+			DOM.addDisposableListener(
+				tab,
+				DOM.EventType.DRAG_START,
+				(e: DragEvent) => {
+					const { group, editor } = this.toTabContext(index);
 
-			this.onEditorDragStart({ editor, group });
-			e.dataTransfer.effectAllowed = 'copyMove';
+					this.onEditorDragStart({ editor, group });
+					e.dataTransfer.effectAllowed = 'copyMove';
 
-			// Insert transfer accordingly
-			const fileResource = toResource(editor, { supportSideBySide: true, filter: 'file' });
-			if (fileResource) {
-				const resource = fileResource.toString();
-				e.dataTransfer.setData('URL', resource); // enables cross window DND of tabs
-				e.dataTransfer.setData('DownloadURL', [MIME_BINARY, editor.getName(), resource].join(':')); // enables support to drag a tab as file to desktop
-			}
-		}));
+					// Insert transfer accordingly
+					const fileResource = toResource(editor, {
+						supportSideBySide: true,
+						filter: 'file'
+					});
+					if (fileResource) {
+						const resource = fileResource.toString();
+						e.dataTransfer.setData('URL', resource); // enables cross window DND of tabs
+						e.dataTransfer.setData(
+							'DownloadURL',
+							[MIME_BINARY, editor.getName(), resource].join(':')
+						); // enables support to drag a tab as file to desktop
+					}
+				}
+			)
+		);
 
 		// We need to keep track of DRAG_ENTER and DRAG_LEAVE events because a tab is not just a div without children,
 		// it contains a label and a close button. HTML gives us DRAG_ENTER and DRAG_LEAVE events when hovering over
@@ -608,36 +847,52 @@ export class TabsTitleControl extends TitleControl {
 		let counter = 0;
 
 		// Drag over
-		disposables.push(DOM.addDisposableListener(tab, DOM.EventType.DRAG_ENTER, (e: DragEvent) => {
-			counter++;
-			this.updateDropFeedback(tab, true, index);
-		}));
+		disposables.push(
+			DOM.addDisposableListener(
+				tab,
+				DOM.EventType.DRAG_ENTER,
+				(e: DragEvent) => {
+					counter++;
+					this.updateDropFeedback(tab, true, index);
+				}
+			)
+		);
 
 		// Drag leave
-		disposables.push(DOM.addDisposableListener(tab, DOM.EventType.DRAG_LEAVE, (e: DragEvent) => {
-			counter--;
-			if (counter === 0) {
-				this.updateDropFeedback(tab, false, index);
-			}
-		}));
+		disposables.push(
+			DOM.addDisposableListener(
+				tab,
+				DOM.EventType.DRAG_LEAVE,
+				(e: DragEvent) => {
+					counter--;
+					if (counter === 0) {
+						this.updateDropFeedback(tab, false, index);
+					}
+				}
+			)
+		);
 
 		// Drag end
-		disposables.push(DOM.addDisposableListener(tab, DOM.EventType.DRAG_END, (e: DragEvent) => {
-			counter = 0;
-			this.updateDropFeedback(tab, false, index);
+		disposables.push(
+			DOM.addDisposableListener(tab, DOM.EventType.DRAG_END, (e: DragEvent) => {
+				counter = 0;
+				this.updateDropFeedback(tab, false, index);
 
-			this.onEditorDragEnd();
-		}));
+				this.onEditorDragEnd();
+			})
+		);
 
 		// Drop
-		disposables.push(DOM.addDisposableListener(tab, DOM.EventType.DROP, (e: DragEvent) => {
-			counter = 0;
-			this.updateDropFeedback(tab, false, index);
+		disposables.push(
+			DOM.addDisposableListener(tab, DOM.EventType.DROP, (e: DragEvent) => {
+				counter = 0;
+				this.updateDropFeedback(tab, false, index);
 
-			const { group, position } = this.toTabContext(index);
+				const { group, position } = this.toTabContext(index);
 
-			this.onDrop(e, group, position, index);
-		}));
+				this.onDrop(e, group, position, index);
+			})
+		);
 
 		return combinedDisposable(disposables);
 	}
@@ -646,7 +901,9 @@ export class TabsTitleControl extends TitleControl {
 		return !!DOM.findParentWithClass(element, 'monaco-action-bar', 'tab');
 	}
 
-	private toTabContext(index: number): { group: IEditorGroup, position: Position, editor: IEditorInput } {
+	private toTabContext(
+		index: number
+	): { group: IEditorGroup; position: Position; editor: IEditorInput } {
 		const group = this.context;
 		const position = this.stacks.positionOfGroup(group);
 		const editor = group.getEditor(index);
@@ -654,7 +911,12 @@ export class TabsTitleControl extends TitleControl {
 		return { group, position, editor };
 	}
 
-	private onDrop(e: DragEvent, group: IEditorGroup, targetPosition: Position, targetIndex: number): void {
+	private onDrop(
+		e: DragEvent,
+		group: IEditorGroup,
+		targetPosition: Position,
+		targetIndex: number
+	): void {
 		this.updateDropFeedback(this.tabsContainer, false);
 		DOM.removeClass(this.tabsContainer, 'scroll');
 
@@ -665,55 +927,84 @@ export class TabsTitleControl extends TitleControl {
 
 			// Move editor to target position and index
 			if (this.isMoveOperation(e, draggedEditor.group, group)) {
-				this.editorGroupService.moveEditor(draggedEditor.editor, draggedEditor.group, group, { index: targetIndex });
-			}
-
-			// Copy: just open editor at target index
-			else {
-				this.editorService.openEditor(draggedEditor.editor, { pinned: true, index: targetIndex }, targetPosition).done(null, errors.onUnexpectedError);
+				this.editorGroupService.moveEditor(
+					draggedEditor.editor,
+					draggedEditor.group,
+					group,
+					{ index: targetIndex }
+				);
+			} else {
+				// Copy: just open editor at target index
+				this.editorService
+					.openEditor(
+						draggedEditor.editor,
+						{ pinned: true, index: targetIndex },
+						targetPosition
+					)
+					.done(null, errors.onUnexpectedError);
 			}
 
 			this.onEditorDragEnd();
-		}
-
-		// External DND
-		else {
+		} else {
+			// External DND
 			this.handleExternalDrop(e, targetPosition, targetIndex);
 		}
 	}
 
-	private handleExternalDrop(e: DragEvent, targetPosition: Position, targetIndex: number): void {
-		const resources = extractResources(e).filter(d => d.resource.scheme === 'file' || d.resource.scheme === 'untitled');
+	private handleExternalDrop(
+		e: DragEvent,
+		targetPosition: Position,
+		targetIndex: number
+	): void {
+		const resources = extractResources(e).filter(
+			d => d.resource.scheme === 'file' || d.resource.scheme === 'untitled'
+		);
 
 		// Handle resources
 		if (resources.length) {
 			DOM.EventHelper.stop(e, true);
 
 			// Add external ones to recently open list
-			const externalResources = resources.filter(d => d.isExternal).map(d => d.resource);
+			const externalResources = resources
+				.filter(d => d.isExternal)
+				.map(d => d.resource);
 			if (externalResources.length) {
-				this.windowService.addToRecentlyOpen(externalResources.map(resource => {
-					return {
-						path: resource.fsPath,
-						isFile: true
-					};
-				}));
+				this.windowService.addToRecentlyOpen(
+					externalResources.map(resource => {
+						return {
+							path: resource.fsPath,
+							isFile: true
+						};
+					})
+				);
 			}
 
 			// Open in Editor
-			this.editorService.openEditors(resources.map(d => {
-				return {
-					input: { resource: d.resource, options: { pinned: true, index: targetIndex } },
-					position: targetPosition
-				};
-			})).then(() => {
-				this.editorGroupService.focusGroup(targetPosition);
-				return this.windowService.focusWindow();
-			}).done(null, errors.onUnexpectedError);
+			this.editorService
+				.openEditors(
+					resources.map(d => {
+						return {
+							input: {
+								resource: d.resource,
+								options: { pinned: true, index: targetIndex }
+							},
+							position: targetPosition
+						};
+					})
+				)
+				.then(() => {
+					this.editorGroupService.focusGroup(targetPosition);
+					return this.windowService.focusWindow();
+				})
+				.done(null, errors.onUnexpectedError);
 		}
 	}
 
-	private isMoveOperation(e: DragEvent, source: IEditorGroup, target: IEditorGroup) {
+	private isMoveOperation(
+		e: DragEvent,
+		source: IEditorGroup,
+		target: IEditorGroup
+	) {
 		const isCopy = (e.ctrlKey && !isMacintosh) || (e.altKey && isMacintosh);
 
 		return !isCopy || source.id === target.id;
@@ -721,7 +1012,6 @@ export class TabsTitleControl extends TitleControl {
 }
 
 class TabActionRunner extends ActionRunner {
-
 	constructor(private group: () => IEditorGroup, private index: number) {
 		super();
 	}
@@ -737,7 +1027,6 @@ class TabActionRunner extends ActionRunner {
 }
 
 registerThemingParticipant((theme: ITheme, collector: ICssStyleCollector) => {
-
 	// Styling with Outline color (e.g. high contrast theme)
 	const activeContrastBorderColor = theme.getColor(activeContrastBorder);
 	if (activeContrastBorderColor) {

@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as nls from 'vs/nls';
 
@@ -219,7 +219,10 @@ const tscWatch: TaskEntry = {
 	id: 'tsc.watch',
 	label: 'TypeScript - Watch Mode',
 	autoDetect: false,
-	description: nls.localize('tsc.watch', 'Compiles a TypeScript project in watch mode'),
+	description: nls.localize(
+		'tsc.watch',
+		'Compiles a TypeScript project in watch mode'
+	),
 	content: [
 		'{',
 		'\t// See https://go.microsoft.com/fwlink/?LinkId=733558',
@@ -296,7 +299,10 @@ const command: TaskEntry = {
 	id: 'externalCommand',
 	label: 'Others',
 	autoDetect: false,
-	description: nls.localize('externalCommand', 'Example to run an arbitrary external command'),
+	description: nls.localize(
+		'externalCommand',
+		'Example to run an arbitrary external command'
+	),
 	content: [
 		'{',
 		'\t// See https://go.microsoft.com/fwlink/?LinkId=733558',
@@ -341,7 +347,16 @@ const maven: TaskEntry = {
 	].join('\n')
 };
 
-export let templates: TaskEntry[] = [gulp, grunt, tscConfig, tscWatch, dotnetBuild, msbuild, npm, maven].sort((a, b) => {
+export let templates: TaskEntry[] = [
+	gulp,
+	grunt,
+	tscConfig,
+	tscWatch,
+	dotnetBuild,
+	msbuild,
+	npm,
+	maven
+].sort((a, b) => {
 	return (a.sort || a.label).localeCompare(b.sort || b.label);
 });
 templates.push(command);

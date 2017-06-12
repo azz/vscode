@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as cp from 'child_process';
 import { assign } from 'vs/base/common/objects';
@@ -68,7 +68,6 @@ function getUnixShellEnvironment(): TPromise<typeof process.env> {
 	// swallow errors
 	return promise.then(null, () => ({}));
 }
-
 
 let _shellEnv: TPromise<typeof process.env>;
 

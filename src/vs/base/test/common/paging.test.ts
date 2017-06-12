@@ -3,14 +3,13 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { IPager, PagedModel } from 'vs/base/common/paging';
 import { TPromise } from 'vs/base/common/winjs.base';
 
 suite('PagedModel', () => {
-
 	let model: PagedModel<number>;
 
 	setup(() => {
@@ -18,7 +17,8 @@ suite('PagedModel', () => {
 			firstPage: [0, 1, 2, 3, 4],
 			pageSize: 5,
 			total: 100,
-			getPage: pageIndex => TPromise.as([0, 1, 2, 3, 4].map(i => i + (pageIndex * 5)))
+			getPage: pageIndex =>
+				TPromise.as([0, 1, 2, 3, 4].map(i => i + pageIndex * 5))
 		};
 
 		model = new PagedModel(pager, 0);

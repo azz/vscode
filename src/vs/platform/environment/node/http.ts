@@ -7,7 +7,7 @@ import { TPromise } from 'vs/base/common/winjs.base';
 import { getMachineId } from 'vs/base/node/id';
 import pkg from 'vs/platform/node/package';
 
-export function getCommonHTTPHeaders(): TPromise<{ [key: string]: string; }> {
+export function getCommonHTTPHeaders(): TPromise<{ [key: string]: string }> {
 	return getMachineId().then(machineId => ({
 		'X-Market-Client-Id': `VSCode ${pkg.version}`,
 		'User-Agent': `VSCode ${pkg.version}`,

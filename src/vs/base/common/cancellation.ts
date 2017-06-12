@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import Event, { Emitter } from 'vs/base/common/event';
 
@@ -16,13 +16,16 @@ export interface CancellationToken {
 	readonly onCancellationRequested: Event<any>;
 }
 
-const shortcutEvent: Event<any> = Object.freeze(function (callback, context?) {
+const shortcutEvent: Event<any> = Object.freeze(function(callback, context?) {
 	let handle = setTimeout(callback.bind(context), 0);
-	return { dispose() { clearTimeout(handle); } };
+	return {
+		dispose() {
+			clearTimeout(handle);
+		}
+	};
 });
 
 export namespace CancellationToken {
-
 	export const None: CancellationToken = Object.freeze({
 		isCancellationRequested: false,
 		onCancellationRequested: Event.None
@@ -35,7 +38,6 @@ export namespace CancellationToken {
 }
 
 class MutableToken implements CancellationToken {
-
 	private _isCancelled: boolean = false;
 	private _emitter: Emitter<any>;
 
@@ -65,7 +67,6 @@ class MutableToken implements CancellationToken {
 }
 
 export class CancellationTokenSource {
-
 	private _token: CancellationToken;
 
 	get token(): CancellationToken {

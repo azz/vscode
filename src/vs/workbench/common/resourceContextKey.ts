@@ -2,15 +2,18 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import URI from 'vs/base/common/uri';
 import { basename } from 'vs/base/common/paths';
-import { RawContextKey, IContextKeyService, IContextKey } from 'vs/platform/contextkey/common/contextkey';
+import {
+	RawContextKey,
+	IContextKeyService,
+	IContextKey
+} from 'vs/platform/contextkey/common/contextkey';
 import { IModeService } from 'vs/editor/common/services/modeService';
 
 export class ResourceContextKey implements IContextKey<URI> {
-
 	static Scheme = new RawContextKey<string>('resourceScheme', undefined);
 	static Filename = new RawContextKey<string>('resourceFilename', undefined);
 	static LangId = new RawContextKey<string>('resourceLangId', undefined);
@@ -35,7 +38,9 @@ export class ResourceContextKey implements IContextKey<URI> {
 		this._resourceKey.set(value);
 		this._schemeKey.set(value && value.scheme);
 		this._filenameKey.set(value && basename(value.fsPath));
-		this._langIdKey.set(value && this._modeService.getModeIdByFilenameOrFirstLine(value.fsPath));
+		this._langIdKey.set(
+			value && this._modeService.getModeIdByFilenameOrFirstLine(value.fsPath)
+		);
 	}
 
 	reset(): void {

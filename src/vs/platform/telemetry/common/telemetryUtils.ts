@@ -2,19 +2,33 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import { IDisposable } from 'vs/base/common/lifecycle';
 import { guessMimeTypes } from 'vs/base/common/mime';
 import paths = require('vs/base/common/paths');
 import URI from 'vs/base/common/uri';
-import { ConfigurationSource, IConfigurationService } from 'vs/platform/configuration/common/configuration';
-import { IKeybindingService, KeybindingSource } from 'vs/platform/keybinding/common/keybinding';
-import { ILifecycleService, ShutdownReason } from 'vs/platform/lifecycle/common/lifecycle';
+import {
+	ConfigurationSource,
+	IConfigurationService
+} from 'vs/platform/configuration/common/configuration';
+import {
+	IKeybindingService,
+	KeybindingSource
+} from 'vs/platform/keybinding/common/keybinding';
+import {
+	ILifecycleService,
+	ShutdownReason
+} from 'vs/platform/lifecycle/common/lifecycle';
 import { IStorageService } from 'vs/platform/storage/common/storage';
 import { IWorkspaceContextService } from 'vs/platform/workspace/common/workspace';
-import { ITelemetryService, ITelemetryExperiments, ITelemetryInfo, ITelemetryData } from 'vs/platform/telemetry/common/telemetry';
+import {
+	ITelemetryService,
+	ITelemetryExperiments,
+	ITelemetryInfo,
+	ITelemetryData
+} from 'vs/platform/telemetry/common/telemetry';
 import { ServicesAccessor } from 'vs/platform/instantiation/common/instantiation';
 import * as objects from 'vs/base/common/objects';
 
@@ -22,7 +36,7 @@ export const defaultExperiments: ITelemetryExperiments = {
 	showNewUserWatermark: false,
 	openUntitledFile: true,
 	enableWelcomePage: true,
-	mergeQuickLinks: false,
+	mergeQuickLinks: false
 };
 
 export const NullTelemetryService = {
@@ -44,43 +58,57 @@ export const NullTelemetryService = {
 	}
 };
 
-export function loadExperiments(accessor: ServicesAccessor): ITelemetryExperiments {
+export function loadExperiments(
+	accessor: ServicesAccessor
+): ITelemetryExperiments {
 	const contextService = accessor.get(IWorkspaceContextService);
 	const storageService = accessor.get(IStorageService);
 	const configurationService = accessor.get(IConfigurationService);
 
 	updateExperimentsOverrides(configurationService, storageService);
-	configurationService.onDidUpdateConfiguration(e => updateExperimentsOverrides(configurationService, storageService));
+	configurationService.onDidUpdateConfiguration(e =>
+		updateExperimentsOverrides(configurationService, storageService)
+	);
 
 	let {
 		showNewUserWatermark,
 		openUntitledFile,
 		enableWelcomePage,
-		mergeQuickLinks,
+		mergeQuickLinks
 	} = splitExperimentsRandomness(storageService);
 
 	const newUserDuration = 24 * 60 * 60 * 1000;
 	const firstSessionDate = storageService.get('telemetry.firstSessionDate');
-	const isNewUser = !firstSessionDate || Date.now() - Date.parse(firstSessionDate) < newUserDuration;
+	const isNewUser =
+		!firstSessionDate ||
+		Date.now() - Date.parse(firstSessionDate) < newUserDuration;
 	if (!isNewUser || contextService.hasWorkspace()) {
 		showNewUserWatermark = defaultExperiments.showNewUserWatermark;
 		openUntitledFile = defaultExperiments.openUntitledFile;
 	}
 
-	return applyOverrides({
-		showNewUserWatermark,
-		openUntitledFile,
-		enableWelcomePage,
-		mergeQuickLinks,
-	}, storageService);
+	return applyOverrides(
+		{
+			showNewUserWatermark,
+			openUntitledFile,
+			enableWelcomePage,
+			mergeQuickLinks
+		},
+		storageService
+	);
 }
 
 export function isWelcomePageEnabled(storageService: IStorageService) {
 	const overrides = getExperimentsOverrides(storageService);
-	return 'enableWelcomePage' in overrides ? overrides.enableWelcomePage : splitExperimentsRandomness(storageService).enableWelcomePage;
+	return 'enableWelcomePage' in overrides
+		? overrides.enableWelcomePage
+		: splitExperimentsRandomness(storageService).enableWelcomePage;
 }
 
-function applyOverrides(experiments: ITelemetryExperiments, storageService: IStorageService): ITelemetryExperiments {
+function applyOverrides(
+	experiments: ITelemetryExperiments,
+	storageService: IStorageService
+): ITelemetryExperiments {
 	const experimentsConfig = getExperimentsOverrides(storageService);
 	Object.keys(experiments).forEach(key => {
 		if (key in experimentsConfig) {
@@ -90,7 +118,9 @@ function applyOverrides(experiments: ITelemetryExperiments, storageService: ISto
 	return experiments;
 }
 
-function splitExperimentsRandomness(storageService: IStorageService): ITelemetryExperiments {
+function splitExperimentsRandomness(
+	storageService: IStorageService
+): ITelemetryExperiments {
 	const random1 = getExperimentsRandomness(storageService);
 	const [random2, showNewUserWatermark] = splitRandom(random1);
 	const [random3, openUntitledFile] = splitRandom(random2);
@@ -100,7 +130,7 @@ function splitExperimentsRandomness(storageService: IStorageService): ITelemetry
 		showNewUserWatermark,
 		openUntitledFile,
 		enableWelcomePage,
-		mergeQuickLinks,
+		mergeQuickLinks
 	};
 }
 
@@ -125,17 +155,25 @@ function splitRandom(random: number): [number, boolean] {
 
 const experimentsOverridesKey = GLOBAL_PREFIX + 'experiments.overrides';
 
-function getExperimentsOverrides(storageService: IStorageService): ITelemetryExperiments {
+function getExperimentsOverrides(
+	storageService: IStorageService
+): ITelemetryExperiments {
 	const valueString = storageService.get(experimentsOverridesKey);
 	return valueString ? JSON.parse(valueString) : <any>{};
 }
 
-function updateExperimentsOverrides(configurationService: IConfigurationService, storageService: IStorageService) {
+function updateExperimentsOverrides(
+	configurationService: IConfigurationService,
+	storageService: IStorageService
+) {
 	const storageOverrides = getExperimentsOverrides(storageService);
 	const config: any = configurationService.getConfiguration('telemetry');
-	const configOverrides = config && config.experiments || {};
+	const configOverrides = (config && config.experiments) || {};
 	if (!objects.equals(storageOverrides, configOverrides)) {
-		storageService.store(experimentsOverridesKey, JSON.stringify(configOverrides));
+		storageService.store(
+			experimentsOverridesKey,
+			JSON.stringify(configOverrides)
+		);
 	}
 }
 
@@ -143,7 +181,9 @@ export interface ITelemetryAppender {
 	log(eventName: string, data: any): void;
 }
 
-export function combinedAppender(...appenders: ITelemetryAppender[]): ITelemetryAppender {
+export function combinedAppender(
+	...appenders: ITelemetryAppender[]
+): ITelemetryAppender {
 	return { log: (e, d) => appenders.forEach(a => a.log(e, d)) };
 }
 
@@ -184,7 +224,13 @@ export interface URIDescriptor {
 
 export function telemetryURIDescriptor(uri: URI): URIDescriptor {
 	const fsPath = uri && uri.fsPath;
-	return fsPath ? { mimeType: guessMimeTypes(fsPath).join(', '), ext: paths.extname(fsPath), path: anonymize(fsPath) } : {};
+	return fsPath
+		? {
+				mimeType: guessMimeTypes(fsPath).join(', '),
+				ext: paths.extname(fsPath),
+				path: anonymize(fsPath)
+			}
+		: {};
 }
 
 /**
@@ -281,10 +327,13 @@ const configurationValueWhitelist = [
 	'php.builtInCompletions.enable',
 	'php.validate.enable',
 	'php.validate.run',
-	'workbench.welcome.enabled',
+	'workbench.welcome.enabled'
 ];
 
-export function configurationTelemetry(telemetryService: ITelemetryService, configurationService: IConfigurationService): IDisposable {
+export function configurationTelemetry(
+	telemetryService: ITelemetryService,
+	configurationService: IConfigurationService
+): IDisposable {
 	return configurationService.onDidUpdateConfiguration(event => {
 		if (event.source !== ConfigurationSource.Default) {
 			telemetryService.publicLog('updateConfiguration', {
@@ -293,19 +342,28 @@ export function configurationTelemetry(telemetryService: ITelemetryService, conf
 			});
 			telemetryService.publicLog('updateConfigurationValues', {
 				configurationSource: ConfigurationSource[event.source],
-				configurationValues: flattenValues(event.sourceConfig, configurationValueWhitelist)
+				configurationValues: flattenValues(
+					event.sourceConfig,
+					configurationValueWhitelist
+				)
 			});
 		}
 	});
 }
 
-export function lifecycleTelemetry(telemetryService: ITelemetryService, lifecycleService: ILifecycleService): IDisposable {
+export function lifecycleTelemetry(
+	telemetryService: ITelemetryService,
+	lifecycleService: ILifecycleService
+): IDisposable {
 	return lifecycleService.onShutdown(event => {
 		telemetryService.publicLog('shutdown', { reason: ShutdownReason[event] });
 	});
 }
 
-export function keybindingsTelemetry(telemetryService: ITelemetryService, keybindingService: IKeybindingService): IDisposable {
+export function keybindingsTelemetry(
+	telemetryService: ITelemetryService,
+	keybindingService: IKeybindingService
+): IDisposable {
 	return keybindingService.onDidUpdateKeybindings(event => {
 		if (event.source === KeybindingSource.User && event.keybindings) {
 			telemetryService.publicLog('updateKeybindings', {
@@ -331,21 +389,29 @@ function flattenKeys(value: Object): string[] {
 
 function flatKeys(result: string[], prefix: string, value: Object): void {
 	if (value && typeof value === 'object' && !Array.isArray(value)) {
-		Object.keys(value)
-			.forEach(key => flatKeys(result, prefix ? `${prefix}.${key}` : key, value[key]));
+		Object.keys(value).forEach(key =>
+			flatKeys(result, prefix ? `${prefix}.${key}` : key, value[key])
+		);
 	} else {
 		result.push(prefix);
 	}
 }
 
-function flattenValues(value: Object, keys: string[]): { [key: string]: any }[] {
+function flattenValues(
+	value: Object,
+	keys: string[]
+): { [key: string]: any }[] {
 	if (!value) {
 		return [];
 	}
 
 	return keys.reduce((array, key) => {
-		const v = key.split('.')
-			.reduce((tmp, k) => tmp && typeof tmp === 'object' ? tmp[k] : undefined, value);
+		const v = key
+			.split('.')
+			.reduce(
+				(tmp, k) => (tmp && typeof tmp === 'object' ? tmp[k] : undefined),
+				value
+			);
 		if (typeof v !== 'undefined') {
 			array.push({ [key]: v });
 		}

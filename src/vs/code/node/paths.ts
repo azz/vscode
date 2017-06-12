@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as fs from 'original-fs';
 import * as path from 'path';
@@ -15,7 +15,6 @@ import * as types from 'vs/base/common/types';
 import { ParsedArgs } from 'vs/platform/environment/common/environment';
 
 export function validatePaths(args: ParsedArgs): ParsedArgs {
-
 	// Realpath/normalize paths and watch out for goto line mode
 	const paths = doValidatePaths(args._, args.goto);
 
@@ -47,11 +46,18 @@ function doValidatePaths(args: string[], gotoLineMode?: boolean): string[] {
 		} catch (error) {
 			// in case of an error, assume the user wants to create this file
 			// if the path is relative, we join it to the cwd
-			realPath = path.normalize(path.isAbsolute(pathCandidate) ? pathCandidate : path.join(cwd, pathCandidate));
+			realPath = path.normalize(
+				path.isAbsolute(pathCandidate)
+					? pathCandidate
+					: path.join(cwd, pathCandidate)
+			);
 		}
 
 		const basename = path.basename(realPath);
-		if (basename /* can be empty if code is opened on root */ && !paths.isValidBasename(basename)) {
+		if (
+			basename /* can be empty if code is opened on root */ &&
+			!paths.isValidBasename(basename)
+		) {
 			return null; // do not allow invalid file names
 		}
 
@@ -64,13 +70,15 @@ function doValidatePaths(args: string[], gotoLineMode?: boolean): string[] {
 	});
 
 	const caseInsensitive = platform.isWindows || platform.isMacintosh;
-	const distinct = arrays.distinct(result, e => e && caseInsensitive ? e.toLowerCase() : e);
+	const distinct = arrays.distinct(
+		result,
+		e => (e && caseInsensitive ? e.toLowerCase() : e)
+	);
 
 	return arrays.coalesce(distinct);
 }
 
 function preparePath(cwd: string, p: string): string {
-
 	// Trim trailing quotes
 	if (platform.isWindows) {
 		p = strings.rtrim(p, '"'); // https://github.com/Microsoft/vscode/issues/1498
@@ -80,7 +88,6 @@ function preparePath(cwd: string, p: string): string {
 	p = strings.trim(strings.trim(p, ' '), '\t');
 
 	if (platform.isWindows) {
-
 		// Resolve the path against cwd if it is relative
 		p = path.resolve(cwd, p);
 
@@ -97,7 +104,9 @@ export interface IPathWithLineAndColumn {
 	column?: number;
 }
 
-export function parseLineAndColumnAware(rawPath: string): IPathWithLineAndColumn {
+export function parseLineAndColumnAware(
+	rawPath: string
+): IPathWithLineAndColumn {
 	const segments = rawPath.split(':'); // C:\file.txt:<line>:<column>
 
 	let path: string;

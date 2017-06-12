@@ -8,10 +8,9 @@ import { SpectronApplication } from '../spectron/application';
 export enum CSSProblem {
 	WARNING = 0,
 	ERROR = 1
-};
+}
 
 export class CSS {
-	
 	constructor(private spectron: SpectronApplication) {
 		// noop
 	}
@@ -34,7 +33,9 @@ export class CSS {
 			throw new Error('No such problem type defined.');
 		}
 
-		let el = await this.spectron.client.element(`.view-overlays .cdr.${selector}`);
+		let el = await this.spectron.client.element(
+			`.view-overlays .cdr.${selector}`
+		);
 		if (el.status === 0) {
 			return el;
 		}
@@ -52,11 +53,13 @@ export class CSS {
 			throw new Error('No such problem type defined.');
 		}
 
-		let el = await this.spectron.client.element(`div[aria-label="Problems grouped by files"] .icon.${selector}`);
+		let el = await this.spectron.client.element(
+			`div[aria-label="Problems grouped by files"] .icon.${selector}`
+		);
 		if (el.status === 0) {
 			return el;
 		}
-		
+
 		return undefined;
 	}
 }

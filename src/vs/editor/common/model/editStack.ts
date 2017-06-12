@@ -2,10 +2,14 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { onUnexpectedError } from 'vs/base/common/errors';
-import { ICursorStateComputer, IEditableTextModel, IIdentifiedSingleEditOperation } from 'vs/editor/common/editorCommon';
+import {
+	ICursorStateComputer,
+	IEditableTextModel,
+	IIdentifiedSingleEditOperation
+} from 'vs/editor/common/editorCommon';
 import { Selection } from 'vs/editor/common/core/selection';
 
 interface IEditOperation {
@@ -28,7 +32,6 @@ export interface IUndoRedoResult {
 }
 
 export class EditStack {
-
 	private model: IEditableTextModel;
 	private currentOpenStackElement: IStackElement;
 	private past: IStackElement[];
@@ -54,7 +57,11 @@ export class EditStack {
 		this.future = [];
 	}
 
-	public pushEditOperation(beforeCursorState: Selection[], editOperations: IIdentifiedSingleEditOperation[], cursorStateComputer: ICursorStateComputer): Selection[] {
+	public pushEditOperation(
+		beforeCursorState: Selection[],
+		editOperations: IIdentifiedSingleEditOperation[],
+		cursorStateComputer: ICursorStateComputer
+	): Selection[] {
 		// No support for parallel universes :(
 		this.future = [];
 
@@ -74,7 +81,9 @@ export class EditStack {
 
 		this.currentOpenStackElement.editOperations.push(inverseEditOperation);
 		try {
-			this.currentOpenStackElement.afterCursorState = cursorStateComputer ? cursorStateComputer(inverseEditOperation.operations) : null;
+			this.currentOpenStackElement.afterCursorState = cursorStateComputer
+				? cursorStateComputer(inverseEditOperation.operations)
+				: null;
 		} catch (e) {
 			onUnexpectedError(e);
 			this.currentOpenStackElement.afterCursorState = null;
@@ -85,7 +94,6 @@ export class EditStack {
 	}
 
 	public undo(): IUndoRedoResult {
-
 		this.pushStackElement();
 
 		if (this.past.length > 0) {
@@ -95,7 +103,9 @@ export class EditStack {
 				// Apply all operations in reverse order
 				for (var i = pastStackElement.editOperations.length - 1; i >= 0; i--) {
 					pastStackElement.editOperations[i] = {
-						operations: this.model.applyEdits(pastStackElement.editOperations[i].operations)
+						operations: this.model.applyEdits(
+							pastStackElement.editOperations[i].operations
+						)
 					};
 				}
 			} catch (e) {
@@ -115,7 +125,6 @@ export class EditStack {
 	}
 
 	public redo(): IUndoRedoResult {
-
 		if (this.future.length > 0) {
 			if (this.currentOpenStackElement) {
 				throw new Error('How is this possible?');
@@ -127,7 +136,9 @@ export class EditStack {
 				// Apply all operations
 				for (var i = 0; i < futureStackElement.editOperations.length; i++) {
 					futureStackElement.editOperations[i] = {
-						operations: this.model.applyEdits(futureStackElement.editOperations[i].operations)
+						operations: this.model.applyEdits(
+							futureStackElement.editOperations[i].operations
+						)
 					};
 				}
 			} catch (e) {

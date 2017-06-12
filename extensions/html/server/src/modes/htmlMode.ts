@@ -2,16 +2,25 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { getLanguageModelCache } from '../languageModelCache';
-import { LanguageService as HTMLLanguageService, HTMLDocument, DocumentContext, FormattingOptions } from 'vscode-html-languageservice';
+import {
+	LanguageService as HTMLLanguageService,
+	HTMLDocument,
+	DocumentContext,
+	FormattingOptions
+} from 'vscode-html-languageservice';
 import { TextDocument, Position, Range } from 'vscode-languageserver-types';
 import { LanguageMode } from './languageModes';
 
-export function getHTMLMode(htmlLanguageService: HTMLLanguageService): LanguageMode {
+export function getHTMLMode(
+	htmlLanguageService: HTMLLanguageService
+): LanguageMode {
 	let settings: any = {};
-	let htmlDocuments = getLanguageModelCache<HTMLDocument>(10, 60, document => htmlLanguageService.parseHTMLDocument(document));
+	let htmlDocuments = getLanguageModelCache<HTMLDocument>(10, 60, document =>
+		htmlLanguageService.parseHTMLDocument(document)
+	);
 	return {
 		getId() {
 			return 'html';
@@ -21,21 +30,44 @@ export function getHTMLMode(htmlLanguageService: HTMLLanguageService): LanguageM
 		},
 		doComplete(document: TextDocument, position: Position) {
 			let options = settings && settings.suggest;
-			return htmlLanguageService.doComplete(document, position, htmlDocuments.get(document), options);
+			return htmlLanguageService.doComplete(
+				document,
+				position,
+				htmlDocuments.get(document),
+				options
+			);
 		},
 		doHover(document: TextDocument, position: Position) {
-			return htmlLanguageService.doHover(document, position, htmlDocuments.get(document));
+			return htmlLanguageService.doHover(
+				document,
+				position,
+				htmlDocuments.get(document)
+			);
 		},
 		findDocumentHighlight(document: TextDocument, position: Position) {
-			return htmlLanguageService.findDocumentHighlights(document, position, htmlDocuments.get(document));
+			return htmlLanguageService.findDocumentHighlights(
+				document,
+				position,
+				htmlDocuments.get(document)
+			);
 		},
-		findDocumentLinks(document: TextDocument, documentContext: DocumentContext) {
+		findDocumentLinks(
+			document: TextDocument,
+			documentContext: DocumentContext
+		) {
 			return htmlLanguageService.findDocumentLinks(document, documentContext);
 		},
 		findDocumentSymbols(document: TextDocument) {
-			return htmlLanguageService.findDocumentSymbols(document, htmlDocuments.get(document));
+			return htmlLanguageService.findDocumentSymbols(
+				document,
+				htmlDocuments.get(document)
+			);
 		},
-		format(document: TextDocument, range: Range, formatParams: FormattingOptions) {
+		format(
+			document: TextDocument,
+			range: Range,
+			formatParams: FormattingOptions
+		) {
 			let formatSettings = settings && settings.format;
 			if (!formatSettings) {
 				formatSettings = formatParams;
@@ -51,7 +83,7 @@ export function getHTMLMode(htmlLanguageService: HTMLLanguageService): LanguageM
 			htmlDocuments.dispose();
 		}
 	};
-};
+}
 
 function merge(src: any, dst: any): any {
 	for (var key in src) {

@@ -47,10 +47,16 @@ interface LocalizeInfo {
 	comment: string[];
 }
 
-module LocalizeInfo {
+namespace LocalizeInfo {
 	export function is(value: any): value is LocalizeInfo {
 		let candidate = value as LocalizeInfo;
-		return Is.defined(candidate) && Is.string(candidate.key) && (Is.undef(candidate.comment) || (Is.array(candidate.comment) && candidate.comment.every(element => Is.string(element))));
+		return (
+			Is.defined(candidate) &&
+			Is.string(candidate.key) &&
+			(Is.undef(candidate.comment) ||
+				(Is.array(candidate.comment) &&
+					candidate.comment.every(element => Is.string(element))))
+		);
 	}
 }
 
@@ -60,7 +66,7 @@ interface BundledFormat {
 	bundles: Map<string[]>;
 }
 
-module BundledFormat {
+namespace BundledFormat {
 	export function is(value: any): value is BundledFormat {
 		if (Is.undef(value)) {
 			return false;
@@ -69,7 +75,12 @@ module BundledFormat {
 		let candidate = value as BundledFormat;
 		let length = Object.keys(value).length;
 
-		return length === 3 && Is.defined(candidate.keys) && Is.defined(candidate.messages) && Is.defined(candidate.bundles);
+		return (
+			length === 3 &&
+			Is.defined(candidate.keys) &&
+			Is.defined(candidate.messages) &&
+			Is.defined(candidate.bundles)
+		);
 	}
 }
 
@@ -82,14 +93,19 @@ interface PackageJsonFormat {
 	[key: string]: string | ValueFormat;
 }
 
-module PackageJsonFormat {
+namespace PackageJsonFormat {
 	export function is(value: any): value is PackageJsonFormat {
 		if (Is.undef(value) || !Is.object(value)) {
 			return false;
 		}
 		return Object.keys(value).every(key => {
 			let element = value[key];
-			return Is.string(element) || (Is.object(element) && Is.defined(element.message) && Is.defined(element.comment));
+			return (
+				Is.string(element) ||
+				(Is.object(element) &&
+					Is.defined(element.message) &&
+					Is.defined(element.comment))
+			);
 		});
 	}
 }
@@ -99,12 +115,16 @@ interface ModuleJsonFormat {
 	keys: (string | LocalizeInfo)[];
 }
 
-module ModuleJsonFormat {
+namespace ModuleJsonFormat {
 	export function is(value: any): value is ModuleJsonFormat {
 		let candidate = value as ModuleJsonFormat;
-		return Is.defined(candidate)
-			&& Is.array(candidate.messages) && candidate.messages.every(message => Is.string(message))
-			&& Is.array(candidate.keys) && candidate.keys.every(key => Is.string(key) || LocalizeInfo.is(key));
+		return (
+			Is.defined(candidate) &&
+			Is.array(candidate.messages) &&
+			candidate.messages.every(message => Is.string(message)) &&
+			Is.array(candidate.keys) &&
+			candidate.keys.every(key => Is.string(key) || LocalizeInfo.is(key))
+		);
 	}
 }
 
@@ -152,7 +172,10 @@ export class XLF {
 		this.appendHeader();
 
 		for (let file in this.files) {
-			this.appendNewLine(`<file original="${file}" source-language="en" datatype="plaintext"><body>`, 2);
+			this.appendNewLine(
+				`<file original="${file}" source-language="en" datatype="plaintext"><body>`,
+				2
+			);
 			for (let item of this.files[file]) {
 				this.addStringItem(item);
 			}
@@ -179,13 +202,23 @@ export class XLF {
 
 			// Check if the message contains description (if so, it becomes an object type in JSON)
 			if (Is.string(key)) {
-				this.files[original].push({ id: key, message: message, comment: comment });
+				this.files[original].push({
+					id: key,
+					message: message,
+					comment: comment
+				});
 			} else {
 				if (key['comment'] && key['comment'].length > 0) {
-					comment = key['comment'].map(comment => encodeEntities(comment)).join('\r\n');
+					comment = key['comment']
+						.map(comment => encodeEntities(comment))
+						.join('\r\n');
 				}
 
-				this.files[original].push({ id: key['key'], message: message, comment: comment });
+				this.files[original].push({
+					id: key['key'],
+					message: message,
+					comment: comment
+				});
 			}
 		}
 	}
@@ -207,7 +240,10 @@ export class XLF {
 
 	private appendHeader(): void {
 		this.appendNewLine('<?xml version="1.0" encoding="utf-8"?>', 0);
-		this.appendNewLine('<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">', 0);
+		this.appendNewLine(
+			'<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">',
+			0
+		);
 	}
 
 	private appendFooter(): void {
@@ -220,30 +256,40 @@ export class XLF {
 		this.buffer.push(line.toString());
 	}
 
-	static parse = function (xlfString: string): Promise<ParsedXLF[]> {
+	static parse = function(xlfString: string): Promise<ParsedXLF[]> {
 		return new Promise((resolve, reject) => {
 			let parser = new xml2js.Parser();
 
-			let files: { messages: Map<string>, originalFilePath: string, language: string }[] = [];
+			let files: {
+				messages: Map<string>;
+				originalFilePath: string;
+				language: string;
+			}[] = [];
 
-			parser.parseString(xlfString, function (err, result) {
+			parser.parseString(xlfString, function(err, result) {
 				if (err) {
 					reject(`Failed to parse XLIFF string. ${err}`);
 				}
 
 				const fileNodes: any[] = result['xliff']['file'];
 				if (!fileNodes) {
-					reject('XLIFF file does not contain "xliff" or "file" node(s) required for parsing.');
+					reject(
+						'XLIFF file does not contain "xliff" or "file" node(s) required for parsing.'
+					);
 				}
 
-				fileNodes.forEach((file) => {
+				fileNodes.forEach(file => {
 					const originalFilePath = file.$.original;
 					if (!originalFilePath) {
-						reject('XLIFF file node does not contain original attribute to determine the original location of the resource file.');
+						reject(
+							'XLIFF file node does not contain original attribute to determine the original location of the resource file.'
+						);
 					}
 					const language = file.$['target-language'].toLowerCase();
 					if (!language) {
-						reject('XLIFF file node does not contain target-language attribute to determine translated language.');
+						reject(
+							'XLIFF file node does not contain target-language attribute to determine translated language.'
+						);
 					}
 
 					let messages: Map<string> = {};
@@ -259,11 +305,17 @@ export class XLF {
 						if (key && val) {
 							messages[key] = decodeEntities(val);
 						} else {
-							reject('XLIFF file does not contain full localization data. ID or target translation for one of the trans-unit nodes is not present.');
+							reject(
+								'XLIFF file does not contain full localization data. ID or target translation for one of the trans-unit nodes is not present.'
+							);
 						}
 					});
 
-					files.push({ messages: messages, originalFilePath: originalFilePath, language: language });
+					files.push({
+						messages: messages,
+						originalFilePath: originalFilePath,
+						language: language
+					});
 				});
 
 				resolve(files);
@@ -273,24 +325,24 @@ export class XLF {
 }
 
 const iso639_3_to_2: Map<string> = {
-	'chs': 'zh-cn',
-	'cht': 'zh-tw',
-	'csy': 'cs-cz',
-	'deu': 'de',
-	'enu': 'en',
-	'esn': 'es',
-	'fra': 'fr',
-	'hun': 'hu',
-	'ita': 'it',
-	'jpn': 'ja',
-	'kor': 'ko',
-	'nld': 'nl',
-	'plk': 'pl',
-	'ptb': 'pt-br',
-	'ptg': 'pt',
-	'rus': 'ru',
-	'sve': 'sv-se',
-	'trk': 'tr'
+	chs: 'zh-cn',
+	cht: 'zh-tw',
+	csy: 'cs-cz',
+	deu: 'de',
+	enu: 'en',
+	esn: 'es',
+	fra: 'fr',
+	hun: 'hu',
+	ita: 'it',
+	jpn: 'ja',
+	kor: 'ko',
+	nld: 'nl',
+	plk: 'pl',
+	ptb: 'pt-br',
+	ptg: 'pt',
+	rus: 'ru',
+	sve: 'sv-se',
+	trk: 'tr'
 };
 
 /**
@@ -300,21 +352,21 @@ const iso639_2_to_3: Map<string> = {
 	'zh-hans': 'chs',
 	'zh-hant': 'cht',
 	'cs-cz': 'csy',
-	'de': 'deu',
-	'en': 'enu',
-	'es': 'esn',
-	'fr': 'fra',
-	'hu': 'hun',
-	'it': 'ita',
-	'ja': 'jpn',
-	'ko': 'kor',
-	'nl': 'nld',
-	'pl': 'plk',
+	de: 'deu',
+	en: 'enu',
+	es: 'esn',
+	fr: 'fra',
+	hu: 'hun',
+	it: 'ita',
+	ja: 'jpn',
+	ko: 'kor',
+	nl: 'nld',
+	pl: 'plk',
 	'pt-br': 'ptb',
-	'pt': 'ptg',
-	'ru': 'rus',
+	pt: 'ptg',
+	ru: 'rus',
 	'sv-se': 'sve',
-	'tr': 'trk'
+	tr: 'trk'
 };
 
 interface IDirectoryInfo {
@@ -323,24 +375,26 @@ interface IDirectoryInfo {
 }
 
 function sortLanguages(directoryNames: string[]): IDirectoryInfo[] {
-	return directoryNames.map((dirName) => {
-		var lower = dirName.toLowerCase();
-		return {
-			name: lower,
-			iso639_2: iso639_3_to_2[lower]
-		};
-	}).sort((a: IDirectoryInfo, b: IDirectoryInfo): number => {
-		if (!a.iso639_2 && !b.iso639_2) {
-			return 0;
-		}
-		if (!a.iso639_2) {
-			return -1;
-		}
-		if (!b.iso639_2) {
-			return 1;
-		}
-		return a.iso639_2 < b.iso639_2 ? -1 : (a.iso639_2 > b.iso639_2 ? 1 : 0);
-	});
+	return directoryNames
+		.map(dirName => {
+			var lower = dirName.toLowerCase();
+			return {
+				name: lower,
+				iso639_2: iso639_3_to_2[lower]
+			};
+		})
+		.sort((a: IDirectoryInfo, b: IDirectoryInfo): number => {
+			if (!a.iso639_2 && !b.iso639_2) {
+				return 0;
+			}
+			if (!a.iso639_2) {
+				return -1;
+			}
+			if (!b.iso639_2) {
+				return 1;
+			}
+			return a.iso639_2 < b.iso639_2 ? -1 : a.iso639_2 > b.iso639_2 ? 1 : 0;
+		});
 }
 
 function stripComments(content: string): string {
@@ -377,8 +431,8 @@ function escapeCharacters(value: string): string {
 	for (var i = 0; i < value.length; i++) {
 		var ch = value.charAt(i);
 		switch (ch) {
-			case '\'':
-				result.push('\\\'');
+			case "'":
+				result.push("\\'");
 				break;
 			case '"':
 				result.push('\\"');
@@ -408,7 +462,12 @@ function escapeCharacters(value: string): string {
 	return result.join('');
 }
 
-function processCoreBundleFormat(fileHeader: string, languages: string[], json: BundledFormat, emitter: any) {
+function processCoreBundleFormat(
+	fileHeader: string,
+	languages: string[],
+	json: BundledFormat,
+	emitter: any
+) {
 	let keysSection = json.keys;
 	let messageSection = json.messages;
 	let bundleSection = json.bundles;
@@ -418,11 +477,14 @@ function processCoreBundleFormat(fileHeader: string, languages: string[], json: 
 	let total: number = 0;
 	let defaultMessages: Map<Map<string>> = Object.create(null);
 	let modules = Object.keys(keysSection);
-	modules.forEach((module) => {
+	modules.forEach(module => {
 		let keys = keysSection[module];
 		let messages = messageSection[module];
 		if (!messages || keys.length !== messages.length) {
-			emitter.emit('error', `Message for module ${module} corrupted. Mismatch in number of keys and messages.`);
+			emitter.emit(
+				'error',
+				`Message for module ${module} corrupted. Mismatch in number of keys and messages.`
+			);
 			return;
 		}
 		let messageMap: Map<string> = Object.create(null);
@@ -442,9 +504,15 @@ function processCoreBundleFormat(fileHeader: string, languages: string[], json: 
 	if (languages) {
 		languageDirs = sortLanguages(languages);
 	} else {
-		languageDirs = sortLanguages(fs.readdirSync(languageDirectory).filter((item) => fs.statSync(path.join(languageDirectory, item)).isDirectory()));
+		languageDirs = sortLanguages(
+			fs
+				.readdirSync(languageDirectory)
+				.filter(item =>
+					fs.statSync(path.join(languageDirectory, item)).isDirectory()
+				)
+		);
 	}
-	languageDirs.forEach((language) => {
+	languageDirs.forEach(language => {
 		if (!language.iso639_2) {
 			return;
 		}
@@ -456,7 +524,7 @@ function processCoreBundleFormat(fileHeader: string, languages: string[], json: 
 		statistics[language.iso639_2] = 0;
 		let localizedModules: Map<string[]> = Object.create(null);
 		let cwd = path.join(languageDirectory, language.name, 'src');
-		modules.forEach((module) => {
+		modules.forEach(module => {
 			let order = keysSection[module];
 			let i18nFile = path.join(cwd, module) + '.i18n.json';
 			let messages: Map<string> = null;
@@ -465,13 +533,16 @@ function processCoreBundleFormat(fileHeader: string, languages: string[], json: 
 				messages = JSON.parse(content);
 			} else {
 				if (process.env['VSCODE_BUILD_VERBOSE']) {
-					log(`No localized messages found for module ${module}. Using default messages.`);
+					log(
+						`No localized messages found for module ${module}. Using default messages.`
+					);
 				}
 				messages = defaultMessages[module];
-				statistics[language.iso639_2] = statistics[language.iso639_2] + Object.keys(messages).length;
+				statistics[language.iso639_2] =
+					statistics[language.iso639_2] + Object.keys(messages).length;
 			}
 			let localizedMessages: string[] = [];
-			order.forEach((keyInfo) => {
+			order.forEach(keyInfo => {
 				let key: string = null;
 				if (Is.string(keyInfo)) {
 					key = keyInfo;
@@ -481,7 +552,9 @@ function processCoreBundleFormat(fileHeader: string, languages: string[], json: 
 				let message: string = messages[key];
 				if (!message) {
 					if (process.env['VSCODE_BUILD_VERBOSE']) {
-						log(`No localized message found for key ${key} in module ${module}. Using default message.`);
+						log(
+							`No localized message found for key ${key} in module ${module}. Using default message.`
+						);
 					}
 					message = defaultMessages[module][key];
 					statistics[language.iso639_2] = statistics[language.iso639_2] + 1;
@@ -490,7 +563,7 @@ function processCoreBundleFormat(fileHeader: string, languages: string[], json: 
 			});
 			localizedModules[module] = localizedMessages;
 		});
-		Object.keys(bundleSection).forEach((bundle) => {
+		Object.keys(bundleSection).forEach(bundle => {
 			let modules = bundleSection[bundle];
 			let contents: string[] = [
 				fileHeader,
@@ -504,12 +577,22 @@ function processCoreBundleFormat(fileHeader: string, languages: string[], json: 
 					return;
 				}
 				messages.forEach((message, index) => {
-					contents.push(`\t\t"${escapeCharacters(message)}${index < messages.length ? '",' : '"'}`);
+					contents.push(
+						`\t\t"${escapeCharacters(message)}${index < messages.length
+							? '",'
+							: '"'}`
+					);
 				});
 				contents.push(index < modules.length - 1 ? '\t],' : '\t]');
 			});
 			contents.push('});');
-			emitter.emit('data', new File({ path: bundle + '.nls.' + language.iso639_2 + '.js', contents: new Buffer(contents.join('\n'), 'utf-8') }));
+			emitter.emit(
+				'data',
+				new File({
+					path: bundle + '.nls.' + language.iso639_2 + '.js',
+					contents: new Buffer(contents.join('\n'), 'utf-8')
+				})
+			);
 		});
 	});
 	Object.keys(statistics).forEach(key => {
@@ -520,18 +603,25 @@ function processCoreBundleFormat(fileHeader: string, languages: string[], json: 
 		const language = dir.name;
 		let iso639_2 = iso639_3_to_2[language];
 		if (!iso639_2) {
-			log(`\tCouldn't find iso639 2 mapping for language ${language}. Using default language instead.`);
+			log(
+				`\tCouldn't find iso639 2 mapping for language ${language}. Using default language instead.`
+			);
 		} else {
 			let stats = statistics[iso639_2];
 			if (Is.undef(stats)) {
-				log(`\tNo translations found for language ${language}. Using default language instead.`);
+				log(
+					`\tNo translations found for language ${language}. Using default language instead.`
+				);
 			}
 		}
 	});
 }
 
-export function processNlsFiles(opts: { fileHeader: string; languages: string[] }): ThroughStream {
-	return through(function (file: File) {
+export function processNlsFiles(opts: {
+	fileHeader: string;
+	languages: string[];
+}): ThroughStream {
+	return through(function(file: File) {
 		let fileName = path.basename(file.path);
 		if (fileName === 'nls.metadata.json') {
 			let json = null;
@@ -548,29 +638,30 @@ export function processNlsFiles(opts: { fileHeader: string; languages: string[] 
 	});
 }
 
-export function prepareXlfFiles(projectName?: string, extensionName?: string): ThroughStream {
-	return through(
-		function (file: File) {
-			if (!file.isBuffer()) {
-				throw new Error(`Failed to read component file: ${file.relative}`);
-			}
-
-			const extension = path.extname(file.path);
-			if (extension === '.json') {
-				const json = JSON.parse((<Buffer>file.contents).toString('utf8'));
-
-				if (BundledFormat.is(json)) {
-					importBundleJson(file, json, this);
-				} else if (PackageJsonFormat.is(json) || ModuleJsonFormat.is(json)) {
-					importModuleOrPackageJson(file, json, projectName, this, extensionName);
-				} else {
-					throw new Error(`JSON format cannot be deduced for ${file.relative}.`);
-				}
-			} else if (extension === '.isl') {
-				importIsl(file, this);
-			}
+export function prepareXlfFiles(
+	projectName?: string,
+	extensionName?: string
+): ThroughStream {
+	return through(function(file: File) {
+		if (!file.isBuffer()) {
+			throw new Error(`Failed to read component file: ${file.relative}`);
 		}
-	);
+
+		const extension = path.extname(file.path);
+		if (extension === '.json') {
+			const json = JSON.parse((<Buffer>file.contents).toString('utf8'));
+
+			if (BundledFormat.is(json)) {
+				importBundleJson(file, json, this);
+			} else if (PackageJsonFormat.is(json) || ModuleJsonFormat.is(json)) {
+				importModuleOrPackageJson(file, json, projectName, this, extensionName);
+			} else {
+				throw new Error(`JSON format cannot be deduced for ${file.relative}.`);
+			}
+		} else if (extension === '.isl') {
+			importIsl(file, this);
+		}
+	});
 }
 
 const editorProject: string = 'vscode-editor',
@@ -604,8 +695,11 @@ export function getResource(sourceFile: string): Resource {
 	throw new Error(`Could not identify the XLF bundle for ${sourceFile}`);
 }
 
-
-function importBundleJson(file: File, json: BundledFormat, stream: ThroughStream): void {
+function importBundleJson(
+	file: File,
+	json: BundledFormat,
+	stream: ThroughStream
+): void {
 	let bundleXlfs: Map<XLF> = Object.create(null);
 
 	for (let source in json.keys) {
@@ -616,47 +710,76 @@ function importBundleJson(file: File, json: BundledFormat, stream: ThroughStream
 		const keys = json.keys[source];
 		const messages = json.messages[source];
 		if (keys.length !== messages.length) {
-			throw new Error(`There is a mismatch between keys and messages in ${file.relative}`);
+			throw new Error(
+				`There is a mismatch between keys and messages in ${file.relative}`
+			);
 		}
 
-		let xlf = bundleXlfs[resource] ? bundleXlfs[resource] : bundleXlfs[resource] = new XLF(project);
+		let xlf = bundleXlfs[resource]
+			? bundleXlfs[resource]
+			: (bundleXlfs[resource] = new XLF(project));
 		xlf.addFile('src/' + source, keys, messages);
 	}
 
 	for (let resource in bundleXlfs) {
-		const newFilePath = `${bundleXlfs[resource].project}/${resource.replace(/\//g, '_')}.xlf`;
-		const xlfFile = new File({ path: newFilePath, contents: new Buffer(bundleXlfs[resource].toString(), 'utf-8') });
+		const newFilePath = `${bundleXlfs[resource].project}/${resource.replace(
+			/\//g,
+			'_'
+		)}.xlf`;
+		const xlfFile = new File({
+			path: newFilePath,
+			contents: new Buffer(bundleXlfs[resource].toString(), 'utf-8')
+		});
 		stream.emit('data', xlfFile);
 	}
 }
 
 // Keeps existing XLF instances and a state of how many files were already processed for faster file emission
-var extensions: Map<{ xlf: XLF, processed: number }> = Object.create(null);
-function importModuleOrPackageJson(file: File, json: ModuleJsonFormat | PackageJsonFormat, projectName: string, stream: ThroughStream, extensionName?: string): void {
-	if (ModuleJsonFormat.is(json) && json['keys'].length !== json['messages'].length) {
-		throw new Error(`There is a mismatch between keys and messages in ${file.relative}`);
+var extensions: Map<{ xlf: XLF; processed: number }> = Object.create(null);
+function importModuleOrPackageJson(
+	file: File,
+	json: ModuleJsonFormat | PackageJsonFormat,
+	projectName: string,
+	stream: ThroughStream,
+	extensionName?: string
+): void {
+	if (
+		ModuleJsonFormat.is(json) &&
+		json['keys'].length !== json['messages'].length
+	) {
+		throw new Error(
+			`There is a mismatch between keys and messages in ${file.relative}`
+		);
 	}
 
 	// Prepare the source path for <original/> attribute in XLF & extract messages from JSON
 	const formattedSourcePath = file.relative.replace(/\\/g, '/');
-	const messages = Object.keys(json).map((key) => json[key].toString());
+	const messages = Object.keys(json).map(key => json[key].toString());
 
 	// Stores the amount of localization files to be transformed to XLF before the emission
-	let localizationFilesCount,
-		originalFilePath;
+	let localizationFilesCount, originalFilePath;
 	// If preparing XLF for external extension, then use different glob pattern and source path
 	if (extensionName) {
 		localizationFilesCount = glob.sync('**/*.nls.json').length;
-		originalFilePath = `${formattedSourcePath.substr(0, formattedSourcePath.length - '.nls.json'.length)}`;
+		originalFilePath = `${formattedSourcePath.substr(
+			0,
+			formattedSourcePath.length - '.nls.json'.length
+		)}`;
 	} else {
 		// Used for vscode/extensions folder
 		extensionName = formattedSourcePath.split('/')[0];
-		localizationFilesCount = glob.sync(`./extensions/${extensionName}/**/*.nls.json`).length;
-		originalFilePath = `extensions/${formattedSourcePath.substr(0, formattedSourcePath.length - '.nls.json'.length)}`;
+		localizationFilesCount = glob.sync(
+			`./extensions/${extensionName}/**/*.nls.json`
+		).length;
+		originalFilePath = `extensions/${formattedSourcePath.substr(
+			0,
+			formattedSourcePath.length - '.nls.json'.length
+		)}`;
 	}
 
-	let extension = extensions[extensionName] ?
-		extensions[extensionName] : extensions[extensionName] = { xlf: new XLF(projectName), processed: 0 };
+	let extension = extensions[extensionName]
+		? extensions[extensionName]
+		: (extensions[extensionName] = { xlf: new XLF(projectName), processed: 0 });
 
 	if (ModuleJsonFormat.is(json)) {
 		extension.xlf.addFile(originalFilePath, json['keys'], json['messages']);
@@ -667,14 +790,16 @@ function importModuleOrPackageJson(file: File, json: ModuleJsonFormat | PackageJ
 	// Check if XLF is populated with file nodes to emit it
 	if (++extensions[extensionName].processed === localizationFilesCount) {
 		const newFilePath = path.join(projectName, extensionName + '.xlf');
-		const xlfFile = new File({ path: newFilePath, contents: new Buffer(extension.xlf.toString(), 'utf-8') });
+		const xlfFile = new File({
+			path: newFilePath,
+			contents: new Buffer(extension.xlf.toString(), 'utf-8')
+		});
 		stream.emit('data', xlfFile);
 	}
 }
 
 function importIsl(file: File, stream: ThroughStream) {
-	let projectName: string,
-		resourceFile: string;
+	let projectName: string, resourceFile: string;
 	if (path.basename(file.path) === 'Default.isl') {
 		projectName = setupProject;
 		resourceFile = 'setup_default.xlf';
@@ -718,48 +843,84 @@ function importIsl(file: File, stream: ThroughStream) {
 		}
 	});
 
-	const originalPath = file.path.substring(file.cwd.length + 1, file.path.split('.')[0].length).replace(/\\/g, '/');
+	const originalPath = file.path
+		.substring(file.cwd.length + 1, file.path.split('.')[0].length)
+		.replace(/\\/g, '/');
 	xlf.addFile(originalPath, keys, messages);
 
 	// Emit only upon all ISL files combined into single XLF instance
 	const newFilePath = path.join(projectName, resourceFile);
-	const xlfFile = new File({ path: newFilePath, contents: new Buffer(xlf.toString(), 'utf-8') });
+	const xlfFile = new File({
+		path: newFilePath,
+		contents: new Buffer(xlf.toString(), 'utf-8')
+	});
 	stream.emit('data', xlfFile);
 }
 
-export function pushXlfFiles(apiHostname: string, username: string, password: string): ThroughStream {
+export function pushXlfFiles(
+	apiHostname: string,
+	username: string,
+	password: string
+): ThroughStream {
 	let tryGetPromises = [];
 	let updateCreatePromises = [];
 
-	return through(function (file: File) {
-		const project = path.dirname(file.relative);
-		const fileName = path.basename(file.path);
-		const slug = fileName.substr(0, fileName.length - '.xlf'.length);
-		const credentials = `${username}:${password}`;
+	return through(
+		function(file: File) {
+			const project = path.dirname(file.relative);
+			const fileName = path.basename(file.path);
+			const slug = fileName.substr(0, fileName.length - '.xlf'.length);
+			const credentials = `${username}:${password}`;
 
-		// Check if resource already exists, if not, then create it.
-		let promise = tryGetResource(project, slug, apiHostname, credentials);
-		tryGetPromises.push(promise);
-		promise.then(exists => {
-			if (exists) {
-				promise = updateResource(project, slug, file, apiHostname, credentials);
-			} else {
-				promise = createResource(project, slug, file, apiHostname, credentials);
-			}
-			updateCreatePromises.push(promise);
-		});
-
-	}, function () {
-		// End the pipe only after all the communication with Transifex API happened
-		Promise.all(tryGetPromises).then(() => {
-			Promise.all(updateCreatePromises).then(() => {
-				this.emit('end');
-			}).catch((reason) => { throw new Error(reason); });
-		}).catch((reason) => { throw new Error(reason); });
-	});
+			// Check if resource already exists, if not, then create it.
+			let promise = tryGetResource(project, slug, apiHostname, credentials);
+			tryGetPromises.push(promise);
+			promise.then(exists => {
+				if (exists) {
+					promise = updateResource(
+						project,
+						slug,
+						file,
+						apiHostname,
+						credentials
+					);
+				} else {
+					promise = createResource(
+						project,
+						slug,
+						file,
+						apiHostname,
+						credentials
+					);
+				}
+				updateCreatePromises.push(promise);
+			});
+		},
+		function() {
+			// End the pipe only after all the communication with Transifex API happened
+			Promise.all(tryGetPromises)
+				.then(() => {
+					Promise.all(updateCreatePromises)
+						.then(() => {
+							this.emit('end');
+						})
+						.catch(reason => {
+							throw new Error(reason);
+						});
+				})
+				.catch(reason => {
+					throw new Error(reason);
+				});
+		}
+	);
 }
 
-function tryGetResource(project: string, slug: string, apiHostname: string, credentials: string): Promise<boolean> {
+function tryGetResource(
+	project: string,
+	slug: string,
+	apiHostname: string,
+	credentials: string
+): Promise<boolean> {
 	return new Promise((resolve, reject) => {
 		const options = {
 			hostname: apiHostname,
@@ -768,16 +929,18 @@ function tryGetResource(project: string, slug: string, apiHostname: string, cred
 			method: 'GET'
 		};
 
-		const request = http.request(options, (response) => {
+		const request = http.request(options, response => {
 			if (response.statusCode === 404) {
 				resolve(false);
 			} else if (response.statusCode === 200) {
 				resolve(true);
 			} else {
-				reject(`Failed to query resource ${project}/${slug}. Response: ${response.statusCode} ${response.statusMessage}`);
+				reject(
+					`Failed to query resource ${project}/${slug}. Response: ${response.statusCode} ${response.statusMessage}`
+				);
 			}
 		});
-		request.on('error', (err) => {
+		request.on('error', err => {
 			reject(`Failed to get ${project}/${slug} on Transifex: ${err}`);
 		});
 
@@ -785,13 +948,19 @@ function tryGetResource(project: string, slug: string, apiHostname: string, cred
 	});
 }
 
-function createResource(project: string, slug: string, xlfFile: File, apiHostname: string, credentials: any): Promise<any> {
+function createResource(
+	project: string,
+	slug: string,
+	xlfFile: File,
+	apiHostname: string,
+	credentials: any
+): Promise<any> {
 	return new Promise((resolve, reject) => {
 		const data = JSON.stringify({
-			'content': xlfFile.contents.toString(),
-			'name': slug,
-			'slug': slug,
-			'i18n_type': 'XLIFF'
+			content: xlfFile.contents.toString(),
+			name: slug,
+			slug: slug,
+			i18n_type: 'XLIFF'
 		});
 		const options = {
 			hostname: apiHostname,
@@ -804,14 +973,16 @@ function createResource(project: string, slug: string, xlfFile: File, apiHostnam
 			method: 'POST'
 		};
 
-		let request = http.request(options, (res) => {
+		let request = http.request(options, res => {
 			if (res.statusCode === 201) {
 				log(`Resource ${project}/${slug} successfully created on Transifex.`);
 			} else {
-				reject(`Something went wrong in the request creating ${slug} in ${project}. ${res.statusCode}`);
+				reject(
+					`Something went wrong in the request creating ${slug} in ${project}. ${res.statusCode}`
+				);
 			}
 		});
-		request.on('error', (err) => {
+		request.on('error', err => {
 			reject(`Failed to create ${project}/${slug} on Transifex: ${err}`);
 		});
 
@@ -824,7 +995,13 @@ function createResource(project: string, slug: string, xlfFile: File, apiHostnam
  * The following link provides information about how Transifex handles updates of a resource file:
  * https://dev.befoolish.co/tx-docs/public/projects/updating-content#what-happens-when-you-update-files
  */
-function updateResource(project: string, slug: string, xlfFile: File, apiHostname: string, credentials: string): Promise<any> {
+function updateResource(
+	project: string,
+	slug: string,
+	xlfFile: File,
+	apiHostname: string,
+	credentials: string
+): Promise<any> {
 	return new Promise((resolve, reject) => {
 		const data = JSON.stringify({ content: xlfFile.contents.toString() });
 		const options = {
@@ -838,24 +1015,28 @@ function updateResource(project: string, slug: string, xlfFile: File, apiHostnam
 			method: 'PUT'
 		};
 
-		let request = http.request(options, (res) => {
+		let request = http.request(options, res => {
 			if (res.statusCode === 200) {
 				res.setEncoding('utf8');
 
 				let responseBuffer: string = '';
-				res.on('data', function (chunk) {
+				res.on('data', function(chunk) {
 					responseBuffer += chunk;
 				});
 				res.on('end', () => {
 					const response = JSON.parse(responseBuffer);
-					log(`Resource ${project}/${slug} successfully updated on Transifex. Strings added: ${response.strings_added}, updated: ${response.strings_added}, deleted: ${response.strings_added}`);
+					log(
+						`Resource ${project}/${slug} successfully updated on Transifex. Strings added: ${response.strings_added}, updated: ${response.strings_added}, deleted: ${response.strings_added}`
+					);
 					resolve();
 				});
 			} else {
-				reject(`Something went wrong in the request updating ${slug} in ${project}. ${res.statusCode}`);
+				reject(
+					`Something went wrong in the request updating ${slug} in ${project}. ${res.statusCode}`
+				);
 			}
 		});
-		request.on('error', (err) => {
+		request.on('error', err => {
 			reject(`Failed to update ${project}/${slug} on Transifex: ${err}`);
 		});
 
@@ -874,11 +1055,14 @@ function obtainProjectResources(projectName: string): Resource[] {
 		const json = fs.readFileSync('./build/lib/i18n.resources.json', 'utf8');
 		resources = JSON.parse(json).workbench;
 	} else if (projectName === extensionsProject) {
-		let extensionsToLocalize: string[] = glob.sync('./extensions/**/*.nls.json').map(extension => extension.split('/')[2]);
+		let extensionsToLocalize: string[] = glob
+			.sync('./extensions/**/*.nls.json')
+			.map(extension => extension.split('/')[2]);
 		let resourcesToPull: string[] = [];
 
 		extensionsToLocalize.forEach(extension => {
-			if (resourcesToPull.indexOf(extension) === -1) { // remove duplicate elements returned by glob
+			if (resourcesToPull.indexOf(extension) === -1) {
+				// remove duplicate elements returned by glob
 				resourcesToPull.push(extension);
 				resources.push({ name: extension, project: projectName });
 			}
@@ -890,19 +1074,29 @@ function obtainProjectResources(projectName: string): Resource[] {
 	return resources;
 }
 
-export function pullXlfFiles(projectName: string, apiHostname: string, username: string, password: string, languages: string[], resources?: Resource[]): NodeJS.ReadableStream {
+export function pullXlfFiles(
+	projectName: string,
+	apiHostname: string,
+	username: string,
+	password: string,
+	languages: string[],
+	resources?: Resource[]
+): NodeJS.ReadableStream {
 	if (!resources) {
 		resources = obtainProjectResources(projectName);
 	}
 	if (!resources) {
-		throw new Error('Transifex projects and resources must be defined to be able to pull translations from Transifex.');
+		throw new Error(
+			'Transifex projects and resources must be defined to be able to pull translations from Transifex.'
+		);
 	}
 
 	const credentials = `${username}:${password}`;
 	let expectedTranslationsCount = languages.length * resources.length;
-	let translationsRetrieved = 0, called = false;
+	let translationsRetrieved = 0,
+		called = false;
 
-	return readable(function (count, callback) {
+	return readable(function(count, callback) {
 		// Mark end of stream when all resources were retrieved
 		if (translationsRetrieved === expectedTranslationsCount) {
 			return this.emit('end');
@@ -913,12 +1107,16 @@ export function pullXlfFiles(projectName: string, apiHostname: string, username:
 			const stream = this;
 
 			// Retrieve XLF files from main projects
-			languages.map(function (language) {
-				resources.map(function (resource) {
-					retrieveResource(language, resource, apiHostname, credentials).then((file: File) => {
-						stream.emit('data', file);
-						translationsRetrieved++;
-					}).catch(error => { throw new Error(error); });
+			languages.map(function(language) {
+				resources.map(function(resource) {
+					retrieveResource(language, resource, apiHostname, credentials)
+						.then((file: File) => {
+							stream.emit('data', file);
+							translationsRetrieved++;
+						})
+						.catch(error => {
+							throw new Error(error);
+						});
 				});
 			});
 		}
@@ -927,7 +1125,12 @@ export function pullXlfFiles(projectName: string, apiHostname: string, username:
 	});
 }
 
-function retrieveResource(language: string, resource: Resource, apiHostname, credentials): Promise<File> {
+function retrieveResource(
+	language: string,
+	resource: Resource,
+	apiHostname,
+	credentials
+): Promise<File> {
 	return new Promise<File>((resolve, reject) => {
 		const slug = resource.name.replace(/\//g, '_');
 		const project = resource.project;
@@ -939,18 +1142,27 @@ function retrieveResource(language: string, resource: Resource, apiHostname, cre
 			method: 'GET'
 		};
 
-		let request = http.request(options, (res) => {
+		let request = http.request(options, res => {
 			let xlfBuffer: Buffer[] = [];
 			res.on('data', (chunk: Buffer) => xlfBuffer.push(chunk));
 			res.on('end', () => {
 				if (res.statusCode === 200) {
-					resolve(new File({ contents: Buffer.concat(xlfBuffer), path: `${project}/${iso639_2_to_3[language]}/${slug}.xlf` }));
+					resolve(
+						new File({
+							contents: Buffer.concat(xlfBuffer),
+							path: `${project}/${iso639_2_to_3[language]}/${slug}.xlf`
+						})
+					);
 				}
-				reject(`${slug} in ${project} returned no data. Response code: ${res.statusCode}.`);
+				reject(
+					`${slug} in ${project} returned no data. Response code: ${res.statusCode}.`
+				);
 			});
 		});
-		request.on('error', (err) => {
-			reject(`Failed to query resource ${slug} with the following error: ${err}`);
+		request.on('error', err => {
+			reject(
+				`Failed to query resource ${slug} with the following error: ${err}`
+			);
 		});
 		request.end();
 	});
@@ -959,49 +1171,80 @@ function retrieveResource(language: string, resource: Resource, apiHostname, cre
 export function prepareJsonFiles(): ThroughStream {
 	let parsePromises: Promise<ParsedXLF[]>[] = [];
 
-	return through(function (xlf: File) {
-		let stream = this;
-		let parsePromise = XLF.parse(xlf.contents.toString());
-		parsePromises.push(parsePromise);
-		parsePromise.then(
-			function (resolvedFiles) {
-				resolvedFiles.forEach(file => {
-					let messages = file.messages, translatedFile;
+	return through(
+		function(xlf: File) {
+			let stream = this;
+			let parsePromise = XLF.parse(xlf.contents.toString());
+			parsePromises.push(parsePromise);
+			parsePromise.then(
+				function(resolvedFiles) {
+					resolvedFiles.forEach(file => {
+						let messages = file.messages,
+							translatedFile;
 
-					// ISL file path always starts with 'build/'
-					if (/^build\//.test(file.originalFilePath)) {
-						const defaultLanguages = { 'zh-hans': true, 'zh-hant': true, 'ko': true };
-						if (path.basename(file.originalFilePath) === 'Default' && !defaultLanguages[file.language]) {
-							return;
+						// ISL file path always starts with 'build/'
+						if (/^build\//.test(file.originalFilePath)) {
+							const defaultLanguages = {
+								'zh-hans': true,
+								'zh-hant': true,
+								ko: true
+							};
+							if (
+								path.basename(file.originalFilePath) === 'Default' &&
+								!defaultLanguages[file.language]
+							) {
+								return;
+							}
+
+							translatedFile = createIslFile(
+								'..',
+								file.originalFilePath,
+								messages,
+								iso639_2_to_3[file.language]
+							);
+						} else {
+							translatedFile = createI18nFile(
+								iso639_2_to_3[file.language],
+								file.originalFilePath,
+								messages
+							);
 						}
 
-						translatedFile = createIslFile('..', file.originalFilePath, messages, iso639_2_to_3[file.language]);
-					} else {
-						translatedFile = createI18nFile(iso639_2_to_3[file.language], file.originalFilePath, messages);
-					}
-
-					stream.emit('data', translatedFile);
+						stream.emit('data', translatedFile);
+					});
+				},
+				function(rejectReason) {
+					throw new Error(`XLF parsing error: ${rejectReason}`);
+				}
+			);
+		},
+		function() {
+			Promise.all(parsePromises)
+				.then(() => {
+					this.emit('end');
+				})
+				.catch(reason => {
+					throw new Error(reason);
 				});
-			},
-			function (rejectReason) {
-				throw new Error(`XLF parsing error: ${rejectReason}`);
-			}
-		);
-	}, function () {
-		Promise.all(parsePromises)
-			.then(() => { this.emit('end'); })
-			.catch(reason => { throw new Error(reason); });
-	});
+		}
+	);
 }
 
-function createI18nFile(base: string, originalFilePath: string, messages: Map<string>): File {
-	let content = [
-		'/*---------------------------------------------------------------------------------------------',
-		' *  Copyright (c) Microsoft Corporation. All rights reserved.',
-		' *  Licensed under the MIT License. See License.txt in the project root for license information.',
-		' *--------------------------------------------------------------------------------------------*/',
-		'// Do not edit this file. It is machine generated.'
-	].join('\n') + '\n' + JSON.stringify(messages, null, '\t').replace(/\r\n/g, '\n');
+function createI18nFile(
+	base: string,
+	originalFilePath: string,
+	messages: Map<string>
+): File {
+	let content =
+		[
+			'/*---------------------------------------------------------------------------------------------',
+			' *  Copyright (c) Microsoft Corporation. All rights reserved.',
+			' *  Licensed under the MIT License. See License.txt in the project root for license information.',
+			' *--------------------------------------------------------------------------------------------*/',
+			'// Do not edit this file. It is machine generated.'
+		].join('\n') +
+		'\n' +
+		JSON.stringify(messages, null, '\t').replace(/\r\n/g, '\n');
 
 	return new File({
 		path: path.join(base, originalFilePath + '.i18n.json'),
@@ -1009,41 +1252,49 @@ function createI18nFile(base: string, originalFilePath: string, messages: Map<st
 	});
 }
 
-
 const languageNames: Map<string> = {
-	'chs': 'Simplified Chinese',
-	'cht': 'Traditional Chinese',
-	'kor': 'Korean'
+	chs: 'Simplified Chinese',
+	cht: 'Traditional Chinese',
+	kor: 'Korean'
 };
 
 const languageIds: Map<string> = {
-	'chs': '$0804',
-	'cht': '$0404',
-	'kor': '$0412'
+	chs: '$0804',
+	cht: '$0404',
+	kor: '$0412'
 };
 
 const encodings: Map<string> = {
-	'chs': 'CP936',
-	'cht': 'CP950',
-	'jpn': 'CP932',
-	'kor': 'CP949',
-	'deu': 'CP1252',
-	'fra': 'CP1252',
-	'esn': 'CP1252',
-	'rus': 'CP1251',
-	'ita': 'CP1252',
-    'ptb': 'CP1252',
-	'hun': 'CP1250',
-	'trk': 'CP1254'
+	chs: 'CP936',
+	cht: 'CP950',
+	jpn: 'CP932',
+	kor: 'CP949',
+	deu: 'CP1252',
+	fra: 'CP1252',
+	esn: 'CP1252',
+	rus: 'CP1251',
+	ita: 'CP1252',
+	ptb: 'CP1252',
+	hun: 'CP1250',
+	trk: 'CP1254'
 };
 
-function createIslFile(base: string, originalFilePath: string, messages: Map<string>, language: string): File {
+function createIslFile(
+	base: string,
+	originalFilePath: string,
+	messages: Map<string>,
+	language: string
+): File {
 	let content: string[] = [];
 	let originalContent: TextModel;
 	if (path.basename(originalFilePath) === 'Default') {
-		originalContent = new TextModel(fs.readFileSync(originalFilePath + '.isl', 'utf8'));
+		originalContent = new TextModel(
+			fs.readFileSync(originalFilePath + '.isl', 'utf8')
+		);
 	} else {
-		originalContent = new TextModel(fs.readFileSync(originalFilePath + '.en.isl', 'utf8'));
+		originalContent = new TextModel(
+			fs.readFileSync(originalFilePath + '.en.isl', 'utf8')
+		);
 	}
 
 	originalContent.lines.forEach(line => {
@@ -1051,7 +1302,11 @@ function createIslFile(base: string, originalFilePath: string, messages: Map<str
 			let firstChar = line.charAt(0);
 			if (firstChar === '[' || firstChar === ';') {
 				if (line === '; *** Inno Setup version 5.5.3+ English messages ***') {
-					content.push(`; *** Inno Setup version 5.5.3+ ${languageNames[language]} messages ***`);
+					content.push(
+						`; *** Inno Setup version 5.5.3+ ${languageNames[
+							language
+						]} messages ***`
+					);
 				} else {
 					content.push(line);
 				}
@@ -1081,11 +1336,18 @@ function createIslFile(base: string, originalFilePath: string, messages: Map<str
 
 	const tag = iso639_3_to_2[language];
 	const basename = path.basename(originalFilePath);
-	const filePath = `${path.join(base, path.dirname(originalFilePath), basename)}.${tag}.isl`;
+	const filePath = `${path.join(
+		base,
+		path.dirname(originalFilePath),
+		basename
+	)}.${tag}.isl`;
 
 	return new File({
 		path: filePath,
-		contents: iconv.encode(new Buffer(content.join('\r\n'), 'utf8'), encodings[language])
+		contents: iconv.encode(
+			new Buffer(content.join('\r\n'), 'utf8'),
+			encodings[language]
+		)
 	});
 }
 
@@ -1111,5 +1373,8 @@ function encodeEntities(value: string): string {
 }
 
 function decodeEntities(value: string): string {
-	return value.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+	return value
+		.replace(/&lt;/g, '<')
+		.replace(/&gt;/g, '>')
+		.replace(/&amp;/g, '&');
 }

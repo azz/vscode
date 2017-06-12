@@ -21,9 +21,8 @@ import URI from 'vs/base/common/uri';
 const dialog = remote.dialog;
 
 export class OpenExtensionsFolderAction extends Action {
-
 	static ID = 'workbench.extensions.action.openExtensionsFolder';
-	static LABEL = localize('openExtensionsFolder', "Open Extensions Folder");
+	static LABEL = localize('openExtensionsFolder', 'Open Extensions Folder');
 
 	constructor(
 		id: string,
@@ -56,14 +55,14 @@ export class OpenExtensionsFolderAction extends Action {
 }
 
 export class InstallVSIXAction extends Action {
-
 	static ID = 'workbench.extensions.action.installVSIX';
-	static LABEL = localize('installVSIX', "Install from VSIX...");
+	static LABEL = localize('installVSIX', 'Install from VSIX...');
 
 	constructor(
 		id = InstallVSIXAction.ID,
 		label = InstallVSIXAction.LABEL,
-		@IExtensionsWorkbenchService private extensionsWorkbenchService: IExtensionsWorkbenchService,
+		@IExtensionsWorkbenchService
+		private extensionsWorkbenchService: IExtensionsWorkbenchService,
 		@IMessageService private messageService: IMessageService,
 		@IInstantiationService private instantiationService: IInstantiationService
 	) {
@@ -80,14 +79,22 @@ export class InstallVSIXAction extends Action {
 			return TPromise.as(null);
 		}
 
-		return TPromise.join(result.map(vsix => this.extensionsWorkbenchService.install(vsix))).then(() => {
-			this.messageService.show(
-				severity.Info,
-				{
-					message: localize('InstallVSIXAction.success', "Successfully installed the extension. Restart to enable it."),
-					actions: [this.instantiationService.createInstance(ReloadWindowAction, ReloadWindowAction.ID, localize('InstallVSIXAction.reloadNow', "Reload Now"))]
-				}
-			);
+		return TPromise.join(
+			result.map(vsix => this.extensionsWorkbenchService.install(vsix))
+		).then(() => {
+			this.messageService.show(severity.Info, {
+				message: localize(
+					'InstallVSIXAction.success',
+					'Successfully installed the extension. Restart to enable it.'
+				),
+				actions: [
+					this.instantiationService.createInstance(
+						ReloadWindowAction,
+						ReloadWindowAction.ID,
+						localize('InstallVSIXAction.reloadNow', 'Reload Now')
+					)
+				]
+			});
 		});
 	}
 }

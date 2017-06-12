@@ -3,10 +3,16 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
-import { IChannel, eventToCall, eventFromCall, Serializer, Deserializer } from 'vs/base/parts/ipc/common/ipc';
+import {
+	IChannel,
+	eventToCall,
+	eventFromCall,
+	Serializer,
+	Deserializer
+} from 'vs/base/parts/ipc/common/ipc';
 import { IURLService } from './url';
 import Event, { filterEvent } from 'vs/base/common/event';
 import { IWindowsService } from 'vs/platform/windows/common/windows';
@@ -21,19 +27,22 @@ export interface IURLChannel extends IChannel {
 }
 
 export class URLChannel implements IURLChannel {
-
 	private focusedWindowId: number;
 
 	constructor(
 		private service: IURLService,
 		@IWindowsService windowsService: IWindowsService
 	) {
-		windowsService.onWindowFocus(id => this.focusedWindowId = id);
+		windowsService.onWindowFocus(id => (this.focusedWindowId = id));
 	}
 
 	call(command: string, arg?: any): TPromise<any> {
 		switch (command) {
-			case 'event:onOpenURL': return eventToCall(filterEvent(this.service.onOpenURL, () => this.isWindowFocused(arg)), URISerializer);
+			case 'event:onOpenURL':
+				return eventToCall(
+					filterEvent(this.service.onOpenURL, () => this.isWindowFocused(arg)),
+					URISerializer
+				);
 		}
 		return undefined;
 	}
@@ -52,13 +61,19 @@ export class URLChannel implements IURLChannel {
 }
 
 export class URLChannelClient implements IURLService {
-
 	_serviceBrand: any;
 
-	constructor(private channel: IChannel, private windowID: number) { }
+	constructor(private channel: IChannel, private windowID: number) {}
 
-	private _onOpenURL = eventFromCall<URI>(this.channel, 'event:onOpenURL', this.windowID, URIDeserializer);
-	get onOpenURL(): Event<URI> { return this._onOpenURL; }
+	private _onOpenURL = eventFromCall<URI>(
+		this.channel,
+		'event:onOpenURL',
+		this.windowID,
+		URIDeserializer
+	);
+	get onOpenURL(): Event<URI> {
+		return this._onOpenURL;
+	}
 
 	open(url: string): void {
 		return; // not implemented

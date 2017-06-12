@@ -2,16 +2,20 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
-import { ITimerService, IStartupMetrics, IInitData, IMemoryInfo } from 'vs/workbench/services/timer/common/timerService';
+import {
+	ITimerService,
+	IStartupMetrics,
+	IInitData,
+	IMemoryInfo
+} from 'vs/workbench/services/timer/common/timerService';
 import { virtualMachineHint } from 'vs/base/node/id';
 import { ticks } from 'vs/base/node/startupTimers';
 
 import * as os from 'os';
 
 export class TimerService implements ITimerService {
-
 	public _serviceBrand: any;
 
 	public readonly start: number;
@@ -35,7 +39,6 @@ export class TimerService implements ITimerService {
 
 	public restoreViewletDuration: number;
 	public restoreEditorsDuration: number;
-
 
 	private _startupMetrics: IStartupMetrics;
 
@@ -65,7 +68,7 @@ export class TimerService implements ITimerService {
 
 		let totalmem: number;
 		let freemem: number;
-		let cpus: { count: number; speed: number; model: string; };
+		let cpus: { count: number; speed: number; model: string };
 		let platform: string;
 		let release: string;
 		let loadavg: number[];
@@ -80,11 +83,15 @@ export class TimerService implements ITimerService {
 			loadavg = os.loadavg();
 			meminfo = process.getProcessMemoryInfo();
 
-			isVMLikelyhood = Math.round((virtualMachineHint.value() * 100));
+			isVMLikelyhood = Math.round(virtualMachineHint.value() * 100);
 
 			const rawCpus = os.cpus();
 			if (rawCpus && rawCpus.length > 0) {
-				cpus = { count: rawCpus.length, speed: rawCpus[0].speed, model: rawCpus[0].model };
+				cpus = {
+					count: rawCpus.length,
+					speed: rawCpus[0].speed,
+					model: rawCpus[0].model
+				};
 			}
 		} catch (error) {
 			console.error(error); // be on the safe side with these hardware method calls
@@ -102,11 +109,13 @@ export class TimerService implements ITimerService {
 			timers: {
 				ellapsedExtensions: this.afterExtensionLoad - this.beforeExtensionLoad,
 				ellapsedExtensionsReady: this.afterExtensionLoad - start,
-				ellapsedRequire: this.afterLoadWorkbenchMain - this.beforeLoadWorkbenchMain,
+				ellapsedRequire:
+					this.afterLoadWorkbenchMain - this.beforeLoadWorkbenchMain,
 				ellapsedViewletRestore: this.restoreViewletDuration,
 				ellapsedEditorRestore: this.restoreEditorsDuration,
 				ellapsedWorkbench: this.workbenchStarted - this.beforeWorkbenchOpen,
-				ellapsedWindowLoadToRequire: this.beforeLoadWorkbenchMain - this.windowLoad,
+				ellapsedWindowLoadToRequire:
+					this.beforeLoadWorkbenchMain - this.windowLoad,
 				ellapsedTimersToTimersComputed: Date.now() - now
 			},
 			timers2,
@@ -125,7 +134,8 @@ export class TimerService implements ITimerService {
 
 		if (initialStartup) {
 			this._startupMetrics.timers.ellapsedAppReady = this.appReady - this.start;
-			this._startupMetrics.timers.ellapsedWindowLoad = this.windowLoad - this.appReady;
+			this._startupMetrics.timers.ellapsedWindowLoad =
+				this.windowLoad - this.appReady;
 		}
 	}
 }

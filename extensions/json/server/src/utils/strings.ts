@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 export function startsWith(haystack: string, needle: string): boolean {
 	if (haystack.length < needle.length) {
@@ -33,5 +33,7 @@ export function endsWith(haystack: string, needle: string): boolean {
 }
 
 export function convertSimple2RegExpPattern(pattern: string): string {
-	return pattern.replace(/[\-\\\{\}\+\?\|\^\$\.\,\[\]\(\)\#\s]/g, '\\$&').replace(/[\*]/g, '.*');
+	return pattern
+		.replace(/[\-\\\{\}\+\?\|\^\$\.\,\[\]\(\)\#\s]/g, '\\$&')
+		.replace(/[\*]/g, '.*');
 }

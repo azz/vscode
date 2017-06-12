@@ -2,26 +2,43 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as path from 'path';
 
-import { languages, window, commands, workspace, ExtensionContext } from 'vscode';
-import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind, RequestType, Range, TextEdit } from 'vscode-languageclient';
+import {
+	languages,
+	window,
+	commands,
+	workspace,
+	ExtensionContext
+} from 'vscode';
+import {
+	LanguageClient,
+	LanguageClientOptions,
+	ServerOptions,
+	TransportKind,
+	RequestType,
+	Range,
+	TextEdit
+} from 'vscode-languageclient';
 import { activateColorDecorations } from './colorDecorators';
 
 import * as nls from 'vscode-nls';
 let localize = nls.loadMessageBundle();
 
 namespace ColorSymbolRequest {
-	export const type: RequestType<string, Range[], any, any> = new RequestType('css/colorSymbols');
+	export const type: RequestType<string, Range[], any, any> = new RequestType(
+		'css/colorSymbols'
+	);
 }
 
 // this method is called when vs code is activated
 export function activate(context: ExtensionContext) {
-
 	// The server is implemented in node
-	let serverModule = context.asAbsolutePath(path.join('server', 'out', 'cssServerMain.js'));
+	let serverModule = context.asAbsolutePath(
+		path.join('server', 'out', 'cssServerMain.js')
+	);
 	// The debug options for the server
 	let debugOptions = { execArgv: ['--nolazy', '--debug=6004'] };
 
@@ -29,7 +46,11 @@ export function activate(context: ExtensionContext) {
 	// Otherwise the run options are used
 	let serverOptions: ServerOptions = {
 		run: { module: serverModule, transport: TransportKind.ipc },
-		debug: { module: serverModule, transport: TransportKind.ipc, options: debugOptions }
+		debug: {
+			module: serverModule,
+			transport: TransportKind.ipc,
+			options: debugOptions
+		}
 	};
 
 	// Options to control the language client
@@ -38,12 +59,16 @@ export function activate(context: ExtensionContext) {
 		synchronize: {
 			configurationSection: ['css', 'scss', 'less']
 		},
-		initializationOptions: {
-		}
+		initializationOptions: {}
 	};
 
 	// Create the language client and start the client.
-	let client = new LanguageClient('css', localize('cssserver.name', 'CSS Language Server'), serverOptions, clientOptions);
+	let client = new LanguageClient(
+		'css',
+		localize('cssserver.name', 'CSS Language Server'),
+		serverOptions,
+		clientOptions
+	);
 
 	let disposable = client.start();
 	// Push the disposable to the context's subscriptions so that the
@@ -52,12 +77,20 @@ export function activate(context: ExtensionContext) {
 
 	client.onReady().then(_ => {
 		let colorRequestor = (uri: string) => {
-			return client.sendRequest(ColorSymbolRequest.type, uri).then(ranges => ranges.map(client.protocol2CodeConverter.asRange));
+			return client
+				.sendRequest(ColorSymbolRequest.type, uri)
+				.then(ranges => ranges.map(client.protocol2CodeConverter.asRange));
 		};
 		let isDecoratorEnabled = (languageId: string) => {
-			return workspace.getConfiguration().get<boolean>(languageId + '.colorDecorators.enable');
+			return workspace
+				.getConfiguration()
+				.get<boolean>(languageId + '.colorDecorators.enable');
 		};
-		disposable = activateColorDecorations(colorRequestor, { css: true, scss: true, less: true }, isDecoratorEnabled);
+		disposable = activateColorDecorations(
+			colorRequestor,
+			{ css: true, scss: true, less: true },
+			isDecoratorEnabled
+		);
 		context.subscriptions.push(disposable);
 	});
 
@@ -75,22 +108,34 @@ export function activate(context: ExtensionContext) {
 
 	commands.registerCommand('_css.applyCodeAction', applyCodeAction);
 
-	function applyCodeAction(uri: string, documentVersion: number, edits: TextEdit[]) {
+	function applyCodeAction(
+		uri: string,
+		documentVersion: number,
+		edits: TextEdit[]
+	) {
 		let textEditor = window.activeTextEditor;
 		if (textEditor && textEditor.document.uri.toString() === uri) {
 			if (textEditor.document.version !== documentVersion) {
-				window.showInformationMessage(`CSS fix is outdated and can't be applied to the document.`);
+				window.showInformationMessage(
+					`CSS fix is outdated and can't be applied to the document.`
+				);
 			}
-			textEditor.edit(mutator => {
-				for (let edit of edits) {
-					mutator.replace(client.protocol2CodeConverter.asRange(edit.range), edit.newText);
-				}
-			}).then(success => {
-				if (!success) {
-					window.showErrorMessage('Failed to apply CSS fix to the document. Please consider opening an issue with steps to reproduce.');
-				}
-			});
+			textEditor
+				.edit(mutator => {
+					for (let edit of edits) {
+						mutator.replace(
+							client.protocol2CodeConverter.asRange(edit.range),
+							edit.newText
+						);
+					}
+				})
+				.then(success => {
+					if (!success) {
+						window.showErrorMessage(
+							'Failed to apply CSS fix to the document. Please consider opening an issue with steps to reproduce.'
+						);
+					}
+				});
 		}
 	}
 }
-

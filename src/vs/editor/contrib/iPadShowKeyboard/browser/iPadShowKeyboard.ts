@@ -3,19 +3,23 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./iPadShowKeyboard';
 import { IDisposable, dispose } from 'vs/base/common/lifecycle';
 import * as browser from 'vs/base/browser/browser';
 import * as dom from 'vs/base/browser/dom';
 import { IEditorContribution } from 'vs/editor/common/editorCommon';
-import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition, OverlayWidgetPositionPreference } from 'vs/editor/browser/editorBrowser';
+import {
+	ICodeEditor,
+	IOverlayWidget,
+	IOverlayWidgetPosition,
+	OverlayWidgetPositionPreference
+} from 'vs/editor/browser/editorBrowser';
 import { editorContribution } from 'vs/editor/browser/editorBrowserExtensions';
 
 @editorContribution
 export class IPadShowKeyboard implements IEditorContribution {
-
 	private static ID = 'editor.contrib.iPadShowKeyboard';
 
 	private editor: ICodeEditor;
@@ -32,18 +36,14 @@ export class IPadShowKeyboard implements IEditorContribution {
 	}
 
 	private update(): void {
-		var hasWidget = (!!this.widget);
-		var shouldHaveWidget = (!this.editor.getConfiguration().readOnly);
+		var hasWidget = !!this.widget;
+		var shouldHaveWidget = !this.editor.getConfiguration().readOnly;
 
 		if (!hasWidget && shouldHaveWidget) {
-
 			this.widget = new ShowKeyboardWidget(this.editor);
-
 		} else if (hasWidget && !shouldHaveWidget) {
-
 			this.widget.dispose();
 			this.widget = null;
-
 		}
 	}
 
@@ -61,7 +61,6 @@ export class IPadShowKeyboard implements IEditorContribution {
 }
 
 class ShowKeyboardWidget implements IOverlayWidget {
-
 	private static ID = 'editor.contrib.ShowKeyboardWidget';
 
 	private editor: ICodeEditor;
@@ -75,12 +74,16 @@ class ShowKeyboardWidget implements IOverlayWidget {
 		this._domNode.className = 'iPadShowKeyboard';
 
 		this._toDispose = [];
-		this._toDispose.push(dom.addDisposableListener(this._domNode, 'touchstart', (e) => {
-			this.editor.focus();
-		}));
-		this._toDispose.push(dom.addDisposableListener(this._domNode, 'focus', (e) => {
-			this.editor.focus();
-		}));
+		this._toDispose.push(
+			dom.addDisposableListener(this._domNode, 'touchstart', e => {
+				this.editor.focus();
+			})
+		);
+		this._toDispose.push(
+			dom.addDisposableListener(this._domNode, 'focus', e => {
+				this.editor.focus();
+			})
+		);
 
 		this.editor.addOverlayWidget(this);
 	}

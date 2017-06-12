@@ -2,24 +2,31 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as nls from 'vs/nls';
 import { KeyCode, KeyMod } from 'vs/base/common/keyCodes';
 import { ICommonCodeEditor } from 'vs/editor/common/editorCommon';
 import { EditorContextKeys } from 'vs/editor/common/editorContextKeys';
-import { editorAction, ServicesAccessor, EditorAction } from 'vs/editor/common/editorCommonExtensions';
+import {
+	editorAction,
+	ServicesAccessor,
+	EditorAction
+} from 'vs/editor/common/editorCommonExtensions';
 import { Selection } from 'vs/editor/common/core/selection';
 import { CursorChangeReason } from 'vs/editor/common/controller/cursorEvents';
 import { CursorMoveCommands } from 'vs/editor/common/controller/cursorMoveCommands';
-import { CursorState, RevealTarget } from 'vs/editor/common/controller/cursorCommon';
+import {
+	CursorState,
+	RevealTarget
+} from 'vs/editor/common/controller/cursorCommon';
 
 @editorAction
 export class InsertCursorAbove extends EditorAction {
 	constructor() {
 		super({
 			id: 'editor.action.insertCursorAbove',
-			label: nls.localize('mutlicursor.insertAbove', "Add Cursor Above"),
+			label: nls.localize('mutlicursor.insertAbove', 'Add Cursor Above'),
 			alias: 'Add Cursor Above',
 			precondition: null,
 			kbOpts: {
@@ -33,7 +40,11 @@ export class InsertCursorAbove extends EditorAction {
 		});
 	}
 
-	public run(accessor: ServicesAccessor, editor: ICommonCodeEditor, args: any): void {
+	public run(
+		accessor: ServicesAccessor,
+		editor: ICommonCodeEditor,
+		args: any
+	): void {
 		const cursors = editor._getCursors();
 		const context = cursors.context;
 
@@ -59,7 +70,7 @@ export class InsertCursorBelow extends EditorAction {
 	constructor() {
 		super({
 			id: 'editor.action.insertCursorBelow',
-			label: nls.localize('mutlicursor.insertBelow', "Add Cursor Below"),
+			label: nls.localize('mutlicursor.insertBelow', 'Add Cursor Below'),
 			alias: 'Add Cursor Below',
 			precondition: null,
 			kbOpts: {
@@ -73,7 +84,11 @@ export class InsertCursorBelow extends EditorAction {
 		});
 	}
 
-	public run(accessor: ServicesAccessor, editor: ICommonCodeEditor, args: any): void {
+	public run(
+		accessor: ServicesAccessor,
+		editor: ICommonCodeEditor,
+		args: any
+	): void {
 		const cursors = editor._getCursors();
 		const context = cursors.context;
 
@@ -96,11 +111,13 @@ export class InsertCursorBelow extends EditorAction {
 
 @editorAction
 class InsertCursorAtEndOfEachLineSelected extends EditorAction {
-
 	constructor() {
 		super({
 			id: 'editor.action.insertCursorAtEndOfEachLineSelected',
-			label: nls.localize('mutlicursor.insertAtEndOfEachLineSelected', "Add Cursors to Line Ends"),
+			label: nls.localize(
+				'mutlicursor.insertAtEndOfEachLineSelected',
+				'Add Cursors to Line Ends'
+			),
 			alias: 'Add Cursors to Line Ends',
 			precondition: null,
 			kbOpts: {
@@ -110,7 +127,10 @@ class InsertCursorAtEndOfEachLineSelected extends EditorAction {
 		});
 	}
 
-	private getCursorsForSelection(selection: Selection, editor: ICommonCodeEditor): Selection[] {
+	private getCursorsForSelection(
+		selection: Selection,
+		editor: ICommonCodeEditor
+	): Selection[] {
 		if (selection.isEmpty()) {
 			return [];
 		}
@@ -119,10 +139,19 @@ class InsertCursorAtEndOfEachLineSelected extends EditorAction {
 		let newSelections: Selection[] = [];
 		for (let i = selection.startLineNumber; i < selection.endLineNumber; i++) {
 			let currentLineMaxColumn = model.getLineMaxColumn(i);
-			newSelections.push(new Selection(i, currentLineMaxColumn, i, currentLineMaxColumn));
+			newSelections.push(
+				new Selection(i, currentLineMaxColumn, i, currentLineMaxColumn)
+			);
 		}
 		if (selection.endColumn > 1) {
-			newSelections.push(new Selection(selection.endLineNumber, selection.endColumn, selection.endLineNumber, selection.endColumn));
+			newSelections.push(
+				new Selection(
+					selection.endLineNumber,
+					selection.endColumn,
+					selection.endLineNumber,
+					selection.endColumn
+				)
+			);
 		}
 
 		return newSelections;
@@ -131,8 +160,10 @@ class InsertCursorAtEndOfEachLineSelected extends EditorAction {
 	public run(accessor: ServicesAccessor, editor: ICommonCodeEditor): void {
 		let selections = editor.getSelections();
 		let newSelections = selections
-			.map((selection) => this.getCursorsForSelection(selection, editor))
-			.reduce((prev, curr) => { return prev.concat(curr); });
+			.map(selection => this.getCursorsForSelection(selection, editor))
+			.reduce((prev, curr) => {
+				return prev.concat(curr);
+			});
 
 		if (newSelections.length > 0) {
 			editor.setSelections(newSelections);

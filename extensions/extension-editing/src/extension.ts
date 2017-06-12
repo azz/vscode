@@ -3,14 +3,17 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as vscode from 'vscode';
 import * as ts from 'typescript';
 import { PackageDocument } from './packageDocumentHelper';
 
 export function activate(context: vscode.ExtensionContext) {
-	const registration = vscode.languages.registerDocumentLinkProvider({ language: 'typescript', pattern: '**/vscode.d.ts' }, _linkProvider);
+	const registration = vscode.languages.registerDocumentLinkProvider(
+		{ language: 'typescript', pattern: '**/vscode.d.ts' },
+		_linkProvider
+	);
 	context.subscriptions.push(registration);
 
 	//package.json suggestions
@@ -18,11 +21,13 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 const _linkProvider = new class implements vscode.DocumentLinkProvider {
-
 	private _cachedResult: { version: number; links: vscode.DocumentLink[] };
 	private _linkPattern = /[^!]\[.*?\]\(#(.*?)\)/g;
 
-	provideDocumentLinks(document: vscode.TextDocument, token: vscode.CancellationToken): vscode.DocumentLink[] {
+	provideDocumentLinks(
+		document: vscode.TextDocument,
+		token: vscode.CancellationToken
+	): vscode.DocumentLink[] {
 		const { version } = document;
 		if (!this._cachedResult || this._cachedResult.version !== version) {
 			const links = this._computeDocumentLinks(document);
@@ -31,8 +36,9 @@ const _linkProvider = new class implements vscode.DocumentLinkProvider {
 		return this._cachedResult.links;
 	}
 
-	private _computeDocumentLinks(document: vscode.TextDocument): vscode.DocumentLink[] {
-
+	private _computeDocumentLinks(
+		document: vscode.TextDocument
+	): vscode.DocumentLink[] {
 		const results: vscode.DocumentLink[] = [];
 		const text = document.getText();
 		const lookUp = ast.createNamedNodeLookUp(text);
@@ -40,7 +46,6 @@ const _linkProvider = new class implements vscode.DocumentLinkProvider {
 		this._linkPattern.lastIndex = 0;
 		let match: RegExpMatchArray;
 		while ((match = this._linkPattern.exec(text))) {
-
 			const offset = lookUp(match[1]);
 			if (offset === -1) {
 				console.warn(match[1]);
@@ -49,26 +54,33 @@ const _linkProvider = new class implements vscode.DocumentLinkProvider {
 
 			const targetPos = document.positionAt(offset);
 			const linkEnd = document.positionAt(this._linkPattern.lastIndex - 1);
-			const linkStart = linkEnd.translate({ characterDelta: -(1 + match[1].length) });
+			const linkStart = linkEnd.translate({
+				characterDelta: -(1 + match[1].length)
+			});
 
-			results.push(new vscode.DocumentLink(
-				new vscode.Range(linkStart, linkEnd),
-				document.uri.with({ fragment: `${1 + targetPos.line}` })));
+			results.push(
+				new vscode.DocumentLink(
+					new vscode.Range(linkStart, linkEnd),
+					document.uri.with({ fragment: `${1 + targetPos.line}` })
+				)
+			);
 		}
 
 		return results;
 	}
-};
+}();
 
 namespace ast {
-
 	export interface NamedNodeLookUp {
 		(dottedName: string): number;
 	}
 
 	export function createNamedNodeLookUp(str: string): NamedNodeLookUp {
-
-		const sourceFile = ts.createSourceFile('fake.d.ts', str, ts.ScriptTarget.Latest);
+		const sourceFile = ts.createSourceFile(
+			'fake.d.ts',
+			str,
+			ts.ScriptTarget.Latest
+		);
 
 		const identifiers: string[] = [];
 		const spans: number[] = [];
@@ -82,7 +94,7 @@ namespace ast {
 			ts.forEachChild(node, visit);
 		});
 
-		return function (dottedName: string): number {
+		return function(dottedName: string): number {
 			let start = -1;
 			let end = Number.MAX_VALUE;
 
@@ -107,9 +119,15 @@ namespace ast {
 }
 
 function registerPackageDocumentCompletions(): vscode.Disposable {
-	return vscode.languages.registerCompletionItemProvider({ language: 'json', pattern: '**/package.json' }, {
-		provideCompletionItems(document, position, token) {
-			return new PackageDocument(document).provideCompletionItems(position, token);
+	return vscode.languages.registerCompletionItemProvider(
+		{ language: 'json', pattern: '**/package.json' },
+		{
+			provideCompletionItems(document, position, token) {
+				return new PackageDocument(document).provideCompletionItems(
+					position,
+					token
+				);
+			}
 		}
-	});
+	);
 }

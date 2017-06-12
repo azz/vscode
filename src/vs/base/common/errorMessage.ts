@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import nls = require('vs/nls');
 import objects = require('vs/base/common/objects');
@@ -66,7 +66,10 @@ export class ConnectionError implements Error {
 		return this.connectionErrorToMessage(this, true);
 	}
 
-	private connectionErrorDetailsToMessage(error: ConnectionError, verbose: boolean): string {
+	private connectionErrorDetailsToMessage(
+		error: ConnectionError,
+		verbose: boolean
+	): string {
 		let errorCode = error.errorCode;
 		let errorMessage = error.errorMessage;
 
@@ -79,8 +82,10 @@ export class ConnectionError implements Error {
 						'{1} represents the error code'
 					]
 				},
-				"{0}. Error code: {1}",
-				strings.rtrim(errorMessage, '.'), errorCode);
+				'{0}. Error code: {1}',
+				strings.rtrim(errorMessage, '.'),
+				errorCode
+			);
 		}
 
 		if (errorMessage !== null) {
@@ -94,7 +99,10 @@ export class ConnectionError implements Error {
 		return null;
 	}
 
-	private connectionErrorToMessage(error: ConnectionError, verbose: boolean): string {
+	private connectionErrorToMessage(
+		error: ConnectionError,
+		verbose: boolean
+	): string {
 		let details = this.connectionErrorDetailsToMessage(error, verbose);
 
 		// Status Code based Error
@@ -107,11 +115,12 @@ export class ConnectionError implements Error {
 							'{0} represents detailed information why the permission got denied'
 						]
 					},
-					"Permission Denied (HTTP {0})",
-					details);
+					'Permission Denied (HTTP {0})',
+					details
+				);
 			}
 
-			return nls.localize('error.permission', "Permission Denied");
+			return nls.localize('error.permission', 'Permission Denied');
 		}
 
 		// Return error details if present
@@ -121,26 +130,55 @@ export class ConnectionError implements Error {
 
 		// Fallback to HTTP Status and Code
 		if (error.status > 0 && error.statusText !== null) {
-			if (verbose && error.responseText !== null && error.responseText.length > 0) {
-				return nls.localize('error.http.verbose', "{0} (HTTP {1}: {2})", error.statusText, error.status, error.responseText);
+			if (
+				verbose &&
+				error.responseText !== null &&
+				error.responseText.length > 0
+			) {
+				return nls.localize(
+					'error.http.verbose',
+					'{0} (HTTP {1}: {2})',
+					error.statusText,
+					error.status,
+					error.responseText
+				);
 			}
 
-			return nls.localize('error.http', "{0} (HTTP {1})", error.statusText, error.status);
+			return nls.localize(
+				'error.http',
+				'{0} (HTTP {1})',
+				error.statusText,
+				error.status
+			);
 		}
 
 		// Finally its an Unknown Connection Error
-		if (verbose && error.responseText !== null && error.responseText.length > 0) {
-			return nls.localize('error.connection.unknown.verbose', "Unknown Connection Error ({0})", error.responseText);
+		if (
+			verbose &&
+			error.responseText !== null &&
+			error.responseText.length > 0
+		) {
+			return nls.localize(
+				'error.connection.unknown.verbose',
+				'Unknown Connection Error ({0})',
+				error.responseText
+			);
 		}
 
-		return nls.localize('error.connection.unknown', "An unknown connection error occurred. Either you are no longer connected to the internet or the server you are connected to is offline.");
+		return nls.localize(
+			'error.connection.unknown',
+			'An unknown connection error occurred. Either you are no longer connected to the internet or the server you are connected to is offline.'
+		);
 	}
 }
 
 // Bug: Can not subclass a JS Type. Do it manually (as done in WinJS.Class.derive)
 objects.derive(Error, ConnectionError);
 
-function xhrToErrorMessage(xhr: IConnectionErrorData, verbose: boolean): string {
+function xhrToErrorMessage(
+	xhr: IConnectionErrorData,
+	verbose: boolean
+): string {
 	let ce = new ConnectionError(xhr);
 	if (verbose) {
 		return ce.verboseMessage;
@@ -152,20 +190,35 @@ function xhrToErrorMessage(xhr: IConnectionErrorData, verbose: boolean): string 
 function exceptionToErrorMessage(exception: any, verbose: boolean): string {
 	if (exception.message) {
 		if (verbose && (exception.stack || exception.stacktrace)) {
-			return nls.localize('stackTrace.format', "{0}: {1}", detectSystemErrorMessage(exception), exception.stack || exception.stacktrace);
+			return nls.localize(
+				'stackTrace.format',
+				'{0}: {1}',
+				detectSystemErrorMessage(exception),
+				exception.stack || exception.stacktrace
+			);
 		}
 
 		return detectSystemErrorMessage(exception);
 	}
 
-	return nls.localize('error.defaultMessage', "An unknown error occurred. Please consult the log for more details.");
+	return nls.localize(
+		'error.defaultMessage',
+		'An unknown error occurred. Please consult the log for more details.'
+	);
 }
 
 function detectSystemErrorMessage(exception: any): string {
-
 	// See https://nodejs.org/api/errors.html#errors_class_system_error
-	if (typeof exception.code === 'string' && typeof exception.errno === 'number' && typeof exception.syscall === 'string') {
-		return nls.localize('nodeExceptionMessage', "A system error occured ({0})", exception.message);
+	if (
+		typeof exception.code === 'string' &&
+		typeof exception.errno === 'number' &&
+		typeof exception.syscall === 'string'
+	) {
+		return nls.localize(
+			'nodeExceptionMessage',
+			'A system error occured ({0})',
+			exception.message
+		);
 	}
 
 	return exception.message;
@@ -176,9 +229,15 @@ function detectSystemErrorMessage(exception: any): string {
  * is set to true, the error message will include stacktrace details if provided.
  * @returns A string containing the error message.
  */
-export function toErrorMessage(error: any = null, verbose: boolean = false): string {
+export function toErrorMessage(
+	error: any = null,
+	verbose: boolean = false
+): string {
 	if (!error) {
-		return nls.localize('error.defaultMessage', "An unknown error occurred. Please consult the log for more details.");
+		return nls.localize(
+			'error.defaultMessage',
+			'An unknown error occurred. Please consult the log for more details.'
+		);
 	}
 
 	if (Array.isArray(error)) {
@@ -186,7 +245,12 @@ export function toErrorMessage(error: any = null, verbose: boolean = false): str
 		let msg = toErrorMessage(errors[0], verbose);
 
 		if (errors.length > 1) {
-			return nls.localize('error.moreErrors', "{0} ({1} errors in total)", msg, errors.length);
+			return nls.localize(
+				'error.moreErrors',
+				'{0} ({1} errors in total)',
+				msg,
+				errors.length
+			);
 		}
 
 		return msg;
@@ -210,13 +274,14 @@ export function toErrorMessage(error: any = null, verbose: boolean = false): str
 
 			if (types.isArray(detail.error)) {
 				for (let i = 0; i < detail.error.length; i++) {
-					if (detail.error[i] && !types.isUndefinedOrNull(detail.error[i].status)) {
+					if (
+						detail.error[i] &&
+						!types.isUndefinedOrNull(detail.error[i].status)
+					) {
 						return xhrToErrorMessage(detail.error[i], verbose);
 					}
 				}
-			}
-
-			else {
+			} else {
 				return exceptionToErrorMessage(detail.error, verbose);
 			}
 		}
@@ -238,5 +303,8 @@ export function toErrorMessage(error: any = null, verbose: boolean = false): str
 		return error.message;
 	}
 
-	return nls.localize('error.defaultMessage', "An unknown error occurred. Please consult the log for more details.");
+	return nls.localize(
+		'error.defaultMessage',
+		'An unknown error occurred. Please consult the log for more details.'
+	);
 }

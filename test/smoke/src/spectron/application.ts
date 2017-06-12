@@ -5,7 +5,7 @@
 
 import { Application } from 'spectron';
 import { SpectronClient } from './client';
-import { Screenshot } from "../helpers/screenshot";
+import { Screenshot } from '../helpers/screenshot';
 var fs = require('fs');
 var path = require('path');
 
@@ -29,7 +29,13 @@ export class SpectronApplication {
 	private readonly pollTrials = 5;
 	private readonly pollTimeout = 3; // in secs
 
-	constructor(electronPath: string, testName: string, private testRetry: number, args?: string[], chromeDriverArgs?: string[]) {
+	constructor(
+		electronPath: string,
+		testName: string,
+		private testRetry: number,
+		args?: string[],
+		chromeDriverArgs?: string[]
+	) {
 		if (!args) {
 			args = [];
 		}
@@ -85,7 +91,9 @@ export class SpectronApplication {
 	}
 
 	public wait(): Promise<any> {
-		return new Promise(resolve => setTimeout(resolve, this.testRetry * this.pollTimeout * 1000));
+		return new Promise(resolve =>
+			setTimeout(resolve, this.testRetry * this.pollTimeout * 1000)
+		);
 	}
 
 	public focusOnWindow(index: number): Promise<any> {
@@ -93,29 +101,45 @@ export class SpectronApplication {
 	}
 
 	private checkWindowReady(): Promise<any> {
-		return this.waitFor(this.spectron.client.getHTML, '[id="workbench.main.container"]');
+		return this.waitFor(
+			this.spectron.client.getHTML,
+			'[id="workbench.main.container"]'
+		);
 	}
 
 	private retrieveKeybindings() {
-		fs.readFile(path.join(process.cwd(), `test_data/keybindings.json`), 'utf8', (err, data) => {
-			if (err) {
-				throw err;
+		fs.readFile(
+			path.join(process.cwd(), `test_data/keybindings.json`),
+			'utf8',
+			(err, data) => {
+				if (err) {
+					throw err;
+				}
+				try {
+					this.keybindings = JSON.parse(data);
+				} catch (e) {
+					throw new Error(`Error parsing keybindings JSON: ${e}`);
+				}
 			}
-			try {
-				this.keybindings = JSON.parse(data);
-			} catch (e) {
-				throw new Error(`Error parsing keybindings JSON: ${e}`);
-			}
-		});
+		);
 	}
 
-	private callClientAPI(func: (...args: any[]) => Promise<any>, args: any, trial: number): Promise<any> {
+	private callClientAPI(
+		func: (...args: any[]) => Promise<any>,
+		args: any,
+		trial: number
+	): Promise<any> {
 		if (trial > this.pollTrials) {
-			return Promise.reject(`Could not retrieve the element in ${this.testRetry * this.pollTrials * this.pollTimeout} seconds.`);
+			return Promise.reject(
+				`Could not retrieve the element in ${this.testRetry *
+					this.pollTrials *
+					this.pollTimeout} seconds.`
+			);
 		}
 
 		return new Promise(async (res, rej) => {
-			let resolved = false, capture = false;
+			let resolved = false,
+				capture = false;
 
 			const tryCall = async (resolve: any, reject: any): Promise<any> => {
 				await this.wait();
@@ -125,7 +149,7 @@ export class SpectronApplication {
 				} catch (error) {
 					rej(error);
 				}
-			}
+			};
 
 			try {
 				const result = await func.call(this.client, args, capture);
@@ -156,9 +180,9 @@ export class SpectronApplication {
 		let keysToPress: string[] = [];
 
 		const chords = keys.split(' ');
-		chords.forEach((chord) => {
+		chords.forEach(chord => {
 			const keys = chord.split('+');
-			keys.forEach((key) => keysToPress.push(this.transliterate(key)));
+			keys.forEach(key => keysToPress.push(this.transliterate(key)));
 			keysToPress.push('NULL');
 		});
 
@@ -176,7 +200,9 @@ export class SpectronApplication {
 			case 'cmd':
 				return 'Meta';
 			default:
-				return key.length === 1 ? key : key.charAt(0).toUpperCase() + key.slice(1);
-		};
+				return key.length === 1
+					? key
+					: key.charAt(0).toUpperCase() + key.slice(1);
+		}
 	}
 }

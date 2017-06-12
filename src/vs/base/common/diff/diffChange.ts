@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 export const DifferenceType = {
 	Add: 0,
@@ -14,7 +14,6 @@ export const DifferenceType = {
  * Represents information about a specific difference between two sequences.
  */
 export class DiffChange {
-
 	/**
 	 * The position of the first element in the original sequence which
 	 * this change affects.
@@ -43,7 +42,12 @@ export class DiffChange {
 	 * Constructs a new DiffChange with the given sequence information
 	 * and content.
 	 */
-	constructor(originalStart: number, originalLength: number, modifiedStart: number, modifiedLength: number) {
+	constructor(
+		originalStart: number,
+		originalLength: number,
+		modifiedStart: number,
+		modifiedLength: number
+	) {
 		//Debug.Assert(originalLength > 0 || modifiedLength > 0, "originalLength and modifiedLength cannot both be <= 0");
 		this.originalStart = originalStart;
 		this.originalLength = originalLength;

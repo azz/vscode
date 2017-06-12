@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as nls from 'vs/nls';
 import { TPromise } from 'vs/base/common/winjs.base';
@@ -13,7 +13,11 @@ import { IExtensionDescription } from 'vs/platform/extensions/common/extensions'
 import * as TaskSystem from 'vs/workbench/parts/tasks/common/tasks';
 
 import { IThreadService } from 'vs/workbench/services/thread/common/threadService';
-import { MainContext, MainThreadTaskShape, ExtHostTaskShape } from 'vs/workbench/api/node/extHost.protocol';
+import {
+	MainContext,
+	MainThreadTaskShape,
+	ExtHostTaskShape
+} from 'vs/workbench/api/node/extHost.protocol';
 
 import * as types from 'vs/workbench/api/node/extHostTypes';
 import * as vscode from 'vscode';
@@ -208,7 +212,9 @@ namespace TaskRevealKind {
 }
 
 namespace TerminalBehaviour {
-	export function from(value: vscode.TaskTerminalBehavior): TaskSystem.TerminalBehavior {
+	export function from(
+		value: vscode.TaskTerminalBehavior
+	): TaskSystem.TerminalBehavior {
 		if (value === void 0 || value === null) {
 			return { reveal: TaskSystem.RevealKind.Always, echo: false };
 		}
@@ -234,12 +240,13 @@ namespace CommandOptions {
 	function isShellOptions(value: any): value is vscode.ShellTaskOptions {
 		return value && typeof value.executable === 'string';
 	}
-	export function from(value: vscode.ShellTaskOptions | vscode.ProcessTaskOptions): TaskSystem.CommandOptions {
+	export function from(
+		value: vscode.ShellTaskOptions | vscode.ProcessTaskOptions
+	): TaskSystem.CommandOptions {
 		if (value === void 0 || value === null) {
 			return undefined;
 		}
-		let result: TaskSystem.CommandOptions = {
-		};
+		let result: TaskSystem.CommandOptions = {};
 		if (typeof value.cwd === 'string') {
 			result.cwd = value.cwd;
 		}
@@ -260,7 +267,10 @@ namespace CommandOptions {
 }
 
 namespace ShellConfiguration {
-	export function from(value: { executable?: string, args?: string[] }): TaskSystem.ShellConfiguration {
+	export function from(value: {
+		executable?: string;
+		args?: string[];
+	}): TaskSystem.ShellConfiguration {
 		if (value === void 0 || value === null || !value.executable) {
 			return undefined;
 		}
@@ -274,8 +284,11 @@ namespace ShellConfiguration {
 }
 
 namespace Tasks {
-
-	export function from(tasks: vscode.Task[], extension: IExtensionDescription, uuidMap: UUIDMap): TaskSystem.Task[] {
+	export function from(
+		tasks: vscode.Task[],
+		extension: IExtensionDescription,
+		uuidMap: UUIDMap
+	): TaskSystem.Task[] {
 		if (tasks === void 0 || tasks === null) {
 			return [];
 		}
@@ -294,7 +307,11 @@ namespace Tasks {
 		return result;
 	}
 
-	function fromSingle(task: vscode.Task, extension: IExtensionDescription, uuidMap: UUIDMap): TaskSystem.Task {
+	function fromSingle(
+		task: vscode.Task,
+		extension: IExtensionDescription,
+		uuidMap: UUIDMap
+	): TaskSystem.Task {
 		if (typeof task.name !== 'string') {
 			return undefined;
 		}
@@ -320,7 +337,9 @@ namespace Tasks {
 			_source: source,
 			_label: label,
 			name: task.name,
-			identifier: task.identifier ? task.identifier : `${extension.id}.${task.name}`,
+			identifier: task.identifier
+				? task.identifier
+				: `${extension.id}.${task.name}`,
 			group: types.TaskGroup.is(task.group) ? task.group : undefined,
 			command: command,
 			isBackground: !!task.isBackground,
@@ -329,7 +348,9 @@ namespace Tasks {
 		return result;
 	}
 
-	function getProcessCommand(value: vscode.ProcessTask): TaskSystem.CommandConfiguration {
+	function getProcessCommand(
+		value: vscode.ProcessTask
+	): TaskSystem.CommandConfiguration {
 		if (typeof value.process !== 'string') {
 			return undefined;
 		}
@@ -346,7 +367,9 @@ namespace Tasks {
 		return result;
 	}
 
-	function getShellCommand(value: vscode.ShellTask): TaskSystem.CommandConfiguration {
+	function getShellCommand(
+		value: vscode.ShellTask
+	): TaskSystem.CommandConfiguration {
 		if (typeof value.commandLine !== 'string') {
 			return undefined;
 		}
@@ -363,7 +386,6 @@ namespace Tasks {
 }
 
 class UUIDMap {
-
 	private _map: StringMap<string>;
 	private _unused: StringMap<boolean>;
 
@@ -373,7 +395,7 @@ class UUIDMap {
 
 	public start(): void {
 		this._unused = Object.create(null);
-		Object.keys(this._map).forEach(key => this._unused[key] = true);
+		Object.keys(this._map).forEach(key => (this._unused[key] = true));
 	}
 
 	public getUUID(identifier: string): string {
@@ -399,7 +421,6 @@ interface HandlerData {
 }
 
 export class ExtHostTask extends ExtHostTaskShape {
-
 	private _proxy: MainThreadTaskShape;
 	private _handleCounter: number;
 	private _handlers: Map<number, HandlerData>;
@@ -411,11 +432,14 @@ export class ExtHostTask extends ExtHostTaskShape {
 		this._handleCounter = 0;
 		this._handlers = new Map<number, HandlerData>();
 		this._idMaps = new Map<string, UUIDMap>();
-	};
+	}
 
-	public registerTaskProvider(extension: IExtensionDescription, provider: vscode.TaskProvider): vscode.Disposable {
+	public registerTaskProvider(
+		extension: IExtensionDescription,
+		provider: vscode.TaskProvider
+	): vscode.Disposable {
 		if (!provider) {
-			return new types.Disposable(() => { });
+			return new types.Disposable(() => {});
 		}
 		let handle = this.nextHandle();
 		this._handlers.set(handle, { provider, extension });
@@ -429,11 +453,19 @@ export class ExtHostTask extends ExtHostTaskShape {
 	public $provideTasks(handle: number): TPromise<TaskSystem.TaskSet> {
 		let handler = this._handlers.get(handle);
 		if (!handler) {
-			return TPromise.wrapError<TaskSystem.TaskSet>(new Error('no handler found'));
+			return TPromise.wrapError<TaskSystem.TaskSet>(
+				new Error('no handler found')
+			);
 		}
-		return asWinJsPromise(token => handler.provider.provideTasks(token)).then(value => {
+		return asWinJsPromise(token =>
+			handler.provider.provideTasks(token)
+		).then(value => {
 			return {
-				tasks: Tasks.from(value, handler.extension, this.getUUIDMap(handler.extension.id)),
+				tasks: Tasks.from(
+					value,
+					handler.extension,
+					this.getUUIDMap(handler.extension.id)
+				),
 				extension: handler.extension
 			};
 		});

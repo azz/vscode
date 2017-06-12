@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import net = require('net');
 
@@ -11,7 +11,12 @@ import net = require('net');
  * Given a start point and a max number of retries, will find a port that
  * is openable. Will return 0 in case no free port can be found.
  */
-export function findFreePort(startPort: number, giveUpAfter: number, timeout: number, clb: (port: number) => void): void {
+export function findFreePort(
+	startPort: number,
+	giveUpAfter: number,
+	timeout: number,
+	clb: (port: number) => void
+): void {
 	let done = false;
 
 	const timeoutHandle = setTimeout(() => {
@@ -22,7 +27,7 @@ export function findFreePort(startPort: number, giveUpAfter: number, timeout: nu
 		}
 	}, timeout);
 
-	doFindFreePort(startPort, giveUpAfter, (port) => {
+	doFindFreePort(startPort, giveUpAfter, port => {
 		if (!done) {
 			done = true;
 			clearTimeout(timeoutHandle);
@@ -32,7 +37,11 @@ export function findFreePort(startPort: number, giveUpAfter: number, timeout: nu
 	});
 }
 
-function doFindFreePort(startPort: number, giveUpAfter: number, clb: (port: number) => void): void {
+function doFindFreePort(
+	startPort: number,
+	giveUpAfter: number,
+	clb: (port: number) => void
+): void {
 	if (giveUpAfter === 0) {
 		return clb(0);
 	}

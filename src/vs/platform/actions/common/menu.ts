@@ -3,19 +3,28 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import Event, { Emitter } from 'vs/base/common/event';
 import { IDisposable, dispose } from 'vs/base/common/lifecycle';
 import { TPromise } from 'vs/base/common/winjs.base';
-import { ContextKeyExpr, IContextKeyService } from 'vs/platform/contextkey/common/contextkey';
-import { MenuId, MenuRegistry, MenuItemAction, IMenu, IMenuItem, IMenuActionOptions } from 'vs/platform/actions/common/actions';
+import {
+	ContextKeyExpr,
+	IContextKeyService
+} from 'vs/platform/contextkey/common/contextkey';
+import {
+	MenuId,
+	MenuRegistry,
+	MenuItemAction,
+	IMenu,
+	IMenuItem,
+	IMenuActionOptions
+} from 'vs/platform/actions/common/actions';
 import { ICommandService } from 'vs/platform/commands/common/commands';
 
 type MenuItemGroup = [string, IMenuItem[]];
 
 export class Menu implements IMenu {
-
 	private _menuGroups: MenuItemGroup[] = [];
 	private _disposables: IDisposable[] = [];
 	private _onDidChange = new Emitter<IMenu>();
@@ -47,14 +56,16 @@ export class Menu implements IMenu {
 			}
 
 			// subscribe to context changes
-			this._disposables.push(this._contextKeyService.onDidChangeContext(keys => {
-				for (let k of keys) {
-					if (keysFilter.has(k)) {
-						this._onDidChange.fire();
-						return;
+			this._disposables.push(
+				this._contextKeyService.onDidChangeContext(keys => {
+					for (let k of keys) {
+						if (keysFilter.has(k)) {
+							this._onDidChange.fire();
+							return;
+						}
 					}
-				}
-			}));
+				})
+			);
 
 			this._onDidChange.fire(this);
 		});
@@ -76,7 +87,12 @@ export class Menu implements IMenu {
 			const activeActions: MenuItemAction[] = [];
 			for (const item of items) {
 				if (this._contextKeyService.contextMatchesRules(item.when)) {
-					const action = new MenuItemAction(item.command, item.alt, options, this._commandService);
+					const action = new MenuItemAction(
+						item.command,
+						item.alt,
+						options,
+						this._commandService
+					);
 					action.order = item.order; //TODO@Ben order is menu item property, not an action property
 					activeActions.push(action);
 				}
@@ -88,7 +104,10 @@ export class Menu implements IMenu {
 		return result;
 	}
 
-	private static _fillInKbExprKeys(exp: ContextKeyExpr, set: Set<string>): void {
+	private static _fillInKbExprKeys(
+		exp: ContextKeyExpr,
+		set: Set<string>
+	): void {
 		if (exp) {
 			for (let key of exp.keys()) {
 				set.add(key);
@@ -97,12 +116,10 @@ export class Menu implements IMenu {
 	}
 
 	private static _compareMenuItems(a: IMenuItem, b: IMenuItem): number {
-
 		let aGroup = a.group;
 		let bGroup = b.group;
 
 		if (aGroup !== bGroup) {
-
 			// Falsy groups come last
 			if (!aGroup) {
 				return 1;
@@ -134,8 +151,12 @@ export class Menu implements IMenu {
 		}
 
 		// sort on titles
-		const aTitle = typeof a.command.title === 'string' ? a.command.title : a.command.title.value;
-		const bTitle = typeof b.command.title === 'string' ? b.command.title : b.command.title.value;
+		const aTitle = typeof a.command.title === 'string'
+			? a.command.title
+			: a.command.title.value;
+		const bTitle = typeof b.command.title === 'string'
+			? b.command.title
+			: b.command.title.value;
 		return aTitle.localeCompare(bTitle);
 	}
 }

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { ElectronWindow } from 'vs/workbench/electron-browser/window';
 import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
@@ -13,7 +13,9 @@ import { ipcRenderer as ipc, remote } from 'electron';
 
 const windowId = remote.getCurrentWindow().id;
 
-export const IWindowIPCService = createDecorator<IWindowIPCService>('windowIPCService');
+export const IWindowIPCService = createDecorator<IWindowIPCService>(
+	'windowIPCService'
+);
 
 export interface IWindowServices {
 	windowService?: IWindowIPCService;

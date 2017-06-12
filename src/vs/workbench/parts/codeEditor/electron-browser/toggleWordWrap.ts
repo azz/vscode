@@ -2,22 +2,37 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import 'vs/css!./media/codeEditor';
 import * as nls from 'vs/nls';
 import { KeyCode, KeyMod } from 'vs/base/common/keyCodes';
-import { ICommonCodeEditor, IEditorContribution, IModel } from 'vs/editor/common/editorCommon';
-import { editorAction, ServicesAccessor, EditorAction, commonEditorContribution } from 'vs/editor/common/editorCommonExtensions';
+import {
+	ICommonCodeEditor,
+	IEditorContribution,
+	IModel
+} from 'vs/editor/common/editorCommon';
+import {
+	editorAction,
+	ServicesAccessor,
+	EditorAction,
+	commonEditorContribution
+} from 'vs/editor/common/editorCommonExtensions';
 import { ICodeEditorService } from 'vs/editor/common/services/codeEditorService';
 import { IConfigurationService } from 'vs/platform/configuration/common/configuration';
 import { MenuRegistry, MenuId } from 'vs/platform/actions/common/actions';
-import { ContextKeyExpr, IContextKeyService } from 'vs/platform/contextkey/common/contextkey';
+import {
+	ContextKeyExpr,
+	IContextKeyService
+} from 'vs/platform/contextkey/common/contextkey';
 import { Disposable } from 'vs/base/common/lifecycle';
 import { IMessageService } from 'vs/platform/message/common/message';
 import Severity from 'vs/base/common/severity';
 import URI from 'vs/base/common/uri';
-import { InternalEditorOptions, EDITOR_DEFAULTS } from 'vs/editor/common/config/editorOptions';
+import {
+	InternalEditorOptions,
+	EDITOR_DEFAULTS
+} from 'vs/editor/common/config/editorOptions';
 
 const transientWordWrapState = 'transientWordWrapState';
 const isWordWrapMinifiedKey = 'isWordWrapMinified';
@@ -41,37 +56,66 @@ interface IWordWrapState {
 /**
  * Store (in memory) the word wrap state for a particular model.
  */
-function writeTransientState(model: IModel, state: IWordWrapTransientState, codeEditorService: ICodeEditorService): void {
-	codeEditorService.setTransientModelProperty(model, transientWordWrapState, state);
+function writeTransientState(
+	model: IModel,
+	state: IWordWrapTransientState,
+	codeEditorService: ICodeEditorService
+): void {
+	codeEditorService.setTransientModelProperty(
+		model,
+		transientWordWrapState,
+		state
+	);
 }
 
 /**
  * Read (in memory) the word wrap state for a particular model.
  */
-function readTransientState(model: IModel, codeEditorService: ICodeEditorService): IWordWrapTransientState {
-	return codeEditorService.getTransientModelProperty(model, transientWordWrapState);
+function readTransientState(
+	model: IModel,
+	codeEditorService: ICodeEditorService
+): IWordWrapTransientState {
+	return codeEditorService.getTransientModelProperty(
+		model,
+		transientWordWrapState
+	);
 }
 
-function readWordWrapState(model: IModel, configurationService: IConfigurationService, codeEditorService: ICodeEditorService): IWordWrapState {
-	let _configuredWordWrap = configurationService.lookup<'on' | 'off' | 'wordWrapColumn' | 'bounded'>('editor.wordWrap', model.getLanguageIdentifier().language).value;
+function readWordWrapState(
+	model: IModel,
+	configurationService: IConfigurationService,
+	codeEditorService: ICodeEditorService
+): IWordWrapState {
+	let _configuredWordWrap = configurationService.lookup<
+		'on' | 'off' | 'wordWrapColumn' | 'bounded'
+	>('editor.wordWrap', model.getLanguageIdentifier().language).value;
 
 	// Compatibility with old true or false values
-	if (<any>_configuredWordWrap === true) {
+	if ((<any>_configuredWordWrap) === true) {
 		_configuredWordWrap = 'on';
-	} else if (<any>_configuredWordWrap === false) {
+	} else if ((<any>_configuredWordWrap) === false) {
 		_configuredWordWrap = 'off';
 	}
 
-	const _configuredWordWrapMinified = configurationService.lookup<boolean>('editor.wordWrapMinified', model.getLanguageIdentifier().language);
+	const _configuredWordWrapMinified = configurationService.lookup<boolean>(
+		'editor.wordWrapMinified',
+		model.getLanguageIdentifier().language
+	);
 	const _transientState = readTransientState(model, codeEditorService);
 	return {
 		configuredWordWrap: _configuredWordWrap,
-		configuredWordWrapMinified: (typeof _configuredWordWrapMinified.value === 'undefined' ? EDITOR_DEFAULTS.wordWrapMinified : _configuredWordWrapMinified.value),
+		configuredWordWrapMinified: typeof _configuredWordWrapMinified.value ===
+			'undefined'
+			? EDITOR_DEFAULTS.wordWrapMinified
+			: _configuredWordWrapMinified.value,
 		transientState: _transientState
 	};
 }
 
-function toggleWordWrap(editor: ICommonCodeEditor, state: IWordWrapState): IWordWrapState {
+function toggleWordWrap(
+	editor: ICommonCodeEditor,
+	state: IWordWrapState
+): IWordWrapState {
 	if (state.transientState) {
 		// toggle off => go to null
 		return {
@@ -112,7 +156,10 @@ function toggleWordWrap(editor: ICommonCodeEditor, state: IWordWrapState): IWord
 	};
 }
 
-function applyWordWrapState(editor: ICommonCodeEditor, state: IWordWrapState): void {
+function applyWordWrapState(
+	editor: ICommonCodeEditor,
+	state: IWordWrapState
+): void {
 	if (state.transientState) {
 		// toggle is on
 		editor.updateOptions({
@@ -131,11 +178,10 @@ function applyWordWrapState(editor: ICommonCodeEditor, state: IWordWrapState): v
 
 @editorAction
 class ToggleWordWrapAction extends EditorAction {
-
 	constructor() {
 		super({
 			id: 'editor.action.toggleWordWrap',
-			label: nls.localize('toggle.wordwrap', "View: Toggle Word Wrap"),
+			label: nls.localize('toggle.wordwrap', 'View: Toggle Word Wrap'),
 			alias: 'View: Toggle Word Wrap',
 			precondition: null,
 			kbOpts: {
@@ -150,7 +196,13 @@ class ToggleWordWrapAction extends EditorAction {
 		if (editorConfiguration.wrappingInfo.inDiffEditor) {
 			// Cannot change wrapping settings inside the diff editor
 			const messageService = accessor.get(IMessageService);
-			messageService.show(Severity.Info, nls.localize('wordWrap.notInDiffEditor', "Cannot toggle word wrap in a diff editor."));
+			messageService.show(
+				Severity.Info,
+				nls.localize(
+					'wordWrap.notInDiffEditor',
+					'Cannot toggle word wrap in a diff editor.'
+				)
+			);
 			return;
 		}
 
@@ -163,7 +215,11 @@ class ToggleWordWrapAction extends EditorAction {
 		}
 
 		// Read the current state
-		const currentState = readWordWrapState(model, configurationService, codeEditorService);
+		const currentState = readWordWrapState(
+			model,
+			configurationService,
+			codeEditorService
+		);
 		// Compute the new state
 		const newState = toggleWordWrap(editor, currentState);
 		// Write the new state
@@ -174,8 +230,8 @@ class ToggleWordWrapAction extends EditorAction {
 }
 
 @commonEditorContribution
-class ToggleWordWrapController extends Disposable implements IEditorContribution {
-
+class ToggleWordWrapController extends Disposable
+	implements IEditorContribution {
 	private static _ID = 'editor.contrib.toggleWordWrapController';
 
 	constructor(
@@ -187,42 +243,59 @@ class ToggleWordWrapController extends Disposable implements IEditorContribution
 		super();
 
 		const configuration = this.editor.getConfiguration();
-		const isWordWrapMinified = this.contextKeyService.createKey(isWordWrapMinifiedKey, this._isWordWrapMinified(configuration));
-		const isDominatedByLongLines = this.contextKeyService.createKey(isDominatedByLongLinesKey, this._isDominatedByLongLines(configuration));
-		const inDiffEditor = this.contextKeyService.createKey(inDiffEditorKey, this._inDiffEditor(configuration));
+		const isWordWrapMinified = this.contextKeyService.createKey(
+			isWordWrapMinifiedKey,
+			this._isWordWrapMinified(configuration)
+		);
+		const isDominatedByLongLines = this.contextKeyService.createKey(
+			isDominatedByLongLinesKey,
+			this._isDominatedByLongLines(configuration)
+		);
+		const inDiffEditor = this.contextKeyService.createKey(
+			inDiffEditorKey,
+			this._inDiffEditor(configuration)
+		);
 
-		this._register(editor.onDidChangeConfiguration((e) => {
-			if (!e.wrappingInfo) {
-				return;
-			}
-			const configuration = this.editor.getConfiguration();
-			isWordWrapMinified.set(this._isWordWrapMinified(configuration));
-			isDominatedByLongLines.set(this._isDominatedByLongLines(configuration));
-			inDiffEditor.set(this._inDiffEditor(configuration));
-		}));
+		this._register(
+			editor.onDidChangeConfiguration(e => {
+				if (!e.wrappingInfo) {
+					return;
+				}
+				const configuration = this.editor.getConfiguration();
+				isWordWrapMinified.set(this._isWordWrapMinified(configuration));
+				isDominatedByLongLines.set(this._isDominatedByLongLines(configuration));
+				inDiffEditor.set(this._inDiffEditor(configuration));
+			})
+		);
 
-		this._register(editor.onDidChangeModel((e) => {
-			// Ensure correct word wrap settings
-			const newModel = this.editor.getModel();
-			if (!newModel) {
-				return;
-			}
+		this._register(
+			editor.onDidChangeModel(e => {
+				// Ensure correct word wrap settings
+				const newModel = this.editor.getModel();
+				if (!newModel) {
+					return;
+				}
 
-			const configuration = this.editor.getConfiguration();
-			if (this._inDiffEditor(configuration)) {
-				return;
-			}
+				const configuration = this.editor.getConfiguration();
+				if (this._inDiffEditor(configuration)) {
+					return;
+				}
 
-			if (!canToggleWordWrap(newModel.uri)) {
-				return;
-			}
+				if (!canToggleWordWrap(newModel.uri)) {
+					return;
+				}
 
-			// Read current configured values and toggle state
-			const desiredState = readWordWrapState(newModel, this.configurationService, this.codeEditorService);
+				// Read current configured values and toggle state
+				const desiredState = readWordWrapState(
+					newModel,
+					this.configurationService,
+					this.codeEditorService
+				);
 
-			// Apply the state
-			applyWordWrapState(editor, desiredState);
-		}));
+				// Apply the state
+				applyWordWrapState(editor, desiredState);
+			})
+		);
 	}
 
 	private _isWordWrapMinified(config: InternalEditorOptions): boolean {
@@ -246,13 +319,13 @@ function canToggleWordWrap(uri: URI): boolean {
 	if (!uri) {
 		return false;
 	}
-	return (uri.scheme !== 'output' && uri.scheme !== 'vscode');
+	return uri.scheme !== 'output' && uri.scheme !== 'vscode';
 }
 
 MenuRegistry.appendMenuItem(MenuId.EditorTitle, {
 	command: {
 		id: 'editor.action.toggleWordWrap',
-		title: nls.localize('unwrapMinified', "Disable wrapping for this file"),
+		title: nls.localize('unwrapMinified', 'Disable wrapping for this file'),
 		iconClass: 'toggle-word-wrap-action'
 	},
 	group: 'navigation',
@@ -266,7 +339,7 @@ MenuRegistry.appendMenuItem(MenuId.EditorTitle, {
 MenuRegistry.appendMenuItem(MenuId.EditorTitle, {
 	command: {
 		id: 'editor.action.toggleWordWrap',
-		title: nls.localize('wrapMinified', "Enable wrapping for this file"),
+		title: nls.localize('wrapMinified', 'Enable wrapping for this file'),
 		iconClass: 'toggle-word-wrap-action'
 	},
 	group: 'navigation',

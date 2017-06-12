@@ -7,18 +7,22 @@ import * as nls from 'vs/nls';
 import uri from 'vs/base/common/uri';
 import { DEBUG_SCHEME } from 'vs/workbench/parts/debug/common/debug';
 
-const UNKNOWN_SOURCE_LABEL = nls.localize('unknownSource', "Unknown Source");
+const UNKNOWN_SOURCE_LABEL = nls.localize('unknownSource', 'Unknown Source');
 
 export class Source {
-
 	public uri: uri;
 
-	constructor(public raw: DebugProtocol.Source, public presenationHint: string) {
+	constructor(
+		public raw: DebugProtocol.Source,
+		public presenationHint: string
+	) {
 		if (!raw) {
 			this.raw = { name: UNKNOWN_SOURCE_LABEL };
 		}
 		const path = this.raw.path || this.raw.name;
-		this.uri = this.raw.sourceReference > 0 ? uri.parse(`${DEBUG_SCHEME}:${path}`) : uri.file(path);
+		this.uri = this.raw.sourceReference > 0
+			? uri.parse(`${DEBUG_SCHEME}:${path}`)
+			: uri.file(path);
 	}
 
 	public get name() {

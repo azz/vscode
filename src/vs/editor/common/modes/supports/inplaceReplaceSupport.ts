@@ -2,17 +2,21 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { IInplaceReplaceSupportResult } from 'vs/editor/common/modes';
 import { IRange } from 'vs/editor/common/core/range';
 
 export class BasicInplaceReplace {
-
 	public static INSTANCE = new BasicInplaceReplace();
 
-	public navigateValueSet(range1: IRange, text1: string, range2: IRange, text2: string, up: boolean): IInplaceReplaceSupportResult {
-
+	public navigateValueSet(
+		range1: IRange,
+		text1: string,
+		range2: IRange,
+		text2: string,
+		up: boolean
+	): IInplaceReplaceSupportResult {
 		if (range1 && text1) {
 			let result = this.doNavigateValueSet(text1, up);
 			if (result) {
@@ -50,7 +54,6 @@ export class BasicInplaceReplace {
 			n2 = parseFloat(value);
 
 		if (!isNaN(n1) && !isNaN(n2) && n1 === n2) {
-
 			if (n1 === 0 && !up) {
 				return null; // don't do negative
 				//			} else if(n1 === 9 && up) {
@@ -68,15 +71,27 @@ export class BasicInplaceReplace {
 	private _defaultValueSet: string[][] = [
 		['true', 'false'],
 		['True', 'False'],
-		['Private', 'Public', 'Friend', 'ReadOnly', 'Partial', 'Protected', 'WriteOnly'],
-		['public', 'protected', 'private'],
+		[
+			'Private',
+			'Public',
+			'Friend',
+			'ReadOnly',
+			'Partial',
+			'Protected',
+			'WriteOnly'
+		],
+		['public', 'protected', 'private']
 	];
 
 	private textReplace(value: string, up: boolean): string {
 		return this.valueSetsReplace(this._defaultValueSet, value, up);
 	}
 
-	private valueSetsReplace(valueSets: string[][], value: string, up: boolean): string {
+	private valueSetsReplace(
+		valueSets: string[][],
+		value: string,
+		up: boolean
+	): string {
 		var result: string = null;
 		for (let i = 0, len = valueSets.length; result === null && i < len; i++) {
 			result = this.valueSetReplace(valueSets[i], value, up);
@@ -84,7 +99,11 @@ export class BasicInplaceReplace {
 		return result;
 	}
 
-	private valueSetReplace(valueSet: string[], value: string, up: boolean): string {
+	private valueSetReplace(
+		valueSet: string[],
+		value: string,
+		up: boolean
+	): string {
 		var idx = valueSet.indexOf(value);
 		if (idx >= 0) {
 			idx += up ? +1 : -1;

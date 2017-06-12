@@ -3,16 +3,21 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
-import { TPromise, PPromise, TValueCallback, TProgressCallback, ProgressCallback } from 'vs/base/common/winjs.base';
+import {
+	TPromise,
+	PPromise,
+	TValueCallback,
+	TProgressCallback,
+	ProgressCallback
+} from 'vs/base/common/winjs.base';
 import * as errors from 'vs/base/common/errors';
 import * as paths from 'vs/base/common/paths';
 import URI from 'vs/base/common/uri';
 
 export class DeferredTPromise<T> extends TPromise<T> {
-
 	public canceled: boolean;
 
 	private completeCallback: TValueCallback<T>;
@@ -21,9 +26,12 @@ export class DeferredTPromise<T> extends TPromise<T> {
 
 	constructor() {
 		let captured: any;
-		super((c, e, p) => {
-			captured = { c, e, p };
-		}, () => this.oncancel());
+		super(
+			(c, e, p) => {
+				captured = { c, e, p };
+			},
+			() => this.oncancel()
+		);
 		this.canceled = false;
 		this.completeCallback = captured.c;
 		this.errorCallback = captured.e;
@@ -48,12 +56,18 @@ export class DeferredTPromise<T> extends TPromise<T> {
 }
 
 export class DeferredPPromise<C, P> extends PPromise<C, P> {
-
 	private completeCallback: TValueCallback<C>;
 	private errorCallback: (err: any) => void;
 	private progressCallback: TProgressCallback<P>;
 
-	constructor(init: (complete: TValueCallback<C>, error: (err: any) => void, progress: TProgressCallback<P>) => void = (c, e, p) => { }, oncancel?: any) {
+	constructor(
+		init: (
+			complete: TValueCallback<C>,
+			error: (err: any) => void,
+			progress: TProgressCallback<P>
+		) => void = (c, e, p) => {},
+		oncancel?: any
+	) {
 		let captured: any;
 		super((c, e, p) => {
 			captured = { c, e, p };
@@ -86,5 +100,11 @@ export function onError(error: Error, done: () => void): void {
 }
 
 export function toResource(path) {
-	return URI.file(paths.join('C:\\', new Buffer(this.test.fullTitle()).toString('base64'), path));
+	return URI.file(
+		paths.join(
+			'C:\\',
+			new Buffer(this.test.fullTitle()).toString('base64'),
+			path
+		)
+	);
 }

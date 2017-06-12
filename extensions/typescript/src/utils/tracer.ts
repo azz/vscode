@@ -8,7 +8,6 @@ import { workspace } from 'vscode';
 import * as Proto from '../protocol';
 import Logger from './logger';
 
-
 enum Trace {
 	Off,
 	Messages,
@@ -34,9 +33,7 @@ namespace Trace {
 export default class Tracer {
 	private trace: Trace;
 
-	constructor(
-		private readonly logger: Logger
-	) {
+	constructor(private readonly logger: Logger) {
 		this.updateConfiguration();
 	}
 
@@ -45,14 +42,22 @@ export default class Tracer {
 	}
 
 	private static readTrace(): Trace {
-		let result: Trace = Trace.fromString(workspace.getConfiguration().get<string>('typescript.tsserver.trace', 'off'));
+		let result: Trace = Trace.fromString(
+			workspace
+				.getConfiguration()
+				.get<string>('typescript.tsserver.trace', 'off')
+		);
 		if (result === Trace.Off && !!process.env.TSS_TRACE) {
 			result = Trace.Messages;
 		}
 		return result;
 	}
 
-	public traceRequest(request: Proto.Request, responseExpected: boolean, queueLength: number): void {
+	public traceRequest(
+		request: Proto.Request,
+		responseExpected: boolean,
+		queueLength: number
+	): void {
 		if (this.trace === Trace.Off) {
 			return;
 		}
@@ -60,7 +65,12 @@ export default class Tracer {
 		if (this.trace === Trace.Verbose && request.arguments) {
 			data = `Arguments: ${JSON.stringify(request.arguments, null, 4)}`;
 		}
-		this.logTrace(`Sending request: ${request.command} (${request.seq}). Response expected: ${responseExpected ? 'yes' : 'no'}. Current queue length: ${queueLength}`, data);
+		this.logTrace(
+			`Sending request: ${request.command} (${request.seq}). Response expected: ${responseExpected
+				? 'yes'
+				: 'no'}. Current queue length: ${queueLength}`,
+			data
+		);
 	}
 
 	public traceResponse(response: Proto.Response, startTime: number): void {
@@ -71,7 +81,13 @@ export default class Tracer {
 		if (this.trace === Trace.Verbose && response.body) {
 			data = `Result: ${JSON.stringify(response.body, null, 4)}`;
 		}
-		this.logTrace(`Response received: ${response.command} (${response.request_seq}). Request took ${Date.now() - startTime} ms. Success: ${response.success} ${!response.success ? '. Message: ' + response.message : ''}`, data);
+		this.logTrace(
+			`Response received: ${response.command} (${response.request_seq}). Request took ${Date.now() -
+				startTime} ms. Success: ${response.success} ${!response.success
+				? '. Message: ' + response.message
+				: ''}`,
+			data
+		);
 	}
 
 	public traceEvent(event: Proto.Event): void {

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./resourceviewer';
 import nls = require('vs/nls');
@@ -14,7 +14,6 @@ import { Builder, $ } from 'vs/base/browser/builder';
 import DOM = require('vs/base/browser/dom');
 import { DomScrollableElement } from 'vs/base/browser/ui/scrollbar/scrollableElement';
 import { BoundedMap } from 'vs/base/common/map';
-
 
 interface MapExtToMediaMimes {
 	[index: string]: string;
@@ -80,7 +79,9 @@ export interface IResourceDescriptor {
 // we need to bypass the cache or not. We could always bypass the cache everytime we show the image
 // however that has very bad impact on memory consumption because each time the image gets shown,
 // memory grows (see also https://github.com/electron/electron/issues/6275)
-const IMAGE_RESOURCE_ETAG_CACHE = new BoundedMap<{ etag: string, src: string }>(100);
+const IMAGE_RESOURCE_ETAG_CACHE = new BoundedMap<{ etag: string; src: string }>(
+	100
+);
 function imageSrc(descriptor: IResourceDescriptor): string {
 	const src = descriptor.resource.toString();
 
@@ -103,7 +104,6 @@ function imageSrc(descriptor: IResourceDescriptor): string {
  * progress of the binary resource.
  */
 export class ResourceViewer {
-
 	private static KB = 1024;
 	private static MB = ResourceViewer.KB * ResourceViewer.KB;
 	private static GB = ResourceViewer.MB * ResourceViewer.KB;
@@ -141,7 +141,10 @@ export class ResourceViewer {
 					.img({ src: imageSrc(descriptor) })
 					.on(DOM.EventType.LOAD, (e, img) => {
 						const imgElement = <HTMLImageElement>img.getHTMLElement();
-						if (imgElement.naturalWidth > imgElement.width || imgElement.naturalHeight > imgElement.height) {
+						if (
+							imgElement.naturalWidth > imgElement.width ||
+							imgElement.naturalHeight > imgElement.height
+						) {
 							$(container).addClass('oversized');
 
 							img.on(DOM.EventType.CLICK, (e, img) => {
@@ -152,7 +155,15 @@ export class ResourceViewer {
 						}
 
 						if (metadataClb) {
-							metadataClb(nls.localize('imgMeta', "{0}x{1} {2}", imgElement.naturalWidth, imgElement.naturalHeight, ResourceViewer.formatSize(descriptor.size)));
+							metadataClb(
+								nls.localize(
+									'imgMeta',
+									'{0}x{1} {2}',
+									imgElement.naturalWidth,
+									imgElement.naturalHeight,
+									ResourceViewer.formatSize(descriptor.size)
+								)
+							);
 						}
 
 						scrollbar.scanDomNode();
@@ -161,25 +172,32 @@ export class ResourceViewer {
 				$(container)
 					.empty()
 					.p({
-						text: nls.localize('largeImageError', "The image is too large to display in the editor. ")
+						text: nls.localize(
+							'largeImageError',
+							'The image is too large to display in the editor. '
+						)
 					})
-					.append($('a', {
-						role: 'button',
-						class: 'open-external',
-						text: nls.localize('resourceOpenExternalButton', "Open image using external program?")
-					}).on(DOM.EventType.CLICK, (e) => {
-						openExternal(descriptor.resource);
-					}));
+					.append(
+						$('a', {
+							role: 'button',
+							class: 'open-external',
+							text: nls.localize(
+								'resourceOpenExternalButton',
+								'Open image using external program?'
+							)
+						}).on(DOM.EventType.CLICK, e => {
+							openExternal(descriptor.resource);
+						})
+					);
 			}
-		}
-
-		// Handle generic Binary Files
-		else {
-			$(container)
-				.empty()
-				.span({
-					text: nls.localize('nativeBinaryError', "The file will not be displayed in the editor because it is either binary, very large or uses an unsupported text encoding.")
-				});
+		} else {
+			// Handle generic Binary Files
+			$(container).empty().span({
+				text: nls.localize(
+					'nativeBinaryError',
+					'The file will not be displayed in the editor because it is either binary, very large or uses an unsupported text encoding.'
+				)
+			});
 
 			if (metadataClb) {
 				metadataClb(ResourceViewer.formatSize(descriptor.size));
@@ -191,21 +209,37 @@ export class ResourceViewer {
 
 	private static formatSize(size: number): string {
 		if (size < ResourceViewer.KB) {
-			return nls.localize('sizeB', "{0}B", size);
+			return nls.localize('sizeB', '{0}B', size);
 		}
 
 		if (size < ResourceViewer.MB) {
-			return nls.localize('sizeKB', "{0}KB", (size / ResourceViewer.KB).toFixed(2));
+			return nls.localize(
+				'sizeKB',
+				'{0}KB',
+				(size / ResourceViewer.KB).toFixed(2)
+			);
 		}
 
 		if (size < ResourceViewer.GB) {
-			return nls.localize('sizeMB', "{0}MB", (size / ResourceViewer.MB).toFixed(2));
+			return nls.localize(
+				'sizeMB',
+				'{0}MB',
+				(size / ResourceViewer.MB).toFixed(2)
+			);
 		}
 
 		if (size < ResourceViewer.TB) {
-			return nls.localize('sizeGB', "{0}GB", (size / ResourceViewer.GB).toFixed(2));
+			return nls.localize(
+				'sizeGB',
+				'{0}GB',
+				(size / ResourceViewer.GB).toFixed(2)
+			);
 		}
 
-		return nls.localize('sizeTB', "{0}TB", (size / ResourceViewer.TB).toFixed(2));
+		return nls.localize(
+			'sizeTB',
+			'{0}TB',
+			(size / ResourceViewer.TB).toFixed(2)
+		);
 	}
 }

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { EventEmitter } from 'events';
 import { isString } from 'vs/base/common/types';
@@ -23,13 +23,10 @@ interface IUpdate {
 }
 
 export class LinuxAutoUpdaterImpl extends EventEmitter implements IAutoUpdater {
-
 	private url: string;
 	private currentRequest: Promise;
 
-	constructor(
-		@IRequestService private requestService: IRequestService
-	) {
+	constructor(@IRequestService private requestService: IRequestService) {
 		super();
 
 		this.url = null;
@@ -51,13 +48,24 @@ export class LinuxAutoUpdaterImpl extends EventEmitter implements IAutoUpdater {
 
 		this.emit('checking-for-update');
 
-		this.currentRequest = this.requestService.request({ url: this.url })
+		this.currentRequest = this.requestService
+			.request({ url: this.url })
 			.then<IUpdate>(asJson)
 			.then(update => {
-				if (!update || !update.url || !update.version || !update.productVersion) {
+				if (
+					!update ||
+					!update.url ||
+					!update.version ||
+					!update.productVersion
+				) {
 					this.emit('update-not-available');
 				} else {
-					this.emit('update-available', null, product.downloadUrl, update.productVersion);
+					this.emit(
+						'update-available',
+						null,
+						product.downloadUrl,
+						update.productVersion
+					);
 				}
 			})
 			.then(null, e => {
@@ -68,7 +76,7 @@ export class LinuxAutoUpdaterImpl extends EventEmitter implements IAutoUpdater {
 				this.emit('update-not-available');
 				this.emit('error', e);
 			})
-			.then(() => this.currentRequest = null);
+			.then(() => (this.currentRequest = null));
 	}
 
 	quitAndInstall(): void {

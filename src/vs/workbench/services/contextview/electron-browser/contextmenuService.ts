@@ -3,14 +3,19 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import severity from 'vs/base/common/severity';
 import { IAction, IActionRunner, ActionRunner } from 'vs/base/common/actions';
 import { Separator } from 'vs/base/browser/ui/actionbar/actionbar';
 import dom = require('vs/base/browser/dom');
-import { IContextMenuService, IContextMenuDelegate, ContextSubMenu, IEvent } from 'vs/platform/contextview/browser/contextView';
+import {
+	IContextMenuService,
+	IContextMenuDelegate,
+	ContextSubMenu,
+	IEvent
+} from 'vs/platform/contextview/browser/contextView';
 import { ITelemetryService } from 'vs/platform/telemetry/common/telemetry';
 import { IMessageService } from 'vs/platform/message/common/message';
 import { IKeybindingService } from 'vs/platform/keybinding/common/keybinding';
@@ -18,15 +23,13 @@ import { IKeybindingService } from 'vs/platform/keybinding/common/keybinding';
 import { remote, webFrame } from 'electron';
 
 export class ContextMenuService implements IContextMenuService {
-
 	public _serviceBrand: any;
 
 	constructor(
 		@IMessageService private messageService: IMessageService,
 		@ITelemetryService private telemetryService: ITelemetryService,
 		@IKeybindingService private keybindingService: IKeybindingService
-	) {
-	}
+	) {}
 
 	public showContextMenu(delegate: IContextMenuDelegate): void {
 		delegate.getActions().then(actions => {
@@ -34,7 +37,8 @@ export class ContextMenuService implements IContextMenuService {
 				return TPromise.as(null);
 			}
 
-			return TPromise.timeout(0).then(() => { // https://github.com/Microsoft/vscode/issues/3638
+			return TPromise.timeout(0).then(() => {
+				// https://github.com/Microsoft/vscode/issues/3638
 				const menu = this.createMenu(delegate, actions);
 				const anchor = delegate.getAnchor();
 				let x: number, y: number;
@@ -45,7 +49,7 @@ export class ContextMenuService implements IContextMenuService {
 					x = elementPosition.left;
 					y = elementPosition.top + elementPosition.height;
 				} else {
-					const pos = <{ x: number; y: number; }>anchor;
+					const pos = <{ x: number; y: number }>anchor;
 					x = pos.x;
 					y = pos.y;
 				}
@@ -62,7 +66,10 @@ export class ContextMenuService implements IContextMenuService {
 		});
 	}
 
-	private createMenu(delegate: IContextMenuDelegate, entries: (IAction | ContextSubMenu)[]): Electron.Menu {
+	private createMenu(
+		delegate: IContextMenuDelegate,
+		entries: (IAction | ContextSubMenu)[]
+	): Electron.Menu {
 		const menu = new remote.Menu();
 		const actionRunner = delegate.actionRunner || new ActionRunner();
 
@@ -87,7 +94,9 @@ export class ContextMenuService implements IContextMenuService {
 					}
 				};
 
-				const keybinding = !!delegate.getKeyBinding ? delegate.getKeyBinding(e) : this.keybindingService.lookupKeybinding(e.id);
+				const keybinding = !!delegate.getKeyBinding
+					? delegate.getKeyBinding(e)
+					: this.keybindingService.lookupKeybinding(e.id);
 				if (keybinding) {
 					const electronAccelerator = keybinding.getElectronAccelerator();
 					if (electronAccelerator) {
@@ -109,10 +118,20 @@ export class ContextMenuService implements IContextMenuService {
 		return menu;
 	}
 
-	private runAction(actionRunner: IActionRunner, actionToRun: IAction, delegate: IContextMenuDelegate, event: IEvent): void {
-		this.telemetryService.publicLog('workbenchActionExecuted', { id: actionToRun.id, from: 'contextMenu' });
+	private runAction(
+		actionRunner: IActionRunner,
+		actionToRun: IAction,
+		delegate: IContextMenuDelegate,
+		event: IEvent
+	): void {
+		this.telemetryService.publicLog('workbenchActionExecuted', {
+			id: actionToRun.id,
+			from: 'contextMenu'
+		});
 
-		const context = delegate.getActionsContext ? delegate.getActionsContext(event) : event;
+		const context = delegate.getActionsContext
+			? delegate.getActionsContext(event)
+			: event;
 		const res = actionRunner.run(actionToRun, context) || TPromise.as(null);
 
 		res.done(null, e => this.messageService.show(severity.Error, e));

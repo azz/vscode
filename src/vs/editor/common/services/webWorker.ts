@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { ShallowCancelThenPromise } from 'vs/base/common/async';
 import URI from 'vs/base/common/uri';
@@ -14,7 +14,10 @@ import { EditorWorkerClient } from 'vs/editor/common/services/editorWorkerServic
  * Create a new web worker that has model syncing capabilities built in.
  * Specify an AMD module to load that will `create` an object that will be proxied.
  */
-export function createWebWorker<T>(modelService: IModelService, opts: IWebWorkerOptions): MonacoWebWorker<T> {
+export function createWebWorker<T>(
+	modelService: IModelService,
+	opts: IWebWorkerOptions
+): MonacoWebWorker<T> {
 	return new MonacoWebWorkerImpl<T>(modelService, opts);
 }
 
@@ -53,8 +56,8 @@ export interface IWebWorkerOptions {
 	label?: string;
 }
 
-class MonacoWebWorkerImpl<T> extends EditorWorkerClient implements MonacoWebWorker<T> {
-
+class MonacoWebWorkerImpl<T> extends EditorWorkerClient
+	implements MonacoWebWorker<T> {
 	private _foreignModuleId: string;
 	private _foreignModuleCreateData: any;
 	private _foreignProxy: TPromise<T>;
@@ -68,30 +71,49 @@ class MonacoWebWorkerImpl<T> extends EditorWorkerClient implements MonacoWebWork
 
 	private _getForeignProxy(): TPromise<T> {
 		if (!this._foreignProxy) {
-			this._foreignProxy = new ShallowCancelThenPromise(this._getProxy().then((proxy) => {
-				return proxy.loadForeignModule(this._foreignModuleId, this._foreignModuleCreateData).then((foreignMethods) => {
-					this._foreignModuleId = null;
-					this._foreignModuleCreateData = null;
+			this._foreignProxy = new ShallowCancelThenPromise(
+				this._getProxy().then(proxy => {
+					return proxy
+						.loadForeignModule(
+							this._foreignModuleId,
+							this._foreignModuleCreateData
+						)
+						.then(foreignMethods => {
+							this._foreignModuleId = null;
+							this._foreignModuleCreateData = null;
 
-					let proxyMethodRequest = (method: string, args: any[]): TPromise<any> => {
-						return proxy.fmr(method, args);
-					};
+							let proxyMethodRequest = (
+								method: string,
+								args: any[]
+							): TPromise<any> => {
+								return proxy.fmr(method, args);
+							};
 
-					let createProxyMethod = (method: string, proxyMethodRequest: (method: string, args: any[]) => TPromise<any>): Function => {
-						return function () {
-							let args = Array.prototype.slice.call(arguments, 0);
-							return proxyMethodRequest(method, args);
-						};
-					};
+							let createProxyMethod = (
+								method: string,
+								proxyMethodRequest: (
+									method: string,
+									args: any[]
+								) => TPromise<any>
+							): Function => {
+								return function() {
+									let args = Array.prototype.slice.call(arguments, 0);
+									return proxyMethodRequest(method, args);
+								};
+							};
 
-					let foreignProxy = <T><any>{};
-					for (let i = 0; i < foreignMethods.length; i++) {
-						foreignProxy[foreignMethods[i]] = createProxyMethod(foreignMethods[i], proxyMethodRequest);
-					}
+							let foreignProxy = <T>(<any>{});
+							for (let i = 0; i < foreignMethods.length; i++) {
+								foreignProxy[foreignMethods[i]] = createProxyMethod(
+									foreignMethods[i],
+									proxyMethodRequest
+								);
+							}
 
-					return foreignProxy;
-				});
-			}));
+							return foreignProxy;
+						});
+				})
+			);
 		}
 		return this._foreignProxy;
 	}

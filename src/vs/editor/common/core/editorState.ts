@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as strings from 'vs/base/common/strings';
 import { ICommonCodeEditor } from 'vs/editor/common/editorCommon';
@@ -17,7 +17,6 @@ export const enum CodeEditorStateFlag {
 }
 
 export class EditorState {
-
 	private readonly flags: number;
 
 	private readonly position: Position;
@@ -31,7 +30,9 @@ export class EditorState {
 
 		if ((this.flags & CodeEditorStateFlag.Value) !== 0) {
 			var model = editor.getModel();
-			this.modelVersionId = model ? strings.format('{0}#{1}', model.uri.toString(), model.getVersionId()) : null;
+			this.modelVersionId = model
+				? strings.format('{0}#{1}', model.uri.toString(), model.getVersionId())
+				: null;
 		}
 		if ((this.flags & CodeEditorStateFlag.Position) !== 0) {
 			this.position = editor.getPosition();
@@ -46,7 +47,6 @@ export class EditorState {
 	}
 
 	private _equals(other: any): boolean {
-
 		if (!(other instanceof EditorState)) {
 			return false;
 		}
@@ -55,13 +55,26 @@ export class EditorState {
 		if (this.modelVersionId !== state.modelVersionId) {
 			return false;
 		}
-		if (this.scrollLeft !== state.scrollLeft || this.scrollTop !== state.scrollTop) {
+		if (
+			this.scrollLeft !== state.scrollLeft ||
+			this.scrollTop !== state.scrollTop
+		) {
 			return false;
 		}
-		if (!this.position && state.position || this.position && !state.position || this.position && state.position && !this.position.equals(state.position)) {
+		if (
+			(!this.position && state.position) ||
+			(this.position && !state.position) ||
+			(this.position && state.position && !this.position.equals(state.position))
+		) {
 			return false;
 		}
-		if (!this.selection && state.selection || this.selection && !state.selection || this.selection && state.selection && !this.selection.equalsRange(state.selection)) {
+		if (
+			(!this.selection && state.selection) ||
+			(this.selection && !state.selection) ||
+			(this.selection &&
+				state.selection &&
+				!this.selection.equalsRange(state.selection))
+		) {
 			return false;
 		}
 		return true;

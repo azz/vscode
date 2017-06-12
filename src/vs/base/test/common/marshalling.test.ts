@@ -2,16 +2,15 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import URI from 'vs/base/common/uri';
 import { parse, stringify } from 'vs/base/common/marshalling';
 
 suite('Marshalling', () => {
-
-	test('RegExp', function () {
-		let value = /foo/img;
+	test('RegExp', function() {
+		let value = /foo/gim;
 		let raw = stringify(value);
 		let clone = <RegExp>parse(raw);
 
@@ -21,8 +20,14 @@ suite('Marshalling', () => {
 		assert.equal(value.multiline, clone.multiline);
 	});
 
-	test('URI', function () {
-		let value = URI.from({ scheme: 'file', authority: 'server', path: '/shares/c#files', query: 'q', fragment: 'f' });
+	test('URI', function() {
+		let value = URI.from({
+			scheme: 'file',
+			authority: 'server',
+			path: '/shares/c#files',
+			query: 'q',
+			fragment: 'f'
+		});
 		let raw = stringify(value);
 		let clone = <URI>parse(raw);
 

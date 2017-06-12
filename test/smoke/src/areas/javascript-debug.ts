@@ -17,7 +17,10 @@ export class JavaScriptDebug {
 	}
 
 	public async pressConfigureLaunchJson(): Promise<any> {
-		await this.spectron.waitFor(this.spectron.client.click, 'ul[aria-label="Debug actions"] .action-label.icon.debug-action.configure');
+		await this.spectron.waitFor(
+			this.spectron.client.click,
+			'ul[aria-label="Debug actions"] .action-label.icon.debug-action.configure'
+		);
 		await this.spectron.wait();
 		await this.spectron.client.keys(['ArrowDown', 'NULL', 'Enter']);
 		return this.spectron.wait();
@@ -28,15 +31,22 @@ export class JavaScriptDebug {
 	}
 
 	public setBreakpointOnLine(lineNumber: number): Promise<any> {
-		return this.spectron.client.leftClick(`${this.sidebarSelector}>:nth-child(${lineNumber})`, 5, 5);
+		return this.spectron.client.leftClick(
+			`${this.sidebarSelector}>:nth-child(${lineNumber})`,
+			5,
+			5
+		);
 	}
 
 	public async verifyBreakpointOnLine(lineNumber: number): Promise<any> {
-		let el = await this.spectron.client.element(`${this.sidebarSelector}>:nth-child(${lineNumber}) .cgmr.debug-breakpoint-glyph`);
+		let el = await this.spectron.client.element(
+			`${this
+				.sidebarSelector}>:nth-child(${lineNumber}) .cgmr.debug-breakpoint-glyph`
+		);
 		if (el.status === 0) {
 			return el;
 		}
-		
+
 		return undefined;
 	}
 }

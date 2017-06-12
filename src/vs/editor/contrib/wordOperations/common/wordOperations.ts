@@ -3,18 +3,29 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { KeyCode, KeyMod } from 'vs/base/common/keyCodes';
 import { ICommonCodeEditor, IModel } from 'vs/editor/common/editorCommon';
 import { EditorContextKeys } from 'vs/editor/common/editorContextKeys';
 import { Selection } from 'vs/editor/common/core/selection';
-import { editorCommand, ServicesAccessor, EditorCommand, ICommandOptions } from 'vs/editor/common/editorCommonExtensions';
+import {
+	editorCommand,
+	ServicesAccessor,
+	EditorCommand,
+	ICommandOptions
+} from 'vs/editor/common/editorCommonExtensions';
 import { Position } from 'vs/editor/common/core/position';
 import { Range } from 'vs/editor/common/core/range';
-import { WordNavigationType, WordOperations } from 'vs/editor/common/controller/cursorWordOperations';
+import {
+	WordNavigationType,
+	WordOperations
+} from 'vs/editor/common/controller/cursorWordOperations';
 import { ReplaceCommand } from 'vs/editor/common/commands/replaceCommand';
-import { getMapForWordSeparators, WordCharacterClassifier } from 'vs/editor/common/controller/wordCharacterClassifier';
+import {
+	getMapForWordSeparators,
+	WordCharacterClassifier
+} from 'vs/editor/common/controller/wordCharacterClassifier';
 import { CursorState } from 'vs/editor/common/controller/cursorCommon';
 import { CursorChangeReason } from 'vs/editor/common/controller/cursorEvents';
 
@@ -24,7 +35,6 @@ export interface MoveWordOptions extends ICommandOptions {
 }
 
 export abstract class MoveWordCommand extends EditorCommand {
-
 	private readonly _inSelectionMode: boolean;
 	private readonly _wordNavigationType: WordNavigationType;
 
@@ -34,26 +44,51 @@ export abstract class MoveWordCommand extends EditorCommand {
 		this._wordNavigationType = opts.wordNavigationType;
 	}
 
-	public runEditorCommand(accessor: ServicesAccessor, editor: ICommonCodeEditor, args: any): void {
+	public runEditorCommand(
+		accessor: ServicesAccessor,
+		editor: ICommonCodeEditor,
+		args: any
+	): void {
 		const config = editor.getConfiguration();
 		const wordSeparators = getMapForWordSeparators(config.wordSeparators);
 		const model = editor.getModel();
 		const selections = editor.getSelections();
 
-		const result = selections.map((sel) => {
-			const inPosition = new Position(sel.positionLineNumber, sel.positionColumn);
-			const outPosition = this._move(wordSeparators, model, inPosition, this._wordNavigationType);
+		const result = selections.map(sel => {
+			const inPosition = new Position(
+				sel.positionLineNumber,
+				sel.positionColumn
+			);
+			const outPosition = this._move(
+				wordSeparators,
+				model,
+				inPosition,
+				this._wordNavigationType
+			);
 			return this._moveTo(sel, outPosition, this._inSelectionMode);
 		});
 
-		editor._getCursors().setStates('moveWordCommand', CursorChangeReason.NotSet, result.map(r => CursorState.fromModelSelection(r)));
+		editor
+			._getCursors()
+			.setStates(
+				'moveWordCommand',
+				CursorChangeReason.NotSet,
+				result.map(r => CursorState.fromModelSelection(r))
+			);
 		if (result.length === 1) {
-			const pos = new Position(result[0].positionLineNumber, result[0].positionColumn);
+			const pos = new Position(
+				result[0].positionLineNumber,
+				result[0].positionColumn
+			);
 			editor.revealPosition(pos, false, true);
 		}
 	}
 
-	private _moveTo(from: Selection, to: Position, inSelectionMode: boolean): Selection {
+	private _moveTo(
+		from: Selection,
+		to: Position,
+		inSelectionMode: boolean
+	): Selection {
 		if (inSelectionMode) {
 			// move just position
 			return new Selection(
@@ -64,27 +99,47 @@ export abstract class MoveWordCommand extends EditorCommand {
 			);
 		} else {
 			// move everything
-			return new Selection(
-				to.lineNumber,
-				to.column,
-				to.lineNumber,
-				to.column
-			);
+			return new Selection(to.lineNumber, to.column, to.lineNumber, to.column);
 		}
 	}
 
-	protected abstract _move(wordSeparators: WordCharacterClassifier, model: IModel, position: Position, wordNavigationType: WordNavigationType): Position;
+	protected abstract _move(
+		wordSeparators: WordCharacterClassifier,
+		model: IModel,
+		position: Position,
+		wordNavigationType: WordNavigationType
+	): Position;
 }
 
 export class WordLeftCommand extends MoveWordCommand {
-	protected _move(wordSeparators: WordCharacterClassifier, model: IModel, position: Position, wordNavigationType: WordNavigationType): Position {
-		return WordOperations.moveWordLeft(wordSeparators, model, position, wordNavigationType);
+	protected _move(
+		wordSeparators: WordCharacterClassifier,
+		model: IModel,
+		position: Position,
+		wordNavigationType: WordNavigationType
+	): Position {
+		return WordOperations.moveWordLeft(
+			wordSeparators,
+			model,
+			position,
+			wordNavigationType
+		);
 	}
 }
 
 export class WordRightCommand extends MoveWordCommand {
-	protected _move(wordSeparators: WordCharacterClassifier, model: IModel, position: Position, wordNavigationType: WordNavigationType): Position {
-		return WordOperations.moveWordRight(wordSeparators, model, position, wordNavigationType);
+	protected _move(
+		wordSeparators: WordCharacterClassifier,
+		model: IModel,
+		position: Position,
+		wordNavigationType: WordNavigationType
+	): Position {
+		return WordOperations.moveWordRight(
+			wordSeparators,
+			model,
+			position,
+			wordNavigationType
+		);
 	}
 }
 
@@ -267,14 +322,24 @@ export abstract class DeleteWordCommand extends EditorCommand {
 		this._wordNavigationType = opts.wordNavigationType;
 	}
 
-	public runEditorCommand(accessor: ServicesAccessor, editor: ICommonCodeEditor, args: any): void {
+	public runEditorCommand(
+		accessor: ServicesAccessor,
+		editor: ICommonCodeEditor,
+		args: any
+	): void {
 		const config = editor.getConfiguration();
 		const wordSeparators = getMapForWordSeparators(config.wordSeparators);
 		const model = editor.getModel();
 		const selections = editor.getSelections();
 
-		const commands = selections.map((sel) => {
-			const deleteRange = this._delete(wordSeparators, model, sel, this._whitespaceHeuristics, this._wordNavigationType);
+		const commands = selections.map(sel => {
+			const deleteRange = this._delete(
+				wordSeparators,
+				model,
+				sel,
+				this._whitespaceHeuristics,
+				this._wordNavigationType
+			);
 			return new ReplaceCommand(deleteRange, '');
 		});
 
@@ -283,12 +348,30 @@ export abstract class DeleteWordCommand extends EditorCommand {
 		editor.pushUndoStop();
 	}
 
-	protected abstract _delete(wordSeparators: WordCharacterClassifier, model: IModel, selection: Selection, whitespaceHeuristics: boolean, wordNavigationType: WordNavigationType): Range;
+	protected abstract _delete(
+		wordSeparators: WordCharacterClassifier,
+		model: IModel,
+		selection: Selection,
+		whitespaceHeuristics: boolean,
+		wordNavigationType: WordNavigationType
+	): Range;
 }
 
 export class DeleteWordLeftCommand extends DeleteWordCommand {
-	protected _delete(wordSeparators: WordCharacterClassifier, model: IModel, selection: Selection, whitespaceHeuristics: boolean, wordNavigationType: WordNavigationType): Range {
-		let r = WordOperations.deleteWordLeft(wordSeparators, model, selection, whitespaceHeuristics, wordNavigationType);
+	protected _delete(
+		wordSeparators: WordCharacterClassifier,
+		model: IModel,
+		selection: Selection,
+		whitespaceHeuristics: boolean,
+		wordNavigationType: WordNavigationType
+	): Range {
+		let r = WordOperations.deleteWordLeft(
+			wordSeparators,
+			model,
+			selection,
+			whitespaceHeuristics,
+			wordNavigationType
+		);
 		if (r) {
 			return r;
 		}
@@ -297,8 +380,20 @@ export class DeleteWordLeftCommand extends DeleteWordCommand {
 }
 
 export class DeleteWordRightCommand extends DeleteWordCommand {
-	protected _delete(wordSeparators: WordCharacterClassifier, model: IModel, selection: Selection, whitespaceHeuristics: boolean, wordNavigationType: WordNavigationType): Range {
-		let r = WordOperations.deleteWordRight(wordSeparators, model, selection, whitespaceHeuristics, wordNavigationType);
+	protected _delete(
+		wordSeparators: WordCharacterClassifier,
+		model: IModel,
+		selection: Selection,
+		whitespaceHeuristics: boolean,
+		wordNavigationType: WordNavigationType
+	): Range {
+		let r = WordOperations.deleteWordRight(
+			wordSeparators,
+			model,
+			selection,
+			whitespaceHeuristics,
+			wordNavigationType
+		);
 		if (r) {
 			return r;
 		}

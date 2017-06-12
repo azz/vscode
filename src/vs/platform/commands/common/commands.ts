@@ -2,15 +2,20 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import { IDisposable } from 'vs/base/common/lifecycle';
 import { TypeConstraint, validateConstraints } from 'vs/base/common/types';
-import { ServicesAccessor, createDecorator } from 'vs/platform/instantiation/common/instantiation';
+import {
+	ServicesAccessor,
+	createDecorator
+} from 'vs/platform/instantiation/common/instantiation';
 import Event from 'vs/base/common/event';
 
-export const ICommandService = createDecorator<ICommandService>('commandService');
+export const ICommandService = createDecorator<ICommandService>(
+	'commandService'
+);
 
 export interface ICommandEvent {
 	commandId: string;
@@ -38,7 +43,7 @@ export interface ICommand {
 
 export interface ICommandHandlerDescription {
 	description: string;
-	args: { name: string; description?: string; constraint?: TypeConstraint; }[];
+	args: { name: string; description?: string; constraint?: TypeConstraint }[];
 	returns?: string;
 }
 
@@ -50,17 +55,22 @@ export interface ICommandRegistry {
 }
 
 function isCommand(thing: any): thing is ICommand {
-	return typeof thing === 'object'
-		&& typeof (<ICommand>thing).handler === 'function'
-		&& (!(<ICommand>thing).description || typeof (<ICommand>thing).description === 'object');
+	return (
+		typeof thing === 'object' &&
+		typeof (<ICommand>thing).handler === 'function' &&
+		(!(<ICommand>thing).description ||
+			typeof (<ICommand>thing).description === 'object')
+	);
 }
 
-export const CommandsRegistry: ICommandRegistry = new class implements ICommandRegistry {
-
+export const CommandsRegistry: ICommandRegistry = new class
+	implements ICommandRegistry {
 	private _commands = new Map<string, ICommand | ICommand[]>();
 
-	registerCommand(id: string, commandOrDesc: ICommandHandler | ICommand): IDisposable {
-
+	registerCommand(
+		id: string,
+		commandOrDesc: ICommandHandler | ICommand
+	): IDisposable {
 		if (!commandOrDesc) {
 			throw new Error(`invalid command`);
 		}
@@ -69,7 +79,6 @@ export const CommandsRegistry: ICommandRegistry = new class implements ICommandR
 		if (!isCommand(commandOrDesc)) {
 			// simple handler
 			command = { handler: commandOrDesc };
-
 		} else {
 			const { handler, description } = commandOrDesc;
 			if (description) {
@@ -138,11 +147,11 @@ export const CommandsRegistry: ICommandRegistry = new class implements ICommandR
 		});
 		return result;
 	}
-};
+}();
 
 export const NullCommandService: ICommandService = {
 	_serviceBrand: undefined,
-	onWillExecuteCommand: () => ({ dispose: () => { } }),
+	onWillExecuteCommand: () => ({ dispose: () => {} }),
 	executeCommand() {
 		return TPromise.as(undefined);
 	}

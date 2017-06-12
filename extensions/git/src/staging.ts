@@ -3,11 +3,15 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { TextDocument, Range, LineChange, Selection } from 'vscode';
 
-export function applyLineChanges(original: TextDocument, modified: TextDocument, diffs: LineChange[]): string {
+export function applyLineChanges(
+	original: TextDocument,
+	modified: TextDocument,
+	diffs: LineChange[]
+): string {
 	const result: string[] = [];
 	let currentLine = 0;
 
@@ -15,7 +19,18 @@ export function applyLineChanges(original: TextDocument, modified: TextDocument,
 		const isInsertion = diff.originalEndLineNumber === 0;
 		const isDeletion = diff.modifiedEndLineNumber === 0;
 
-		result.push(original.getText(new Range(currentLine, 0, isInsertion ? diff.originalStartLineNumber : diff.originalStartLineNumber - 1, 0)));
+		result.push(
+			original.getText(
+				new Range(
+					currentLine,
+					0,
+					isInsertion
+						? diff.originalStartLineNumber
+						: diff.originalStartLineNumber - 1,
+					0
+				)
+			)
+		);
 
 		if (!isDeletion) {
 			let fromLine = diff.modifiedStartLineNumber - 1;
@@ -26,18 +41,29 @@ export function applyLineChanges(original: TextDocument, modified: TextDocument,
 				fromCharacter = original.lineAt(fromLine).range.end.character;
 			}
 
-			result.push(modified.getText(new Range(fromLine, fromCharacter, diff.modifiedEndLineNumber, 0)));
+			result.push(
+				modified.getText(
+					new Range(fromLine, fromCharacter, diff.modifiedEndLineNumber, 0)
+				)
+			);
 		}
 
-		currentLine = isInsertion ? diff.originalStartLineNumber : diff.originalEndLineNumber;
+		currentLine = isInsertion
+			? diff.originalStartLineNumber
+			: diff.originalEndLineNumber;
 	}
 
-	result.push(original.getText(new Range(currentLine, 0, original.lineCount, 0)));
+	result.push(
+		original.getText(new Range(currentLine, 0, original.lineCount, 0))
+	);
 
 	return result.join('');
 }
 
-export function toLineRanges(selections: Selection[], textDocument: TextDocument): Range[] {
+export function toLineRanges(
+	selections: Selection[],
+	textDocument: TextDocument
+): Range[] {
 	const lineRanges = selections.map(s => {
 		const startLine = textDocument.lineAt(s.start.line);
 		const endLine = textDocument.lineAt(s.end.line);
@@ -74,11 +100,21 @@ export function toLineRanges(selections: Selection[], textDocument: TextDocument
 
 function getModifiedRange(textDocument: TextDocument, diff: LineChange): Range {
 	return diff.modifiedEndLineNumber === 0
-		? new Range(textDocument.lineAt(diff.modifiedStartLineNumber - 1).range.end, textDocument.lineAt(diff.modifiedStartLineNumber).range.start)
-		: new Range(textDocument.lineAt(diff.modifiedStartLineNumber - 1).range.start, textDocument.lineAt(diff.modifiedEndLineNumber - 1).range.end);
+		? new Range(
+				textDocument.lineAt(diff.modifiedStartLineNumber - 1).range.end,
+				textDocument.lineAt(diff.modifiedStartLineNumber).range.start
+			)
+		: new Range(
+				textDocument.lineAt(diff.modifiedStartLineNumber - 1).range.start,
+				textDocument.lineAt(diff.modifiedEndLineNumber - 1).range.end
+			);
 }
 
-export function intersectDiffWithRange(textDocument: TextDocument, diff: LineChange, range: Range): LineChange | null {
+export function intersectDiffWithRange(
+	textDocument: TextDocument,
+	diff: LineChange,
+	range: Range
+): LineChange | null {
 	const modifiedRange = getModifiedRange(textDocument, diff);
 	const intersection = range.intersection(modifiedRange);
 

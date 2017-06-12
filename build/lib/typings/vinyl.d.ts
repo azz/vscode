@@ -3,9 +3,8 @@
 // Definitions by: vvakame <https://github.com/vvakame/>, jedmao <https://github.com/jedmao>
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 
-declare module "vinyl" {
-
-	import fs = require("fs");
+declare module 'vinyl' {
+	import fs = require('fs');
 
 	/**
 	 * A virtual file format.
@@ -93,7 +92,8 @@ declare module "vinyl" {
 				 * If false, the destination stream will not be ended (same as node core).
 				 */
 				end?: boolean;
-			}): T;
+			}
+		): T;
 
 		/**
 		 * Returns a pretty String interpretation of the File. Useful for console.log.
@@ -105,8 +105,9 @@ declare module "vinyl" {
 	 * This is required as per:
 	 * https://github.com/Microsoft/TypeScript/issues/5073
 	 */
-	namespace File {}
+	namespace File {
+
+	}
 
 	export = File;
-
 }

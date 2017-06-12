@@ -3,14 +3,16 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as path from 'path';
 import * as fs from 'original-fs';
 import { IEnvironmentService } from 'vs/platform/environment/common/environment';
 import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
 
-export const IStorageService = createDecorator<IStorageService>('storageService');
+export const IStorageService = createDecorator<IStorageService>(
+	'storageService'
+);
 
 export interface IStorageService {
 	_serviceBrand: any;
@@ -20,13 +22,14 @@ export interface IStorageService {
 }
 
 export class StorageService implements IStorageService {
-
 	_serviceBrand: any;
 
 	private dbPath: string;
 	private database: any = null;
 
-	constructor( @IEnvironmentService private environmentService: IEnvironmentService) {
+	constructor(
+		@IEnvironmentService private environmentService: IEnvironmentService
+	) {
 		this.dbPath = path.join(environmentService.userDataPath, 'storage.json');
 	}
 
@@ -49,7 +52,11 @@ export class StorageService implements IStorageService {
 		}
 
 		// Shortcut for primitives that did not change
-		if (typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean') {
+		if (
+			typeof data === 'string' ||
+			typeof data === 'number' ||
+			typeof data === 'boolean'
+		) {
 			if (this.database[key] === data) {
 				return;
 			}

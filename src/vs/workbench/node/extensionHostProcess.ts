@@ -3,12 +3,15 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { onUnexpectedError } from 'vs/base/common/errors';
 import { TPromise } from 'vs/base/common/winjs.base';
 import { ExtensionHostMain, exit } from 'vs/workbench/node/extensionHostMain';
-import { IRemoteCom, createProxyProtocol } from 'vs/platform/extensions/common/ipcRemoteCom';
+import {
+	IRemoteCom,
+	createProxyProtocol
+} from 'vs/platform/extensions/common/ipcRemoteCom';
 import { parse } from 'vs/base/common/marshalling';
 import { IInitData } from 'vs/workbench/api/node/extHost.protocol';
 import { IMessagePassingProtocol } from 'vs/base/parts/ipc/common/ipc';
@@ -23,26 +26,21 @@ interface IRendererConnection {
 
 // This calls exit directly in case the initialization is not finished and we need to exit
 // Otherwise, if initialization completed we go to extensionHostMain.terminate()
-let onTerminate = function () {
+let onTerminate = function() {
 	exit();
 };
 
 function createExtHostProtocol(): TPromise<IMessagePassingProtocol> {
-
 	const pipeName = process.env.VSCODE_IPC_HOOK_EXTHOST;
 
 	return new TPromise<IMessagePassingProtocol>((resolve, reject) => {
-
 		const socket = createConnection(pipeName, () => {
 			socket.removeListener('error', reject);
 			resolve(new Protocol(socket));
 		});
 		socket.once('error', reject);
-
 	}).then(protocol => {
-
 		return new class implements IMessagePassingProtocol {
-
 			private _terminating = false;
 
 			readonly onMessage: Event<any> = filterEvent(protocol.onMessage, msg => {
@@ -59,13 +57,14 @@ function createExtHostProtocol(): TPromise<IMessagePassingProtocol> {
 					protocol.send(msg);
 				}
 			}
-		};
+		}();
 	});
 }
 
-function connectToRenderer(protocol: IMessagePassingProtocol): TPromise<IRendererConnection> {
+function connectToRenderer(
+	protocol: IMessagePassingProtocol
+): TPromise<IRendererConnection> {
 	return new TPromise<IRendererConnection>((c, e) => {
-
 		// Listen init data message
 		const first = protocol.onMessage(raw => {
 			first.dispose();
@@ -96,12 +95,12 @@ function connectToRenderer(protocol: IMessagePassingProtocol): TPromise<IRendere
 			});
 
 			// Print a console message when an exception isn't handled.
-			process.on('uncaughtException', function (err) {
+			process.on('uncaughtException', function(err) {
 				onUnexpectedError(err);
 			});
 
 			// Kill oneself if one's parent dies. Much drama.
-			setInterval(function () {
+			setInterval(function() {
 				try {
 					process.kill(initData.parentPid, 0); // throws an exception if the main process doesn't exist anymore.
 				} catch (e) {
@@ -120,12 +119,18 @@ function connectToRenderer(protocol: IMessagePassingProtocol): TPromise<IRendere
 	});
 }
 
-createExtHostProtocol().then(protocol => {
-	// connect to main side
-	return connectToRenderer(protocol);
-}).then(renderer => {
-	// setup things
-	const extensionHostMain = new ExtensionHostMain(renderer.remoteCom, renderer.initData);
-	onTerminate = () => extensionHostMain.terminate();
-	return extensionHostMain.start();
-}).done(null, err => console.error(err));
+createExtHostProtocol()
+	.then(protocol => {
+		// connect to main side
+		return connectToRenderer(protocol);
+	})
+	.then(renderer => {
+		// setup things
+		const extensionHostMain = new ExtensionHostMain(
+			renderer.remoteCom,
+			renderer.initData
+		);
+		onTerminate = () => extensionHostMain.terminate();
+		return extensionHostMain.start();
+	})
+	.done(null, err => console.error(err));

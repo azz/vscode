@@ -59,7 +59,15 @@ const options: minimist.Opts = {
 
 function validate(args: ParsedArgs): ParsedArgs {
 	if (args.goto) {
-		args._.forEach(arg => assert(/^(\w:)?[^:]+(:\d*){0,2}$/.test(arg), localize('gotoValidation', "Arguments in `--goto` mode should be in the format of `FILE(:LINE(:CHARACTER))`.")));
+		args._.forEach(arg =>
+			assert(
+				/^(\w:)?[^:]+(:\d*){0,2}$/.test(arg),
+				localize(
+					'gotoValidation',
+					'Arguments in `--goto` mode should be in the format of `FILE(:LINE(:CHARACTER))`.'
+				)
+			)
+		);
 	}
 
 	return args;
@@ -108,41 +116,93 @@ export function parseArgs(args: string[]): ParsedArgs {
 	return minimist(args, options) as ParsedArgs;
 }
 
-export const optionsHelp: { [name: string]: string; } = {
-	'-d, --diff': localize('diff', "Open a diff editor. Requires to pass two file paths as arguments."),
-	'-g, --goto': localize('goto', "Open the file at path at the line and character (add :line[:character] to path)."),
-	'--locale <locale>': localize('locale', "The locale to use (e.g. en-US or zh-TW)."),
-	'-n, --new-window': localize('newWindow', "Force a new instance of Code."),
-	'-p, --performance': localize('performance', "Start with the 'Developer: Startup Performance' command enabled."),
-	'--prof-startup': localize('prof-startup', "Run CPU profiler during startup"),
-	'-r, --reuse-window': localize('reuseWindow', "Force opening a file or folder in the last active window."),
-	'--user-data-dir <dir>': localize('userDataDir', "Specifies the directory that user data is kept in, useful when running as root."),
-	'--verbose': localize('verbose', "Print verbose output (implies --wait)."),
-	'-w, --wait': localize('wait', "Wait for the window to be closed before returning."),
-	'--extensions-dir <dir>': localize('extensionHomePath', "Set the root path for extensions."),
-	'--list-extensions': localize('listExtensions', "List the installed extensions."),
-	'--show-versions': localize('showVersions', "Show versions of installed extensions, when using --list-extension."),
-	'--install-extension <ext>': localize('installExtension', "Installs an extension."),
-	'--uninstall-extension <ext>': localize('uninstallExtension', "Uninstalls an extension."),
-	'--enable-proposed-api <ext>': localize('experimentalApis', "Enables proposed api features for an extension."),
-	'--disable-extensions': localize('disableExtensions', "Disable all installed extensions."),
-	'--disable-gpu': localize('disableGPU', "Disable GPU hardware acceleration."),
-	'-v, --version': localize('version', "Print version."),
-	'-h, --help': localize('help', "Print usage.")
+export const optionsHelp: { [name: string]: string } = {
+	'-d, --diff': localize(
+		'diff',
+		'Open a diff editor. Requires to pass two file paths as arguments.'
+	),
+	'-g, --goto': localize(
+		'goto',
+		'Open the file at path at the line and character (add :line[:character] to path).'
+	),
+	'--locale <locale>': localize(
+		'locale',
+		'The locale to use (e.g. en-US or zh-TW).'
+	),
+	'-n, --new-window': localize('newWindow', 'Force a new instance of Code.'),
+	'-p, --performance': localize(
+		'performance',
+		"Start with the 'Developer: Startup Performance' command enabled."
+	),
+	'--prof-startup': localize('prof-startup', 'Run CPU profiler during startup'),
+	'-r, --reuse-window': localize(
+		'reuseWindow',
+		'Force opening a file or folder in the last active window.'
+	),
+	'--user-data-dir <dir>': localize(
+		'userDataDir',
+		'Specifies the directory that user data is kept in, useful when running as root.'
+	),
+	'--verbose': localize('verbose', 'Print verbose output (implies --wait).'),
+	'-w, --wait': localize(
+		'wait',
+		'Wait for the window to be closed before returning.'
+	),
+	'--extensions-dir <dir>': localize(
+		'extensionHomePath',
+		'Set the root path for extensions.'
+	),
+	'--list-extensions': localize(
+		'listExtensions',
+		'List the installed extensions.'
+	),
+	'--show-versions': localize(
+		'showVersions',
+		'Show versions of installed extensions, when using --list-extension.'
+	),
+	'--install-extension <ext>': localize(
+		'installExtension',
+		'Installs an extension.'
+	),
+	'--uninstall-extension <ext>': localize(
+		'uninstallExtension',
+		'Uninstalls an extension.'
+	),
+	'--enable-proposed-api <ext>': localize(
+		'experimentalApis',
+		'Enables proposed api features for an extension.'
+	),
+	'--disable-extensions': localize(
+		'disableExtensions',
+		'Disable all installed extensions.'
+	),
+	'--disable-gpu': localize('disableGPU', 'Disable GPU hardware acceleration.'),
+	'-v, --version': localize('version', 'Print version.'),
+	'-h, --help': localize('help', 'Print usage.')
 };
 
-export function formatOptions(options: { [name: string]: string; }, columns: number): string {
+export function formatOptions(
+	options: { [name: string]: string },
+	columns: number
+): string {
 	let keys = Object.keys(options);
-	let argLength = Math.max.apply(null, keys.map(k => k.length)) + 2/*left padding*/ + 1/*right padding*/;
+	let argLength =
+		Math.max.apply(null, keys.map(k => k.length)) +
+		2 /*left padding*/ +
+		1 /*right padding*/;
 	if (columns - argLength < 25) {
 		// Use a condensed version on narrow terminals
-		return keys.reduce((r, key) => r.concat([`  ${key}`, `      ${options[key]}`]), []).join('\n');
+		return keys
+			.reduce((r, key) => r.concat([`  ${key}`, `      ${options[key]}`]), [])
+			.join('\n');
 	}
 	let descriptionColumns = columns - argLength - 1;
 	let result = '';
 	keys.forEach(k => {
 		let wrappedDescription = wrapText(options[k], descriptionColumns);
-		let keyPadding = (<any>' ').repeat(argLength - k.length - 2/*left padding*/);
+		let keyPadding = (<any>' ').repeat(
+			argLength - k.length - 2 /*left padding*/
+		);
 		if (result.length > 0) {
 			result += '\n';
 		}
@@ -157,7 +217,9 @@ export function formatOptions(options: { [name: string]: string; }, columns: num
 function wrapText(text: string, columns: number): string[] {
 	let lines: string[] = [];
 	while (text.length) {
-		let index = text.length < columns ? text.length : text.lastIndexOf(' ', columns);
+		let index = text.length < columns
+			? text.length
+			: text.lastIndexOf(' ', columns);
 		let line = text.slice(0, index).trim();
 		text = text.slice(index);
 		lines.push(line);
@@ -165,14 +227,23 @@ function wrapText(text: string, columns: number): string[] {
 	return lines;
 }
 
-export function buildHelpMessage(fullName: string, name: string, version: string): string {
-	const columns = (<any>process.stdout).isTTY ? (<any>process.stdout).columns : 80;
+export function buildHelpMessage(
+	fullName: string,
+	name: string,
+	version: string
+): string {
+	const columns = (<any>process.stdout).isTTY
+		? (<any>process.stdout).columns
+		: 80;
 	const executable = `${name}${os.platform() === 'win32' ? '.exe' : ''}`;
 
 	return `${fullName} ${version}
 
-${ localize('usage', "Usage")}: ${executable} [${localize('options', "options")}] [${localize('paths', 'paths')}...]
+${localize('usage', 'Usage')}: ${executable} [${localize(
+		'options',
+		'options'
+	)}] [${localize('paths', 'paths')}...]
 
-${ localize('optionsUpperCase', "Options")}:
+${localize('optionsUpperCase', 'Options')}:
 ${formatOptions(optionsHelp, columns)}`;
 }

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./media/activitybarpart';
 import nls = require('vs/nls');
@@ -13,16 +13,40 @@ import * as arrays from 'vs/base/common/arrays';
 import { illegalArgument } from 'vs/base/common/errors';
 import { Builder, $, Dimension } from 'vs/base/browser/builder';
 import { Action } from 'vs/base/common/actions';
-import { ActionsOrientation, ActionBar, IActionItem, Separator } from 'vs/base/browser/ui/actionbar/actionbar';
+import {
+	ActionsOrientation,
+	ActionBar,
+	IActionItem,
+	Separator
+} from 'vs/base/browser/ui/actionbar/actionbar';
 import { ViewletDescriptor } from 'vs/workbench/browser/viewlet';
-import { GlobalActivityExtensions, IGlobalActivityRegistry } from 'vs/workbench/browser/activity';
+import {
+	GlobalActivityExtensions,
+	IGlobalActivityRegistry
+} from 'vs/workbench/browser/activity';
 import { Registry } from 'vs/platform/platform';
 import { Part } from 'vs/workbench/browser/part';
 import { IViewlet } from 'vs/workbench/common/viewlet';
-import { ToggleViewletPinnedAction, ViewletActivityAction, ActivityAction, GlobalActivityActionItem, ViewletActionItem, ViewletOverflowActivityAction, ViewletOverflowActivityActionItem, GlobalActivityAction, IViewletActivity } from 'vs/workbench/browser/parts/activitybar/activitybarActions';
+import {
+	ToggleViewletPinnedAction,
+	ViewletActivityAction,
+	ActivityAction,
+	GlobalActivityActionItem,
+	ViewletActionItem,
+	ViewletOverflowActivityAction,
+	ViewletOverflowActivityActionItem,
+	GlobalActivityAction,
+	IViewletActivity
+} from 'vs/workbench/browser/parts/activitybar/activitybarActions';
 import { IViewletService } from 'vs/workbench/services/viewlet/browser/viewlet';
-import { IActivityBarService, IBadge } from 'vs/workbench/services/activity/common/activityBarService';
-import { IPartService, Position as SideBarPosition } from 'vs/workbench/services/part/common/partService';
+import {
+	IActivityBarService,
+	IBadge
+} from 'vs/workbench/services/activity/common/activityBarService';
+import {
+	IPartService,
+	Position as SideBarPosition
+} from 'vs/workbench/services/part/common/partService';
 import { IInstantiationService } from 'vs/platform/instantiation/common/instantiation';
 import { IExtensionService } from 'vs/platform/extensions/common/extensions';
 import { IStorageService } from 'vs/platform/storage/common/storage';
@@ -32,11 +56,13 @@ import { StandardMouseEvent } from 'vs/base/browser/mouseEvent';
 import { dispose, IDisposable, toDisposable } from 'vs/base/common/lifecycle';
 import { ToggleActivityBarVisibilityAction } from 'vs/workbench/browser/actions/toggleActivityBarVisibility';
 import { IThemeService } from 'vs/platform/theme/common/themeService';
-import { ACTIVITY_BAR_BACKGROUND, ACTIVITY_BAR_BORDER } from 'vs/workbench/common/theme';
+import {
+	ACTIVITY_BAR_BACKGROUND,
+	ACTIVITY_BAR_BORDER
+} from 'vs/workbench/common/theme';
 import { contrastBorder } from 'vs/platform/theme/common/colorRegistry';
 
 export class ActivitybarPart extends Part implements IActivityBarService {
-
 	private static readonly ACTIVITY_ACTION_HEIGHT = 50;
 	private static readonly PINNED_VIEWLETS = 'workbench.activity.pinnedViewlets';
 
@@ -45,15 +71,17 @@ export class ActivitybarPart extends Part implements IActivityBarService {
 	private dimension: Dimension;
 
 	private globalActionBar: ActionBar;
-	private globalActivityIdToActions: { [globalActivityId: string]: GlobalActivityAction; };
+	private globalActivityIdToActions: {
+		[globalActivityId: string]: GlobalActivityAction;
+	};
 
 	private viewletSwitcherBar: ActionBar;
 	private viewletOverflowAction: ViewletOverflowActivityAction;
 	private viewletOverflowActionItem: ViewletOverflowActivityActionItem;
 
-	private viewletIdToActions: { [viewletId: string]: ActivityAction; };
-	private viewletIdToActionItems: { [viewletId: string]: IActionItem; };
-	private viewletIdToActivityStack: { [viewletId: string]: IViewletActivity[]; };
+	private viewletIdToActions: { [viewletId: string]: ActivityAction };
+	private viewletIdToActionItems: { [viewletId: string]: IActionItem };
+	private viewletIdToActivityStack: { [viewletId: string]: IViewletActivity[] };
 
 	private memento: any;
 	private pinnedViewlets: string[];
@@ -79,14 +107,15 @@ export class ActivitybarPart extends Part implements IActivityBarService {
 
 		this.memento = this.getMemento(this.storageService, MementoScope.GLOBAL);
 
-		const pinnedViewlets = this.memento[ActivitybarPart.PINNED_VIEWLETS] as string[];
+		const pinnedViewlets = this.memento[
+			ActivitybarPart.PINNED_VIEWLETS
+		] as string[];
 
 		if (pinnedViewlets) {
 			this.pinnedViewlets = pinnedViewlets
 				// TODO@Ben: Migrate git => scm viewlet
-				.map(id => id === 'workbench.view.git' ? 'workbench.view.scm' : id)
+				.map(id => (id === 'workbench.view.git' ? 'workbench.view.scm' : id))
 				.filter(arrays.uniqueFilter<string>(str => str));
-
 		} else {
 			this.pinnedViewlets = this.viewletService.getViewlets().map(v => v.id);
 		}
@@ -95,12 +124,19 @@ export class ActivitybarPart extends Part implements IActivityBarService {
 	}
 
 	private registerListeners(): void {
-
 		// Activate viewlet action on opening of a viewlet
-		this.toUnbind.push(this.viewletService.onDidViewletOpen(viewlet => this.onDidViewletOpen(viewlet)));
+		this.toUnbind.push(
+			this.viewletService.onDidViewletOpen(viewlet =>
+				this.onDidViewletOpen(viewlet)
+			)
+		);
 
 		// Deactivate viewlet action on close
-		this.toUnbind.push(this.viewletService.onDidViewletClose(viewlet => this.onDidViewletClose(viewlet)));
+		this.toUnbind.push(
+			this.viewletService.onDidViewletClose(viewlet =>
+				this.onDidViewletClose(viewlet)
+			)
+		);
 	}
 
 	private onDidViewletOpen(viewlet: IViewlet): void {
@@ -110,8 +146,12 @@ export class ActivitybarPart extends Part implements IActivityBarService {
 			this.viewletIdToActions[id].activate();
 		}
 
-		const activeUnpinnedViewletShouldClose = this.activeUnpinnedViewlet && this.activeUnpinnedViewlet.id !== viewlet.getId();
-		const activeUnpinnedViewletShouldShow = !this.getPinnedViewlets().some(v => v.id === viewlet.getId());
+		const activeUnpinnedViewletShouldClose =
+			this.activeUnpinnedViewlet &&
+			this.activeUnpinnedViewlet.id !== viewlet.getId();
+		const activeUnpinnedViewletShouldShow = !this.getPinnedViewlets().some(
+			v => v.id === viewlet.getId()
+		);
 		if (activeUnpinnedViewletShouldShow || activeUnpinnedViewletShouldClose) {
 			this.updateViewletSwitcher();
 		}
@@ -125,7 +165,10 @@ export class ActivitybarPart extends Part implements IActivityBarService {
 		}
 	}
 
-	public showGlobalActivity(globalActivityId: string, badge: IBadge): IDisposable {
+	public showGlobalActivity(
+		globalActivityId: string,
+		badge: IBadge
+	): IDisposable {
 		if (!badge) {
 			throw illegalArgument('badge');
 		}
@@ -140,13 +183,19 @@ export class ActivitybarPart extends Part implements IActivityBarService {
 		return toDisposable(() => action.setBadge(undefined));
 	}
 
-	public showActivity(viewletId: string, badge: IBadge, clazz?: string): IDisposable {
+	public showActivity(
+		viewletId: string,
+		badge: IBadge,
+		clazz?: string
+	): IDisposable {
 		if (!badge) {
 			throw illegalArgument('badge');
 		}
 
 		const activity = <IViewletActivity>{ badge, clazz };
-		const stack = this.viewletIdToActivityStack[viewletId] || (this.viewletIdToActivityStack[viewletId] = []);
+		const stack =
+			this.viewletIdToActivityStack[viewletId] ||
+			(this.viewletIdToActivityStack[viewletId] = []);
 		stack.unshift(activity);
 
 		this.updateActivity(viewletId);
@@ -179,7 +228,6 @@ export class ActivitybarPart extends Part implements IActivityBarService {
 		if (!stack || !stack.length) {
 			// reset
 			action.setBadge(undefined);
-
 		} else {
 			// update
 			const [{ badge, clazz }] = stack;
@@ -201,11 +249,15 @@ export class ActivitybarPart extends Part implements IActivityBarService {
 		this.createGlobalActivityActionBar($result.getHTMLElement());
 
 		// Contextmenu for viewlets
-		$(parent).on('contextmenu', (e: MouseEvent) => {
-			DOM.EventHelper.stop(e, true);
+		$(parent).on(
+			'contextmenu',
+			(e: MouseEvent) => {
+				DOM.EventHelper.stop(e, true);
 
-			this.showContextMenu(e);
-		}, this.toUnbind);
+				this.showContextMenu(e);
+			},
+			this.toUnbind
+		);
 
 		// Allow to drop at the end to move viewlet to the end
 		$(parent).on(DOM.EventType.DROP, (e: DragEvent) => {
@@ -217,7 +269,10 @@ export class ActivitybarPart extends Part implements IActivityBarService {
 
 				const targetId = this.pinnedViewlets[this.pinnedViewlets.length - 1];
 				if (targetId !== draggedViewlet.id) {
-					this.move(draggedViewlet.id, this.pinnedViewlets[this.pinnedViewlets.length - 1]);
+					this.move(
+						draggedViewlet.id,
+						this.pinnedViewlets[this.pinnedViewlets.length - 1]
+					);
 				}
 			}
 		});
@@ -233,26 +288,58 @@ export class ActivitybarPart extends Part implements IActivityBarService {
 		const background = this.getColor(ACTIVITY_BAR_BACKGROUND);
 		container.style('background-color', background);
 
-		const borderColor = this.getColor(ACTIVITY_BAR_BORDER) || this.getColor(contrastBorder);
-		const isPositionLeft = this.partService.getSideBarPosition() === SideBarPosition.LEFT;
-		container.style('box-sizing', borderColor && isPositionLeft ? 'border-box' : null);
-		container.style('border-right-width', borderColor && isPositionLeft ? '1px' : null);
-		container.style('border-right-style', borderColor && isPositionLeft ? 'solid' : null);
+		const borderColor =
+			this.getColor(ACTIVITY_BAR_BORDER) || this.getColor(contrastBorder);
+		const isPositionLeft =
+			this.partService.getSideBarPosition() === SideBarPosition.LEFT;
+		container.style(
+			'box-sizing',
+			borderColor && isPositionLeft ? 'border-box' : null
+		);
+		container.style(
+			'border-right-width',
+			borderColor && isPositionLeft ? '1px' : null
+		);
+		container.style(
+			'border-right-style',
+			borderColor && isPositionLeft ? 'solid' : null
+		);
 		container.style('border-right-color', isPositionLeft ? borderColor : null);
-		container.style('border-left-width', borderColor && !isPositionLeft ? '1px' : null);
-		container.style('border-left-style', borderColor && !isPositionLeft ? 'solid' : null);
+		container.style(
+			'border-left-width',
+			borderColor && !isPositionLeft ? '1px' : null
+		);
+		container.style(
+			'border-left-style',
+			borderColor && !isPositionLeft ? 'solid' : null
+		);
 		container.style('border-left-color', !isPositionLeft ? borderColor : null);
 	}
 
 	private showContextMenu(e: MouseEvent): void {
 		const event = new StandardMouseEvent(e);
 
-		const actions: Action[] = this.viewletService.getViewlets().map(viewlet => this.instantiationService.createInstance(ToggleViewletPinnedAction, viewlet));
+		const actions: Action[] = this.viewletService
+			.getViewlets()
+			.map(viewlet =>
+				this.instantiationService.createInstance(
+					ToggleViewletPinnedAction,
+					viewlet
+				)
+			);
 		actions.push(new Separator());
-		actions.push(this.instantiationService.createInstance(ToggleActivityBarVisibilityAction, ToggleActivityBarVisibilityAction.ID, nls.localize('hideActivitBar', "Hide Activity Bar")));
+		actions.push(
+			this.instantiationService.createInstance(
+				ToggleActivityBarVisibilityAction,
+				ToggleActivityBarVisibilityAction.ID,
+				nls.localize('hideActivitBar', 'Hide Activity Bar')
+			)
+		);
 
 		this.contextMenuService.showContextMenu({
-			getAnchor: () => { return { x: event.posx + 1, y: event.posy }; },
+			getAnchor: () => {
+				return { x: event.posx + 1, y: event.posy };
+			},
 			getActions: () => TPromise.as(actions),
 			onHide: () => dispose(actions)
 		});
@@ -260,9 +347,12 @@ export class ActivitybarPart extends Part implements IActivityBarService {
 
 	private createViewletSwitcher(div: Builder): void {
 		this.viewletSwitcherBar = new ActionBar(div, {
-			actionItemProvider: (action: Action) => action instanceof ViewletOverflowActivityAction ? this.viewletOverflowActionItem : this.viewletIdToActionItems[action.id],
+			actionItemProvider: (action: Action) =>
+				action instanceof ViewletOverflowActivityAction
+					? this.viewletOverflowActionItem
+					: this.viewletIdToActionItems[action.id],
 			orientation: ActionsOrientation.VERTICAL,
-			ariaLabel: nls.localize('activityBarAriaLabel', "Active View Switcher"),
+			ariaLabel: nls.localize('activityBarAriaLabel', 'Active View Switcher'),
 			animated: false
 		});
 
@@ -273,16 +363,19 @@ export class ActivitybarPart extends Part implements IActivityBarService {
 	}
 
 	private createGlobalActivityActionBar(container: HTMLElement): void {
-		const activityRegistry = Registry.as<IGlobalActivityRegistry>(GlobalActivityExtensions);
+		const activityRegistry = Registry.as<IGlobalActivityRegistry>(
+			GlobalActivityExtensions
+		);
 		const descriptors = activityRegistry.getActivities();
 		const actions = descriptors
 			.map(d => this.instantiationService.createInstance(d))
 			.map(a => new GlobalActivityAction(a));
 
 		this.globalActionBar = new ActionBar(container, {
-			actionItemProvider: a => this.instantiationService.createInstance(GlobalActivityActionItem, a),
+			actionItemProvider: a =>
+				this.instantiationService.createInstance(GlobalActivityActionItem, a),
 			orientation: ActionsOrientation.VERTICAL,
-			ariaLabel: nls.localize('globalActions', "Global Actions"),
+			ariaLabel: nls.localize('globalActions', 'Global Actions'),
 			animated: false
 		});
 
@@ -297,8 +390,13 @@ export class ActivitybarPart extends Part implements IActivityBarService {
 
 		// Always show the active viewlet even if it is marked to be hidden
 		const activeViewlet = this.viewletService.getActiveViewlet();
-		if (activeViewlet && !viewletsToShow.some(viewlet => viewlet.id === activeViewlet.getId())) {
-			this.activeUnpinnedViewlet = this.viewletService.getViewlet(activeViewlet.getId());
+		if (
+			activeViewlet &&
+			!viewletsToShow.some(viewlet => viewlet.id === activeViewlet.getId())
+		) {
+			this.activeUnpinnedViewlet = this.viewletService.getViewlet(
+				activeViewlet.getId()
+			);
 			viewletsToShow.push(this.activeUnpinnedViewlet);
 		} else {
 			this.activeUnpinnedViewlet = void 0;
@@ -307,16 +405,24 @@ export class ActivitybarPart extends Part implements IActivityBarService {
 		// Ensure we are not showing more viewlets than we have height for
 		let overflows = false;
 		if (this.dimension) {
-			const maxVisible = Math.floor(this.dimension.height / ActivitybarPart.ACTIVITY_ACTION_HEIGHT);
+			const maxVisible = Math.floor(
+				this.dimension.height / ActivitybarPart.ACTIVITY_ACTION_HEIGHT
+			);
 			overflows = viewletsToShow.length > maxVisible;
 
 			if (overflows) {
-				viewletsToShow = viewletsToShow.slice(0, maxVisible - 1 /* make room for overflow action */);
+				viewletsToShow = viewletsToShow.slice(
+					0,
+					maxVisible - 1 /* make room for overflow action */
+				);
 			}
 		}
 
 		const visibleViewlets = Object.keys(this.viewletIdToActions);
-		const visibleViewletsChange = !arrays.equals(viewletsToShow.map(viewlet => viewlet.id), visibleViewlets);
+		const visibleViewletsChange = !arrays.equals(
+			viewletsToShow.map(viewlet => viewlet.id),
+			visibleViewlets
+		);
 
 		// Pull out overflow action if there is a viewlet change so that we can add it to the end later
 		if (this.viewletOverflowAction && visibleViewletsChange) {
@@ -344,14 +450,18 @@ export class ActivitybarPart extends Part implements IActivityBarService {
 
 		// Update when we have new viewlets to show
 		if (newViewletsToShow.length) {
-
 			// Add to viewlet switcher
-			this.viewletSwitcherBar.push(newViewletsToShow, { label: true, icon: true });
+			this.viewletSwitcherBar.push(newViewletsToShow, {
+				label: true,
+				icon: true
+			});
 
 			// Make sure to activate the active one
 			const activeViewlet = this.viewletService.getActiveViewlet();
 			if (activeViewlet) {
-				const activeViewletEntry = this.viewletIdToActions[activeViewlet.getId()];
+				const activeViewletEntry = this.viewletIdToActions[
+					activeViewlet.getId()
+				];
 				if (activeViewletEntry) {
 					activeViewletEntry.activate();
 				}
@@ -365,10 +475,23 @@ export class ActivitybarPart extends Part implements IActivityBarService {
 
 		// Add overflow action as needed
 		if (visibleViewletsChange && overflows) {
-			this.viewletOverflowAction = this.instantiationService.createInstance(ViewletOverflowActivityAction, () => this.viewletOverflowActionItem.showMenu());
-			this.viewletOverflowActionItem = this.instantiationService.createInstance(ViewletOverflowActivityActionItem, this.viewletOverflowAction, () => this.getOverflowingViewlets(), (viewlet: ViewletDescriptor) => this.viewletIdToActivityStack[viewlet.id] && this.viewletIdToActivityStack[viewlet.id][0].badge);
+			this.viewletOverflowAction = this.instantiationService.createInstance(
+				ViewletOverflowActivityAction,
+				() => this.viewletOverflowActionItem.showMenu()
+			);
+			this.viewletOverflowActionItem = this.instantiationService.createInstance(
+				ViewletOverflowActivityActionItem,
+				this.viewletOverflowAction,
+				() => this.getOverflowingViewlets(),
+				(viewlet: ViewletDescriptor) =>
+					this.viewletIdToActivityStack[viewlet.id] &&
+					this.viewletIdToActivityStack[viewlet.id][0].badge
+			);
 
-			this.viewletSwitcherBar.push(this.viewletOverflowAction, { label: true, icon: true });
+			this.viewletSwitcherBar.push(this.viewletOverflowAction, {
+				label: true,
+				icon: true
+			});
 		}
 	}
 
@@ -379,7 +502,9 @@ export class ActivitybarPart extends Part implements IActivityBarService {
 		}
 		const visibleViewlets = Object.keys(this.viewletIdToActions);
 
-		return viewlets.filter(viewlet => visibleViewlets.indexOf(viewlet.id) === -1);
+		return viewlets.filter(
+			viewlet => visibleViewlets.indexOf(viewlet.id) === -1
+		);
 	}
 
 	private getVisibleViewlets(): ViewletDescriptor[] {
@@ -390,7 +515,9 @@ export class ActivitybarPart extends Part implements IActivityBarService {
 	}
 
 	private getPinnedViewlets(): ViewletDescriptor[] {
-		return this.pinnedViewlets.map(viewletId => this.viewletService.getViewlet(viewletId)).filter(v => !!v); // ensure to remove those that might no longer exist
+		return this.pinnedViewlets
+			.map(viewletId => this.viewletService.getViewlet(viewletId))
+			.filter(v => !!v); // ensure to remove those that might no longer exist
 	}
 
 	private pullViewlet(viewletId: string): void {
@@ -409,9 +536,14 @@ export class ActivitybarPart extends Part implements IActivityBarService {
 	}
 
 	private toAction(viewlet: ViewletDescriptor): ActivityAction {
-		const action = this.instantiationService.createInstance(ViewletActivityAction, viewlet);
+		const action = this.instantiationService.createInstance(
+			ViewletActivityAction,
+			viewlet
+		);
 
-		this.viewletIdToActionItems[action.id] = this.instantiationService.createInstance(ViewletActionItem, action);
+		this.viewletIdToActionItems[
+			action.id
+		] = this.instantiationService.createInstance(ViewletActionItem, action);
 		this.viewletIdToActions[viewlet.id] = action;
 
 		return action;
@@ -436,28 +568,27 @@ export class ActivitybarPart extends Part implements IActivityBarService {
 		// Solv: we do nothing
 		if (!activeViewlet || activeViewlet.getId() !== viewletId) {
 			unpinPromise = TPromise.as(null);
-		}
-
-		// Case: viewlet is not the default viewlet and default viewlet is still showing
-		// Solv: we open the default viewlet
-		else if (defaultViewletId !== viewletId && this.isPinned(defaultViewletId)) {
+		} else if (
+			defaultViewletId !== viewletId &&
+			this.isPinned(defaultViewletId)
+		) {
+			// Case: viewlet is not the default viewlet and default viewlet is still showing
+			// Solv: we open the default viewlet
 			unpinPromise = this.viewletService.openViewlet(defaultViewletId, true);
-		}
-
-		// Case: we closed the last visible viewlet
-		// Solv: we hide the sidebar
-		else if (visibleViewlets.length === 1) {
+		} else if (visibleViewlets.length === 1) {
+			// Case: we closed the last visible viewlet
+			// Solv: we hide the sidebar
 			unpinPromise = this.partService.setSideBarHidden(true);
-		}
-
-		// Case: we closed the default viewlet
-		// Solv: we open the next visible viewlet from top
-		else {
-			unpinPromise = this.viewletService.openViewlet(visibleViewlets.filter(viewlet => viewlet.id !== viewletId)[0].id, true);
+		} else {
+			// Case: we closed the default viewlet
+			// Solv: we open the next visible viewlet from top
+			unpinPromise = this.viewletService.openViewlet(
+				visibleViewlets.filter(viewlet => viewlet.id !== viewletId)[0].id,
+				true
+			);
 		}
 
 		unpinPromise.then(() => {
-
 			// then remove from pinned and update switcher
 			const index = this.pinnedViewlets.indexOf(viewletId);
 			this.pinnedViewlets.splice(index, 1);
@@ -477,7 +608,6 @@ export class ActivitybarPart extends Part implements IActivityBarService {
 
 		// first open that viewlet
 		this.viewletService.openViewlet(viewletId, true).then(() => {
-
 			// then update
 			this.pinnedViewlets.push(viewletId);
 			this.pinnedViewlets = arrays.distinct(this.pinnedViewlets);
@@ -489,7 +619,6 @@ export class ActivitybarPart extends Part implements IActivityBarService {
 	}
 
 	public move(viewletId: string, toViewletId: string): void {
-
 		// Make sure a moved viewlet gets pinned
 		if (!this.isPinned(viewletId)) {
 			this.pin(viewletId, false /* defer update, we take care of it */);
@@ -503,7 +632,11 @@ export class ActivitybarPart extends Part implements IActivityBarService {
 
 		// Clear viewlets that are impacted by the move
 		const visibleViewlets = Object.keys(this.viewletIdToActions);
-		for (let i = Math.min(fromIndex, toIndex); i < visibleViewlets.length; i++) {
+		for (
+			let i = Math.min(fromIndex, toIndex);
+			i < visibleViewlets.length;
+			i++
+		) {
 			this.pullViewlet(visibleViewlets[i]);
 		}
 
@@ -517,7 +650,6 @@ export class ActivitybarPart extends Part implements IActivityBarService {
 	 * Layout title, content and status area in the given dimension.
 	 */
 	public layout(dimension: Dimension): Dimension[] {
-
 		// Pass to super
 		const sizes = super.layout(dimension);
 
@@ -544,7 +676,6 @@ export class ActivitybarPart extends Part implements IActivityBarService {
 	}
 
 	public shutdown(): void {
-
 		// Persist Hidden State
 		this.memento[ActivitybarPart.PINNED_VIEWLETS] = this.pinnedViewlets;
 

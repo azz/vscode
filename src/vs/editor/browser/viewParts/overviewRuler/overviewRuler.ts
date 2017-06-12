@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { ViewEventHandler } from 'vs/editor/common/viewModel/viewEventHandler';
 import { IOverviewRuler } from 'vs/editor/browser/editorBrowser';
@@ -13,11 +13,15 @@ import { OverviewRulerPosition } from 'vs/editor/common/config/editorOptions';
 import { OverviewRulerZone } from 'vs/editor/common/view/overviewZoneManager';
 
 export class OverviewRuler extends ViewEventHandler implements IOverviewRuler {
-
 	private _context: ViewContext;
 	private _overviewRuler: OverviewRulerImpl;
 
-	constructor(context: ViewContext, cssClassName: string, minimumHeight: number, maximumHeight: number) {
+	constructor(
+		context: ViewContext,
+		cssClassName: string,
+		minimumHeight: number,
+		maximumHeight: number
+	) {
 		super();
 		this._context = context;
 		this._overviewRuler = new OverviewRulerImpl(
@@ -29,7 +33,8 @@ export class OverviewRuler extends ViewEventHandler implements IOverviewRuler {
 			this._context.configuration.editor.pixelRatio,
 			minimumHeight,
 			maximumHeight,
-			(lineNumber: number) => this._context.viewLayout.getVerticalOffsetForLineNumber(lineNumber)
+			(lineNumber: number) =>
+				this._context.viewLayout.getVerticalOffsetForLineNumber(lineNumber)
 		);
 
 		this._context.addEventHandler(this);
@@ -43,17 +48,28 @@ export class OverviewRuler extends ViewEventHandler implements IOverviewRuler {
 
 	// ---- begin view event handlers
 
-	public onConfigurationChanged(e: viewEvents.ViewConfigurationChangedEvent): boolean {
+	public onConfigurationChanged(
+		e: viewEvents.ViewConfigurationChangedEvent
+	): boolean {
 		if (e.lineHeight) {
-			this._overviewRuler.setLineHeight(this._context.configuration.editor.lineHeight, true);
+			this._overviewRuler.setLineHeight(
+				this._context.configuration.editor.lineHeight,
+				true
+			);
 		}
 
 		if (e.canUseTranslate3d) {
-			this._overviewRuler.setCanUseTranslate3d(this._context.configuration.editor.canUseTranslate3d, true);
+			this._overviewRuler.setCanUseTranslate3d(
+				this._context.configuration.editor.canUseTranslate3d,
+				true
+			);
 		}
 
 		if (e.pixelRatio) {
-			this._overviewRuler.setPixelRatio(this._context.configuration.editor.pixelRatio, true);
+			this._overviewRuler.setPixelRatio(
+				this._context.configuration.editor.pixelRatio,
+				true
+			);
 		}
 
 		return true;

@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as path from 'path';
 import * as fs from 'fs';
@@ -23,12 +23,14 @@ export function activate(_context: vscode.ExtensionContext): void {
 	let pattern = path.join(workspaceRoot, '{Jakefile,Jakefile.js}');
 	let jakePromise: Thenable<vscode.Task[]> | undefined = undefined;
 	let fileWatcher = vscode.workspace.createFileSystemWatcher(pattern);
-	fileWatcher.onDidChange(() => jakePromise = undefined);
-	fileWatcher.onDidCreate(() => jakePromise = undefined);
-	fileWatcher.onDidDelete(() => jakePromise = undefined);
+	fileWatcher.onDidChange(() => (jakePromise = undefined));
+	fileWatcher.onDidCreate(() => (jakePromise = undefined));
+	fileWatcher.onDidDelete(() => (jakePromise = undefined));
 
 	function onConfigurationChanged() {
-		let autoDetect = vscode.workspace.getConfiguration('jake').get<AutoDetect>('autoDetect');
+		let autoDetect = vscode.workspace
+			.getConfiguration('jake')
+			.get<AutoDetect>('autoDetect');
 		if (taskProvider && autoDetect === 'off') {
 			jakePromise = undefined;
 			taskProvider.dispose();
@@ -56,13 +58,16 @@ export function deactivate(): void {
 
 function exists(file: string): Promise<boolean> {
 	return new Promise<boolean>((resolve, _reject) => {
-		fs.exists(file, (value) => {
+		fs.exists(file, value => {
 			resolve(value);
 		});
 	});
 }
 
-function exec(command: string, options: cp.ExecOptions): Promise<{ stdout: string; stderr: string }> {
+function exec(
+	command: string,
+	options: cp.ExecOptions
+): Promise<{ stdout: string; stderr: string }> {
 	return new Promise<{ stdout: string; stderr: string }>((resolve, reject) => {
 		cp.exec(command, options, (error, stdout, stderr) => {
 			if (error) {
@@ -90,16 +95,24 @@ async function getJakeTasks(): Promise<vscode.Task[]> {
 	let jakefile = path.join(workspaceRoot, 'Jakefile');
 	if (!await exists(jakefile)) {
 		jakefile = path.join(workspaceRoot, 'Jakefile.js');
-		if (! await exists(jakefile)) {
+		if (!await exists(jakefile)) {
 			return emptyTasks;
 		}
 	}
 
 	let jakeCommand: string;
 	let platform = process.platform;
-	if (platform === 'win32' && await exists(path.join(workspaceRoot!, 'node_modules', '.bin', 'jake.cmd'))) {
+	if (
+		platform === 'win32' &&
+		(await exists(
+			path.join(workspaceRoot!, 'node_modules', '.bin', 'jake.cmd')
+		))
+	) {
 		jakeCommand = path.join('.', 'node_modules', '.bin', 'jake.cmd');
-	} else if ((platform === 'linux' || platform === 'darwin') && await exists(path.join(workspaceRoot!, 'node_modules', '.bin', 'jake'))) {
+	} else if (
+		(platform === 'linux' || platform === 'darwin') &&
+		(await exists(path.join(workspaceRoot!, 'node_modules', '.bin', 'jake')))
+	) {
 		jakeCommand = path.join('.', 'node_modules', '.bin', 'jake');
 	} else {
 		jakeCommand = 'jake';
@@ -114,8 +127,14 @@ async function getJakeTasks(): Promise<vscode.Task[]> {
 		}
 		let result: vscode.Task[] = [];
 		if (stdout) {
-			let buildTask: { task: vscode.Task | undefined, rank: number } = { task: undefined, rank: 0 };
-			let testTask: { task: vscode.Task | undefined, rank: number } = { task: undefined, rank: 0 };
+			let buildTask: { task: vscode.Task | undefined; rank: number } = {
+				task: undefined,
+				rank: 0
+			};
+			let testTask: { task: vscode.Task | undefined; rank: number } = {
+				task: undefined,
+				rank: 0
+			};
 			let lines = stdout.split(/\r{0,1}\n/);
 			for (let line of lines) {
 				if (line.length === 0) {
@@ -125,17 +144,26 @@ async function getJakeTasks(): Promise<vscode.Task[]> {
 				let matches = regExp.exec(line);
 				if (matches && matches.length === 2) {
 					let taskName = matches[1];
-					let task = new vscode.ShellTask(taskName, `${jakeCommand} ${taskName}`);
+					let task = new vscode.ShellTask(
+						taskName,
+						`${jakeCommand} ${taskName}`
+					);
 					task.identifier = `jake.${taskName}`;
 					result.push(task);
 					let lowerCaseLine = line.toLowerCase();
 					if (lowerCaseLine === 'build') {
 						buildTask = { task, rank: 2 };
-					} else if (lowerCaseLine.indexOf('build') !== -1 && buildTask.rank < 1) {
+					} else if (
+						lowerCaseLine.indexOf('build') !== -1 &&
+						buildTask.rank < 1
+					) {
 						buildTask = { task, rank: 1 };
 					} else if (lowerCaseLine === 'test') {
 						testTask = { task, rank: 2 };
-					} else if (lowerCaseLine.indexOf('test') !== -1 && testTask.rank < 1) {
+					} else if (
+						lowerCaseLine.indexOf('test') !== -1 &&
+						testTask.rank < 1
+					) {
 						testTask = { task, rank: 1 };
 					}
 				}
@@ -156,7 +184,13 @@ async function getJakeTasks(): Promise<vscode.Task[]> {
 		if (err.stdout) {
 			channel.appendLine(err.stdout);
 		}
-		channel.appendLine(localize('execFailed', 'Auto detecting Jake failed with error: {0}', err.error ? err.error.toString() : 'unknown'));
+		channel.appendLine(
+			localize(
+				'execFailed',
+				'Auto detecting Jake failed with error: {0}',
+				err.error ? err.error.toString() : 'unknown'
+			)
+		);
 		channel.show(true);
 		return emptyTasks;
 	}

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import URI from 'vs/base/common/uri';
 
@@ -21,7 +21,6 @@ export interface Entry<K, T> {
  * string value of the key.
  */
 export class SimpleMap<K extends Key, T> {
-
 	protected map: { [key: string]: Entry<K, T> };
 	protected _size: number;
 
@@ -142,7 +141,11 @@ export class BoundedMap<T> {
 	private _size: number;
 	private ratio: number;
 
-	constructor(private limit = Number.MAX_VALUE, ratio = 1, value?: ISerializedBoundedLinkedMap<T>) {
+	constructor(
+		private limit = Number.MAX_VALUE,
+		ratio = 1,
+		value?: ISerializedBoundedLinkedMap<T>
+	) {
 		this.map = Object.create(null);
 		this._size = 0;
 		this.ratio = limit * ratio;
@@ -271,13 +274,11 @@ export class BoundedMap<T> {
 
 	private trim(): void {
 		if (this.tail) {
-
 			// Remove all elements until ratio is reached
 			if (this.ratio < this.limit) {
 				let index = 0;
 				let current = this.tail;
 				while (current.next) {
-
 					// Remove the entry
 					this.map[current.key] = void 0;
 					this._size--;
@@ -295,10 +296,8 @@ export class BoundedMap<T> {
 					current = current.next;
 					index++;
 				}
-			}
-
-			// Just remove the tail element
-			else {
+			} else {
+				// Just remove the tail element
 				this.map[this.tail.key] = void 0;
 				this._size--;
 
@@ -324,7 +323,6 @@ class Node<E> {
  * to the actual search keys (dir/subdir-problem).
  */
 export class TrieMap<E> {
-
 	static PathSplitter = (s: string) => s.split(/[\\/]/).filter(s => !!s);
 
 	private _splitter: (s: string) => string[];

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import assert = require('assert');
 import { ArrayIterator } from 'vs/base/common/iterator';
@@ -12,8 +12,12 @@ import { HeightMap, IViewItem } from 'vs/base/parts/tree/browser/treeViewModel';
 function makeItem(id, height): any {
 	return {
 		id: id,
-		getHeight: function () { return height; },
-		isExpanded: function () { return false; },
+		getHeight: function() {
+			return height;
+		},
+		isExpanded: function() {
+			return false;
+		},
 		getAllTraits: () => []
 	};
 }
@@ -33,14 +37,13 @@ function makeNavigator(...args: any[]): any {
 	var i = 0;
 
 	return {
-		next: function () {
+		next: function() {
 			return items[i++] || null;
 		}
 	};
 }
 
 class TestHeightMap extends HeightMap {
-
 	protected createViewItem(item: any): IViewItem {
 		return {
 			model: item,
@@ -217,37 +220,51 @@ suite('TreeView - HeightMap', () => {
 	test('withItemsInRange', () => {
 		var i = 0;
 		var itemsInRange = ['a', 'b'];
-		rangeMap.withItemsInRange(2, 27, function (item) { assert.equal(item, itemsInRange[i++]); });
+		rangeMap.withItemsInRange(2, 27, function(item) {
+			assert.equal(item, itemsInRange[i++]);
+		});
 		assert.equal(i, itemsInRange.length);
 
 		i = 0;
 		itemsInRange = ['a', 'b'];
-		rangeMap.withItemsInRange(0, 3, function (item) { assert.equal(item, itemsInRange[i++]); });
+		rangeMap.withItemsInRange(0, 3, function(item) {
+			assert.equal(item, itemsInRange[i++]);
+		});
 		assert.equal(i, itemsInRange.length);
 
 		i = 0;
 		itemsInRange = ['a'];
-		rangeMap.withItemsInRange(0, 2, function (item) { assert.equal(item, itemsInRange[i++]); });
+		rangeMap.withItemsInRange(0, 2, function(item) {
+			assert.equal(item, itemsInRange[i++]);
+		});
 		assert.equal(i, itemsInRange.length);
 
 		i = 0;
 		itemsInRange = ['a'];
-		rangeMap.withItemsInRange(0, 2, function (item) { assert.equal(item, itemsInRange[i++]); });
+		rangeMap.withItemsInRange(0, 2, function(item) {
+			assert.equal(item, itemsInRange[i++]);
+		});
 		assert.equal(i, itemsInRange.length);
 
 		i = 0;
 		itemsInRange = ['b', 'c'];
-		rangeMap.withItemsInRange(15, 39, function (item) { assert.equal(item, itemsInRange[i++]); });
+		rangeMap.withItemsInRange(15, 39, function(item) {
+			assert.equal(item, itemsInRange[i++]);
+		});
 		assert.equal(i, itemsInRange.length);
 
 		i = 0;
 		itemsInRange = ['a', 'b', 'c', 'd'];
-		rangeMap.withItemsInRange(1, 58, function (item) { assert.equal(item, itemsInRange[i++]); });
+		rangeMap.withItemsInRange(1, 58, function(item) {
+			assert.equal(item, itemsInRange[i++]);
+		});
 		assert.equal(i, itemsInRange.length);
 
 		i = 0;
 		itemsInRange = ['c', 'd'];
-		rangeMap.withItemsInRange(45, 58, function (item) { assert.equal(item, itemsInRange[i++]); });
+		rangeMap.withItemsInRange(45, 58, function(item) {
+			assert.equal(item, itemsInRange[i++]);
+		});
 		assert.equal(i, itemsInRange.length);
 	});
 });

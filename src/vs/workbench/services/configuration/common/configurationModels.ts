@@ -2,15 +2,18 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { ConfigModel } from 'vs/platform/configuration/common/model';
 import { WORKSPACE_STANDALONE_CONFIGURATIONS } from 'vs/workbench/services/configuration/common/configuration';
 import { Registry } from 'vs/platform/platform';
-import { IConfigurationRegistry, IConfigurationPropertySchema, Extensions } from 'vs/platform/configuration/common/configurationRegistry';
+import {
+	IConfigurationRegistry,
+	IConfigurationPropertySchema,
+	Extensions
+} from 'vs/platform/configuration/common/configurationRegistry';
 
 export class ScopedConfigModel<T> extends ConfigModel<T> {
-
 	constructor(content: string, name: string, public readonly scope: string) {
 		super(null, name);
 		this.update(content);
@@ -22,11 +25,9 @@ export class ScopedConfigModel<T> extends ConfigModel<T> {
 		contents[this.scope] = this.contents;
 		this._contents = contents;
 	}
-
 }
 
 export class WorkspaceSettingsConfigModel<T> extends ConfigModel<T> {
-
 	private _raw: T;
 	private _unsupportedKeys: string[];
 
@@ -34,7 +35,9 @@ export class WorkspaceSettingsConfigModel<T> extends ConfigModel<T> {
 		this._raw = raw;
 		const processedRaw = <T>{};
 		this._unsupportedKeys = [];
-		const configurationProperties = Registry.as<IConfigurationRegistry>(Extensions.Configuration).getConfigurationProperties();
+		const configurationProperties = Registry.as<IConfigurationRegistry>(
+			Extensions.Configuration
+		).getConfigurationProperties();
 		for (let key in raw) {
 			if (this.isWorkspaceScoped(key, configurationProperties)) {
 				processedRaw[key] = raw[key];
@@ -53,7 +56,12 @@ export class WorkspaceSettingsConfigModel<T> extends ConfigModel<T> {
 		return this._unsupportedKeys || [];
 	}
 
-	private isWorkspaceScoped(key: string, configurationProperties: { [qualifiedKey: string]: IConfigurationPropertySchema }): boolean {
+	private isWorkspaceScoped(
+		key: string,
+		configurationProperties: {
+			[qualifiedKey: string]: IConfigurationPropertySchema;
+		}
+	): boolean {
 		const propertySchema = configurationProperties[key];
 		if (!propertySchema) {
 			return true; // Unknown propertis are ignored from checks
@@ -63,8 +71,10 @@ export class WorkspaceSettingsConfigModel<T> extends ConfigModel<T> {
 }
 
 export class WorkspaceConfigModel<T> extends ConfigModel<T> {
-
-	constructor(public readonly workspaceSettingsConfig: WorkspaceSettingsConfigModel<T>, private scopedConfigs: ScopedConfigModel<T>[]) {
+	constructor(
+		public readonly workspaceSettingsConfig: WorkspaceSettingsConfigModel<T>,
+		private scopedConfigs: ScopedConfigModel<T>[]
+	) {
 		super();
 		this.consolidate();
 	}

@@ -2,16 +2,17 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
-import { RenderedLinesCollection, ILine } from 'vs/editor/browser/view/viewLayer';
+import {
+	RenderedLinesCollection,
+	ILine
+} from 'vs/editor/browser/view/viewLayer';
 
 class TestLine implements ILine {
-
 	_pinged = false;
-	constructor(public id: string) {
-	}
+	constructor(public id: string) {}
 
 	onContentChanged(): void {
 		this._pinged = true;
@@ -27,13 +28,20 @@ interface ILinesCollectionState {
 	pinged: boolean[];
 }
 
-function assertState(col: RenderedLinesCollection<TestLine>, state: ILinesCollectionState): void {
+function assertState(
+	col: RenderedLinesCollection<TestLine>,
+	state: ILinesCollectionState
+): void {
 	let actualState: ILinesCollectionState = {
 		startLineNumber: col.getStartLineNumber(),
 		lines: [],
 		pinged: []
 	};
-	for (let lineNumber = col.getStartLineNumber(); lineNumber <= col.getEndLineNumber(); lineNumber++) {
+	for (
+		let lineNumber = col.getStartLineNumber();
+		lineNumber <= col.getEndLineNumber();
+		lineNumber++
+	) {
 		actualState.lines.push(col.getLine(lineNumber).id);
 		actualState.pinged.push(col.getLine(lineNumber)._pinged);
 	}
@@ -41,8 +49,12 @@ function assertState(col: RenderedLinesCollection<TestLine>, state: ILinesCollec
 }
 
 suite('RenderedLinesCollection onLinesDeleted', () => {
-
-	function testOnModelLinesDeleted(deleteFromLineNumber: number, deleteToLineNumber: number, expectedDeleted: string[], expectedState: ILinesCollectionState): void {
+	function testOnModelLinesDeleted(
+		deleteFromLineNumber: number,
+		deleteToLineNumber: number,
+		expectedDeleted: string[],
+		expectedState: ILinesCollectionState
+	): void {
 		let col = new RenderedLinesCollection<TestLine>(() => new TestLine('new'));
 		col._set(6, [
 			new TestLine('old6'),
@@ -50,7 +62,10 @@ suite('RenderedLinesCollection onLinesDeleted', () => {
 			new TestLine('old8'),
 			new TestLine('old9')
 		]);
-		let actualDeleted1 = col.onLinesDeleted(deleteFromLineNumber, deleteToLineNumber);
+		let actualDeleted1 = col.onLinesDeleted(
+			deleteFromLineNumber,
+			deleteToLineNumber
+		);
 		let actualDeleted: string[] = [];
 		if (actualDeleted1) {
 			actualDeleted = actualDeleted1.map(line => line.id);
@@ -123,7 +138,6 @@ suite('RenderedLinesCollection onLinesDeleted', () => {
 		});
 	});
 
-
 	test('B1', () => {
 		testOnModelLinesDeleted(5, 5, [], {
 			startLineNumber: 5,
@@ -172,7 +186,6 @@ suite('RenderedLinesCollection onLinesDeleted', () => {
 		});
 	});
 
-
 	test('C1', () => {
 		testOnModelLinesDeleted(6, 6, ['old6'], {
 			startLineNumber: 6,
@@ -213,7 +226,6 @@ suite('RenderedLinesCollection onLinesDeleted', () => {
 		});
 	});
 
-
 	test('D1', () => {
 		testOnModelLinesDeleted(7, 7, ['old7'], {
 			startLineNumber: 6,
@@ -246,7 +258,6 @@ suite('RenderedLinesCollection onLinesDeleted', () => {
 		});
 	});
 
-
 	test('E1', () => {
 		testOnModelLinesDeleted(8, 8, ['old8'], {
 			startLineNumber: 6,
@@ -271,7 +282,6 @@ suite('RenderedLinesCollection onLinesDeleted', () => {
 		});
 	});
 
-
 	test('F1', () => {
 		testOnModelLinesDeleted(9, 9, ['old9'], {
 			startLineNumber: 6,
@@ -287,7 +297,6 @@ suite('RenderedLinesCollection onLinesDeleted', () => {
 			pinged: [false, false, false]
 		});
 	});
-
 
 	test('G1', () => {
 		testOnModelLinesDeleted(10, 10, [], {
@@ -305,7 +314,6 @@ suite('RenderedLinesCollection onLinesDeleted', () => {
 		});
 	});
 
-
 	test('H1', () => {
 		testOnModelLinesDeleted(11, 13, [], {
 			startLineNumber: 6,
@@ -316,8 +324,11 @@ suite('RenderedLinesCollection onLinesDeleted', () => {
 });
 
 suite('RenderedLinesCollection onLineChanged', () => {
-
-	function testOnModelLineChanged(changedLineNumber: number, expectedPinged: boolean, expectedState: ILinesCollectionState): void {
+	function testOnModelLineChanged(
+		changedLineNumber: number,
+		expectedPinged: boolean,
+		expectedState: ILinesCollectionState
+	): void {
 		let col = new RenderedLinesCollection<TestLine>(() => new TestLine('new'));
 		col._set(6, [
 			new TestLine('old6'),
@@ -393,12 +404,15 @@ suite('RenderedLinesCollection onLineChanged', () => {
 			pinged: [false, false, false, false]
 		});
 	});
-
 });
 
 suite('RenderedLinesCollection onLinesInserted', () => {
-
-	function testOnModelLinesInserted(insertFromLineNumber: number, insertToLineNumber: number, expectedDeleted: string[], expectedState: ILinesCollectionState): void {
+	function testOnModelLinesInserted(
+		insertFromLineNumber: number,
+		insertToLineNumber: number,
+		expectedDeleted: string[],
+		expectedState: ILinesCollectionState
+	): void {
 		let col = new RenderedLinesCollection<TestLine>(() => new TestLine('new'));
 		col._set(6, [
 			new TestLine('old6'),
@@ -406,7 +420,10 @@ suite('RenderedLinesCollection onLinesInserted', () => {
 			new TestLine('old8'),
 			new TestLine('old9')
 		]);
-		let actualDeleted1 = col.onLinesInserted(insertFromLineNumber, insertToLineNumber);
+		let actualDeleted1 = col.onLinesInserted(
+			insertFromLineNumber,
+			insertToLineNumber
+		);
 		let actualDeleted: string[] = [];
 		if (actualDeleted1) {
 			actualDeleted = actualDeleted1.map(line => line.id);
@@ -479,7 +496,6 @@ suite('RenderedLinesCollection onLinesInserted', () => {
 		});
 	});
 
-
 	test('B1', () => {
 		testOnModelLinesInserted(5, 5, [], {
 			startLineNumber: 7,
@@ -528,7 +544,6 @@ suite('RenderedLinesCollection onLinesInserted', () => {
 		});
 	});
 
-
 	test('C1', () => {
 		testOnModelLinesInserted(6, 6, [], {
 			startLineNumber: 7,
@@ -569,7 +584,6 @@ suite('RenderedLinesCollection onLinesInserted', () => {
 		});
 	});
 
-
 	test('D1', () => {
 		testOnModelLinesInserted(7, 7, ['old9'], {
 			startLineNumber: 6,
@@ -602,7 +616,6 @@ suite('RenderedLinesCollection onLinesInserted', () => {
 		});
 	});
 
-
 	test('E1', () => {
 		testOnModelLinesInserted(8, 8, ['old9'], {
 			startLineNumber: 6,
@@ -627,7 +640,6 @@ suite('RenderedLinesCollection onLinesInserted', () => {
 		});
 	});
 
-
 	test('F1', () => {
 		testOnModelLinesInserted(9, 9, ['old9'], {
 			startLineNumber: 6,
@@ -643,7 +655,6 @@ suite('RenderedLinesCollection onLinesInserted', () => {
 			pinged: [false, false, false]
 		});
 	});
-
 
 	test('G1', () => {
 		testOnModelLinesInserted(10, 10, [], {
@@ -661,7 +672,6 @@ suite('RenderedLinesCollection onLinesInserted', () => {
 		});
 	});
 
-
 	test('H1', () => {
 		testOnModelLinesInserted(11, 13, [], {
 			startLineNumber: 6,
@@ -671,10 +681,13 @@ suite('RenderedLinesCollection onLinesInserted', () => {
 	});
 });
 
-
 suite('RenderedLinesCollection onTokensChanged', () => {
-
-	function testOnModelTokensChanged(changedFromLineNumber: number, changedToLineNumber: number, expectedPinged: boolean, expectedState: ILinesCollectionState): void {
+	function testOnModelTokensChanged(
+		changedFromLineNumber: number,
+		changedToLineNumber: number,
+		expectedPinged: boolean,
+		expectedState: ILinesCollectionState
+	): void {
 		let col = new RenderedLinesCollection<TestLine>(() => new TestLine('new'));
 		col._set(6, [
 			new TestLine('old6'),
@@ -682,7 +695,12 @@ suite('RenderedLinesCollection onTokensChanged', () => {
 			new TestLine('old8'),
 			new TestLine('old9')
 		]);
-		let actualPinged = col.onTokensChanged([{ fromLineNumber: changedFromLineNumber, toLineNumber: changedToLineNumber }]);
+		let actualPinged = col.onTokensChanged([
+			{
+				fromLineNumber: changedFromLineNumber,
+				toLineNumber: changedToLineNumber
+			}
+		]);
 		assert.deepEqual(actualPinged, expectedPinged);
 		assertState(col, expectedState);
 	}

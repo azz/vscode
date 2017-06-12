@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as nativeKeymap from 'native-keymap';
 import { IDisposable } from 'vs/base/common/lifecycle';
@@ -14,10 +14,9 @@ import { ConfigWatcher } from 'vs/base/node/config';
 import { IUserFriendlyKeybinding } from 'vs/platform/keybinding/common/keybinding';
 import { IEnvironmentService } from 'vs/platform/environment/common/environment';
 import { ipcMain as ipc } from 'electron';
-import { IWindowsMainService } from "vs/platform/windows/electron-main/windows";
+import { IWindowsMainService } from 'vs/platform/windows/electron-main/windows';
 
 export class KeyboardLayoutMonitor {
-
 	public static readonly INSTANCE = new KeyboardLayoutMonitor();
 
 	private _emitter: Emitter<boolean>;
@@ -30,7 +29,9 @@ export class KeyboardLayoutMonitor {
 		this._isISOKeyboard = this._readIsISOKeyboard();
 	}
 
-	public onDidChangeKeyboardLayout(callback: (isISOKeyboard: boolean) => void): IDisposable {
+	public onDidChangeKeyboardLayout(
+		callback: (isISOKeyboard: boolean) => void
+	): IDisposable {
 		if (!this._registered) {
 			this._registered = true;
 
@@ -56,7 +57,6 @@ export class KeyboardLayoutMonitor {
 
 					this._isISOKeyboard = newValue;
 					this._emitter.fire(this._isISOKeyboard);
-
 				}, 3000);
 			}
 		}
@@ -82,7 +82,6 @@ export interface IKeybinding {
 }
 
 export class KeybindingsResolver {
-
 	private static lastKnownKeybindingsMapStorageKey = 'lastKnownKeybindings';
 
 	private commandIds: Set<string>;
@@ -98,14 +97,18 @@ export class KeybindingsResolver {
 		@IWindowsMainService private windowsService: IWindowsMainService
 	) {
 		this.commandIds = new Set<string>();
-		this.keybindings = this.storageService.getItem<{ [id: string]: string; }>(KeybindingsResolver.lastKnownKeybindingsMapStorageKey) || Object.create(null);
-		this.keybindingsWatcher = new ConfigWatcher<IUserFriendlyKeybinding[]>(environmentService.appKeybindingsPath, { changeBufferDelay: 100 });
+		this.keybindings =
+			this.storageService.getItem<{ [id: string]: string }>(
+				KeybindingsResolver.lastKnownKeybindingsMapStorageKey
+			) || Object.create(null);
+		this.keybindingsWatcher = new ConfigWatcher<
+			IUserFriendlyKeybinding[]
+		>(environmentService.appKeybindingsPath, { changeBufferDelay: 100 });
 
 		this.registerListeners();
 	}
 
 	private registerListeners(): void {
-
 		// Resolve keybindings when any first window is loaded
 		const onceOnWindowReady = once(this.windowsService.onWindowReady);
 		onceOnWindowReady(win => this.resolveKeybindings(win));
@@ -122,13 +125,18 @@ export class KeybindingsResolver {
 			// Fill hash map of resolved keybindings and check for changes
 			let keybindingsChanged = false;
 			let keybindingsCount = 0;
-			const resolvedKeybindings: { [commandId: string]: IKeybinding } = Object.create(null);
+			const resolvedKeybindings: {
+				[commandId: string]: IKeybinding;
+			} = Object.create(null);
 			keybindings.forEach(keybinding => {
 				keybindingsCount++;
 
 				resolvedKeybindings[keybinding.id] = keybinding;
 
-				if (!this.keybindings[keybinding.id] || keybinding.label !== this.keybindings[keybinding.id].label) {
+				if (
+					!this.keybindings[keybinding.id] ||
+					keybinding.label !== this.keybindings[keybinding.id].label
+				) {
 					keybindingsChanged = true;
 				}
 			});
@@ -140,24 +148,34 @@ export class KeybindingsResolver {
 
 			if (keybindingsChanged) {
 				this.keybindings = resolvedKeybindings;
-				this.storageService.setItem(KeybindingsResolver.lastKnownKeybindingsMapStorageKey, this.keybindings); // keep to restore instantly after restart
+				this.storageService.setItem(
+					KeybindingsResolver.lastKnownKeybindingsMapStorageKey,
+					this.keybindings
+				); // keep to restore instantly after restart
 
 				this._onKeybindingsChanged.fire();
 			}
 		});
 
 		// Resolve keybindings again when keybindings.json changes
-		this.keybindingsWatcher.onDidUpdateConfiguration(() => this.resolveKeybindings());
+		this.keybindingsWatcher.onDidUpdateConfiguration(() =>
+			this.resolveKeybindings()
+		);
 
 		// Resolve keybindings when window reloads because an installed extension could have an impact
 		this.windowsService.onWindowReload(() => this.resolveKeybindings());
 	}
 
-	private resolveKeybindings(win = this.windowsService.getLastActiveWindow()): void {
+	private resolveKeybindings(
+		win = this.windowsService.getLastActiveWindow()
+	): void {
 		if (this.commandIds.size && win) {
 			const commandIds = [];
 			this.commandIds.forEach(id => commandIds.push(id));
-			win.sendWhenReady('vscode:resolveKeybindings', JSON.stringify(commandIds));
+			win.sendWhenReady(
+				'vscode:resolveKeybindings',
+				JSON.stringify(commandIds)
+			);
 		}
 	}
 

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./dropdown';
 import { Builder, $ } from 'vs/base/browser/builder';
@@ -51,16 +51,22 @@ export class BaseDropdown extends ActionRunner {
 			};
 		}
 
-		this.$label.on([EventType.CLICK, EventType.MOUSE_DOWN, GestureEventType.Tap], (e: Event) => {
-			EventHelper.stop(e, true); // prevent default click behaviour to trigger
-		}).on([EventType.MOUSE_DOWN, GestureEventType.Tap], (e: Event) => {
-			// We want to show the context menu on dropdown so that as a user you can press and hold the
-			// mouse button, make a choice of action in the menu and release the mouse to trigger that
-			// action.
-			// Due to some weird bugs though, we delay showing the menu to unwind event stack
-			// (see https://github.com/Microsoft/vscode/issues/27648)
-			setTimeout(() => this.show(), 100);
-		}).appendTo(this.$el);
+		this.$label
+			.on(
+				[EventType.CLICK, EventType.MOUSE_DOWN, GestureEventType.Tap],
+				(e: Event) => {
+					EventHelper.stop(e, true); // prevent default click behaviour to trigger
+				}
+			)
+			.on([EventType.MOUSE_DOWN, GestureEventType.Tap], (e: Event) => {
+				// We want to show the context menu on dropdown so that as a user you can press and hold the
+				// mouse button, make a choice of action in the menu and release the mouse to trigger that
+				// action.
+				// Due to some weird bugs though, we delay showing the menu to unwind event stack
+				// (see https://github.com/Microsoft/vscode/issues/27648)
+				setTimeout(() => this.show(), 100);
+			})
+			.appendTo(this.$el);
 
 		let cleanupFn = labelRenderer(this.$label.getHTMLElement());
 
@@ -141,7 +147,7 @@ export class Dropdown extends BaseDropdown {
 		this.contextViewProvider.showContextView({
 			getAnchor: () => this.element.getHTMLElement(),
 
-			render: (container) => {
+			render: container => {
 				return this.renderContents(container);
 			},
 
@@ -167,7 +173,7 @@ export class Dropdown extends BaseDropdown {
 }
 
 export interface IContextMenuDelegate {
-	getAnchor(): HTMLElement | { x: number; y: number; };
+	getAnchor(): HTMLElement | { x: number; y: number };
 	getActions(): TPromise<IAction[]>;
 	getActionItem?(action: IAction): IActionItem;
 	getActionsContext?(): any;
@@ -233,9 +239,16 @@ export class DropdownMenu extends BaseDropdown {
 		this._contextMenuProvider.showContextMenu({
 			getAnchor: () => this.element.getHTMLElement(),
 			getActions: () => TPromise.as(this.actions),
-			getActionsContext: () => this.menuOptions ? this.menuOptions.context : null,
-			getActionItem: (action) => this.menuOptions && this.menuOptions.actionItemProvider ? this.menuOptions.actionItemProvider(action) : null,
-			getKeyBinding: (action: IAction) => this.menuOptions && this.menuOptions.getKeyBinding ? this.menuOptions.getKeyBinding(action) : null,
+			getActionsContext: () =>
+				this.menuOptions ? this.menuOptions.context : null,
+			getActionItem: action =>
+				this.menuOptions && this.menuOptions.actionItemProvider
+					? this.menuOptions.actionItemProvider(action)
+					: null,
+			getKeyBinding: (action: IAction) =>
+				this.menuOptions && this.menuOptions.getKeyBinding
+					? this.menuOptions.getKeyBinding(action)
+					: null,
 			getMenuClassName: () => this.menuClassName,
 			onHide: () => this.element.removeClass('active')
 		});
@@ -247,7 +260,6 @@ export class DropdownMenu extends BaseDropdown {
 }
 
 export class DropdownGroup extends EventEmitter {
-
 	private el: HTMLElement;
 
 	constructor(container: HTMLElement) {

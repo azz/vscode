@@ -3,35 +3,60 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
-import { IWindowService, IWindowsService } from 'vs/platform/windows/common/windows';
+import {
+	IWindowService,
+	IWindowsService
+} from 'vs/platform/windows/common/windows';
 import { ITelemetryData } from 'vs/platform/telemetry/common/telemetry';
 
 export class WindowService implements IWindowService {
-
 	_serviceBrand: any;
 
 	constructor(
 		private windowId: number,
 		@IWindowsService private windowsService: IWindowsService
-	) { }
+	) {}
 
 	getCurrentWindowId(): number {
 		return this.windowId;
 	}
 
-	openFileFolderPicker(forceNewWindow?: boolean, data?: ITelemetryData): TPromise<void> {
-		return this.windowsService.openFileFolderPicker(this.windowId, forceNewWindow, data);
+	openFileFolderPicker(
+		forceNewWindow?: boolean,
+		data?: ITelemetryData
+	): TPromise<void> {
+		return this.windowsService.openFileFolderPicker(
+			this.windowId,
+			forceNewWindow,
+			data
+		);
 	}
 
-	openFilePicker(forceNewWindow?: boolean, path?: string, data?: ITelemetryData): TPromise<void> {
-		return this.windowsService.openFilePicker(this.windowId, forceNewWindow, path, data);
+	openFilePicker(
+		forceNewWindow?: boolean,
+		path?: string,
+		data?: ITelemetryData
+	): TPromise<void> {
+		return this.windowsService.openFilePicker(
+			this.windowId,
+			forceNewWindow,
+			path,
+			data
+		);
 	}
 
-	openFolderPicker(forceNewWindow?: boolean, data?: ITelemetryData): TPromise<void> {
-		return this.windowsService.openFolderPicker(this.windowId, forceNewWindow, data);
+	openFolderPicker(
+		forceNewWindow?: boolean,
+		data?: ITelemetryData
+	): TPromise<void> {
+		return this.windowsService.openFolderPicker(
+			this.windowId,
+			forceNewWindow,
+			data
+		);
 	}
 
 	reloadWindow(): TPromise<void> {
@@ -58,7 +83,9 @@ export class WindowService implements IWindowService {
 		return this.windowsService.setRepresentedFilename(this.windowId, fileName);
 	}
 
-	addToRecentlyOpen(paths: { path: string, isFile?: boolean }[]): TPromise<void> {
+	addToRecentlyOpen(
+		paths: { path: string; isFile?: boolean }[]
+	): TPromise<void> {
 		return this.windowsService.addToRecentlyOpen(paths);
 	}
 
@@ -66,7 +93,7 @@ export class WindowService implements IWindowService {
 		return this.windowsService.removeFromRecentlyOpen(paths);
 	}
 
-	getRecentlyOpen(): TPromise<{ files: string[]; folders: string[]; }> {
+	getRecentlyOpen(): TPromise<{ files: string[]; folders: string[] }> {
 		return this.windowsService.getRecentlyOpen(this.windowId);
 	}
 
@@ -97,5 +124,4 @@ export class WindowService implements IWindowService {
 	setDocumentEdited(flag: boolean): TPromise<void> {
 		return this.windowsService.setDocumentEdited(this.windowId, flag);
 	}
-
 }

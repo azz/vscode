@@ -18,7 +18,9 @@ export function updateTag(tagName: string) {
 	let rootNode: Node = parse(editor.document.getText());
 	let rangesToUpdate = [];
 	editor.selections.reverse().forEach(selection => {
-		rangesToUpdate = rangesToUpdate.concat(getRangesToUpdate(editor, selection, rootNode));
+		rangesToUpdate = rangesToUpdate.concat(
+			getRangesToUpdate(editor, selection, rootNode)
+		);
 	});
 
 	editor.edit(editBuilder => {
@@ -28,7 +30,11 @@ export function updateTag(tagName: string) {
 	});
 }
 
-function getRangesToUpdate(editor: vscode.TextEditor, selection: vscode.Selection, rootNode: Node): vscode.Range[] {
+function getRangesToUpdate(
+	editor: vscode.TextEditor,
+	selection: vscode.Selection,
+	rootNode: Node
+): vscode.Range[] {
 	let offset = editor.document.offsetAt(selection.start);
 	let nodeToUpdate = getNode(rootNode, offset);
 
@@ -43,5 +49,3 @@ function getRangesToUpdate(editor: vscode.TextEditor, selection: vscode.Selectio
 	}
 	return ranges;
 }
-
-

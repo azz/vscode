@@ -3,107 +3,159 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
-import { KeyMod, KeyCode, createKeybinding, SimpleKeybinding, KeyChord } from 'vs/base/common/keyCodes';
-import { MacLinuxKeyboardMapper, IMacLinuxKeyboardMapping } from 'vs/workbench/services/keybinding/common/macLinuxKeyboardMapper';
+import {
+	KeyMod,
+	KeyCode,
+	createKeybinding,
+	SimpleKeybinding,
+	KeyChord
+} from 'vs/base/common/keyCodes';
+import {
+	MacLinuxKeyboardMapper,
+	IMacLinuxKeyboardMapping
+} from 'vs/workbench/services/keybinding/common/macLinuxKeyboardMapper';
 import { OperatingSystem } from 'vs/base/common/platform';
 import { UserSettingsLabelProvider } from 'vs/platform/keybinding/common/keybindingLabels';
 import { USLayoutResolvedKeybinding } from 'vs/platform/keybinding/common/usLayoutResolvedKeybinding';
-import { ScanCodeUtils, ScanCodeBinding, ScanCode } from 'vs/workbench/services/keybinding/common/scanCode';
+import {
+	ScanCodeUtils,
+	ScanCodeBinding,
+	ScanCode
+} from 'vs/workbench/services/keybinding/common/scanCode';
 import { TPromise } from 'vs/base/common/winjs.base';
-import { readRawMapping, assertMapping, IResolvedKeybinding, assertResolveKeybinding, assertResolveKeyboardEvent, assertResolveUserBinding } from 'vs/workbench/services/keybinding/test/keyboardMapperTestUtils';
+import {
+	readRawMapping,
+	assertMapping,
+	IResolvedKeybinding,
+	assertResolveKeybinding,
+	assertResolveKeyboardEvent,
+	assertResolveUserBinding
+} from 'vs/workbench/services/keybinding/test/keyboardMapperTestUtils';
 
 const WRITE_FILE_IF_DIFFERENT = false;
 
-function createKeyboardMapper(isUSStandard: boolean, file: string, OS: OperatingSystem): TPromise<MacLinuxKeyboardMapper> {
-	return readRawMapping<IMacLinuxKeyboardMapping>(file).then((rawMappings) => {
+function createKeyboardMapper(
+	isUSStandard: boolean,
+	file: string,
+	OS: OperatingSystem
+): TPromise<MacLinuxKeyboardMapper> {
+	return readRawMapping<IMacLinuxKeyboardMapping>(file).then(rawMappings => {
 		return new MacLinuxKeyboardMapper(false, isUSStandard, rawMappings, OS);
 	});
 }
 
 suite('keyboardMapper - MAC de_ch', () => {
-
 	let mapper: MacLinuxKeyboardMapper;
 
-	suiteSetup((done) => {
-		createKeyboardMapper(false, 'mac_de_ch', OperatingSystem.Macintosh).then((_mapper) => {
+	suiteSetup(done => {
+		createKeyboardMapper(
+			false,
+			'mac_de_ch',
+			OperatingSystem.Macintosh
+		).then(_mapper => {
 			mapper = _mapper;
 			done();
 		}, done);
 	});
 
-	test('mapping', (done) => {
+	test('mapping', done => {
 		assertMapping(WRITE_FILE_IF_DIFFERENT, mapper, 'mac_de_ch.txt', done);
 	});
 
-	function assertKeybindingTranslation(kb: number, expected: string | string[]): void {
-		_assertKeybindingTranslation(mapper, OperatingSystem.Macintosh, kb, expected);
+	function assertKeybindingTranslation(
+		kb: number,
+		expected: string | string[]
+	): void {
+		_assertKeybindingTranslation(
+			mapper,
+			OperatingSystem.Macintosh,
+			kb,
+			expected
+		);
 	}
 
-	function _assertResolveKeybinding(k: number, expected: IResolvedKeybinding[]): void {
-		assertResolveKeybinding(mapper, createKeybinding(k, OperatingSystem.Macintosh), expected);
+	function _assertResolveKeybinding(
+		k: number,
+		expected: IResolvedKeybinding[]
+	): void {
+		assertResolveKeybinding(
+			mapper,
+			createKeybinding(k, OperatingSystem.Macintosh),
+			expected
+		);
 	}
 
 	test('kb => hw', () => {
 		// unchanged
 		assertKeybindingTranslation(KeyMod.CtrlCmd | KeyCode.KEY_1, 'cmd+Digit1');
 		assertKeybindingTranslation(KeyMod.CtrlCmd | KeyCode.KEY_B, 'cmd+KeyB');
-		assertKeybindingTranslation(KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KEY_B, 'shift+cmd+KeyB');
-		assertKeybindingTranslation(KeyMod.CtrlCmd | KeyMod.Shift | KeyMod.Alt | KeyMod.WinCtrl | KeyCode.KEY_B, 'ctrl+shift+alt+cmd+KeyB');
+		assertKeybindingTranslation(
+			KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KEY_B,
+			'shift+cmd+KeyB'
+		);
+		assertKeybindingTranslation(
+			KeyMod.CtrlCmd |
+				KeyMod.Shift |
+				KeyMod.Alt |
+				KeyMod.WinCtrl |
+				KeyCode.KEY_B,
+			'ctrl+shift+alt+cmd+KeyB'
+		);
 
 		// flips Y and Z
 		assertKeybindingTranslation(KeyMod.CtrlCmd | KeyCode.KEY_Z, 'cmd+KeyY');
 		assertKeybindingTranslation(KeyMod.CtrlCmd | KeyCode.KEY_Y, 'cmd+KeyZ');
 
 		// Ctrl+/
-		assertKeybindingTranslation(KeyMod.CtrlCmd | KeyCode.US_SLASH, 'shift+cmd+Digit7');
+		assertKeybindingTranslation(
+			KeyMod.CtrlCmd | KeyCode.US_SLASH,
+			'shift+cmd+Digit7'
+		);
 	});
 
 	test('resolveKeybinding Cmd+A', () => {
-		_assertResolveKeybinding(
-			KeyMod.CtrlCmd | KeyCode.KEY_A,
-			[{
+		_assertResolveKeybinding(KeyMod.CtrlCmd | KeyCode.KEY_A, [
+			{
 				label: '⌘A',
 				ariaLabel: 'Command+A',
 				electronAccelerator: 'Cmd+A',
 				userSettingsLabel: 'cmd+a',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['meta+[KeyA]', null],
-			}]
-		);
+				dispatchParts: ['meta+[KeyA]', null]
+			}
+		]);
 	});
 
 	test('resolveKeybinding Cmd+B', () => {
-		_assertResolveKeybinding(
-			KeyMod.CtrlCmd | KeyCode.KEY_B,
-			[{
+		_assertResolveKeybinding(KeyMod.CtrlCmd | KeyCode.KEY_B, [
+			{
 				label: '⌘B',
 				ariaLabel: 'Command+B',
 				electronAccelerator: 'Cmd+B',
 				userSettingsLabel: 'cmd+b',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['meta+[KeyB]', null],
-			}]
-		);
+				dispatchParts: ['meta+[KeyB]', null]
+			}
+		]);
 	});
 
 	test('resolveKeybinding Cmd+Z', () => {
-		_assertResolveKeybinding(
-			KeyMod.CtrlCmd | KeyCode.KEY_Z,
-			[{
+		_assertResolveKeybinding(KeyMod.CtrlCmd | KeyCode.KEY_Z, [
+			{
 				label: '⌘Z',
 				ariaLabel: 'Command+Z',
 				electronAccelerator: 'Cmd+Z',
 				userSettingsLabel: 'cmd+z',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['meta+[KeyY]', null],
-			}]
-		);
+				dispatchParts: ['meta+[KeyY]', null]
+			}
+		]);
 	});
 
 	test('resolveKeyboardEvent Cmd+[KeyY]', () => {
@@ -124,24 +176,23 @@ suite('keyboardMapper - MAC de_ch', () => {
 				userSettingsLabel: 'cmd+z',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['meta+[KeyY]', null],
+				dispatchParts: ['meta+[KeyY]', null]
 			}
 		);
 	});
 
 	test('resolveKeybinding Cmd+]', () => {
-		_assertResolveKeybinding(
-			KeyMod.CtrlCmd | KeyCode.US_CLOSE_SQUARE_BRACKET,
-			[{
+		_assertResolveKeybinding(KeyMod.CtrlCmd | KeyCode.US_CLOSE_SQUARE_BRACKET, [
+			{
 				label: '⌃⌥⌘6',
 				ariaLabel: 'Control+Alt+Command+6',
 				electronAccelerator: 'Ctrl+Alt+Cmd+6',
 				userSettingsLabel: 'ctrl+alt+cmd+6',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['ctrl+alt+meta+[Digit6]', null],
-			}]
-		);
+				dispatchParts: ['ctrl+alt+meta+[Digit6]', null]
+			}
+		]);
 	});
 
 	test('resolveKeyboardEvent Cmd+[BracketRight]', () => {
@@ -162,129 +213,133 @@ suite('keyboardMapper - MAC de_ch', () => {
 				userSettingsLabel: 'cmd+[BracketRight]',
 				isWYSIWYG: false,
 				isChord: false,
-				dispatchParts: ['meta+[BracketRight]', null],
+				dispatchParts: ['meta+[BracketRight]', null]
 			}
 		);
 	});
 
 	test('resolveKeybinding Shift+]', () => {
-		_assertResolveKeybinding(
-			KeyMod.Shift | KeyCode.US_CLOSE_SQUARE_BRACKET,
-			[{
+		_assertResolveKeybinding(KeyMod.Shift | KeyCode.US_CLOSE_SQUARE_BRACKET, [
+			{
 				label: '⌃⌥9',
 				ariaLabel: 'Control+Alt+9',
 				electronAccelerator: 'Ctrl+Alt+9',
 				userSettingsLabel: 'ctrl+alt+9',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['ctrl+alt+[Digit9]', null],
-			}]
-		);
+				dispatchParts: ['ctrl+alt+[Digit9]', null]
+			}
+		]);
 	});
 
 	test('resolveKeybinding Cmd+/', () => {
-		_assertResolveKeybinding(
-			KeyMod.CtrlCmd | KeyCode.US_SLASH,
-			[{
+		_assertResolveKeybinding(KeyMod.CtrlCmd | KeyCode.US_SLASH, [
+			{
 				label: '⇧⌘7',
 				ariaLabel: 'Shift+Command+7',
 				electronAccelerator: 'Shift+Cmd+7',
 				userSettingsLabel: 'shift+cmd+7',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['shift+meta+[Digit7]', null],
-			}]
-		);
+				dispatchParts: ['shift+meta+[Digit7]', null]
+			}
+		]);
 	});
 
 	test('resolveKeybinding Cmd+Shift+/', () => {
-		_assertResolveKeybinding(
-			KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.US_SLASH,
-			[{
-				label: '⇧⌘\'',
-				ariaLabel: 'Shift+Command+\'',
+		_assertResolveKeybinding(KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.US_SLASH, [
+			{
+				label: "⇧⌘'",
+				ariaLabel: "Shift+Command+'",
 				electronAccelerator: null,
 				userSettingsLabel: 'shift+cmd+[Minus]',
 				isWYSIWYG: false,
 				isChord: false,
-				dispatchParts: ['shift+meta+[Minus]', null],
-			}]
-		);
+				dispatchParts: ['shift+meta+[Minus]', null]
+			}
+		]);
 	});
 
 	test('resolveKeybinding Cmd+K Cmd+\\', () => {
 		_assertResolveKeybinding(
-			KeyChord(KeyMod.CtrlCmd | KeyCode.KEY_K, KeyMod.CtrlCmd | KeyCode.US_BACKSLASH),
-			[{
-				label: '⌘K ⌃⇧⌥⌘7',
-				ariaLabel: 'Command+K Control+Shift+Alt+Command+7',
-				electronAccelerator: null,
-				userSettingsLabel: 'cmd+k ctrl+shift+alt+cmd+7',
-				isWYSIWYG: true,
-				isChord: true,
-				dispatchParts: ['meta+[KeyK]', 'ctrl+shift+alt+meta+[Digit7]'],
-			}]
+			KeyChord(
+				KeyMod.CtrlCmd | KeyCode.KEY_K,
+				KeyMod.CtrlCmd | KeyCode.US_BACKSLASH
+			),
+			[
+				{
+					label: '⌘K ⌃⇧⌥⌘7',
+					ariaLabel: 'Command+K Control+Shift+Alt+Command+7',
+					electronAccelerator: null,
+					userSettingsLabel: 'cmd+k ctrl+shift+alt+cmd+7',
+					isWYSIWYG: true,
+					isChord: true,
+					dispatchParts: ['meta+[KeyK]', 'ctrl+shift+alt+meta+[Digit7]']
+				}
+			]
 		);
 	});
 
 	test('resolveKeybinding Cmd+K Cmd+=', () => {
 		_assertResolveKeybinding(
-			KeyChord(KeyMod.CtrlCmd | KeyCode.KEY_K, KeyMod.CtrlCmd | KeyCode.US_EQUAL),
-			[{
-				label: '⌘K ⇧⌘0',
-				ariaLabel: 'Command+K Shift+Command+0',
-				electronAccelerator: null,
-				userSettingsLabel: 'cmd+k shift+cmd+0',
-				isWYSIWYG: true,
-				isChord: true,
-				dispatchParts: ['meta+[KeyK]', 'shift+meta+[Digit0]'],
-			}]
+			KeyChord(
+				KeyMod.CtrlCmd | KeyCode.KEY_K,
+				KeyMod.CtrlCmd | KeyCode.US_EQUAL
+			),
+			[
+				{
+					label: '⌘K ⇧⌘0',
+					ariaLabel: 'Command+K Shift+Command+0',
+					electronAccelerator: null,
+					userSettingsLabel: 'cmd+k shift+cmd+0',
+					isWYSIWYG: true,
+					isChord: true,
+					dispatchParts: ['meta+[KeyK]', 'shift+meta+[Digit0]']
+				}
+			]
 		);
 	});
 
 	test('resolveKeybinding Cmd+DownArrow', () => {
-		_assertResolveKeybinding(
-			KeyMod.CtrlCmd | KeyCode.DownArrow,
-			[{
+		_assertResolveKeybinding(KeyMod.CtrlCmd | KeyCode.DownArrow, [
+			{
 				label: '⌘↓',
 				ariaLabel: 'Command+DownArrow',
 				electronAccelerator: 'Cmd+Down',
 				userSettingsLabel: 'cmd+down',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['meta+[ArrowDown]', null],
-			}]
-		);
+				dispatchParts: ['meta+[ArrowDown]', null]
+			}
+		]);
 	});
 
 	test('resolveKeybinding Cmd+NUMPAD_0', () => {
-		_assertResolveKeybinding(
-			KeyMod.CtrlCmd | KeyCode.NUMPAD_0,
-			[{
+		_assertResolveKeybinding(KeyMod.CtrlCmd | KeyCode.NUMPAD_0, [
+			{
 				label: '⌘NumPad0',
 				ariaLabel: 'Command+NumPad0',
 				electronAccelerator: null,
 				userSettingsLabel: 'cmd+numpad0',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['meta+[Numpad0]', null],
-			}]
-		);
+				dispatchParts: ['meta+[Numpad0]', null]
+			}
+		]);
 	});
 
 	test('resolveKeybinding Ctrl+Home', () => {
-		_assertResolveKeybinding(
-			KeyMod.CtrlCmd | KeyCode.Home,
-			[{
+		_assertResolveKeybinding(KeyMod.CtrlCmd | KeyCode.Home, [
+			{
 				label: '⌘Home',
 				ariaLabel: 'Command+Home',
 				electronAccelerator: 'Cmd+Home',
 				userSettingsLabel: 'cmd+home',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['meta+[Home]', null],
-			}]
-		);
+				dispatchParts: ['meta+[Home]', null]
+			}
+		]);
 	});
 
 	test('resolveKeyboardEvent Ctrl+[Home]', () => {
@@ -305,7 +360,7 @@ suite('keyboardMapper - MAC de_ch', () => {
 				userSettingsLabel: 'cmd+home',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['meta+[Home]', null],
+				dispatchParts: ['meta+[Home]', null]
 			}
 		);
 	});
@@ -315,15 +370,17 @@ suite('keyboardMapper - MAC de_ch', () => {
 			mapper,
 			new ScanCodeBinding(false, false, false, true, ScanCode.Comma),
 			new SimpleKeybinding(false, false, false, true, KeyCode.US_SLASH),
-			[{
-				label: '⌘, ⇧⌘7',
-				ariaLabel: 'Command+, Shift+Command+7',
-				electronAccelerator: null,
-				userSettingsLabel: 'cmd+[Comma] shift+cmd+7',
-				isWYSIWYG: false,
-				isChord: true,
-				dispatchParts: ['meta+[Comma]', 'shift+meta+[Digit7]'],
-			}]
+			[
+				{
+					label: '⌘, ⇧⌘7',
+					ariaLabel: 'Command+, Shift+Command+7',
+					electronAccelerator: null,
+					userSettingsLabel: 'cmd+[Comma] shift+cmd+7',
+					isWYSIWYG: false,
+					isChord: true,
+					dispatchParts: ['meta+[Comma]', 'shift+meta+[Digit7]']
+				}
+			]
 		);
 	});
 
@@ -345,7 +402,7 @@ suite('keyboardMapper - MAC de_ch', () => {
 				userSettingsLabel: 'cmd+',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: [null, null],
+				dispatchParts: [null, null]
 			}
 		);
 	});
@@ -368,24 +425,27 @@ suite('keyboardMapper - MAC de_ch', () => {
 				userSettingsLabel: 'cmd+',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: [null, null],
+				dispatchParts: [null, null]
 			}
 		);
 	});
 });
 
 suite('keyboardMapper - MAC en_us', () => {
-
 	let mapper: MacLinuxKeyboardMapper;
 
-	suiteSetup((done) => {
-		createKeyboardMapper(true, 'mac_en_us', OperatingSystem.Macintosh).then((_mapper) => {
+	suiteSetup(done => {
+		createKeyboardMapper(
+			true,
+			'mac_en_us',
+			OperatingSystem.Macintosh
+		).then(_mapper => {
 			mapper = _mapper;
 			done();
 		}, done);
 	});
 
-	test('mapping', (done) => {
+	test('mapping', done => {
 		assertMapping(WRITE_FILE_IF_DIFFERENT, mapper, 'mac_en_us.txt', done);
 	});
 
@@ -394,15 +454,17 @@ suite('keyboardMapper - MAC en_us', () => {
 			mapper,
 			new ScanCodeBinding(false, false, false, true, ScanCode.Comma),
 			new SimpleKeybinding(false, false, false, true, KeyCode.US_SLASH),
-			[{
-				label: '⌘, ⌘/',
-				ariaLabel: 'Command+, Command+/',
-				electronAccelerator: null,
-				userSettingsLabel: 'cmd+, cmd+/',
-				isWYSIWYG: true,
-				isChord: true,
-				dispatchParts: ['meta+[Comma]', 'meta+[Slash]'],
-			}]
+			[
+				{
+					label: '⌘, ⌘/',
+					ariaLabel: 'Command+, Command+/',
+					electronAccelerator: null,
+					userSettingsLabel: 'cmd+, cmd+/',
+					isWYSIWYG: true,
+					isChord: true,
+					dispatchParts: ['meta+[Comma]', 'meta+[Slash]']
+				}
+			]
 		);
 	});
 
@@ -424,7 +486,7 @@ suite('keyboardMapper - MAC en_us', () => {
 				userSettingsLabel: 'cmd+',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: [null, null],
+				dispatchParts: [null, null]
 			}
 		);
 	});
@@ -447,78 +509,102 @@ suite('keyboardMapper - MAC en_us', () => {
 				userSettingsLabel: 'cmd+',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: [null, null],
+				dispatchParts: [null, null]
 			}
 		);
 	});
 });
 
 suite('keyboardMapper - LINUX de_ch', () => {
-
 	let mapper: MacLinuxKeyboardMapper;
 
-	suiteSetup((done) => {
-		createKeyboardMapper(false, 'linux_de_ch', OperatingSystem.Linux).then((_mapper) => {
+	suiteSetup(done => {
+		createKeyboardMapper(
+			false,
+			'linux_de_ch',
+			OperatingSystem.Linux
+		).then(_mapper => {
 			mapper = _mapper;
 			done();
 		}, done);
 	});
 
-	test('mapping', (done) => {
+	test('mapping', done => {
 		assertMapping(WRITE_FILE_IF_DIFFERENT, mapper, 'linux_de_ch.txt', done);
 	});
 
-	function assertKeybindingTranslation(kb: number, expected: string | string[]): void {
+	function assertKeybindingTranslation(
+		kb: number,
+		expected: string | string[]
+	): void {
 		_assertKeybindingTranslation(mapper, OperatingSystem.Linux, kb, expected);
 	}
 
-	function _assertResolveKeybinding(k: number, expected: IResolvedKeybinding[]): void {
-		assertResolveKeybinding(mapper, createKeybinding(k, OperatingSystem.Linux), expected);
+	function _assertResolveKeybinding(
+		k: number,
+		expected: IResolvedKeybinding[]
+	): void {
+		assertResolveKeybinding(
+			mapper,
+			createKeybinding(k, OperatingSystem.Linux),
+			expected
+		);
 	}
 
 	test('kb => hw', () => {
 		// unchanged
 		assertKeybindingTranslation(KeyMod.CtrlCmd | KeyCode.KEY_1, 'ctrl+Digit1');
 		assertKeybindingTranslation(KeyMod.CtrlCmd | KeyCode.KEY_B, 'ctrl+KeyB');
-		assertKeybindingTranslation(KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KEY_B, 'ctrl+shift+KeyB');
-		assertKeybindingTranslation(KeyMod.CtrlCmd | KeyMod.Shift | KeyMod.Alt | KeyMod.WinCtrl | KeyCode.KEY_B, 'ctrl+shift+alt+meta+KeyB');
+		assertKeybindingTranslation(
+			KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KEY_B,
+			'ctrl+shift+KeyB'
+		);
+		assertKeybindingTranslation(
+			KeyMod.CtrlCmd |
+				KeyMod.Shift |
+				KeyMod.Alt |
+				KeyMod.WinCtrl |
+				KeyCode.KEY_B,
+			'ctrl+shift+alt+meta+KeyB'
+		);
 
 		// flips Y and Z
 		assertKeybindingTranslation(KeyMod.CtrlCmd | KeyCode.KEY_Z, 'ctrl+KeyY');
 		assertKeybindingTranslation(KeyMod.CtrlCmd | KeyCode.KEY_Y, 'ctrl+KeyZ');
 
 		// Ctrl+/
-		assertKeybindingTranslation(KeyMod.CtrlCmd | KeyCode.US_SLASH, 'ctrl+shift+Digit7');
+		assertKeybindingTranslation(
+			KeyMod.CtrlCmd | KeyCode.US_SLASH,
+			'ctrl+shift+Digit7'
+		);
 	});
 
 	test('resolveKeybinding Ctrl+A', () => {
-		_assertResolveKeybinding(
-			KeyMod.CtrlCmd | KeyCode.KEY_A,
-			[{
+		_assertResolveKeybinding(KeyMod.CtrlCmd | KeyCode.KEY_A, [
+			{
 				label: 'Ctrl+A',
 				ariaLabel: 'Control+A',
 				electronAccelerator: 'Ctrl+A',
 				userSettingsLabel: 'ctrl+a',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['ctrl+[KeyA]', null],
-			}]
-		);
+				dispatchParts: ['ctrl+[KeyA]', null]
+			}
+		]);
 	});
 
 	test('resolveKeybinding Ctrl+Z', () => {
-		_assertResolveKeybinding(
-			KeyMod.CtrlCmd | KeyCode.KEY_Z,
-			[{
+		_assertResolveKeybinding(KeyMod.CtrlCmd | KeyCode.KEY_Z, [
+			{
 				label: 'Ctrl+Z',
 				ariaLabel: 'Control+Z',
 				electronAccelerator: 'Ctrl+Z',
 				userSettingsLabel: 'ctrl+z',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['ctrl+[KeyY]', null],
-			}]
-		);
+				dispatchParts: ['ctrl+[KeyY]', null]
+			}
+		]);
 	});
 
 	test('resolveKeyboardEvent Ctrl+[KeyY]', () => {
@@ -539,7 +625,7 @@ suite('keyboardMapper - LINUX de_ch', () => {
 				userSettingsLabel: 'ctrl+z',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['ctrl+[KeyY]', null],
+				dispatchParts: ['ctrl+[KeyY]', null]
 			}
 		);
 	});
@@ -569,129 +655,132 @@ suite('keyboardMapper - LINUX de_ch', () => {
 				userSettingsLabel: 'ctrl+[BracketRight]',
 				isWYSIWYG: false,
 				isChord: false,
-				dispatchParts: ['ctrl+[BracketRight]', null],
+				dispatchParts: ['ctrl+[BracketRight]', null]
 			}
 		);
 	});
 
 	test('resolveKeybinding Shift+]', () => {
-		_assertResolveKeybinding(
-			KeyMod.Shift | KeyCode.US_CLOSE_SQUARE_BRACKET,
-			[{
+		_assertResolveKeybinding(KeyMod.Shift | KeyCode.US_CLOSE_SQUARE_BRACKET, [
+			{
 				label: 'Ctrl+Alt+0',
 				ariaLabel: 'Control+Alt+0',
 				electronAccelerator: 'Ctrl+Alt+0',
 				userSettingsLabel: 'ctrl+alt+0',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['ctrl+alt+[Digit0]', null],
-			}, {
+				dispatchParts: ['ctrl+alt+[Digit0]', null]
+			},
+			{
 				label: 'Ctrl+Alt+$',
 				ariaLabel: 'Control+Alt+$',
 				electronAccelerator: null,
 				userSettingsLabel: 'ctrl+alt+[Backslash]',
 				isWYSIWYG: false,
 				isChord: false,
-				dispatchParts: ['ctrl+alt+[Backslash]', null],
-			}]
-		);
+				dispatchParts: ['ctrl+alt+[Backslash]', null]
+			}
+		]);
 	});
 
 	test('resolveKeybinding Ctrl+/', () => {
-		_assertResolveKeybinding(
-			KeyMod.CtrlCmd | KeyCode.US_SLASH,
-			[{
+		_assertResolveKeybinding(KeyMod.CtrlCmd | KeyCode.US_SLASH, [
+			{
 				label: 'Ctrl+Shift+7',
 				ariaLabel: 'Control+Shift+7',
 				electronAccelerator: 'Ctrl+Shift+7',
 				userSettingsLabel: 'ctrl+shift+7',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['ctrl+shift+[Digit7]', null],
-			}]
-		);
+				dispatchParts: ['ctrl+shift+[Digit7]', null]
+			}
+		]);
 	});
 
 	test('resolveKeybinding Ctrl+Shift+/', () => {
-		_assertResolveKeybinding(
-			KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.US_SLASH,
-			[{
-				label: 'Ctrl+Shift+\'',
-				ariaLabel: 'Control+Shift+\'',
+		_assertResolveKeybinding(KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.US_SLASH, [
+			{
+				label: "Ctrl+Shift+'",
+				ariaLabel: "Control+Shift+'",
 				electronAccelerator: null,
 				userSettingsLabel: 'ctrl+shift+[Minus]',
 				isWYSIWYG: false,
 				isChord: false,
-				dispatchParts: ['ctrl+shift+[Minus]', null],
-			}]
-		);
+				dispatchParts: ['ctrl+shift+[Minus]', null]
+			}
+		]);
 	});
 
 	test('resolveKeybinding Ctrl+K Ctrl+\\', () => {
 		_assertResolveKeybinding(
-			KeyChord(KeyMod.CtrlCmd | KeyCode.KEY_K, KeyMod.CtrlCmd | KeyCode.US_BACKSLASH),
+			KeyChord(
+				KeyMod.CtrlCmd | KeyCode.KEY_K,
+				KeyMod.CtrlCmd | KeyCode.US_BACKSLASH
+			),
 			[]
 		);
 	});
 
 	test('resolveKeybinding Ctrl+K Ctrl+=', () => {
 		_assertResolveKeybinding(
-			KeyChord(KeyMod.CtrlCmd | KeyCode.KEY_K, KeyMod.CtrlCmd | KeyCode.US_EQUAL),
-			[{
-				label: 'Ctrl+K Ctrl+Shift+0',
-				ariaLabel: 'Control+K Control+Shift+0',
-				electronAccelerator: null,
-				userSettingsLabel: 'ctrl+k ctrl+shift+0',
-				isWYSIWYG: true,
-				isChord: true,
-				dispatchParts: ['ctrl+[KeyK]', 'ctrl+shift+[Digit0]'],
-			}]
+			KeyChord(
+				KeyMod.CtrlCmd | KeyCode.KEY_K,
+				KeyMod.CtrlCmd | KeyCode.US_EQUAL
+			),
+			[
+				{
+					label: 'Ctrl+K Ctrl+Shift+0',
+					ariaLabel: 'Control+K Control+Shift+0',
+					electronAccelerator: null,
+					userSettingsLabel: 'ctrl+k ctrl+shift+0',
+					isWYSIWYG: true,
+					isChord: true,
+					dispatchParts: ['ctrl+[KeyK]', 'ctrl+shift+[Digit0]']
+				}
+			]
 		);
 	});
 
 	test('resolveKeybinding Ctrl+DownArrow', () => {
-		_assertResolveKeybinding(
-			KeyMod.CtrlCmd | KeyCode.DownArrow,
-			[{
+		_assertResolveKeybinding(KeyMod.CtrlCmd | KeyCode.DownArrow, [
+			{
 				label: 'Ctrl+DownArrow',
 				ariaLabel: 'Control+DownArrow',
 				electronAccelerator: 'Ctrl+Down',
 				userSettingsLabel: 'ctrl+down',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['ctrl+[ArrowDown]', null],
-			}]
-		);
+				dispatchParts: ['ctrl+[ArrowDown]', null]
+			}
+		]);
 	});
 
 	test('resolveKeybinding Ctrl+NUMPAD_0', () => {
-		_assertResolveKeybinding(
-			KeyMod.CtrlCmd | KeyCode.NUMPAD_0,
-			[{
+		_assertResolveKeybinding(KeyMod.CtrlCmd | KeyCode.NUMPAD_0, [
+			{
 				label: 'Ctrl+NumPad0',
 				ariaLabel: 'Control+NumPad0',
 				electronAccelerator: null,
 				userSettingsLabel: 'ctrl+numpad0',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['ctrl+[Numpad0]', null],
-			}]
-		);
+				dispatchParts: ['ctrl+[Numpad0]', null]
+			}
+		]);
 	});
 
 	test('resolveKeybinding Ctrl+Home', () => {
-		_assertResolveKeybinding(
-			KeyMod.CtrlCmd | KeyCode.Home,
-			[{
+		_assertResolveKeybinding(KeyMod.CtrlCmd | KeyCode.Home, [
+			{
 				label: 'Ctrl+Home',
 				ariaLabel: 'Control+Home',
 				electronAccelerator: 'Ctrl+Home',
 				userSettingsLabel: 'ctrl+home',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['ctrl+[Home]', null],
-			}]
-		);
+				dispatchParts: ['ctrl+[Home]', null]
+			}
+		]);
 	});
 
 	test('resolveKeyboardEvent Ctrl+[Home]', () => {
@@ -712,7 +801,7 @@ suite('keyboardMapper - LINUX de_ch', () => {
 				userSettingsLabel: 'ctrl+home',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['ctrl+[Home]', null],
+				dispatchParts: ['ctrl+[Home]', null]
 			}
 		);
 	});
@@ -735,7 +824,7 @@ suite('keyboardMapper - LINUX de_ch', () => {
 				userSettingsLabel: 'ctrl+x',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['ctrl+[KeyX]', null],
+				dispatchParts: ['ctrl+[KeyX]', null]
 			}
 		);
 	});
@@ -745,15 +834,17 @@ suite('keyboardMapper - LINUX de_ch', () => {
 			mapper,
 			new ScanCodeBinding(true, false, false, false, ScanCode.Comma),
 			new SimpleKeybinding(true, false, false, false, KeyCode.US_SLASH),
-			[{
-				label: 'Ctrl+, Ctrl+Shift+7',
-				ariaLabel: 'Control+, Control+Shift+7',
-				electronAccelerator: null,
-				userSettingsLabel: 'ctrl+[Comma] ctrl+shift+7',
-				isWYSIWYG: false,
-				isChord: true,
-				dispatchParts: ['ctrl+[Comma]', 'ctrl+shift+[Digit7]'],
-			}]
+			[
+				{
+					label: 'Ctrl+, Ctrl+Shift+7',
+					ariaLabel: 'Control+, Control+Shift+7',
+					electronAccelerator: null,
+					userSettingsLabel: 'ctrl+[Comma] ctrl+shift+7',
+					isWYSIWYG: false,
+					isChord: true,
+					dispatchParts: ['ctrl+[Comma]', 'ctrl+shift+[Digit7]']
+				}
+			]
 		);
 	});
 
@@ -775,7 +866,7 @@ suite('keyboardMapper - LINUX de_ch', () => {
 				userSettingsLabel: 'ctrl+',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: [null, null],
+				dispatchParts: [null, null]
 			}
 		);
 	});
@@ -798,59 +889,67 @@ suite('keyboardMapper - LINUX de_ch', () => {
 				userSettingsLabel: 'ctrl+',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: [null, null],
+				dispatchParts: [null, null]
 			}
 		);
 	});
 });
 
 suite('keyboardMapper - LINUX en_us', () => {
-
 	let mapper: MacLinuxKeyboardMapper;
 
-	suiteSetup((done) => {
-		createKeyboardMapper(true, 'linux_en_us', OperatingSystem.Linux).then((_mapper) => {
+	suiteSetup(done => {
+		createKeyboardMapper(
+			true,
+			'linux_en_us',
+			OperatingSystem.Linux
+		).then(_mapper => {
 			mapper = _mapper;
 			done();
 		}, done);
 	});
 
-	test('mapping', (done) => {
+	test('mapping', done => {
 		assertMapping(WRITE_FILE_IF_DIFFERENT, mapper, 'linux_en_us.txt', done);
 	});
 
-	function _assertResolveKeybinding(k: number, expected: IResolvedKeybinding[]): void {
-		assertResolveKeybinding(mapper, createKeybinding(k, OperatingSystem.Linux), expected);
+	function _assertResolveKeybinding(
+		k: number,
+		expected: IResolvedKeybinding[]
+	): void {
+		assertResolveKeybinding(
+			mapper,
+			createKeybinding(k, OperatingSystem.Linux),
+			expected
+		);
 	}
 
 	test('resolveKeybinding Ctrl+A', () => {
-		_assertResolveKeybinding(
-			KeyMod.CtrlCmd | KeyCode.KEY_A,
-			[{
+		_assertResolveKeybinding(KeyMod.CtrlCmd | KeyCode.KEY_A, [
+			{
 				label: 'Ctrl+A',
 				ariaLabel: 'Control+A',
 				electronAccelerator: 'Ctrl+A',
 				userSettingsLabel: 'ctrl+a',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['ctrl+[KeyA]', null],
-			}]
-		);
+				dispatchParts: ['ctrl+[KeyA]', null]
+			}
+		]);
 	});
 
 	test('resolveKeybinding Ctrl+Z', () => {
-		_assertResolveKeybinding(
-			KeyMod.CtrlCmd | KeyCode.KEY_Z,
-			[{
+		_assertResolveKeybinding(KeyMod.CtrlCmd | KeyCode.KEY_Z, [
+			{
 				label: 'Ctrl+Z',
 				ariaLabel: 'Control+Z',
 				electronAccelerator: 'Ctrl+Z',
 				userSettingsLabel: 'ctrl+z',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['ctrl+[KeyZ]', null],
-			}]
-		);
+				dispatchParts: ['ctrl+[KeyZ]', null]
+			}
+		]);
 	});
 
 	test('resolveKeyboardEvent Ctrl+[KeyZ]', () => {
@@ -871,24 +970,23 @@ suite('keyboardMapper - LINUX en_us', () => {
 				userSettingsLabel: 'ctrl+z',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['ctrl+[KeyZ]', null],
+				dispatchParts: ['ctrl+[KeyZ]', null]
 			}
 		);
 	});
 
 	test('resolveKeybinding Ctrl+]', () => {
-		_assertResolveKeybinding(
-			KeyMod.CtrlCmd | KeyCode.US_CLOSE_SQUARE_BRACKET,
-			[{
+		_assertResolveKeybinding(KeyMod.CtrlCmd | KeyCode.US_CLOSE_SQUARE_BRACKET, [
+			{
 				label: 'Ctrl+]',
 				ariaLabel: 'Control+]',
 				electronAccelerator: 'Ctrl+]',
 				userSettingsLabel: 'ctrl+]',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['ctrl+[BracketRight]', null],
-			}]
-		);
+				dispatchParts: ['ctrl+[BracketRight]', null]
+			}
+		]);
 	});
 
 	test('resolveKeyboardEvent Ctrl+[BracketRight]', () => {
@@ -909,129 +1007,133 @@ suite('keyboardMapper - LINUX en_us', () => {
 				userSettingsLabel: 'ctrl+]',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['ctrl+[BracketRight]', null],
+				dispatchParts: ['ctrl+[BracketRight]', null]
 			}
 		);
 	});
 
 	test('resolveKeybinding Shift+]', () => {
-		_assertResolveKeybinding(
-			KeyMod.Shift | KeyCode.US_CLOSE_SQUARE_BRACKET,
-			[{
+		_assertResolveKeybinding(KeyMod.Shift | KeyCode.US_CLOSE_SQUARE_BRACKET, [
+			{
 				label: 'Shift+]',
 				ariaLabel: 'Shift+]',
 				electronAccelerator: 'Shift+]',
 				userSettingsLabel: 'shift+]',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['shift+[BracketRight]', null],
-			}]
-		);
+				dispatchParts: ['shift+[BracketRight]', null]
+			}
+		]);
 	});
 
 	test('resolveKeybinding Ctrl+/', () => {
-		_assertResolveKeybinding(
-			KeyMod.CtrlCmd | KeyCode.US_SLASH,
-			[{
+		_assertResolveKeybinding(KeyMod.CtrlCmd | KeyCode.US_SLASH, [
+			{
 				label: 'Ctrl+/',
 				ariaLabel: 'Control+/',
 				electronAccelerator: 'Ctrl+/',
 				userSettingsLabel: 'ctrl+/',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['ctrl+[Slash]', null],
-			}]
-		);
+				dispatchParts: ['ctrl+[Slash]', null]
+			}
+		]);
 	});
 
 	test('resolveKeybinding Ctrl+Shift+/', () => {
-		_assertResolveKeybinding(
-			KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.US_SLASH,
-			[{
+		_assertResolveKeybinding(KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.US_SLASH, [
+			{
 				label: 'Ctrl+Shift+/',
 				ariaLabel: 'Control+Shift+/',
 				electronAccelerator: 'Ctrl+Shift+/',
 				userSettingsLabel: 'ctrl+shift+/',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['ctrl+shift+[Slash]', null],
-			}]
-		);
+				dispatchParts: ['ctrl+shift+[Slash]', null]
+			}
+		]);
 	});
 
 	test('resolveKeybinding Ctrl+K Ctrl+\\', () => {
 		_assertResolveKeybinding(
-			KeyChord(KeyMod.CtrlCmd | KeyCode.KEY_K, KeyMod.CtrlCmd | KeyCode.US_BACKSLASH),
-			[{
-				label: 'Ctrl+K Ctrl+\\',
-				ariaLabel: 'Control+K Control+\\',
-				electronAccelerator: null,
-				userSettingsLabel: 'ctrl+k ctrl+\\',
-				isWYSIWYG: true,
-				isChord: true,
-				dispatchParts: ['ctrl+[KeyK]', 'ctrl+[Backslash]'],
-			}]
+			KeyChord(
+				KeyMod.CtrlCmd | KeyCode.KEY_K,
+				KeyMod.CtrlCmd | KeyCode.US_BACKSLASH
+			),
+			[
+				{
+					label: 'Ctrl+K Ctrl+\\',
+					ariaLabel: 'Control+K Control+\\',
+					electronAccelerator: null,
+					userSettingsLabel: 'ctrl+k ctrl+\\',
+					isWYSIWYG: true,
+					isChord: true,
+					dispatchParts: ['ctrl+[KeyK]', 'ctrl+[Backslash]']
+				}
+			]
 		);
 	});
 
 	test('resolveKeybinding Ctrl+K Ctrl+=', () => {
 		_assertResolveKeybinding(
-			KeyChord(KeyMod.CtrlCmd | KeyCode.KEY_K, KeyMod.CtrlCmd | KeyCode.US_EQUAL),
-			[{
-				label: 'Ctrl+K Ctrl+=',
-				ariaLabel: 'Control+K Control+=',
-				electronAccelerator: null,
-				userSettingsLabel: 'ctrl+k ctrl+=',
-				isWYSIWYG: true,
-				isChord: true,
-				dispatchParts: ['ctrl+[KeyK]', 'ctrl+[Equal]'],
-			}]
+			KeyChord(
+				KeyMod.CtrlCmd | KeyCode.KEY_K,
+				KeyMod.CtrlCmd | KeyCode.US_EQUAL
+			),
+			[
+				{
+					label: 'Ctrl+K Ctrl+=',
+					ariaLabel: 'Control+K Control+=',
+					electronAccelerator: null,
+					userSettingsLabel: 'ctrl+k ctrl+=',
+					isWYSIWYG: true,
+					isChord: true,
+					dispatchParts: ['ctrl+[KeyK]', 'ctrl+[Equal]']
+				}
+			]
 		);
 	});
 
 	test('resolveKeybinding Ctrl+DownArrow', () => {
-		_assertResolveKeybinding(
-			KeyMod.CtrlCmd | KeyCode.DownArrow,
-			[{
+		_assertResolveKeybinding(KeyMod.CtrlCmd | KeyCode.DownArrow, [
+			{
 				label: 'Ctrl+DownArrow',
 				ariaLabel: 'Control+DownArrow',
 				electronAccelerator: 'Ctrl+Down',
 				userSettingsLabel: 'ctrl+down',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['ctrl+[ArrowDown]', null],
-			}]
-		);
+				dispatchParts: ['ctrl+[ArrowDown]', null]
+			}
+		]);
 	});
 
 	test('resolveKeybinding Ctrl+NUMPAD_0', () => {
-		_assertResolveKeybinding(
-			KeyMod.CtrlCmd | KeyCode.NUMPAD_0,
-			[{
+		_assertResolveKeybinding(KeyMod.CtrlCmd | KeyCode.NUMPAD_0, [
+			{
 				label: 'Ctrl+NumPad0',
 				ariaLabel: 'Control+NumPad0',
 				electronAccelerator: null,
 				userSettingsLabel: 'ctrl+numpad0',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['ctrl+[Numpad0]', null],
-			}]
-		);
+				dispatchParts: ['ctrl+[Numpad0]', null]
+			}
+		]);
 	});
 
 	test('resolveKeybinding Ctrl+Home', () => {
-		_assertResolveKeybinding(
-			KeyMod.CtrlCmd | KeyCode.Home,
-			[{
+		_assertResolveKeybinding(KeyMod.CtrlCmd | KeyCode.Home, [
+			{
 				label: 'Ctrl+Home',
 				ariaLabel: 'Control+Home',
 				electronAccelerator: 'Ctrl+Home',
 				userSettingsLabel: 'ctrl+home',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['ctrl+[Home]', null],
-			}]
-		);
+				dispatchParts: ['ctrl+[Home]', null]
+			}
+		]);
 	});
 
 	test('resolveKeyboardEvent Ctrl+[Home]', () => {
@@ -1052,47 +1154,46 @@ suite('keyboardMapper - LINUX en_us', () => {
 				userSettingsLabel: 'ctrl+home',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['ctrl+[Home]', null],
+				dispatchParts: ['ctrl+[Home]', null]
 			}
 		);
 	});
 
 	test('resolveKeybinding Ctrl+Shift+,', () => {
-		_assertResolveKeybinding(
-			KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.US_COMMA,
-			[{
+		_assertResolveKeybinding(KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.US_COMMA, [
+			{
 				label: 'Ctrl+Shift+,',
 				ariaLabel: 'Control+Shift+,',
 				electronAccelerator: 'Ctrl+Shift+,',
 				userSettingsLabel: 'ctrl+shift+,',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['ctrl+shift+[Comma]', null],
-			}, {
+				dispatchParts: ['ctrl+shift+[Comma]', null]
+			},
+			{
 				label: 'Ctrl+<',
 				ariaLabel: 'Control+<',
 				electronAccelerator: null,
 				userSettingsLabel: 'ctrl+[IntlBackslash]',
 				isWYSIWYG: false,
 				isChord: false,
-				dispatchParts: ['ctrl+[IntlBackslash]', null],
-			}]
-		);
+				dispatchParts: ['ctrl+[IntlBackslash]', null]
+			}
+		]);
 	});
 
 	test('issue #23393: resolveKeybinding Ctrl+Enter', () => {
-		_assertResolveKeybinding(
-			KeyMod.CtrlCmd | KeyCode.Enter,
-			[{
+		_assertResolveKeybinding(KeyMod.CtrlCmd | KeyCode.Enter, [
+			{
 				label: 'Ctrl+Enter',
 				ariaLabel: 'Control+Enter',
 				electronAccelerator: 'Ctrl+Enter',
 				userSettingsLabel: 'ctrl+enter',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['ctrl+[Enter]', null],
-			}]
-		);
+				dispatchParts: ['ctrl+[Enter]', null]
+			}
+		]);
 	});
 
 	test('issue #23393: resolveKeyboardEvent Ctrl+[NumpadEnter]', () => {
@@ -1113,7 +1214,7 @@ suite('keyboardMapper - LINUX en_us', () => {
 				userSettingsLabel: 'ctrl+enter',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['ctrl+[Enter]', null],
+				dispatchParts: ['ctrl+[Enter]', null]
 			}
 		);
 	});
@@ -1123,15 +1224,17 @@ suite('keyboardMapper - LINUX en_us', () => {
 			mapper,
 			new ScanCodeBinding(true, false, false, false, ScanCode.Comma),
 			new SimpleKeybinding(true, false, false, false, KeyCode.US_SLASH),
-			[{
-				label: 'Ctrl+, Ctrl+/',
-				ariaLabel: 'Control+, Control+/',
-				electronAccelerator: null,
-				userSettingsLabel: 'ctrl+, ctrl+/',
-				isWYSIWYG: true,
-				isChord: true,
-				dispatchParts: ['ctrl+[Comma]', 'ctrl+[Slash]'],
-			}]
+			[
+				{
+					label: 'Ctrl+, Ctrl+/',
+					ariaLabel: 'Control+, Control+/',
+					electronAccelerator: null,
+					userSettingsLabel: 'ctrl+, ctrl+/',
+					isWYSIWYG: true,
+					isChord: true,
+					dispatchParts: ['ctrl+[Comma]', 'ctrl+[Slash]']
+				}
+			]
 		);
 	});
 
@@ -1140,15 +1243,17 @@ suite('keyboardMapper - LINUX en_us', () => {
 			mapper,
 			new ScanCodeBinding(true, false, false, false, ScanCode.Comma),
 			null,
-			[{
-				label: 'Ctrl+,',
-				ariaLabel: 'Control+,',
-				electronAccelerator: 'Ctrl+,',
-				userSettingsLabel: 'ctrl+,',
-				isWYSIWYG: true,
-				isChord: false,
-				dispatchParts: ['ctrl+[Comma]', null],
-			}]
+			[
+				{
+					label: 'Ctrl+,',
+					ariaLabel: 'Control+,',
+					electronAccelerator: 'Ctrl+,',
+					userSettingsLabel: 'ctrl+,',
+					isWYSIWYG: true,
+					isChord: false,
+					dispatchParts: ['ctrl+[Comma]', null]
+				}
+			]
 		);
 	});
 
@@ -1170,7 +1275,7 @@ suite('keyboardMapper - LINUX en_us', () => {
 				userSettingsLabel: 'ctrl+',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: [null, null],
+				dispatchParts: [null, null]
 			}
 		);
 	});
@@ -1193,23 +1298,27 @@ suite('keyboardMapper - LINUX en_us', () => {
 				userSettingsLabel: 'ctrl+',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: [null, null],
+				dispatchParts: [null, null]
 			}
 		);
 	});
 });
 
 suite('keyboardMapper', () => {
-
 	test('issue #23706: Linux UK layout: Ctrl + Apostrophe also toggles terminal', () => {
-		let mapper = new MacLinuxKeyboardMapper(false, false, {
-			'Backquote': {
-				'value': '`',
-				'withShift': '¬',
-				'withAltGr': '|',
-				'withShiftAltGr': '|'
-			}
-		}, OperatingSystem.Linux);
+		let mapper = new MacLinuxKeyboardMapper(
+			false,
+			false,
+			{
+				Backquote: {
+					value: '`',
+					withShift: '¬',
+					withAltGr: '|',
+					withShiftAltGr: '|'
+				}
+			},
+			OperatingSystem.Linux
+		);
 
 		assertResolveKeyboardEvent(
 			mapper,
@@ -1228,15 +1337,27 @@ suite('keyboardMapper', () => {
 				userSettingsLabel: 'ctrl+`',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['ctrl+[Backquote]', null],
+				dispatchParts: ['ctrl+[Backquote]', null]
 			}
 		);
 	});
 
 	test('issue #24064: NumLock/NumPad keys stopped working in 1.11 on Linux', () => {
-		let mapper = new MacLinuxKeyboardMapper(false, false, {}, OperatingSystem.Linux);
+		let mapper = new MacLinuxKeyboardMapper(
+			false,
+			false,
+			{},
+			OperatingSystem.Linux
+		);
 
-		function assertNumpadKeyboardEvent(keyCode: KeyCode, code: string, label: string, electronAccelerator: string, userSettingsLabel: string, dispatch: string): void {
+		function assertNumpadKeyboardEvent(
+			keyCode: KeyCode,
+			code: string,
+			label: string,
+			electronAccelerator: string,
+			userSettingsLabel: string,
+			dispatch: string
+		): void {
 			assertResolveKeyboardEvent(
 				mapper,
 				{
@@ -1254,28 +1375,117 @@ suite('keyboardMapper', () => {
 					userSettingsLabel: userSettingsLabel,
 					isWYSIWYG: true,
 					isChord: false,
-					dispatchParts: [dispatch, null],
+					dispatchParts: [dispatch, null]
 				}
 			);
 		}
 
-		assertNumpadKeyboardEvent(KeyCode.End, 'Numpad1', 'End', 'End', 'end', '[End]');
-		assertNumpadKeyboardEvent(KeyCode.DownArrow, 'Numpad2', 'DownArrow', 'Down', 'down', '[ArrowDown]');
-		assertNumpadKeyboardEvent(KeyCode.PageDown, 'Numpad3', 'PageDown', 'PageDown', 'pagedown', '[PageDown]');
-		assertNumpadKeyboardEvent(KeyCode.LeftArrow, 'Numpad4', 'LeftArrow', 'Left', 'left', '[ArrowLeft]');
-		assertNumpadKeyboardEvent(KeyCode.Unknown, 'Numpad5', 'NumPad5', null, 'numpad5', '[Numpad5]');
-		assertNumpadKeyboardEvent(KeyCode.RightArrow, 'Numpad6', 'RightArrow', 'Right', 'right', '[ArrowRight]');
-		assertNumpadKeyboardEvent(KeyCode.Home, 'Numpad7', 'Home', 'Home', 'home', '[Home]');
-		assertNumpadKeyboardEvent(KeyCode.UpArrow, 'Numpad8', 'UpArrow', 'Up', 'up', '[ArrowUp]');
-		assertNumpadKeyboardEvent(KeyCode.PageUp, 'Numpad9', 'PageUp', 'PageUp', 'pageup', '[PageUp]');
-		assertNumpadKeyboardEvent(KeyCode.Insert, 'Numpad0', 'Insert', 'Insert', 'insert', '[Insert]');
-		assertNumpadKeyboardEvent(KeyCode.Delete, 'NumpadDecimal', 'Delete', 'Delete', 'delete', '[Delete]');
+		assertNumpadKeyboardEvent(
+			KeyCode.End,
+			'Numpad1',
+			'End',
+			'End',
+			'end',
+			'[End]'
+		);
+		assertNumpadKeyboardEvent(
+			KeyCode.DownArrow,
+			'Numpad2',
+			'DownArrow',
+			'Down',
+			'down',
+			'[ArrowDown]'
+		);
+		assertNumpadKeyboardEvent(
+			KeyCode.PageDown,
+			'Numpad3',
+			'PageDown',
+			'PageDown',
+			'pagedown',
+			'[PageDown]'
+		);
+		assertNumpadKeyboardEvent(
+			KeyCode.LeftArrow,
+			'Numpad4',
+			'LeftArrow',
+			'Left',
+			'left',
+			'[ArrowLeft]'
+		);
+		assertNumpadKeyboardEvent(
+			KeyCode.Unknown,
+			'Numpad5',
+			'NumPad5',
+			null,
+			'numpad5',
+			'[Numpad5]'
+		);
+		assertNumpadKeyboardEvent(
+			KeyCode.RightArrow,
+			'Numpad6',
+			'RightArrow',
+			'Right',
+			'right',
+			'[ArrowRight]'
+		);
+		assertNumpadKeyboardEvent(
+			KeyCode.Home,
+			'Numpad7',
+			'Home',
+			'Home',
+			'home',
+			'[Home]'
+		);
+		assertNumpadKeyboardEvent(
+			KeyCode.UpArrow,
+			'Numpad8',
+			'UpArrow',
+			'Up',
+			'up',
+			'[ArrowUp]'
+		);
+		assertNumpadKeyboardEvent(
+			KeyCode.PageUp,
+			'Numpad9',
+			'PageUp',
+			'PageUp',
+			'pageup',
+			'[PageUp]'
+		);
+		assertNumpadKeyboardEvent(
+			KeyCode.Insert,
+			'Numpad0',
+			'Insert',
+			'Insert',
+			'insert',
+			'[Insert]'
+		);
+		assertNumpadKeyboardEvent(
+			KeyCode.Delete,
+			'NumpadDecimal',
+			'Delete',
+			'Delete',
+			'delete',
+			'[Delete]'
+		);
 	});
 
 	test('issue #24107: Delete, Insert, Home, End, PgUp, PgDn, and arrow keys no longer work editor in 1.11', () => {
-		let mapper = new MacLinuxKeyboardMapper(false, false, {}, OperatingSystem.Linux);
+		let mapper = new MacLinuxKeyboardMapper(
+			false,
+			false,
+			{},
+			OperatingSystem.Linux
+		);
 
-		function assertKeyboardEvent(keyCode: KeyCode, code: string, label: string, electronAccelerator: string, userSettingsLabel: string, dispatch: string): void {
+		function assertKeyboardEvent(
+			keyCode: KeyCode,
+			code: string,
+			label: string,
+			electronAccelerator: string,
+			userSettingsLabel: string,
+			dispatch: string
+		): void {
 			assertResolveKeyboardEvent(
 				mapper,
 				{
@@ -1293,51 +1503,182 @@ suite('keyboardMapper', () => {
 					userSettingsLabel: userSettingsLabel,
 					isWYSIWYG: true,
 					isChord: false,
-					dispatchParts: [dispatch, null],
+					dispatchParts: [dispatch, null]
 				}
 			);
 		}
 
 		// https://github.com/Microsoft/vscode/issues/24107#issuecomment-292318497
-		assertKeyboardEvent(KeyCode.UpArrow, 'Lang3', 'UpArrow', 'Up', 'up', '[ArrowUp]');
-		assertKeyboardEvent(KeyCode.DownArrow, 'NumpadEnter', 'DownArrow', 'Down', 'down', '[ArrowDown]');
-		assertKeyboardEvent(KeyCode.LeftArrow, 'Convert', 'LeftArrow', 'Left', 'left', '[ArrowLeft]');
-		assertKeyboardEvent(KeyCode.RightArrow, 'NonConvert', 'RightArrow', 'Right', 'right', '[ArrowRight]');
-		assertKeyboardEvent(KeyCode.Delete, 'PrintScreen', 'Delete', 'Delete', 'delete', '[Delete]');
-		assertKeyboardEvent(KeyCode.Insert, 'NumpadDivide', 'Insert', 'Insert', 'insert', '[Insert]');
+		assertKeyboardEvent(
+			KeyCode.UpArrow,
+			'Lang3',
+			'UpArrow',
+			'Up',
+			'up',
+			'[ArrowUp]'
+		);
+		assertKeyboardEvent(
+			KeyCode.DownArrow,
+			'NumpadEnter',
+			'DownArrow',
+			'Down',
+			'down',
+			'[ArrowDown]'
+		);
+		assertKeyboardEvent(
+			KeyCode.LeftArrow,
+			'Convert',
+			'LeftArrow',
+			'Left',
+			'left',
+			'[ArrowLeft]'
+		);
+		assertKeyboardEvent(
+			KeyCode.RightArrow,
+			'NonConvert',
+			'RightArrow',
+			'Right',
+			'right',
+			'[ArrowRight]'
+		);
+		assertKeyboardEvent(
+			KeyCode.Delete,
+			'PrintScreen',
+			'Delete',
+			'Delete',
+			'delete',
+			'[Delete]'
+		);
+		assertKeyboardEvent(
+			KeyCode.Insert,
+			'NumpadDivide',
+			'Insert',
+			'Insert',
+			'insert',
+			'[Insert]'
+		);
 		assertKeyboardEvent(KeyCode.End, 'Unknown', 'End', 'End', 'end', '[End]');
-		assertKeyboardEvent(KeyCode.Home, 'IntlRo', 'Home', 'Home', 'home', '[Home]');
-		assertKeyboardEvent(KeyCode.PageDown, 'ControlRight', 'PageDown', 'PageDown', 'pagedown', '[PageDown]');
-		assertKeyboardEvent(KeyCode.PageUp, 'Lang4', 'PageUp', 'PageUp', 'pageup', '[PageUp]');
+		assertKeyboardEvent(
+			KeyCode.Home,
+			'IntlRo',
+			'Home',
+			'Home',
+			'home',
+			'[Home]'
+		);
+		assertKeyboardEvent(
+			KeyCode.PageDown,
+			'ControlRight',
+			'PageDown',
+			'PageDown',
+			'pagedown',
+			'[PageDown]'
+		);
+		assertKeyboardEvent(
+			KeyCode.PageUp,
+			'Lang4',
+			'PageUp',
+			'PageUp',
+			'pageup',
+			'[PageUp]'
+		);
 
 		// https://github.com/Microsoft/vscode/issues/24107#issuecomment-292323924
-		assertKeyboardEvent(KeyCode.PageDown, 'ControlRight', 'PageDown', 'PageDown', 'pagedown', '[PageDown]');
-		assertKeyboardEvent(KeyCode.PageUp, 'Lang4', 'PageUp', 'PageUp', 'pageup', '[PageUp]');
+		assertKeyboardEvent(
+			KeyCode.PageDown,
+			'ControlRight',
+			'PageDown',
+			'PageDown',
+			'pagedown',
+			'[PageDown]'
+		);
+		assertKeyboardEvent(
+			KeyCode.PageUp,
+			'Lang4',
+			'PageUp',
+			'PageUp',
+			'pageup',
+			'[PageUp]'
+		);
 		assertKeyboardEvent(KeyCode.End, '', 'End', 'End', 'end', '[End]');
-		assertKeyboardEvent(KeyCode.Home, 'IntlRo', 'Home', 'Home', 'home', '[Home]');
-		assertKeyboardEvent(KeyCode.Delete, 'PrintScreen', 'Delete', 'Delete', 'delete', '[Delete]');
-		assertKeyboardEvent(KeyCode.Insert, 'NumpadDivide', 'Insert', 'Insert', 'insert', '[Insert]');
-		assertKeyboardEvent(KeyCode.RightArrow, 'NonConvert', 'RightArrow', 'Right', 'right', '[ArrowRight]');
-		assertKeyboardEvent(KeyCode.LeftArrow, 'Convert', 'LeftArrow', 'Left', 'left', '[ArrowLeft]');
-		assertKeyboardEvent(KeyCode.DownArrow, 'NumpadEnter', 'DownArrow', 'Down', 'down', '[ArrowDown]');
-		assertKeyboardEvent(KeyCode.UpArrow, 'Lang3', 'UpArrow', 'Up', 'up', '[ArrowUp]');
+		assertKeyboardEvent(
+			KeyCode.Home,
+			'IntlRo',
+			'Home',
+			'Home',
+			'home',
+			'[Home]'
+		);
+		assertKeyboardEvent(
+			KeyCode.Delete,
+			'PrintScreen',
+			'Delete',
+			'Delete',
+			'delete',
+			'[Delete]'
+		);
+		assertKeyboardEvent(
+			KeyCode.Insert,
+			'NumpadDivide',
+			'Insert',
+			'Insert',
+			'insert',
+			'[Insert]'
+		);
+		assertKeyboardEvent(
+			KeyCode.RightArrow,
+			'NonConvert',
+			'RightArrow',
+			'Right',
+			'right',
+			'[ArrowRight]'
+		);
+		assertKeyboardEvent(
+			KeyCode.LeftArrow,
+			'Convert',
+			'LeftArrow',
+			'Left',
+			'left',
+			'[ArrowLeft]'
+		);
+		assertKeyboardEvent(
+			KeyCode.DownArrow,
+			'NumpadEnter',
+			'DownArrow',
+			'Down',
+			'down',
+			'[ArrowDown]'
+		);
+		assertKeyboardEvent(
+			KeyCode.UpArrow,
+			'Lang3',
+			'UpArrow',
+			'Up',
+			'up',
+			'[ArrowUp]'
+		);
 	});
 
 	test('issue #24153: ISO Keyboards: Backslash and IntlBackslash "swapped"', () => {
-		let mapper = new MacLinuxKeyboardMapper(true, false, {
-			'Backquote': {
-				'value': '`',
-				'withShift': '~',
-				'withAltGr': '`',
-				'withShiftAltGr': '`'
+		let mapper = new MacLinuxKeyboardMapper(
+			true,
+			false,
+			{
+				Backquote: {
+					value: '`',
+					withShift: '~',
+					withAltGr: '`',
+					withShiftAltGr: '`'
+				},
+				IntlBackslash: {
+					value: '§',
+					withShift: '°',
+					withAltGr: '§',
+					withShiftAltGr: '°'
+				}
 			},
-			'IntlBackslash': {
-				'value': '§',
-				'withShift': '°',
-				'withAltGr': '§',
-				'withShiftAltGr': '°'
-			}
-		}, OperatingSystem.Macintosh);
+			OperatingSystem.Macintosh
+		);
 
 		assertResolveKeyboardEvent(
 			mapper,
@@ -1356,7 +1697,7 @@ suite('keyboardMapper', () => {
 				userSettingsLabel: 'ctrl+[IntlBackslash]',
 				isWYSIWYG: false,
 				isChord: false,
-				dispatchParts: ['ctrl+[IntlBackslash]', null],
+				dispatchParts: ['ctrl+[IntlBackslash]', null]
 			}
 		);
 
@@ -1377,60 +1718,71 @@ suite('keyboardMapper', () => {
 				userSettingsLabel: 'ctrl+`',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['ctrl+[Backquote]', null],
+				dispatchParts: ['ctrl+[Backquote]', null]
 			}
 		);
 	});
-
 });
 
 suite('keyboardMapper - LINUX ru', () => {
-
 	let mapper: MacLinuxKeyboardMapper;
 
-	suiteSetup((done) => {
-		createKeyboardMapper(false, 'linux_ru', OperatingSystem.Linux).then((_mapper) => {
+	suiteSetup(done => {
+		createKeyboardMapper(
+			false,
+			'linux_ru',
+			OperatingSystem.Linux
+		).then(_mapper => {
 			mapper = _mapper;
 			done();
 		}, done);
 	});
 
-	test('mapping', (done) => {
+	test('mapping', done => {
 		assertMapping(WRITE_FILE_IF_DIFFERENT, mapper, 'linux_ru.txt', done);
 	});
 
-	function _assertResolveKeybinding(k: number, expected: IResolvedKeybinding[]): void {
-		assertResolveKeybinding(mapper, createKeybinding(k, OperatingSystem.Linux), expected);
+	function _assertResolveKeybinding(
+		k: number,
+		expected: IResolvedKeybinding[]
+	): void {
+		assertResolveKeybinding(
+			mapper,
+			createKeybinding(k, OperatingSystem.Linux),
+			expected
+		);
 	}
 
 	test('resolveKeybinding Ctrl+S', () => {
-		_assertResolveKeybinding(
-			KeyMod.CtrlCmd | KeyCode.KEY_S,
-			[{
+		_assertResolveKeybinding(KeyMod.CtrlCmd | KeyCode.KEY_S, [
+			{
 				label: 'Ctrl+S',
 				ariaLabel: 'Control+S',
 				electronAccelerator: 'Ctrl+S',
 				userSettingsLabel: 'ctrl+s',
 				isWYSIWYG: true,
 				isChord: false,
-				dispatchParts: ['ctrl+[KeyS]', null],
-			}]
-		);
+				dispatchParts: ['ctrl+[KeyS]', null]
+			}
+		]);
 	});
 });
 
 suite('keyboardMapper - LINUX en_uk', () => {
-
 	let mapper: MacLinuxKeyboardMapper;
 
-	suiteSetup((done) => {
-		createKeyboardMapper(false, 'linux_en_uk', OperatingSystem.Linux).then((_mapper) => {
+	suiteSetup(done => {
+		createKeyboardMapper(
+			false,
+			'linux_en_uk',
+			OperatingSystem.Linux
+		).then(_mapper => {
 			mapper = _mapper;
 			done();
 		}, done);
 	});
 
-	test('mapping', (done) => {
+	test('mapping', done => {
 		assertMapping(WRITE_FILE_IF_DIFFERENT, mapper, 'linux_en_uk.txt', done);
 	});
 
@@ -1452,13 +1804,18 @@ suite('keyboardMapper - LINUX en_uk', () => {
 				userSettingsLabel: 'ctrl+alt+[Minus]',
 				isWYSIWYG: false,
 				isChord: false,
-				dispatchParts: ['ctrl+alt+[Minus]', null],
+				dispatchParts: ['ctrl+alt+[Minus]', null]
 			}
 		);
 	});
 });
 
-function _assertKeybindingTranslation(mapper: MacLinuxKeyboardMapper, OS: OperatingSystem, kb: number, _expected: string | string[]): void {
+function _assertKeybindingTranslation(
+	mapper: MacLinuxKeyboardMapper,
+	OS: OperatingSystem,
+	kb: number,
+	_expected: string | string[]
+): void {
 	let expected: string[];
 	if (typeof _expected === 'string') {
 		expected = [_expected];
@@ -1470,15 +1827,35 @@ function _assertKeybindingTranslation(mapper: MacLinuxKeyboardMapper, OS: Operat
 
 	const runtimeKeybinding = createKeybinding(kb, OS);
 
-	const keybindingLabel = new USLayoutResolvedKeybinding(runtimeKeybinding, OS).getUserSettingsLabel();
+	const keybindingLabel = new USLayoutResolvedKeybinding(
+		runtimeKeybinding,
+		OS
+	).getUserSettingsLabel();
 
-	const actualHardwareKeypresses = mapper.simpleKeybindingToScanCodeBinding(<SimpleKeybinding>runtimeKeybinding);
+	const actualHardwareKeypresses = mapper.simpleKeybindingToScanCodeBinding(
+		<SimpleKeybinding>runtimeKeybinding
+	);
 	if (actualHardwareKeypresses.length === 0) {
-		assert.deepEqual([], expected, `simpleKeybindingToHardwareKeypress -- "${keybindingLabel}" -- actual: "[]" -- expected: "${expected}"`);
+		assert.deepEqual(
+			[],
+			expected,
+			`simpleKeybindingToHardwareKeypress -- "${keybindingLabel}" -- actual: "[]" -- expected: "${expected}"`
+		);
 		return;
 	}
 
-	const actual = actualHardwareKeypresses
-		.map(k => UserSettingsLabelProvider.toLabel(k, ScanCodeUtils.toString(k.scanCode), null, null, OS));
-	assert.deepEqual(actual, expected, `simpleKeybindingToHardwareKeypress -- "${keybindingLabel}" -- actual: "${actual}" -- expected: "${expected}"`);
+	const actual = actualHardwareKeypresses.map(k =>
+		UserSettingsLabelProvider.toLabel(
+			k,
+			ScanCodeUtils.toString(k.scanCode),
+			null,
+			null,
+			OS
+		)
+	);
+	assert.deepEqual(
+		actual,
+		expected,
+		`simpleKeybindingToHardwareKeypress -- "${keybindingLabel}" -- actual: "${actual}" -- expected: "${expected}"`
+	);
 }

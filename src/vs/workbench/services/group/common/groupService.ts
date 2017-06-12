@@ -3,9 +3,12 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
-import { createDecorator, ServiceIdentifier } from 'vs/platform/instantiation/common/instantiation';
+import {
+	createDecorator,
+	ServiceIdentifier
+} from 'vs/platform/instantiation/common/instantiation';
 import { Position, IEditorInput } from 'vs/platform/editor/common/editor';
 import { IEditorStacksModel, IEditorGroup } from 'vs/workbench/common/editor';
 import Event from 'vs/base/common/event';
@@ -17,7 +20,9 @@ export enum GroupArrangement {
 
 export type GroupOrientation = 'vertical' | 'horizontal';
 
-export const IEditorGroupService = createDecorator<IEditorGroupService>('editorGroupService');
+export const IEditorGroupService = createDecorator<IEditorGroupService>(
+	'editorGroupService'
+);
 
 export interface ITabOptions {
 	showTabs?: boolean;
@@ -119,8 +124,18 @@ export interface IEditorGroupService {
 	 * Moves an editor from one group to another. The index in the group is optional.
 	 * The inactive option is applied when moving across groups.
 	 */
-	moveEditor(input: IEditorInput, from: IEditorGroup, to: IEditorGroup, moveOptions?: IMoveOptions): void;
-	moveEditor(input: IEditorInput, from: Position, to: Position, moveOptions?: IMoveOptions): void;
+	moveEditor(
+		input: IEditorInput,
+		from: IEditorGroup,
+		to: IEditorGroup,
+		moveOptions?: IMoveOptions
+	): void;
+	moveEditor(
+		input: IEditorInput,
+		from: Position,
+		to: Position,
+		moveOptions?: IMoveOptions
+	): void;
 
 	/**
 	 * Provides access to the editor stacks model

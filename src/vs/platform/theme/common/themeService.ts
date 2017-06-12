@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
 import { Color } from 'vs/base/common/color';
@@ -21,9 +21,12 @@ export type ThemeType = 'light' | 'dark' | 'hc';
 
 export function getThemeTypeSelector(type: ThemeType): string {
 	switch (type) {
-		case DARK: return 'vs-dark';
-		case HIGH_CONTRAST: return 'hc-black';
-		default: return 'vs';
+		case DARK:
+			return 'vs-dark';
+		case HIGH_CONTRAST:
+			return 'hc-black';
+		default:
+			return 'vs';
 	}
 }
 
@@ -62,7 +65,6 @@ export interface IThemeService {
 	 * Register a theming participant that is invoked after every theme change.
 	 */
 	onThemeChange: Event<ITheme>;
-
 }
 
 // static theming participant
@@ -71,7 +73,6 @@ export const Extensions = {
 };
 
 export interface IThemingRegistry {
-
 	/**
 	 * Register a theming participant that is invoked on every theme change.
 	 */
@@ -114,7 +115,9 @@ class ThemingRegistry implements IThemingRegistry {
 let themingRegistry = new ThemingRegistry();
 platform.Registry.add(Extensions.ThemingContribution, themingRegistry);
 
-export function registerThemingParticipant(participant: IThemingParticipant): IDisposable {
+export function registerThemingParticipant(
+	participant: IThemingParticipant
+): IDisposable {
 	return themingRegistry.onThemeChange(participant);
 }
 

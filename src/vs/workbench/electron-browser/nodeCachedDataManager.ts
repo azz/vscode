@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { IDisposable, dispose } from 'vs/base/common/lifecycle';
 import { onUnexpectedError } from 'vs/base/common/errors';
@@ -12,11 +12,13 @@ import { readdir, rimraf, stat } from 'vs/base/node/pfs';
 import { IEnvironmentService } from 'vs/platform/environment/common/environment';
 import { ITelemetryService } from 'vs/platform/telemetry/common/telemetry';
 
-declare type OnNodeCachedDataArgs = [{ errorCode: string, path: string, detail?: string }, { path: string, length: number }];
+declare type OnNodeCachedDataArgs = [
+	{ errorCode: string; path: string; detail?: string },
+	{ path: string; length: number }
+];
 declare const MonacoEnvironment: { onNodeCachedData: OnNodeCachedDataArgs[] };
 
 export class NodeCachedDataManager {
-
 	private _telemetryService: ITelemetryService;
 	private _environmentService: IEnvironmentService;
 	private _disposables: IDisposable[] = [];
@@ -37,7 +39,6 @@ export class NodeCachedDataManager {
 	}
 
 	private _handleCachedDataInfo(): void {
-
 		let didRejectCachedData = false;
 		let didProduceCachedData = false;
 		for (const [err, data] of MonacoEnvironment.onNodeCachedData) {
@@ -56,7 +57,9 @@ export class NodeCachedDataManager {
 
 		// log summary
 		this._telemetryService.publicLog('cachedDataInfo', {
-			didRequestCachedData: Boolean(global.require.getConfig().nodeCachedDataDir),
+			didRequestCachedData: Boolean(
+				global.require.getConfig().nodeCachedDataDir
+			),
 			didRejectCachedData,
 			didProduceCachedData
 		});
@@ -78,30 +81,31 @@ export class NodeCachedDataManager {
 		let handle = setTimeout(() => {
 			handle = undefined;
 
-			readdir(nodeCachedDataDir).then(entries => {
+			readdir(nodeCachedDataDir)
+				.then(entries => {
+					const now = Date.now();
+					const limit = 1000 * 60 * 60 * 24 * 30 * 3; // roughly 3 months
 
-				const now = Date.now();
-				const limit = 1000 * 60 * 60 * 24 * 30 * 3; // roughly 3 months
-
-				const deletes = entries.map(entry => {
-					const path = join(nodeCachedDataDir, entry);
-					return stat(path).then(stats => {
-						const diff = now - stats.mtime.getTime();
-						if (diff > limit) {
-							return rimraf(path);
-						}
-						return undefined;
+					const deletes = entries.map(entry => {
+						const path = join(nodeCachedDataDir, entry);
+						return stat(path).then(stats => {
+							const diff = now - stats.mtime.getTime();
+							if (diff > limit) {
+								return rimraf(path);
+							}
+							return undefined;
+						});
 					});
-				});
 
-				return TPromise.join(deletes);
-
-			}).done(undefined, onUnexpectedError);
-
+					return TPromise.join(deletes);
+				})
+				.done(undefined, onUnexpectedError);
 		}, 30 * 1000);
 
 		this._disposables.push({
-			dispose() { clearTimeout(handle); }
+			dispose() {
+				clearTimeout(handle);
+			}
 		});
 	}
 }

@@ -2,10 +2,10 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
-import { ScrollbarState } from "vs/base/browser/ui/scrollbar/scrollbarState";
+import { ScrollbarState } from 'vs/base/browser/ui/scrollbar/scrollbarState';
 
 suite('ScrollbarState', () => {
 	test('inflates slider size', () => {
@@ -22,7 +22,6 @@ suite('ScrollbarState', () => {
 		assert.equal(actual.getSliderSize(), 20);
 		assert.equal(actual.getSliderPosition(), 249);
 		assert.equal(actual.getSliderCenter(), 259);
-
 
 		assert.equal(actual.getDesiredScrollPositionFromOffset(259), 32849);
 		actual.setScrollPosition(32849);
@@ -50,7 +49,6 @@ suite('ScrollbarState', () => {
 		assert.equal(actual.getSliderSize(), 20);
 		assert.equal(actual.getSliderPosition(), 230);
 		assert.equal(actual.getSliderCenter(), 240);
-
 
 		assert.equal(actual.getDesiredScrollPositionFromOffset(240 + 12), 32811);
 		actual.setScrollPosition(32811);

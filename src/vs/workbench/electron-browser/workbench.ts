@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./media/workbench';
 
@@ -25,9 +25,20 @@ import { toErrorMessage } from 'vs/base/common/errorMessage';
 import { Registry } from 'vs/platform/platform';
 import { isWindows, isLinux, isMacintosh } from 'vs/base/common/platform';
 import { IOptions } from 'vs/workbench/common/options';
-import { Position as EditorPosition, IResourceDiffInput, IUntitledResourceInput, IEditor } from 'vs/platform/editor/common/editor';
-import { IWorkbenchContributionsRegistry, Extensions as WorkbenchExtensions } from 'vs/workbench/common/contributions';
-import { IEditorRegistry, Extensions as EditorExtensions } from 'vs/workbench/common/editor';
+import {
+	Position as EditorPosition,
+	IResourceDiffInput,
+	IUntitledResourceInput,
+	IEditor
+} from 'vs/platform/editor/common/editor';
+import {
+	IWorkbenchContributionsRegistry,
+	Extensions as WorkbenchExtensions
+} from 'vs/workbench/common/contributions';
+import {
+	IEditorRegistry,
+	Extensions as EditorExtensions
+} from 'vs/workbench/common/editor';
 import { HistoryService } from 'vs/workbench/services/history/browser/history';
 import { ActivitybarPart } from 'vs/workbench/browser/parts/activitybar/activitybarPart';
 import { EditorPart } from 'vs/workbench/browser/parts/editor/editorPart';
@@ -36,14 +47,28 @@ import { PanelPart } from 'vs/workbench/browser/parts/panel/panelPart';
 import { StatusbarPart } from 'vs/workbench/browser/parts/statusbar/statusbarPart';
 import { TitlebarPart } from 'vs/workbench/browser/parts/titlebar/titlebarPart';
 import { WorkbenchLayout } from 'vs/workbench/browser/layout';
-import { IActionBarRegistry, Extensions as ActionBarExtensions } from 'vs/workbench/browser/actions';
-import { PanelRegistry, Extensions as PanelExtensions } from 'vs/workbench/browser/panel';
+import {
+	IActionBarRegistry,
+	Extensions as ActionBarExtensions
+} from 'vs/workbench/browser/actions';
+import {
+	PanelRegistry,
+	Extensions as PanelExtensions
+} from 'vs/workbench/browser/panel';
 import { QuickOpenController } from 'vs/workbench/browser/parts/quickopen/quickOpenController';
 import { getServices } from 'vs/platform/instantiation/common/extensions';
 import { WorkbenchEditorService } from 'vs/workbench/services/editor/browser/editorService';
-import { Position, Parts, IPartService, ILayoutOptions } from 'vs/workbench/services/part/common/partService';
+import {
+	Position,
+	Parts,
+	IPartService,
+	ILayoutOptions
+} from 'vs/workbench/services/part/common/partService';
 import { IWorkspaceContextService } from 'vs/platform/workspace/common/workspace';
-import { IStorageService, StorageScope } from 'vs/platform/storage/common/storage';
+import {
+	IStorageService,
+	StorageScope
+} from 'vs/platform/storage/common/storage';
 import { ContextMenuService } from 'vs/workbench/services/contextview/electron-browser/contextmenuService';
 import { WorkbenchKeybindingService } from 'vs/workbench/services/keybinding/electron-browser/keybindingService';
 import { IConfigurationService } from 'vs/platform/configuration/common/configuration';
@@ -52,20 +77,34 @@ import { IConfigurationEditingService } from 'vs/workbench/services/configuratio
 import { ConfigurationEditingService } from 'vs/workbench/services/configuration/node/configurationEditingService';
 import { ContextKeyService } from 'vs/platform/contextkey/browser/contextKeyService';
 import { IKeybindingService } from 'vs/platform/keybinding/common/keybinding';
-import { IKeybindingEditingService, KeybindingsEditingService } from 'vs/workbench/services/keybinding/common/keybindingEditing';
-import { ContextKeyExpr, RawContextKey, IContextKeyService, IContextKey } from 'vs/platform/contextkey/common/contextkey';
+import {
+	IKeybindingEditingService,
+	KeybindingsEditingService
+} from 'vs/workbench/services/keybinding/common/keybindingEditing';
+import {
+	ContextKeyExpr,
+	RawContextKey,
+	IContextKeyService,
+	IContextKey
+} from 'vs/platform/contextkey/common/contextkey';
 import { IActivityBarService } from 'vs/workbench/services/activity/common/activityBarService';
 import { IViewletService } from 'vs/workbench/services/viewlet/browser/viewlet';
 import { ViewletService } from 'vs/workbench/services/viewlet/browser/viewletService';
 import { FileService } from 'vs/workbench/services/files/electron-browser/fileService';
 import { IFileService } from 'vs/platform/files/common/files';
-import { IListService, ListService } from 'vs/platform/list/browser/listService';
+import {
+	IListService,
+	ListService
+} from 'vs/platform/list/browser/listService';
 import { IConfigurationResolverService } from 'vs/workbench/services/configurationResolver/common/configurationResolver';
 import { ConfigurationResolverService } from 'vs/workbench/services/configurationResolver/node/configurationResolverService';
 import { IPanelService } from 'vs/workbench/services/panel/common/panelService';
 import { ITitleService } from 'vs/workbench/services/title/common/titleService';
 import { WorkbenchMessageService } from 'vs/workbench/services/message/browser/messageService';
-import { IWorkbenchEditorService, IResourceInputType } from 'vs/workbench/services/editor/common/editorService';
+import {
+	IWorkbenchEditorService,
+	IResourceInputType
+} from 'vs/workbench/services/editor/common/editorService';
 import { IQuickOpenService } from 'vs/platform/quickOpen/common/quickOpen';
 import { IClipboardService } from 'vs/platform/clipboard/common/clipboardService';
 import { ClipboardService } from 'vs/platform/clipboard/electron-browser/clipboardService';
@@ -82,23 +121,42 @@ import { ProgressService2 } from 'vs/workbench/services/progress/browser/progres
 import { TextModelResolverService } from 'vs/workbench/services/textmodelResolver/common/textModelResolverService';
 import { ITextModelResolverService } from 'vs/editor/common/services/resolverService';
 import { ServiceCollection } from 'vs/platform/instantiation/common/serviceCollection';
-import { ILifecycleService, ShutdownReason } from 'vs/platform/lifecycle/common/lifecycle';
+import {
+	ILifecycleService,
+	ShutdownReason
+} from 'vs/platform/lifecycle/common/lifecycle';
 import { IWindowService } from 'vs/platform/windows/common/windows';
 import { IMessageService } from 'vs/platform/message/common/message';
 import { IStatusbarService } from 'vs/platform/statusbar/common/statusbar';
-import { IMenuService, SyncActionDescriptor } from 'vs/platform/actions/common/actions';
+import {
+	IMenuService,
+	SyncActionDescriptor
+} from 'vs/platform/actions/common/actions';
 import { MenuService } from 'vs/platform/actions/common/menuService';
 import { IContextMenuService } from 'vs/platform/contextview/browser/contextView';
 import { IEnvironmentService } from 'vs/platform/environment/common/environment';
 import { ITelemetryService } from 'vs/platform/telemetry/common/telemetry';
 import { IWindowConfiguration } from 'vs/workbench/electron-browser/common';
-import { IWorkbenchActionRegistry, Extensions } from 'vs/workbench/common/actionRegistry';
-import { OpenRecentAction, ToggleDevToolsAction, ReloadWindowAction } from "vs/workbench/electron-browser/actions";
+import {
+	IWorkbenchActionRegistry,
+	Extensions
+} from 'vs/workbench/common/actionRegistry';
+import {
+	OpenRecentAction,
+	ToggleDevToolsAction,
+	ReloadWindowAction
+} from 'vs/workbench/electron-browser/actions';
 import { KeyMod } from 'vs/base/common/keyCodes';
 import { KeyCode } from 'vs/editor/common/standalone/standaloneBase';
 
-export const MessagesVisibleContext = new RawContextKey<boolean>('globalMessageVisible', false);
-export const EditorsVisibleContext = new RawContextKey<boolean>('editorIsOpen', false);
+export const MessagesVisibleContext = new RawContextKey<boolean>(
+	'globalMessageVisible',
+	false
+);
+export const EditorsVisibleContext = new RawContextKey<boolean>(
+	'editorIsOpen',
+	false
+);
 export const InZenModeContext = new RawContextKey<boolean>('inZenMode', false);
 export const NoEditorsVisibleContext: ContextKeyExpr = EditorsVisibleContext.toNegated();
 
@@ -143,7 +201,6 @@ const Identifiers = {
  * The workbench creates and lays out all parts that make up the workbench.
  */
 export class Workbench implements IPartService {
-
 	private static sidebarHiddenSettingKey = 'workbench.sidebar.hidden';
 	private static sidebarRestoreSettingKey = 'workbench.sidebar.restore';
 	private static panelHiddenSettingKey = 'workbench.panel.hidden';
@@ -180,7 +237,7 @@ export class Workbench implements IPartService {
 	private quickOpen: QuickOpenController;
 	private workbenchLayout: WorkbenchLayout;
 	private toDispose: IDisposable[];
-	private toShutdown: { shutdown: () => void; }[];
+	private toShutdown: { shutdown: () => void }[];
 	private callbacks: IWorkbenchCallbacks;
 	private creationPromise: TPromise<boolean>;
 	private creationPromiseComplete: ValueCallback;
@@ -211,7 +268,8 @@ export class Workbench implements IPartService {
 		@IStorageService private storageService: IStorageService,
 		@ILifecycleService private lifecycleService: ILifecycleService,
 		@IMessageService private messageService: IMessageService,
-		@IConfigurationService private configurationService: WorkspaceConfigurationService,
+		@IConfigurationService
+		private configurationService: WorkspaceConfigurationService,
 		@ITelemetryService private telemetryService: ITelemetryService,
 		@IEnvironmentService private environmentService: IEnvironmentService,
 		@IWindowService private windowService: IWindowService
@@ -245,9 +303,7 @@ export class Workbench implements IPartService {
 	}
 
 	public get onEditorLayout(): Event<void> {
-		return chain(this.editorPart.onLayout)
-			.map(() => void 0)
-			.event;
+		return chain(this.editorPart.onLayout).map(() => void 0).event;
 	}
 
 	/**
@@ -255,8 +311,14 @@ export class Workbench implements IPartService {
 	 * once. Use the shutdown function to free up resources created by the workbench on startup.
 	 */
 	public startup(callbacks?: IWorkbenchCallbacks): void {
-		assert.ok(!this.workbenchStarted, 'Can not start a workbench that was already started');
-		assert.ok(!this.workbenchShutdown, 'Can not start a workbench that was shutdown');
+		assert.ok(
+			!this.workbenchStarted,
+			'Can not start a workbench that was already started'
+		);
+		assert.ok(
+			!this.workbenchShutdown,
+			'Can not start a workbench that was shutdown'
+		);
 
 		try {
 			this.workbenchStarted = true;
@@ -275,8 +337,12 @@ export class Workbench implements IPartService {
 			}
 
 			// Contexts
-			this.messagesVisibleContext = MessagesVisibleContext.bindTo(this.contextKeyService);
-			this.editorsVisibleContext = EditorsVisibleContext.bindTo(this.contextKeyService);
+			this.messagesVisibleContext = MessagesVisibleContext.bindTo(
+				this.contextKeyService
+			);
+			this.editorsVisibleContext = EditorsVisibleContext.bindTo(
+				this.contextKeyService
+			);
 			this.inZenMode = InZenModeContext.bindTo(this.contextKeyService);
 
 			// Register Listeners
@@ -298,9 +364,11 @@ export class Workbench implements IPartService {
 			let viewletRestoreStopWatch: StopWatch;
 			let viewletIdToRestore: string;
 			if (!this.sideBarHidden) {
-
 				if (this.shouldRestoreLastOpenedViewlet()) {
-					viewletIdToRestore = this.storageService.get(SidebarPart.activeViewletSettingsKey, StorageScope.WORKSPACE);
+					viewletIdToRestore = this.storageService.get(
+						SidebarPart.activeViewletSettingsKey,
+						StorageScope.WORKSPACE
+					);
 				}
 
 				if (!viewletIdToRestore) {
@@ -309,44 +377,68 @@ export class Workbench implements IPartService {
 
 				viewletRestoreStopWatch = StopWatch.create();
 				const viewletTimer = startTimer('restore:viewlet');
-				compositeAndEditorPromises.push(viewletTimer.while(this.viewletService.openViewlet(viewletIdToRestore)).then(() => {
-					viewletRestoreStopWatch.stop();
-				}));
+				compositeAndEditorPromises.push(
+					viewletTimer
+						.while(this.viewletService.openViewlet(viewletIdToRestore))
+						.then(() => {
+							viewletRestoreStopWatch.stop();
+						})
+				);
 			}
 
 			// Load Panel
 			const panelRegistry = Registry.as<PanelRegistry>(PanelExtensions.Panels);
-			const panelId = this.storageService.get(PanelPart.activePanelSettingsKey, StorageScope.WORKSPACE, panelRegistry.getDefaultPanelId());
+			const panelId = this.storageService.get(
+				PanelPart.activePanelSettingsKey,
+				StorageScope.WORKSPACE,
+				panelRegistry.getDefaultPanelId()
+			);
 			if (!this.panelHidden && !!panelId) {
-				compositeAndEditorPromises.push(this.panelPart.openPanel(panelId, false));
+				compositeAndEditorPromises.push(
+					this.panelPart.openPanel(panelId, false)
+				);
 			}
 
 			// Load Editors
 			const editorRestoreStopWatch = StopWatch.create();
 			const restoredEditors: string[] = [];
 			const editorsTimer = startTimer('restore:editors');
-			compositeAndEditorPromises.push(editorsTimer.while(this.resolveEditorsToOpen().then(inputs => {
-				let editorOpenPromise: TPromise<IEditor[]>;
-				if (inputs.length) {
-					editorOpenPromise = this.editorService.openEditors(inputs.map(input => { return { input, position: EditorPosition.ONE }; }));
-				} else {
-					editorOpenPromise = this.editorPart.restoreEditors();
-				}
-
-				return editorOpenPromise.then(editors => {
-					this.onEditorsChanged(); // make sure we show the proper background in the editor area
-					editorRestoreStopWatch.stop();
-					for (const editor of editors) {
-						if (editor.input) {
-							restoredEditors.push(editor.input.getName());
+			compositeAndEditorPromises.push(
+				editorsTimer.while(
+					this.resolveEditorsToOpen().then(inputs => {
+						let editorOpenPromise: TPromise<IEditor[]>;
+						if (inputs.length) {
+							editorOpenPromise = this.editorService.openEditors(
+								inputs.map(input => {
+									return { input, position: EditorPosition.ONE };
+								})
+							);
 						} else {
-							restoredEditors.push(`other:${editor.getId()}`);
+							editorOpenPromise = this.editorPart.restoreEditors();
 						}
-					}
-				});
-			})));
 
-			if (this.storageService.getBoolean(Workbench.zenModeActiveSettingKey, StorageScope.WORKSPACE, false)) {
+						return editorOpenPromise.then(editors => {
+							this.onEditorsChanged(); // make sure we show the proper background in the editor area
+							editorRestoreStopWatch.stop();
+							for (const editor of editors) {
+								if (editor.input) {
+									restoredEditors.push(editor.input.getName());
+								} else {
+									restoredEditors.push(`other:${editor.getId()}`);
+								}
+							}
+						});
+					})
+				)
+			);
+
+			if (
+				this.storageService.getBoolean(
+					Workbench.zenModeActiveSettingKey,
+					StorageScope.WORKSPACE,
+					false
+				)
+			) {
 				this.toggleZenMode(true);
 			}
 
@@ -358,8 +450,12 @@ export class Workbench implements IPartService {
 				if (this.callbacks && this.callbacks.onWorkbenchStarted) {
 					this.callbacks.onWorkbenchStarted({
 						customKeybindingsCount: this.keybindingService.customKeybindingsCount(),
-						restoreViewletDuration: viewletRestoreStopWatch ? Math.round(viewletRestoreStopWatch.elapsed()) : 0,
-						restoreEditorsDuration: Math.round(editorRestoreStopWatch.elapsed()),
+						restoreViewletDuration: viewletRestoreStopWatch
+							? Math.round(viewletRestoreStopWatch.elapsed())
+							: 0,
+						restoreEditorsDuration: Math.round(
+							editorRestoreStopWatch.elapsed()
+						),
 						pinnedViewlets: this.activitybarPart.getPinned(),
 						restoredViewlet: viewletIdToRestore,
 						restoredEditors
@@ -372,9 +468,11 @@ export class Workbench implements IPartService {
 			};
 
 			// Join viewlet, panel and editor promises
-			TPromise.join(compositeAndEditorPromises).then(() => workbenchDone(), error => workbenchDone(error));
+			TPromise.join(compositeAndEditorPromises).then(
+				() => workbenchDone(),
+				error => workbenchDone(error)
+			);
 		} catch (error) {
-
 			// Print out error
 			console.error(toErrorMessage(error, true));
 
@@ -384,17 +482,54 @@ export class Workbench implements IPartService {
 	}
 
 	private createGlobalActions(): void {
-		const isDeveloping = !this.environmentService.isBuilt || this.environmentService.isExtensionDevelopment;
+		const isDeveloping =
+			!this.environmentService.isBuilt ||
+			this.environmentService.isExtensionDevelopment;
 
 		// Actions registered here to adjust for developing vs built workbench
-		const workbenchActionsRegistry = Registry.as<IWorkbenchActionRegistry>(Extensions.WorkbenchActions);
-		workbenchActionsRegistry.registerWorkbenchAction(new SyncActionDescriptor(ReloadWindowAction, ReloadWindowAction.ID, ReloadWindowAction.LABEL, isDeveloping ? { primary: KeyMod.CtrlCmd | KeyCode.KEY_R } : void 0), 'Reload Window');
-		workbenchActionsRegistry.registerWorkbenchAction(new SyncActionDescriptor(ToggleDevToolsAction, ToggleDevToolsAction.ID, ToggleDevToolsAction.LABEL, isDeveloping ? { primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KEY_I, mac: { primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.KEY_I } } : void 0), 'Developer: Toggle Developer Tools', localize('developer', "Developer"));
-		workbenchActionsRegistry.registerWorkbenchAction(new SyncActionDescriptor(OpenRecentAction, OpenRecentAction.ID, OpenRecentAction.LABEL, { primary: isDeveloping ? null : KeyMod.CtrlCmd | KeyCode.KEY_R, mac: { primary: KeyMod.WinCtrl | KeyCode.KEY_R } }), 'File: Open Recent...', localize('file', "File"));
+		const workbenchActionsRegistry = Registry.as<IWorkbenchActionRegistry>(
+			Extensions.WorkbenchActions
+		);
+		workbenchActionsRegistry.registerWorkbenchAction(
+			new SyncActionDescriptor(
+				ReloadWindowAction,
+				ReloadWindowAction.ID,
+				ReloadWindowAction.LABEL,
+				isDeveloping ? { primary: KeyMod.CtrlCmd | KeyCode.KEY_R } : void 0
+			),
+			'Reload Window'
+		);
+		workbenchActionsRegistry.registerWorkbenchAction(
+			new SyncActionDescriptor(
+				ToggleDevToolsAction,
+				ToggleDevToolsAction.ID,
+				ToggleDevToolsAction.LABEL,
+				isDeveloping
+					? {
+							primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KEY_I,
+							mac: { primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.KEY_I }
+						}
+					: void 0
+			),
+			'Developer: Toggle Developer Tools',
+			localize('developer', 'Developer')
+		);
+		workbenchActionsRegistry.registerWorkbenchAction(
+			new SyncActionDescriptor(
+				OpenRecentAction,
+				OpenRecentAction.ID,
+				OpenRecentAction.LABEL,
+				{
+					primary: isDeveloping ? null : KeyMod.CtrlCmd | KeyCode.KEY_R,
+					mac: { primary: KeyMod.WinCtrl | KeyCode.KEY_R }
+				}
+			),
+			'File: Open Recent...',
+			localize('file', 'File')
+		);
 	}
 
 	private resolveEditorsToOpen(): TPromise<IResourceInputType[]> {
-
 		// Files to open, diff or create
 		if (this.hasFilesToCreateOpenOrDiff) {
 			const wbopt = this.workbenchParams.options;
@@ -404,28 +539,32 @@ export class Workbench implements IPartService {
 
 			// Files to diff is exclusive
 			if (filesToDiff && filesToDiff.length === 2) {
-				return TPromise.as([<IResourceDiffInput>{
-					leftResource: filesToDiff[0].resource,
-					rightResource: filesToDiff[1].resource,
-					options: { pinned: true }
-				}]);
-			}
-
-			// Otherwise: Open/Create files
-			else {
-				const filesToCreateInputs: IUntitledResourceInput[] = filesToCreate.map(resourceInput => {
-					return <IUntitledResourceInput>{
-						filePath: resourceInput.resource.fsPath,
+				return TPromise.as([
+					<IResourceDiffInput>{
+						leftResource: filesToDiff[0].resource,
+						rightResource: filesToDiff[1].resource,
 						options: { pinned: true }
-					};
-				});
+					}
+				]);
+			} else {
+				// Otherwise: Open/Create files
+				const filesToCreateInputs: IUntitledResourceInput[] = filesToCreate.map(
+					resourceInput => {
+						return <IUntitledResourceInput>{
+							filePath: resourceInput.resource.fsPath,
+							options: { pinned: true }
+						};
+					}
+				);
 
 				return TPromise.as([].concat(filesToOpen).concat(filesToCreateInputs));
 			}
-		}
-
-		// Empty workbench: some first time users will not have an untiled file; returning users will always have one
-		else if (!this.contextService.hasWorkspace() && this.telemetryService.getExperiments().openUntitledFile && !this.configurationService.lookup('workbench.welcome.enabled').value) {
+		} else if (
+			!this.contextService.hasWorkspace() &&
+			this.telemetryService.getExperiments().openUntitledFile &&
+			!this.configurationService.lookup('workbench.welcome.enabled').value
+		) {
+			// Empty workbench: some first time users will not have an untiled file; returning users will always have one
 			if (this.editorPart.hasEditorsToRestore()) {
 				return TPromise.as([]); // do not open any empty untitled file if we have editors to restore
 			}
@@ -445,7 +584,9 @@ export class Workbench implements IPartService {
 	private initServices(): void {
 		const { serviceCollection } = this.workbenchParams;
 
-		this.toDispose.push(this.lifecycleService.onShutdown(this.shutdownComponents, this));
+		this.toDispose.push(
+			this.lifecycleService.onShutdown(this.shutdownComponents, this)
+		);
 
 		// Services we contribute
 		serviceCollection.set(IPartService, this);
@@ -454,61 +595,100 @@ export class Workbench implements IPartService {
 		serviceCollection.set(IClipboardService, new ClipboardService());
 
 		// Status bar
-		this.statusbarPart = this.instantiationService.createInstance(StatusbarPart, Identifiers.STATUSBAR_PART);
+		this.statusbarPart = this.instantiationService.createInstance(
+			StatusbarPart,
+			Identifiers.STATUSBAR_PART
+		);
 		this.toDispose.push(this.statusbarPart);
 		this.toShutdown.push(this.statusbarPart);
 		serviceCollection.set(IStatusbarService, this.statusbarPart);
 
 		// Progress 2
-		serviceCollection.set(IProgressService2, new SyncDescriptor(ProgressService2));
+		serviceCollection.set(
+			IProgressService2,
+			new SyncDescriptor(ProgressService2)
+		);
 
 		// Keybindings
-		this.contextKeyService = this.instantiationService.createInstance(ContextKeyService);
+		this.contextKeyService = this.instantiationService.createInstance(
+			ContextKeyService
+		);
 		serviceCollection.set(IContextKeyService, this.contextKeyService);
 
-		this.keybindingService = this.instantiationService.createInstance(WorkbenchKeybindingService, window);
+		this.keybindingService = this.instantiationService.createInstance(
+			WorkbenchKeybindingService,
+			window
+		);
 		serviceCollection.set(IKeybindingService, this.keybindingService);
 
 		// List
-		serviceCollection.set(IListService, this.instantiationService.createInstance(ListService));
+		serviceCollection.set(
+			IListService,
+			this.instantiationService.createInstance(ListService)
+		);
 
 		// Context Menu
-		serviceCollection.set(IContextMenuService, new SyncDescriptor(ContextMenuService));
+		serviceCollection.set(
+			IContextMenuService,
+			new SyncDescriptor(ContextMenuService)
+		);
 
 		// Menus/Actions
 		serviceCollection.set(IMenuService, new SyncDescriptor(MenuService));
 
 		// Sidebar part
-		this.sidebarPart = this.instantiationService.createInstance(SidebarPart, Identifiers.SIDEBAR_PART);
+		this.sidebarPart = this.instantiationService.createInstance(
+			SidebarPart,
+			Identifiers.SIDEBAR_PART
+		);
 		this.toDispose.push(this.sidebarPart);
 		this.toShutdown.push(this.sidebarPart);
 
 		// Viewlet service
-		this.viewletService = this.instantiationService.createInstance(ViewletService, this.sidebarPart);
+		this.viewletService = this.instantiationService.createInstance(
+			ViewletService,
+			this.sidebarPart
+		);
 		serviceCollection.set(IViewletService, this.viewletService);
 
 		// Panel service (panel part)
-		this.panelPart = this.instantiationService.createInstance(PanelPart, Identifiers.PANEL_PART);
+		this.panelPart = this.instantiationService.createInstance(
+			PanelPart,
+			Identifiers.PANEL_PART
+		);
 		this.toDispose.push(this.panelPart);
 		this.toShutdown.push(this.panelPart);
 		serviceCollection.set(IPanelService, this.panelPart);
 
 		// Activity service (activitybar part)
-		this.activitybarPart = this.instantiationService.createInstance(ActivitybarPart, Identifiers.ACTIVITYBAR_PART);
+		this.activitybarPart = this.instantiationService.createInstance(
+			ActivitybarPart,
+			Identifiers.ACTIVITYBAR_PART
+		);
 		this.toDispose.push(this.activitybarPart);
 		this.toShutdown.push(this.activitybarPart);
 		serviceCollection.set(IActivityBarService, this.activitybarPart);
 
 		// Editor service (editor part)
-		this.editorPart = this.instantiationService.createInstance(EditorPart, Identifiers.EDITOR_PART, !this.hasFilesToCreateOpenOrDiff);
+		this.editorPart = this.instantiationService.createInstance(
+			EditorPart,
+			Identifiers.EDITOR_PART,
+			!this.hasFilesToCreateOpenOrDiff
+		);
 		this.toDispose.push(this.editorPart);
 		this.toShutdown.push(this.editorPart);
-		this.editorService = this.instantiationService.createInstance(WorkbenchEditorService, this.editorPart);
+		this.editorService = this.instantiationService.createInstance(
+			WorkbenchEditorService,
+			this.editorPart
+		);
 		serviceCollection.set(IWorkbenchEditorService, this.editorService);
 		serviceCollection.set(IEditorGroupService, this.editorPart);
 
 		// Title bar
-		this.titlebarPart = this.instantiationService.createInstance(TitlebarPart, Identifiers.TITLEBAR_PART);
+		this.titlebarPart = this.instantiationService.createInstance(
+			TitlebarPart,
+			Identifiers.TITLEBAR_PART
+		);
 		this.toDispose.push(this.titlebarPart);
 		this.toShutdown.push(this.titlebarPart);
 		serviceCollection.set(ITitleService, this.titlebarPart);
@@ -516,37 +696,66 @@ export class Workbench implements IPartService {
 		// File Service
 		const fileService = this.instantiationService.createInstance(FileService);
 		serviceCollection.set(IFileService, fileService);
-		this.toDispose.push(fileService.onFileChanges(e => this.configurationService.handleWorkspaceFileEvents(e)));
+		this.toDispose.push(
+			fileService.onFileChanges(e =>
+				this.configurationService.handleWorkspaceFileEvents(e)
+			)
+		);
 
 		// History
 		serviceCollection.set(IHistoryService, new SyncDescriptor(HistoryService));
 
 		// Backup File Service
-		this.backupFileService = this.instantiationService.createInstance(BackupFileService);
+		this.backupFileService = this.instantiationService.createInstance(
+			BackupFileService
+		);
 		serviceCollection.set(IBackupFileService, this.backupFileService);
 
 		// Text File Service
-		serviceCollection.set(ITextFileService, new SyncDescriptor(TextFileService));
+		serviceCollection.set(
+			ITextFileService,
+			new SyncDescriptor(TextFileService)
+		);
 
 		// SCM Service
 		serviceCollection.set(ISCMService, new SyncDescriptor(SCMService));
 
 		// Text Model Resolver Service
-		serviceCollection.set(ITextModelResolverService, new SyncDescriptor(TextModelResolverService));
+		serviceCollection.set(
+			ITextModelResolverService,
+			new SyncDescriptor(TextModelResolverService)
+		);
 
 		// Configuration Editing
-		this.configurationEditingService = this.instantiationService.createInstance(ConfigurationEditingService);
-		serviceCollection.set(IConfigurationEditingService, this.configurationEditingService);
+		this.configurationEditingService = this.instantiationService.createInstance(
+			ConfigurationEditingService
+		);
+		serviceCollection.set(
+			IConfigurationEditingService,
+			this.configurationEditingService
+		);
 
 		// Keybinding Editing
-		serviceCollection.set(IKeybindingEditingService, this.instantiationService.createInstance(KeybindingsEditingService));
+		serviceCollection.set(
+			IKeybindingEditingService,
+			this.instantiationService.createInstance(KeybindingsEditingService)
+		);
 
 		// Configuration Resolver
 		const workspace = this.contextService.getWorkspace();
-		serviceCollection.set(IConfigurationResolverService, new SyncDescriptor(ConfigurationResolverService, workspace ? workspace.resource : null, process.env));
+		serviceCollection.set(
+			IConfigurationResolverService,
+			new SyncDescriptor(
+				ConfigurationResolverService,
+				workspace ? workspace.resource : null,
+				process.env
+			)
+		);
 
 		// Quick open service (quick open controller)
-		this.quickOpen = this.instantiationService.createInstance(QuickOpenController);
+		this.quickOpen = this.instantiationService.createInstance(
+			QuickOpenController
+		);
 		this.toDispose.push(this.quickOpen);
 		this.toShutdown.push(this.quickOpen);
 		serviceCollection.set(IQuickOpenService, this.quickOpen);
@@ -554,37 +763,61 @@ export class Workbench implements IPartService {
 		// Contributed services
 		const contributedServices = getServices();
 		for (let contributedService of contributedServices) {
-			serviceCollection.set(contributedService.id, contributedService.descriptor);
+			serviceCollection.set(
+				contributedService.id,
+				contributedService.descriptor
+			);
 		}
 
 		// Set the some services to registries that have been created eagerly
-		Registry.as<IActionBarRegistry>(ActionBarExtensions.Actionbar).setInstantiationService(this.instantiationService);
-		Registry.as<IWorkbenchContributionsRegistry>(WorkbenchExtensions.Workbench).setInstantiationService(this.instantiationService);
-		Registry.as<IEditorRegistry>(EditorExtensions.Editors).setInstantiationService(this.instantiationService);
+		Registry.as<IActionBarRegistry>(
+			ActionBarExtensions.Actionbar
+		).setInstantiationService(this.instantiationService);
+		Registry.as<IWorkbenchContributionsRegistry>(
+			WorkbenchExtensions.Workbench
+		).setInstantiationService(this.instantiationService);
+		Registry.as<IEditorRegistry>(
+			EditorExtensions.Editors
+		).setInstantiationService(this.instantiationService);
 	}
 
 	private initSettings(): void {
-
 		// Sidebar visibility
-		this.sideBarHidden = this.storageService.getBoolean(Workbench.sidebarHiddenSettingKey, StorageScope.WORKSPACE, !this.contextService.hasWorkspace());
+		this.sideBarHidden = this.storageService.getBoolean(
+			Workbench.sidebarHiddenSettingKey,
+			StorageScope.WORKSPACE,
+			!this.contextService.hasWorkspace()
+		);
 
 		// Panel part visibility
 		const panelRegistry = Registry.as<PanelRegistry>(PanelExtensions.Panels);
-		this.panelHidden = this.storageService.getBoolean(Workbench.panelHiddenSettingKey, StorageScope.WORKSPACE, true);
+		this.panelHidden = this.storageService.getBoolean(
+			Workbench.panelHiddenSettingKey,
+			StorageScope.WORKSPACE,
+			true
+		);
 		if (!panelRegistry.getDefaultPanelId()) {
 			this.panelHidden = true; // we hide panel part if there is no default panel
 		}
 
 		// Sidebar position
-		const sideBarPosition = this.configurationService.lookup<string>(Workbench.sidebarPositionConfigurationKey).value;
-		this.sideBarPosition = (sideBarPosition === 'right') ? Position.RIGHT : Position.LEFT;
+		const sideBarPosition = this.configurationService.lookup<string>(
+			Workbench.sidebarPositionConfigurationKey
+		).value;
+		this.sideBarPosition = sideBarPosition === 'right'
+			? Position.RIGHT
+			: Position.LEFT;
 
 		// Statusbar visibility
-		const statusBarVisible = this.configurationService.lookup<string>(Workbench.statusbarVisibleConfigurationKey).value;
+		const statusBarVisible = this.configurationService.lookup<string>(
+			Workbench.statusbarVisibleConfigurationKey
+		).value;
 		this.statusBarHidden = !statusBarVisible;
 
 		// Activity bar visibility
-		const activityBarVisible = this.configurationService.lookup<string>(Workbench.activityBarVisibleConfigurationKey).value;
+		const activityBarVisible = this.configurationService.lookup<string>(
+			Workbench.activityBarVisibleConfigurationKey
+		).value;
 		this.activityBarHidden = !activityBarVisible;
 
 		// Zen mode
@@ -680,12 +913,16 @@ export class Workbench implements IPartService {
 			return null; // custom title bar is only supported on Mac currently
 		}
 
-		const isDev = !this.environmentService.isBuilt || this.environmentService.isExtensionDevelopment;
+		const isDev =
+			!this.environmentService.isBuilt ||
+			this.environmentService.isExtensionDevelopment;
 		if (isDev) {
 			return null; // not enabled when developing due to https://github.com/electron/electron/issues/3647
 		}
 
-		const windowConfig = this.configurationService.getConfiguration<IWindowConfiguration>();
+		const windowConfig = this.configurationService.getConfiguration<
+			IWindowConfiguration
+		>();
 		if (windowConfig && windowConfig.window) {
 			const useNativeTabs = windowConfig.window.nativeTabs;
 			if (useNativeTabs) {
@@ -704,7 +941,6 @@ export class Workbench implements IPartService {
 	private setStatusBarHidden(hidden: boolean, skipLayout?: boolean): void {
 		this.statusBarHidden = hidden;
 
-
 		// Layout
 		if (!skipLayout) {
 			this.workbenchLayout.layout();
@@ -714,14 +950,16 @@ export class Workbench implements IPartService {
 	public setActivityBarHidden(hidden: boolean, skipLayout?: boolean): void {
 		this.activityBarHidden = hidden;
 
-
 		// Layout
 		if (!skipLayout) {
 			this.workbenchLayout.layout();
 		}
 	}
 
-	public setSideBarHidden(hidden: boolean, skipLayout?: boolean): TPromise<void> {
+	public setSideBarHidden(
+		hidden: boolean,
+		skipLayout?: boolean
+	): TPromise<void> {
 		this.sideBarHidden = hidden;
 
 		// Adjust CSS
@@ -745,11 +983,11 @@ export class Workbench implements IPartService {
 					activeEditor.focus();
 				}
 			});
-		}
-
-		// If sidebar becomes visible, show last active Viewlet or default viewlet
-		else if (!hidden && !this.sidebarPart.getActiveViewlet()) {
-			const viewletToOpen = this.sidebarPart.getLastActiveViewletId() || this.viewletService.getDefaultViewletId();
+		} else if (!hidden && !this.sidebarPart.getActiveViewlet()) {
+			// If sidebar becomes visible, show last active Viewlet or default viewlet
+			const viewletToOpen =
+				this.sidebarPart.getLastActiveViewletId() ||
+				this.viewletService.getDefaultViewletId();
 			if (viewletToOpen) {
 				promise = this.sidebarPart.openViewlet(viewletToOpen, true);
 			}
@@ -757,7 +995,11 @@ export class Workbench implements IPartService {
 
 		return promise.then(() => {
 			// Remember in settings
-			this.storageService.store(Workbench.sidebarHiddenSettingKey, hidden ? 'true' : 'false', StorageScope.WORKSPACE);
+			this.storageService.store(
+				Workbench.sidebarHiddenSettingKey,
+				hidden ? 'true' : 'false',
+				StorageScope.WORKSPACE
+			);
 
 			// Layout
 			if (!skipLayout) {
@@ -786,12 +1028,11 @@ export class Workbench implements IPartService {
 					editor.focus();
 				}
 			});
-		}
-
-		// If panel part becomes visible, show last active panel or default panel
-		else if (!hidden && !this.panelPart.getActivePanel()) {
+		} else if (!hidden && !this.panelPart.getActivePanel()) {
+			// If panel part becomes visible, show last active panel or default panel
 			const registry = Registry.as<PanelRegistry>(PanelExtensions.Panels);
-			const panelToOpen = this.panelPart.getLastActivePanelId() || registry.getDefaultPanelId();
+			const panelToOpen =
+				this.panelPart.getLastActivePanelId() || registry.getDefaultPanelId();
 			if (panelToOpen) {
 				promise = this.panelPart.openPanel(panelToOpen, true);
 			}
@@ -799,7 +1040,11 @@ export class Workbench implements IPartService {
 
 		return promise.then(() => {
 			// Remember in settings
-			this.storageService.store(Workbench.panelHiddenSettingKey, hidden ? 'true' : 'false', StorageScope.WORKSPACE);
+			this.storageService.store(
+				Workbench.panelHiddenSettingKey,
+				hidden ? 'true' : 'false',
+				StorageScope.WORKSPACE
+			);
 
 			// Layout
 			if (!skipLayout) {
@@ -822,11 +1067,16 @@ export class Workbench implements IPartService {
 
 	private setSideBarPosition(position: Position): void {
 		if (this.sideBarHidden) {
-			this.setSideBarHidden(false, true /* Skip Layout */).done(undefined, errors.onUnexpectedError);
+			this.setSideBarHidden(false, true /* Skip Layout */).done(
+				undefined,
+				errors.onUnexpectedError
+			);
 		}
 
-		const newPositionValue = (position === Position.LEFT) ? 'left' : 'right';
-		const oldPositionValue = (this.sideBarPosition === Position.LEFT) ? 'left' : 'right';
+		const newPositionValue = position === Position.LEFT ? 'left' : 'right';
+		const oldPositionValue = this.sideBarPosition === Position.LEFT
+			? 'left'
+			: 'right';
 		this.sideBarPosition = position;
 
 		// Adjust CSS
@@ -863,37 +1113,70 @@ export class Workbench implements IPartService {
 	}
 
 	private shutdownComponents(reason = ShutdownReason.QUIT): void {
-
 		// Restore sidebar if we are being shutdown as a matter of a reload
 		if (reason === ShutdownReason.RELOAD) {
-			this.storageService.store(Workbench.sidebarRestoreSettingKey, 'true', StorageScope.WORKSPACE);
+			this.storageService.store(
+				Workbench.sidebarRestoreSettingKey,
+				'true',
+				StorageScope.WORKSPACE
+			);
 		}
 
-		const zenConfig = this.configurationService.getConfiguration<IZenModeSettings>('zenMode');
+		const zenConfig = this.configurationService.getConfiguration<
+			IZenModeSettings
+		>('zenMode');
 		// Preserve zen mode only on reload. Real quit gets out of zen mode so novice users do not get stuck in zen mode.
-		this.storageService.store(Workbench.zenModeActiveSettingKey, (zenConfig.restore || reason === ShutdownReason.RELOAD) && this.zenMode.active, StorageScope.WORKSPACE);
+		this.storageService.store(
+			Workbench.zenModeActiveSettingKey,
+			(zenConfig.restore || reason === ShutdownReason.RELOAD) &&
+				this.zenMode.active,
+			StorageScope.WORKSPACE
+		);
 
 		// Pass shutdown on to each participant
 		this.toShutdown.forEach(s => s.shutdown());
 	}
 
 	private registerListeners(): void {
-
 		// Listen to editor changes
-		this.toDispose.push(this.editorPart.onEditorsChanged(() => this.onEditorsChanged()));
+		this.toDispose.push(
+			this.editorPart.onEditorsChanged(() => this.onEditorsChanged())
+		);
 
 		// Handle message service and quick open events
-		this.toDispose.push((<WorkbenchMessageService>this.messageService).onMessagesShowing(() => this.messagesVisibleContext.set(true)));
-		this.toDispose.push((<WorkbenchMessageService>this.messageService).onMessagesCleared(() => this.messagesVisibleContext.reset()));
+		this.toDispose.push(
+			(<WorkbenchMessageService>this.messageService).onMessagesShowing(() =>
+				this.messagesVisibleContext.set(true)
+			)
+		);
+		this.toDispose.push(
+			(<WorkbenchMessageService>this.messageService).onMessagesCleared(() =>
+				this.messagesVisibleContext.reset()
+			)
+		);
 
-		this.toDispose.push(this.quickOpen.onShow(() => (<WorkbenchMessageService>this.messageService).suspend())); // when quick open is open, don't show messages behind
-		this.toDispose.push(this.quickOpen.onHide(() => (<WorkbenchMessageService>this.messageService).resume()));  // resume messages once quick open is closed again
+		this.toDispose.push(
+			this.quickOpen.onShow(() =>
+				(<WorkbenchMessageService>this.messageService).suspend()
+			)
+		); // when quick open is open, don't show messages behind
+		this.toDispose.push(
+			this.quickOpen.onHide(() =>
+				(<WorkbenchMessageService>this.messageService).resume()
+			)
+		); // resume messages once quick open is closed again
 
 		// Configuration changes
-		this.toDispose.push(this.configurationService.onDidUpdateConfiguration(() => this.onDidUpdateConfiguration()));
+		this.toDispose.push(
+			this.configurationService.onDidUpdateConfiguration(() =>
+				this.onDidUpdateConfiguration()
+			)
+		);
 
 		// Fullscreen changes
-		this.toDispose.push(browser.onDidChangeFullscreen(() => this.onFullscreenChanged()));
+		this.toDispose.push(
+			browser.onDidChangeFullscreen(() => this.onFullscreenChanged())
+		);
 	}
 
 	private onFullscreenChanged(): void {
@@ -929,27 +1212,39 @@ export class Workbench implements IPartService {
 		const editorContainer = this.editorPart.getContainer();
 		if (visibleEditors === 0) {
 			this.editorsVisibleContext.reset();
-			this.editorBackgroundDelayer.trigger(() => editorContainer.addClass('empty'));
+			this.editorBackgroundDelayer.trigger(() =>
+				editorContainer.addClass('empty')
+			);
 		} else {
 			this.editorsVisibleContext.set(true);
-			this.editorBackgroundDelayer.trigger(() => editorContainer.removeClass('empty'));
+			this.editorBackgroundDelayer.trigger(() =>
+				editorContainer.removeClass('empty')
+			);
 		}
 	}
 
 	private onDidUpdateConfiguration(skipLayout?: boolean): void {
-		const newSidebarPositionValue = this.configurationService.lookup<string>(Workbench.sidebarPositionConfigurationKey).value;
-		const newSidebarPosition = (newSidebarPositionValue === 'right') ? Position.RIGHT : Position.LEFT;
+		const newSidebarPositionValue = this.configurationService.lookup<string>(
+			Workbench.sidebarPositionConfigurationKey
+		).value;
+		const newSidebarPosition = newSidebarPositionValue === 'right'
+			? Position.RIGHT
+			: Position.LEFT;
 		if (newSidebarPosition !== this.getSideBarPosition()) {
 			this.setSideBarPosition(newSidebarPosition);
 		}
 
 		if (!this.zenMode.active) {
-			const newStatusbarHiddenValue = !this.configurationService.lookup<boolean>(Workbench.statusbarVisibleConfigurationKey).value;
+			const newStatusbarHiddenValue = !this.configurationService.lookup<
+				boolean
+			>(Workbench.statusbarVisibleConfigurationKey).value;
 			if (newStatusbarHiddenValue !== this.statusBarHidden) {
 				this.setStatusBarHidden(newStatusbarHiddenValue, skipLayout);
 			}
 
-			const newActivityBarHiddenValue = !this.configurationService.lookup<boolean>(Workbench.activityBarVisibleConfigurationKey).value;
+			const newActivityBarHiddenValue = !this.configurationService.lookup<
+				boolean
+			>(Workbench.activityBarVisibleConfigurationKey).value;
 			if (newActivityBarHiddenValue !== this.activityBarHidden) {
 				this.setActivityBarHidden(newActivityBarHiddenValue, skipLayout);
 			}
@@ -957,32 +1252,38 @@ export class Workbench implements IPartService {
 	}
 
 	private createWorkbenchLayout(): void {
-		this.workbenchLayout = this.instantiationService.createInstance(WorkbenchLayout,
-			$(this.container),							// Parent
-			this.workbench,								// Workbench Container
+		this.workbenchLayout = this.instantiationService.createInstance(
+			WorkbenchLayout,
+			$(this.container), // Parent
+			this.workbench, // Workbench Container
 			{
-				titlebar: this.titlebarPart,			// Title Bar
-				activitybar: this.activitybarPart,		// Activity Bar
-				editor: this.editorPart,				// Editor
-				sidebar: this.sidebarPart,				// Sidebar
-				panel: this.panelPart,					// Panel Part
-				statusbar: this.statusbarPart,			// Statusbar
+				titlebar: this.titlebarPart, // Title Bar
+				activitybar: this.activitybarPart, // Activity Bar
+				editor: this.editorPart, // Editor
+				sidebar: this.sidebarPart, // Sidebar
+				panel: this.panelPart, // Panel Part
+				statusbar: this.statusbarPart // Statusbar
 			},
-			this.quickOpen								// Quickopen
+			this.quickOpen // Quickopen
 		);
 
 		this.toDispose.push(this.workbenchLayout);
 	}
 
 	private createWorkbench(): void {
-
 		// Create Workbench DIV Off-DOM
 		this.workbenchContainer = $('.monaco-workbench-container');
-		this.workbench = $().div({ 'class': 'monaco-workbench ' + (isWindows ? 'windows' : isLinux ? 'linux' : 'mac'), id: Identifiers.WORKBENCH_CONTAINER }).appendTo(this.workbenchContainer);
+		this.workbench = $()
+			.div({
+				class:
+					'monaco-workbench ' +
+						(isWindows ? 'windows' : isLinux ? 'linux' : 'mac'),
+				id: Identifiers.WORKBENCH_CONTAINER
+			})
+			.appendTo(this.workbenchContainer);
 	}
 
 	private renderWorkbench(): void {
-
 		// Apply sidebar state as CSS class
 		if (this.sideBarHidden) {
 			this.workbench.addClass('nosidebar');
@@ -1016,7 +1317,7 @@ export class Workbench implements IPartService {
 
 	private createTitlebarPart(): void {
 		const titlebarContainer = $(this.workbench).div({
-			'class': ['part', 'titlebar'],
+			class: ['part', 'titlebar'],
 			id: Identifiers.TITLEBAR_PART,
 			role: 'contentinfo'
 		});
@@ -1025,52 +1326,56 @@ export class Workbench implements IPartService {
 	}
 
 	private createActivityBarPart(): void {
-		const activitybarPartContainer = $(this.workbench)
-			.div({
-				'class': ['part', 'activitybar', this.sideBarPosition === Position.LEFT ? 'left' : 'right'],
-				id: Identifiers.ACTIVITYBAR_PART,
-				role: 'navigation'
-			});
+		const activitybarPartContainer = $(this.workbench).div({
+			class: [
+				'part',
+				'activitybar',
+				this.sideBarPosition === Position.LEFT ? 'left' : 'right'
+			],
+			id: Identifiers.ACTIVITYBAR_PART,
+			role: 'navigation'
+		});
 
 		this.activitybarPart.create(activitybarPartContainer);
 	}
 
 	private createSidebarPart(): void {
-		const sidebarPartContainer = $(this.workbench)
-			.div({
-				'class': ['part', 'sidebar', this.sideBarPosition === Position.LEFT ? 'left' : 'right'],
-				id: Identifiers.SIDEBAR_PART,
-				role: 'complementary'
-			});
+		const sidebarPartContainer = $(this.workbench).div({
+			class: [
+				'part',
+				'sidebar',
+				this.sideBarPosition === Position.LEFT ? 'left' : 'right'
+			],
+			id: Identifiers.SIDEBAR_PART,
+			role: 'complementary'
+		});
 
 		this.sidebarPart.create(sidebarPartContainer);
 	}
 
 	private createPanelPart(): void {
-		const panelPartContainer = $(this.workbench)
-			.div({
-				'class': ['part', 'panel'],
-				id: Identifiers.PANEL_PART,
-				role: 'complementary'
-			});
+		const panelPartContainer = $(this.workbench).div({
+			class: ['part', 'panel'],
+			id: Identifiers.PANEL_PART,
+			role: 'complementary'
+		});
 
 		this.panelPart.create(panelPartContainer);
 	}
 
 	private createEditorPart(): void {
-		const editorContainer = $(this.workbench)
-			.div({
-				'class': ['part', 'editor', 'empty'],
-				id: Identifiers.EDITOR_PART,
-				role: 'main'
-			});
+		const editorContainer = $(this.workbench).div({
+			class: ['part', 'editor', 'empty'],
+			id: Identifiers.EDITOR_PART,
+			role: 'main'
+		});
 
 		this.editorPart.create(editorContainer);
 	}
 
 	private createStatusbarPart(): void {
 		const statusbarContainer = $(this.workbench).div({
-			'class': ['part', 'statusbar'],
+			class: ['part', 'statusbar'],
 			id: Identifiers.STATUSBAR_PART,
 			role: 'contentinfo'
 		});
@@ -1079,25 +1384,37 @@ export class Workbench implements IPartService {
 	}
 
 	public getEditorPart(): EditorPart {
-		assert.ok(this.workbenchStarted, 'Workbench is not started. Call startup() first.');
+		assert.ok(
+			this.workbenchStarted,
+			'Workbench is not started. Call startup() first.'
+		);
 
 		return this.editorPart;
 	}
 
 	public getSidebarPart(): SidebarPart {
-		assert.ok(this.workbenchStarted, 'Workbench is not started. Call startup() first.');
+		assert.ok(
+			this.workbenchStarted,
+			'Workbench is not started. Call startup() first.'
+		);
 
 		return this.sidebarPart;
 	}
 
 	public getPanelPart(): PanelPart {
-		assert.ok(this.workbenchStarted, 'Workbench is not started. Call startup() first.');
+		assert.ok(
+			this.workbenchStarted,
+			'Workbench is not started. Call startup() first.'
+		);
 
 		return this.panelPart;
 	}
 
 	public getInstantiationService(): IInstantiationService {
-		assert.ok(this.workbenchStarted, 'Workbench is not started. Call startup() first.');
+		assert.ok(
+			this.workbenchStarted,
+			'Workbench is not started. Call startup() first.'
+		);
 
 		return this.instantiationService;
 	}
@@ -1123,13 +1440,18 @@ export class Workbench implements IPartService {
 		// Check if zen mode transitioned to full screen and if now we are out of zen mode -> we need to go out of full screen
 		let toggleFullScreen = false;
 		if (this.zenMode.active) {
-			const config = this.configurationService.getConfiguration<IZenModeSettings>('zenMode');
+			const config = this.configurationService.getConfiguration<
+				IZenModeSettings
+			>('zenMode');
 			toggleFullScreen = !browser.isFullscreen() && config.fullScreen;
 			this.zenMode.transitionedToFullScreen = toggleFullScreen;
 			this.zenMode.wasSideBarVisible = this.isVisible(Parts.SIDEBAR_PART);
 			this.zenMode.wasPanelVisible = this.isVisible(Parts.PANEL_PART);
 			this.setPanelHidden(true, true).done(undefined, errors.onUnexpectedError);
-			this.setSideBarHidden(true, true).done(undefined, errors.onUnexpectedError);
+			this.setSideBarHidden(true, true).done(
+				undefined,
+				errors.onUnexpectedError
+			);
 
 			if (config.hideActivityBar) {
 				this.setActivityBarHidden(true, true);
@@ -1142,10 +1464,16 @@ export class Workbench implements IPartService {
 			}
 		} else {
 			if (this.zenMode.wasPanelVisible) {
-				this.setPanelHidden(false, true).done(undefined, errors.onUnexpectedError);
+				this.setPanelHidden(false, true).done(
+					undefined,
+					errors.onUnexpectedError
+				);
 			}
 			if (this.zenMode.wasSideBarVisible) {
-				this.setSideBarHidden(false, true).done(undefined, errors.onUnexpectedError);
+				this.setSideBarHidden(false, true).done(
+					undefined,
+					errors.onUnexpectedError
+				);
 			}
 			// Status bar and activity bar visibility come from settings -> update their visibility.
 			this.onDidUpdateConfiguration(true);
@@ -1154,7 +1482,8 @@ export class Workbench implements IPartService {
 			if (activeEditor) {
 				activeEditor.focus();
 			}
-			toggleFullScreen = this.zenMode.transitionedToFullScreen && browser.isFullscreen();
+			toggleFullScreen =
+				this.zenMode.transitionedToFullScreen && browser.isFullscreen();
 		}
 		this.inZenMode.set(this.zenMode.active);
 
@@ -1162,7 +1491,9 @@ export class Workbench implements IPartService {
 			this.layout();
 		}
 		if (toggleFullScreen) {
-			this.windowService.toggleFullScreen().done(undefined, errors.onUnexpectedError);
+			this.windowService
+				.toggleFullScreen()
+				.done(undefined, errors.onUnexpectedError);
 		}
 	}
 
@@ -1180,15 +1511,20 @@ export class Workbench implements IPartService {
 		}
 	}
 
-
 	private shouldRestoreLastOpenedViewlet(): boolean {
 		if (!this.environmentService.isBuilt) {
 			return true; // always restore sidebar when we are in development mode
 		}
 
-		const restore = this.storageService.getBoolean(Workbench.sidebarRestoreSettingKey, StorageScope.WORKSPACE);
+		const restore = this.storageService.getBoolean(
+			Workbench.sidebarRestoreSettingKey,
+			StorageScope.WORKSPACE
+		);
 		if (restore) {
-			this.storageService.remove(Workbench.sidebarRestoreSettingKey, StorageScope.WORKSPACE); // only support once
+			this.storageService.remove(
+				Workbench.sidebarRestoreSettingKey,
+				StorageScope.WORKSPACE
+			); // only support once
 		}
 
 		return restore;

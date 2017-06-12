@@ -3,19 +3,19 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import Cache from 'vs/base/common/cache';
 import { TPromise } from 'vs/base/common/winjs.base';
 
 suite('Cache', () => {
-
 	test('simple value', () => {
 		let counter = 0;
 		const cache = new Cache(() => TPromise.as(counter++));
 
-		return cache.get()
+		return cache
+			.get()
 			.then(c => assert.equal(c, 0), () => assert.fail())
 			.then(() => cache.get())
 			.then(c => assert.equal(c, 0), () => assert.fail());
@@ -25,14 +25,16 @@ suite('Cache', () => {
 		let counter = 0;
 		const cache = new Cache(() => TPromise.wrapError(counter++));
 
-		return cache.get()
+		return cache
+			.get()
 			.then(() => assert.fail(), err => assert.equal(err, 0))
 			.then(() => cache.get())
 			.then(() => assert.fail(), err => assert.equal(err, 0));
 	});
 
 	test('should retry cancellations', () => {
-		let counter1 = 0, counter2 = 0;
+		let counter1 = 0,
+			counter2 = 0;
 
 		const cache = new Cache(() => {
 			counter1++;

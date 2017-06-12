@@ -2,18 +2,23 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
-import { IDisposable, dispose, ReferenceCollection } from 'vs/base/common/lifecycle';
+import {
+	IDisposable,
+	dispose,
+	ReferenceCollection
+} from 'vs/base/common/lifecycle';
 
 class Disposable implements IDisposable {
 	isDisposed = false;
-	dispose() { this.isDisposed = true; }
+	dispose() {
+		this.isDisposed = true;
+	}
 }
 
 suite('Lifecycle', () => {
-
 	test('dispose single disposable', () => {
 		const disposable = new Disposable();
 
@@ -54,9 +59,16 @@ suite('Lifecycle', () => {
 suite('Reference Collection', () => {
 	class Collection extends ReferenceCollection<number> {
 		private _count = 0;
-		get count() { return this._count; }
-		protected createReferencedObject(key: string): number { this._count++; return key.length; }
-		protected destroyReferencedObject(object: number): void { this._count--; }
+		get count() {
+			return this._count;
+		}
+		protected createReferencedObject(key: string): number {
+			this._count++;
+			return key.length;
+		}
+		protected destroyReferencedObject(object: number): void {
+			this._count--;
+		}
 	}
 
 	test('simple', () => {

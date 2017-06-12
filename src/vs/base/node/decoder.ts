@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import sd = require('string_decoder');
 import { CharCode } from 'vs/base/common/charCode';
@@ -45,7 +45,11 @@ export class LineDecoder {
 				if (idx < value.length) {
 					let lastChar = ch;
 					ch = value.charCodeAt(idx);
-					if ((lastChar === CharCode.CarriageReturn && ch === CharCode.LineFeed) || (lastChar === CharCode.LineFeed && ch === CharCode.CarriageReturn)) {
+					if (
+						(lastChar === CharCode.CarriageReturn &&
+							ch === CharCode.LineFeed) ||
+						(lastChar === CharCode.LineFeed && ch === CharCode.CarriageReturn)
+					) {
 						idx++;
 					}
 				}

@@ -3,14 +3,20 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import { EventEmitter } from 'vs/base/common/eventEmitter';
 import { getConfigurationKeys } from 'vs/platform/configuration/common/model';
-import { IConfigurationService, getConfigurationValue, IConfigurationValue, IConfigurationKeys } from 'vs/platform/configuration/common/configuration';
+import {
+	IConfigurationService,
+	getConfigurationValue,
+	IConfigurationValue,
+	IConfigurationKeys
+} from 'vs/platform/configuration/common/configuration';
 
-export class TestConfigurationService extends EventEmitter implements IConfigurationService {
+export class TestConfigurationService extends EventEmitter
+	implements IConfigurationService {
 	public _serviceBrand: any;
 
 	private configuration = Object.create(null);
@@ -29,7 +35,7 @@ export class TestConfigurationService extends EventEmitter implements IConfigura
 	}
 
 	public onDidUpdateConfiguration() {
-		return { dispose() { } };
+		return { dispose() {} };
 	}
 
 	public lookup<C>(key: string): IConfigurationValue<C> {

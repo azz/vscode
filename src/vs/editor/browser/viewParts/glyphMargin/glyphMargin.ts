@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./glyphMargin';
 import { DynamicViewOverlay } from 'vs/editor/browser/view/dynamicViewOverlay';
@@ -18,7 +18,11 @@ export class DecorationToRender {
 	public endLineNumber: number;
 	public className: string;
 
-	constructor(startLineNumber: number, endLineNumber: number, className: string) {
+	constructor(
+		startLineNumber: number,
+		endLineNumber: number,
+		className: string
+	) {
 		this.startLineNumber = +startLineNumber;
 		this.endLineNumber = +endLineNumber;
 		this.className = String(className);
@@ -26,11 +30,17 @@ export class DecorationToRender {
 }
 
 export abstract class DedupOverlay extends DynamicViewOverlay {
-
-	protected _render(visibleStartLineNumber: number, visibleEndLineNumber: number, decorations: DecorationToRender[]): string[][] {
-
+	protected _render(
+		visibleStartLineNumber: number,
+		visibleEndLineNumber: number,
+		decorations: DecorationToRender[]
+	): string[][] {
 		let output: string[][] = [];
-		for (let lineNumber = visibleStartLineNumber; lineNumber <= visibleEndLineNumber; lineNumber++) {
+		for (
+			let lineNumber = visibleStartLineNumber;
+			lineNumber <= visibleEndLineNumber;
+			lineNumber++
+		) {
 			let lineIndex = lineNumber - visibleStartLineNumber;
 			output[lineIndex] = [];
 		}
@@ -46,7 +56,7 @@ export abstract class DedupOverlay extends DynamicViewOverlay {
 				}
 				return a.startLineNumber - b.startLineNumber;
 			}
-			return (a.className < b.className ? -1 : 1);
+			return a.className < b.className ? -1 : 1;
 		});
 
 		let prevClassName: string = null;
@@ -54,8 +64,12 @@ export abstract class DedupOverlay extends DynamicViewOverlay {
 		for (let i = 0, len = decorations.length; i < len; i++) {
 			let d = decorations[i];
 			let className = d.className;
-			let startLineIndex = Math.max(d.startLineNumber, visibleStartLineNumber) - visibleStartLineNumber;
-			let endLineIndex = Math.min(d.endLineNumber, visibleEndLineNumber) - visibleStartLineNumber;
+			let startLineIndex =
+				Math.max(d.startLineNumber, visibleStartLineNumber) -
+				visibleStartLineNumber;
+			let endLineIndex =
+				Math.min(d.endLineNumber, visibleEndLineNumber) -
+				visibleStartLineNumber;
 
 			if (prevClassName === className) {
 				startLineIndex = Math.max(prevEndLineIndex + 1, startLineIndex);
@@ -75,7 +89,6 @@ export abstract class DedupOverlay extends DynamicViewOverlay {
 }
 
 export class GlyphMarginOverlay extends DedupOverlay {
-
 	private _context: ViewContext;
 	private _lineHeight: number;
 	private _glyphMargin: boolean;
@@ -103,7 +116,9 @@ export class GlyphMarginOverlay extends DedupOverlay {
 
 	// --- begin event handlers
 
-	public onConfigurationChanged(e: viewEvents.ViewConfigurationChangedEvent): boolean {
+	public onConfigurationChanged(
+		e: viewEvents.ViewConfigurationChangedEvent
+	): boolean {
 		if (e.lineHeight) {
 			this._lineHeight = this._context.configuration.editor.lineHeight;
 		}
@@ -116,7 +131,9 @@ export class GlyphMarginOverlay extends DedupOverlay {
 		}
 		return true;
 	}
-	public onDecorationsChanged(e: viewEvents.ViewDecorationsChangedEvent): boolean {
+	public onDecorationsChanged(
+		e: viewEvents.ViewDecorationsChangedEvent
+	): boolean {
 		return true;
 	}
 	public onFlushed(e: viewEvents.ViewFlushedEvent): boolean {
@@ -147,7 +164,13 @@ export class GlyphMarginOverlay extends DedupOverlay {
 			let d = decorations[i];
 			let glyphMarginClassName = d.source.options.glyphMarginClassName;
 			if (glyphMarginClassName) {
-				r.push(new DecorationToRender(d.range.startLineNumber, d.range.endLineNumber, glyphMarginClassName));
+				r.push(
+					new DecorationToRender(
+						d.range.startLineNumber,
+						d.range.endLineNumber,
+						glyphMarginClassName
+					)
+				);
 			}
 		}
 		return r;
@@ -161,26 +184,38 @@ export class GlyphMarginOverlay extends DedupOverlay {
 
 		let visibleStartLineNumber = ctx.visibleRange.startLineNumber;
 		let visibleEndLineNumber = ctx.visibleRange.endLineNumber;
-		let toRender = this._render(visibleStartLineNumber, visibleEndLineNumber, this._getDecorations(ctx));
+		let toRender = this._render(
+			visibleStartLineNumber,
+			visibleEndLineNumber,
+			this._getDecorations(ctx)
+		);
 
 		let lineHeight = this._lineHeight.toString();
 		let left = this._glyphMarginLeft.toString();
 		let width = this._glyphMarginWidth.toString();
-		let common = '" style="left:' + left + 'px;width:' + width + 'px' + ';height:' + lineHeight + 'px;"></div>';
+		let common =
+			'" style="left:' +
+			left +
+			'px;width:' +
+			width +
+			'px' +
+			';height:' +
+			lineHeight +
+			'px;"></div>';
 
 		let output: string[] = [];
-		for (let lineNumber = visibleStartLineNumber; lineNumber <= visibleEndLineNumber; lineNumber++) {
+		for (
+			let lineNumber = visibleStartLineNumber;
+			lineNumber <= visibleEndLineNumber;
+			lineNumber++
+		) {
 			let lineIndex = lineNumber - visibleStartLineNumber;
 			let classNames = toRender[lineIndex];
 
 			if (classNames.length === 0) {
 				output[lineIndex] = '';
 			} else {
-				output[lineIndex] = (
-					'<div class="cgmr '
-					+ classNames.join(' ')
-					+ common
-				);
+				output[lineIndex] = '<div class="cgmr ' + classNames.join(' ') + common;
 			}
 		}
 

@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { ColorId, TokenizationRegistry } from 'vs/editor/common/modes';
 import Event, { Emitter } from 'vs/base/common/event';
@@ -25,7 +25,7 @@ export class MinimapTokensColorTracker {
 
 	private constructor() {
 		this._updateColorMap();
-		TokenizationRegistry.onDidChange((e) => {
+		TokenizationRegistry.onDidChange(e => {
 			if (e.changedColorMap) {
 				this._updateColorMap();
 			}
@@ -43,8 +43,10 @@ export class MinimapTokensColorTracker {
 		for (let colorId = 1; colorId < colorMap.length; colorId++) {
 			this._colors[colorId] = colorMap[colorId].toRGBA();
 		}
-		let backgroundLuminosity = colorMap[ColorId.DefaultBackground].getLuminosity();
-		this._backgroundIsLight = (backgroundLuminosity >= 0.5);
+		let backgroundLuminosity = colorMap[
+			ColorId.DefaultBackground
+		].getLuminosity();
+		this._backgroundIsLight = backgroundLuminosity >= 0.5;
 		this._onDidChange.fire(void 0);
 	}
 
@@ -76,11 +78,10 @@ export const enum Constants {
 	x1_CHAR_HEIGHT = 2,
 	x1_CHAR_WIDTH = 1,
 
-	RGBA_CHANNELS_CNT = 4,
+	RGBA_CHANNELS_CNT = 4
 }
 
 export class MinimapCharRenderer {
-
 	_minimapCharRendererBrand: void;
 
 	public readonly x2charData: Uint8ClampedArray;
@@ -90,11 +91,13 @@ export class MinimapCharRenderer {
 	public readonly x1charDataLight: Uint8ClampedArray;
 
 	constructor(x2CharData: Uint8ClampedArray, x1CharData: Uint8ClampedArray) {
-		const x2ExpectedLen = Constants.x2_CHAR_HEIGHT * Constants.x2_CHAR_WIDTH * Constants.CHAR_COUNT;
+		const x2ExpectedLen =
+			Constants.x2_CHAR_HEIGHT * Constants.x2_CHAR_WIDTH * Constants.CHAR_COUNT;
 		if (x2CharData.length !== x2ExpectedLen) {
 			throw new Error('Invalid x2CharData');
 		}
-		const x1ExpectedLen = Constants.x1_CHAR_HEIGHT * Constants.x1_CHAR_WIDTH * Constants.CHAR_COUNT;
+		const x1ExpectedLen =
+			Constants.x1_CHAR_HEIGHT * Constants.x1_CHAR_WIDTH * Constants.CHAR_COUNT;
 		if (x1CharData.length !== x1ExpectedLen) {
 			throw new Error('Invalid x1CharData');
 		}
@@ -105,7 +108,10 @@ export class MinimapCharRenderer {
 		this.x1charDataLight = MinimapCharRenderer.soften(x1CharData, 50 / 60);
 	}
 
-	private static soften(input: Uint8ClampedArray, ratio: number): Uint8ClampedArray {
+	private static soften(
+		input: Uint8ClampedArray,
+		ratio: number
+	): Uint8ClampedArray {
 		let result = new Uint8ClampedArray(input.length);
 		for (let i = 0, len = input.length; i < len; i++) {
 			result[i] = input[i] * ratio;
@@ -118,11 +124,22 @@ export class MinimapCharRenderer {
 		if (chCode < 0) {
 			chCode += Constants.CHAR_COUNT;
 		}
-		return (chCode % Constants.CHAR_COUNT);
+		return chCode % Constants.CHAR_COUNT;
 	}
 
-	public x2RenderChar(target: ImageData, dx: number, dy: number, chCode: number, color: RGBA, backgroundColor: RGBA, useLighterFont: boolean): void {
-		if (dx + Constants.x2_CHAR_WIDTH > target.width || dy + Constants.x2_CHAR_HEIGHT > target.height) {
+	public x2RenderChar(
+		target: ImageData,
+		dx: number,
+		dy: number,
+		chCode: number,
+		color: RGBA,
+		backgroundColor: RGBA,
+		useLighterFont: boolean
+	): void {
+		if (
+			dx + Constants.x2_CHAR_WIDTH > target.width ||
+			dy + Constants.x2_CHAR_HEIGHT > target.height
+		) {
 			console.warn('bad render request outside image data');
 			return;
 		}
@@ -140,7 +157,8 @@ export class MinimapCharRenderer {
 		const deltaB = color.b - backgroundB;
 
 		const dest = target.data;
-		const sourceOffset = chIndex * Constants.x2_CHAR_HEIGHT * Constants.x2_CHAR_WIDTH;
+		const sourceOffset =
+			chIndex * Constants.x2_CHAR_HEIGHT * Constants.x2_CHAR_WIDTH;
 		let destOffset = dy * outWidth + dx * Constants.RGBA_CHANNELS_CNT;
 		{
 			const c = x2CharData[sourceOffset] / 255;
@@ -198,8 +216,19 @@ export class MinimapCharRenderer {
 		}
 	}
 
-	public x1RenderChar(target: ImageData, dx: number, dy: number, chCode: number, color: RGBA, backgroundColor: RGBA, useLighterFont: boolean): void {
-		if (dx + Constants.x1_CHAR_WIDTH > target.width || dy + Constants.x1_CHAR_HEIGHT > target.height) {
+	public x1RenderChar(
+		target: ImageData,
+		dx: number,
+		dy: number,
+		chCode: number,
+		color: RGBA,
+		backgroundColor: RGBA,
+		useLighterFont: boolean
+	): void {
+		if (
+			dx + Constants.x1_CHAR_WIDTH > target.width ||
+			dy + Constants.x1_CHAR_HEIGHT > target.height
+		) {
 			console.warn('bad render request outside image data');
 			return;
 		}
@@ -217,7 +246,8 @@ export class MinimapCharRenderer {
 		const deltaB = color.b - backgroundB;
 
 		const dest = target.data;
-		const sourceOffset = chIndex * Constants.x1_CHAR_HEIGHT * Constants.x1_CHAR_WIDTH;
+		const sourceOffset =
+			chIndex * Constants.x1_CHAR_HEIGHT * Constants.x1_CHAR_WIDTH;
 		let destOffset = dy * outWidth + dx * Constants.RGBA_CHANNELS_CNT;
 		{
 			const c = x1CharData[sourceOffset] / 255;
@@ -235,8 +265,18 @@ export class MinimapCharRenderer {
 		}
 	}
 
-	public x2BlockRenderChar(target: ImageData, dx: number, dy: number, color: RGBA, backgroundColor: RGBA, useLighterFont: boolean): void {
-		if (dx + Constants.x2_CHAR_WIDTH > target.width || dy + Constants.x2_CHAR_HEIGHT > target.height) {
+	public x2BlockRenderChar(
+		target: ImageData,
+		dx: number,
+		dy: number,
+		color: RGBA,
+		backgroundColor: RGBA,
+		useLighterFont: boolean
+	): void {
+		if (
+			dx + Constants.x2_CHAR_WIDTH > target.width ||
+			dy + Constants.x2_CHAR_HEIGHT > target.height
+		) {
 			console.warn('bad render request outside image data');
 			return;
 		}
@@ -307,8 +347,18 @@ export class MinimapCharRenderer {
 		}
 	}
 
-	public x1BlockRenderChar(target: ImageData, dx: number, dy: number, color: RGBA, backgroundColor: RGBA, useLighterFont: boolean): void {
-		if (dx + Constants.x1_CHAR_WIDTH > target.width || dy + Constants.x1_CHAR_HEIGHT > target.height) {
+	public x1BlockRenderChar(
+		target: ImageData,
+		dx: number,
+		dy: number,
+		color: RGBA,
+		backgroundColor: RGBA,
+		useLighterFont: boolean
+	): void {
+		if (
+			dx + Constants.x1_CHAR_WIDTH > target.width ||
+			dy + Constants.x1_CHAR_HEIGHT > target.height
+		) {
 			console.warn('bad render request outside image data');
 			return;
 		}

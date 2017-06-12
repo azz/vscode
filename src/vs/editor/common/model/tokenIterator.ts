@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as editorCommon from 'vs/editor/common/editorCommon';
 import { LineToken } from 'vs/editor/common/core/lineTokens';
@@ -41,7 +41,10 @@ class TokenInfo implements ITokenInfo {
 	}
 }
 
-function findClosestNonEmptyLine(model: editorCommon.ITokenizedModel, position: Position): Position {
+function findClosestNonEmptyLine(
+	model: editorCommon.ITokenizedModel,
+	position: Position
+): Position {
 	const lineNumber = position.lineNumber;
 	if (model.getLineMaxColumn(lineNumber) !== 1) {
 		return position;
@@ -82,7 +85,6 @@ function findClosestNonEmptyLine(model: editorCommon.ITokenizedModel, position: 
 }
 
 export class TokenIterator implements ITokenIterator {
-
 	private _model: editorCommon.ITokenizedModel;
 	private _lineCount: number;
 	private _prev: TokenInfo;
@@ -100,7 +102,10 @@ export class TokenIterator implements ITokenIterator {
 			let lineTokens = this._model.getLineTokens(position.lineNumber);
 			let currentToken = lineTokens.findTokenAtOffset(position.column - 1);
 			if (currentToken) {
-				this._prev = this._next = new TokenInfo(currentToken, position.lineNumber);
+				this._prev = this._next = new TokenInfo(
+					currentToken,
+					position.lineNumber
+				);
 			}
 		}
 	}
@@ -171,8 +176,8 @@ export class TokenIterator implements ITokenIterator {
 
 	public _invalidate() {
 		// replace all public functions with errors
-		var errorFn = function (): any {
-			throw new Error('iteration isn\'t valid anymore');
+		var errorFn = function(): any {
+			throw new Error("iteration isn't valid anymore");
 		};
 		this.hasNext = errorFn;
 		this.next = errorFn;

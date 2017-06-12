@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import platform = require('vs/base/common/platform');
 import types = require('vs/base/common/types');
@@ -24,10 +24,9 @@ export class ErrorHandler {
 	private listeners: ErrorListenerCallback[];
 
 	constructor() {
-
 		this.listeners = [];
 
-		this.unexpectedErrorHandler = function (e: any) {
+		this.unexpectedErrorHandler = function(e: any) {
 			platform.setTimeout(() => {
 				if (e.stack) {
 					throw new Error(e.message + '\n\n' + e.stack);
@@ -47,7 +46,7 @@ export class ErrorHandler {
 	}
 
 	private emit(e: any): void {
-		this.listeners.forEach((listener) => {
+		this.listeners.forEach(listener => {
 			listener(e);
 		});
 	}
@@ -56,7 +55,9 @@ export class ErrorHandler {
 		this.listeners.splice(this.listeners.indexOf(listener), 1);
 	}
 
-	public setUnexpectedErrorHandler(newUnexpectedErrorHandler: (e: any) => void): void {
+	public setUnexpectedErrorHandler(
+		newUnexpectedErrorHandler: (e: any) => void
+	): void {
 		this.unexpectedErrorHandler = newUnexpectedErrorHandler;
 	}
 
@@ -77,12 +78,13 @@ export class ErrorHandler {
 
 export let errorHandler = new ErrorHandler();
 
-export function setUnexpectedErrorHandler(newUnexpectedErrorHandler: (e: any) => void): void {
+export function setUnexpectedErrorHandler(
+	newUnexpectedErrorHandler: (e: any) => void
+): void {
 	errorHandler.setUnexpectedErrorHandler(newUnexpectedErrorHandler);
 }
 
 export function onUnexpectedError(e: any): void {
-
 	// ignore errors from cancelled promises
 	if (!isPromiseCanceledError(e)) {
 		errorHandler.onUnexpectedError(e);
@@ -90,7 +92,6 @@ export function onUnexpectedError(e: any): void {
 }
 
 export function onUnexpectedExternalError(e: any): void {
-
 	// ignore errors from cancelled promises
 	if (!isPromiseCanceledError(e)) {
 		errorHandler.onUnexpectedExternalError(e);
@@ -123,7 +124,11 @@ const canceledName = 'Canceled';
  * Checks if the given error is a promise in canceled state
  */
 export function isPromiseCanceledError(error: any): boolean {
-	return error instanceof Error && error.name === canceledName && error.message === canceledName;
+	return (
+		error instanceof Error &&
+		error.name === canceledName &&
+		error.message === canceledName
+	);
 }
 
 /**

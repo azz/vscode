@@ -2,31 +2,52 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import 'vs/css!./textAreaHandler';
 import * as platform from 'vs/base/common/platform';
 import * as browser from 'vs/base/browser/browser';
-import { TextAreaInput, ITextAreaInputHost, IPasteData, ICompositionData } from 'vs/editor/browser/controller/textAreaInput';
-import { ISimpleModel, ITypeData, TextAreaState, PagedScreenReaderStrategy } from 'vs/editor/browser/controller/textAreaState';
+import {
+	TextAreaInput,
+	ITextAreaInputHost,
+	IPasteData,
+	ICompositionData
+} from 'vs/editor/browser/controller/textAreaInput';
+import {
+	ISimpleModel,
+	ITypeData,
+	TextAreaState,
+	PagedScreenReaderStrategy
+} from 'vs/editor/browser/controller/textAreaState';
 import { Range } from 'vs/editor/common/core/range';
 import { Selection } from 'vs/editor/common/core/selection';
 import { Position } from 'vs/editor/common/core/position';
 import { Configuration } from 'vs/editor/browser/config/configuration';
 import { ViewContext } from 'vs/editor/common/view/viewContext';
-import { HorizontalRange, RenderingContext, RestrictedRenderingContext } from 'vs/editor/common/view/renderingContext';
+import {
+	HorizontalRange,
+	RenderingContext,
+	RestrictedRenderingContext
+} from 'vs/editor/common/view/renderingContext';
 import * as viewEvents from 'vs/editor/common/view/viewEvents';
 import { FastDomNode, createFastDomNode } from 'vs/base/browser/fastDomNode';
 import { ViewController } from 'vs/editor/browser/view/viewController';
 import { EndOfLinePreference } from 'vs/editor/common/editorCommon';
 import { IKeyboardEvent } from 'vs/base/browser/keyboardEvent';
-import { PartFingerprints, PartFingerprint, ViewPart } from 'vs/editor/browser/view/viewPart';
+import {
+	PartFingerprints,
+	PartFingerprint,
+	ViewPart
+} from 'vs/editor/browser/view/viewPart';
 import { Margin } from 'vs/editor/browser/viewParts/margin/margin';
 import { LineNumbersOverlay } from 'vs/editor/browser/viewParts/lineNumbers/lineNumbers';
 import { BareFontInfo } from 'vs/editor/common/config/fontInfo';
 
 export interface ITextAreaHandlerHelper {
-	visibleRangeForPositionRelativeToEditor(lineNumber: number, column: number): HorizontalRange;
+	visibleRangeForPositionRelativeToEditor(
+		lineNumber: number,
+		column: number
+	): HorizontalRange;
 }
 
 class VisibleTextAreaData {
@@ -47,10 +68,9 @@ class VisibleTextAreaData {
 	}
 }
 
-const canUseZeroSizeTextarea = (browser.isEdgeOrIE || browser.isFirefox);
+const canUseZeroSizeTextarea = browser.isEdgeOrIE || browser.isFirefox;
 
 export class TextAreaHandler extends ViewPart {
-
 	private readonly _viewController: ViewController;
 	private readonly _viewHelper: ITextAreaHandlerHelper;
 
@@ -77,7 +97,11 @@ export class TextAreaHandler extends ViewPart {
 	public readonly textAreaCover: FastDomNode<HTMLElement>;
 	private readonly _textAreaInput: TextAreaInput;
 
-	constructor(context: ViewContext, viewController: ViewController, viewHelper: ITextAreaHandlerHelper) {
+	constructor(
+		context: ViewContext,
+		viewController: ViewController,
+		viewHelper: ITextAreaHandlerHelper
+	) {
 		super(context);
 
 		this._viewController = viewController;
@@ -133,7 +157,10 @@ export class TextAreaHandler extends ViewPart {
 
 		const textAreaInputHost: ITextAreaInputHost = {
 			getPlainTextToCopy: (): string => {
-				const whatToCopy = this._context.model.getPlainTextToCopy(this._selections, this._emptySelectionClipboard);
+				const whatToCopy = this._context.model.getPlainTextToCopy(
+					this._selections,
+					this._emptySelectionClipboard
+				);
 
 				if (this._emptySelectionClipboard) {
 					if (browser.isFirefox) {
@@ -145,118 +172,165 @@ export class TextAreaHandler extends ViewPart {
 					}
 
 					let selections = this._selections;
-					this._lastCopiedValueIsFromEmptySelection = (selections.length === 1 && selections[0].isEmpty());
+					this._lastCopiedValueIsFromEmptySelection =
+						selections.length === 1 && selections[0].isEmpty();
 				}
 
 				return whatToCopy;
 			},
 
 			getHTMLToCopy: (): string => {
-				return this._context.model.getHTMLToCopy(this._selections, this._emptySelectionClipboard);
+				return this._context.model.getHTMLToCopy(
+					this._selections,
+					this._emptySelectionClipboard
+				);
 			},
 
 			getScreenReaderContent: (currentState: TextAreaState): TextAreaState => {
-
 				if (browser.isIPad) {
 					// Do not place anything in the textarea for the iPad
 					return TextAreaState.EMPTY;
 				}
 
-				if (this._accessibilitySupport === platform.AccessibilitySupport.Disabled) {
+				if (
+					this._accessibilitySupport === platform.AccessibilitySupport.Disabled
+				) {
 					// We know for a fact that a screen reader is not attached
 					return TextAreaState.EMPTY;
 				}
 
-				return PagedScreenReaderStrategy.fromEditorSelection(currentState, simpleModel, this._selections[0]);
+				return PagedScreenReaderStrategy.fromEditorSelection(
+					currentState,
+					simpleModel,
+					this._selections[0]
+				);
 			}
 		};
 
-		this._textAreaInput = this._register(new TextAreaInput(textAreaInputHost, this.textArea));
+		this._textAreaInput = this._register(
+			new TextAreaInput(textAreaInputHost, this.textArea)
+		);
 
-		this._register(this._textAreaInput.onKeyDown((e: IKeyboardEvent) => {
-			this._viewController.emitKeyDown(e);
-		}));
+		this._register(
+			this._textAreaInput.onKeyDown((e: IKeyboardEvent) => {
+				this._viewController.emitKeyDown(e);
+			})
+		);
 
-		this._register(this._textAreaInput.onKeyUp((e: IKeyboardEvent) => {
-			this._viewController.emitKeyUp(e);
-		}));
+		this._register(
+			this._textAreaInput.onKeyUp((e: IKeyboardEvent) => {
+				this._viewController.emitKeyUp(e);
+			})
+		);
 
-		this._register(this._textAreaInput.onPaste((e: IPasteData) => {
-			let pasteOnNewLine = false;
-			if (this._emptySelectionClipboard) {
-				pasteOnNewLine = (e.text === this._lastCopiedValue && this._lastCopiedValueIsFromEmptySelection);
-			}
-			this._viewController.paste('keyboard', e.text, pasteOnNewLine);
-		}));
+		this._register(
+			this._textAreaInput.onPaste((e: IPasteData) => {
+				let pasteOnNewLine = false;
+				if (this._emptySelectionClipboard) {
+					pasteOnNewLine =
+						e.text === this._lastCopiedValue &&
+						this._lastCopiedValueIsFromEmptySelection;
+				}
+				this._viewController.paste('keyboard', e.text, pasteOnNewLine);
+			})
+		);
 
-		this._register(this._textAreaInput.onCut(() => {
-			this._viewController.cut('keyboard');
-		}));
+		this._register(
+			this._textAreaInput.onCut(() => {
+				this._viewController.cut('keyboard');
+			})
+		);
 
-		this._register(this._textAreaInput.onType((e: ITypeData) => {
-			if (e.replaceCharCnt) {
-				this._viewController.replacePreviousChar('keyboard', e.text, e.replaceCharCnt);
-			} else {
-				this._viewController.type('keyboard', e.text);
-			}
-		}));
+		this._register(
+			this._textAreaInput.onType((e: ITypeData) => {
+				if (e.replaceCharCnt) {
+					this._viewController.replacePreviousChar(
+						'keyboard',
+						e.text,
+						e.replaceCharCnt
+					);
+				} else {
+					this._viewController.type('keyboard', e.text);
+				}
+			})
+		);
 
-		this._register(this._textAreaInput.onCompositionStart(() => {
-			const lineNumber = this._selections[0].startLineNumber;
-			const column = this._selections[0].startColumn;
+		this._register(
+			this._textAreaInput.onCompositionStart(() => {
+				const lineNumber = this._selections[0].startLineNumber;
+				const column = this._selections[0].startColumn;
 
-			this._context.privateViewEventBus.emit(new viewEvents.ViewRevealRangeRequestEvent(
-				new Range(lineNumber, column, lineNumber, column),
-				viewEvents.VerticalRevealType.Simple,
-				true
-			));
-
-			// Find range pixel position
-			const visibleRange = this._viewHelper.visibleRangeForPositionRelativeToEditor(lineNumber, column);
-
-			if (visibleRange) {
-				this._visibleTextArea = new VisibleTextAreaData(
-					this._context.viewLayout.getVerticalOffsetForLineNumber(lineNumber),
-					visibleRange.left,
-					canUseZeroSizeTextarea ? 0 : 1
+				this._context.privateViewEventBus.emit(
+					new viewEvents.ViewRevealRangeRequestEvent(
+						new Range(lineNumber, column, lineNumber, column),
+						viewEvents.VerticalRevealType.Simple,
+						true
+					)
 				);
+
+				// Find range pixel position
+				const visibleRange = this._viewHelper.visibleRangeForPositionRelativeToEditor(
+					lineNumber,
+					column
+				);
+
+				if (visibleRange) {
+					this._visibleTextArea = new VisibleTextAreaData(
+						this._context.viewLayout.getVerticalOffsetForLineNumber(lineNumber),
+						visibleRange.left,
+						canUseZeroSizeTextarea ? 0 : 1
+					);
+					this._render();
+				}
+
+				// Show the textarea
+				this.textArea.setClassName('inputarea ime-input');
+
+				this._viewController.compositionStart('keyboard');
+			})
+		);
+
+		this._register(
+			this._textAreaInput.onCompositionUpdate((e: ICompositionData) => {
+				if (browser.isEdgeOrIE) {
+					// Due to isEdgeOrIE (where the textarea was not cleared initially)
+					// we cannot assume the text consists only of the composited text
+					this._visibleTextArea = this._visibleTextArea.setWidth(0);
+				} else {
+					// adjust width by its size
+					this._visibleTextArea = this._visibleTextArea.setWidth(
+						measureText(e.data, this._fontInfo)
+					);
+				}
 				this._render();
-			}
+			})
+		);
 
-			// Show the textarea
-			this.textArea.setClassName('inputarea ime-input');
+		this._register(
+			this._textAreaInput.onCompositionEnd(() => {
+				this._visibleTextArea = null;
+				this._render();
 
-			this._viewController.compositionStart('keyboard');
-		}));
+				this.textArea.setClassName('inputarea');
+				this._viewController.compositionEnd('keyboard');
+			})
+		);
 
-		this._register(this._textAreaInput.onCompositionUpdate((e: ICompositionData) => {
-			if (browser.isEdgeOrIE) {
-				// Due to isEdgeOrIE (where the textarea was not cleared initially)
-				// we cannot assume the text consists only of the composited text
-				this._visibleTextArea = this._visibleTextArea.setWidth(0);
-			} else {
-				// adjust width by its size
-				this._visibleTextArea = this._visibleTextArea.setWidth(measureText(e.data, this._fontInfo));
-			}
-			this._render();
-		}));
+		this._register(
+			this._textAreaInput.onFocus(() => {
+				this._context.privateViewEventBus.emit(
+					new viewEvents.ViewFocusChangedEvent(true)
+				);
+			})
+		);
 
-		this._register(this._textAreaInput.onCompositionEnd(() => {
-
-			this._visibleTextArea = null;
-			this._render();
-
-			this.textArea.setClassName('inputarea');
-			this._viewController.compositionEnd('keyboard');
-		}));
-
-		this._register(this._textAreaInput.onFocus(() => {
-			this._context.privateViewEventBus.emit(new viewEvents.ViewFocusChangedEvent(true));
-		}));
-
-		this._register(this._textAreaInput.onBlur(() => {
-			this._context.privateViewEventBus.emit(new viewEvents.ViewFocusChangedEvent(false));
-		}));
+		this._register(
+			this._textAreaInput.onBlur(() => {
+				this._context.privateViewEventBus.emit(
+					new viewEvents.ViewFocusChangedEvent(false)
+				);
+			})
+		);
 	}
 
 	public dispose(): void {
@@ -265,7 +339,9 @@ export class TextAreaHandler extends ViewPart {
 
 	// --- begin event handlers
 
-	public onConfigurationChanged(e: viewEvents.ViewConfigurationChangedEvent): boolean {
+	public onConfigurationChanged(
+		e: viewEvents.ViewConfigurationChangedEvent
+	): boolean {
 		const conf = this._context.configuration.editor;
 
 		if (e.fontInfo) {
@@ -295,12 +371,16 @@ export class TextAreaHandler extends ViewPart {
 
 		return true;
 	}
-	public onCursorStateChanged(e: viewEvents.ViewCursorStateChangedEvent): boolean {
+	public onCursorStateChanged(
+		e: viewEvents.ViewCursorStateChangedEvent
+	): boolean {
 		this._selections = e.selections.slice(0);
 		this._textAreaInput.writeScreenReaderContent('selection changed');
 		return true;
 	}
-	public onDecorationsChanged(e: viewEvents.ViewDecorationsChangedEvent): boolean {
+	public onDecorationsChanged(
+		e: viewEvents.ViewDecorationsChangedEvent
+	): boolean {
 		// true for inline decorations that can end up relayouting text
 		return true;
 	}
@@ -361,8 +441,13 @@ export class TextAreaHandler extends ViewPart {
 			// See https://github.com/Microsoft/vscode/issues/26730
 			this._primaryCursorVisibleRange = null;
 		} else {
-			const primaryCursorPosition = new Position(this._selections[0].positionLineNumber, this._selections[0].positionColumn);
-			this._primaryCursorVisibleRange = ctx.visibleRangeForPosition(primaryCursorPosition);
+			const primaryCursorPosition = new Position(
+				this._selections[0].positionLineNumber,
+				this._selections[0].positionColumn
+			);
+			this._primaryCursorVisibleRange = ctx.visibleRangeForPosition(
+				primaryCursorPosition
+			);
 		}
 	}
 
@@ -390,14 +475,23 @@ export class TextAreaHandler extends ViewPart {
 			return;
 		}
 
-		const left = this._contentLeft + this._primaryCursorVisibleRange.left - this._scrollLeft;
-		if (left < this._contentLeft || left > this._contentLeft + this._contentWidth) {
+		const left =
+			this._contentLeft +
+			this._primaryCursorVisibleRange.left -
+			this._scrollLeft;
+		if (
+			left < this._contentLeft ||
+			left > this._contentLeft + this._contentWidth
+		) {
 			// cursor is outside the viewport
 			this._renderAtTopLeft();
 			return;
 		}
 
-		const top = this._context.viewLayout.getVerticalOffsetForLineNumber(this._selections[0].positionLineNumber) - this._scrollTop;
+		const top =
+			this._context.viewLayout.getVerticalOffsetForLineNumber(
+				this._selections[0].positionLineNumber
+			) - this._scrollTop;
 		if (top < 0 || top > this._contentHeight) {
 			// cursor is outside the viewport
 			this._renderAtTopLeft();
@@ -406,13 +500,21 @@ export class TextAreaHandler extends ViewPart {
 
 		// The primary cursor is in the viewport (at least vertically) => place textarea on the cursor
 		this._renderInsideEditor(
-			top, left,
-			canUseZeroSizeTextarea ? 0 : 1, canUseZeroSizeTextarea ? 0 : 1,
+			top,
+			left,
+			canUseZeroSizeTextarea ? 0 : 1,
+			canUseZeroSizeTextarea ? 0 : 1,
 			false
 		);
 	}
 
-	private _renderInsideEditor(top: number, left: number, width: number, height: number, useEditorFont: boolean): void {
+	private _renderInsideEditor(
+		top: number,
+		left: number,
+		width: number,
+		height: number,
+		useEditorFont: boolean
+	): void {
 		const ta = this.textArea;
 		const tac = this.textAreaCover;
 
@@ -480,10 +582,15 @@ export class TextAreaHandler extends ViewPart {
 		tac.setHeight(1);
 
 		if (this._context.configuration.editor.viewInfo.glyphMargin) {
-			tac.setClassName('monaco-editor-background textAreaCover ' + Margin.CLASS_NAME);
+			tac.setClassName(
+				'monaco-editor-background textAreaCover ' + Margin.CLASS_NAME
+			);
 		} else {
 			if (this._context.configuration.editor.viewInfo.renderLineNumbers) {
-				tac.setClassName('monaco-editor-background textAreaCover ' + LineNumbersOverlay.CLASS_NAME);
+				tac.setClassName(
+					'monaco-editor-background textAreaCover ' +
+						LineNumbersOverlay.CLASS_NAME
+				);
 			} else {
 				tac.setClassName('monaco-editor-background textAreaCover');
 			}
@@ -506,10 +613,22 @@ function measureText(text: string, fontInfo: BareFontInfo): number {
 }
 
 function createFontString(bareFontInfo: BareFontInfo): string {
-	return doCreateFontString('normal', bareFontInfo.fontWeight, bareFontInfo.fontSize, bareFontInfo.lineHeight, bareFontInfo.fontFamily);
+	return doCreateFontString(
+		'normal',
+		bareFontInfo.fontWeight,
+		bareFontInfo.fontSize,
+		bareFontInfo.lineHeight,
+		bareFontInfo.fontFamily
+	);
 }
 
-function doCreateFontString(fontStyle: string, fontWeight: string, fontSize: number, lineHeight: number, fontFamily: string): string {
+function doCreateFontString(
+	fontStyle: string,
+	fontWeight: string,
+	fontSize: number,
+	lineHeight: number,
+	fontFamily: string
+): string {
 	// The full font syntax is:
 	// style | variant | weight | stretch | size/line-height | fontFamily
 	// (https://developer.mozilla.org/en-US/docs/Web/CSS/font)

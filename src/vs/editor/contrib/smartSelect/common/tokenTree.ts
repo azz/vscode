@@ -2,14 +2,17 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { Position } from 'vs/editor/common/core/position';
 import { Range } from 'vs/editor/common/core/range';
 import { IModel } from 'vs/editor/common/editorCommon';
 import { LineToken } from 'vs/editor/common/core/lineTokens';
 import { ignoreBracketsInToken } from 'vs/editor/common/modes/supports';
-import { BracketsUtils, RichEditBrackets } from 'vs/editor/common/modes/supports/richEditBrackets';
+import {
+	BracketsUtils,
+	RichEditBrackets
+} from 'vs/editor/common/modes/supports/richEditBrackets';
 import { LanguageConfigurationRegistry } from 'vs/editor/common/modes/languageConfigurationRegistry';
 import { LanguageId, StandardTokenType } from 'vs/editor/common/modes';
 
@@ -20,7 +23,6 @@ export const enum TokenTreeBracket {
 }
 
 export class Node {
-
 	start: Position;
 
 	end: Position;
@@ -38,13 +40,10 @@ export class Node {
 }
 
 export class NodeList extends Node {
-
 	children: Node[];
 
 	get start(): Position {
-		return this.hasChildren
-			? this.children[0].start
-			: this.parent.start;
+		return this.hasChildren ? this.children[0].start : this.parent.start;
 	}
 
 	get end(): Position {
@@ -81,7 +80,6 @@ export class NodeList extends Node {
 }
 
 export class Block extends Node {
-
 	open: Node;
 	close: Node;
 	elements: NodeList;
@@ -143,7 +141,6 @@ class RawToken {
 }
 
 class ModelRawTokenScanner {
-
 	private _model: IModel;
 	private _lineCount: number;
 	private _versionId: number;
@@ -161,7 +158,7 @@ class ModelRawTokenScanner {
 	}
 
 	private _advance(): void {
-		this._next = (this._next ? this._next.next() : null);
+		this._next = this._next ? this._next.next() : null;
 		while (!this._next && this._lineNumber < this._lineCount) {
 			this._lineNumber++;
 			this._lineText = this._model.getLineContent(this._lineNumber);
@@ -186,7 +183,6 @@ class ModelRawTokenScanner {
 }
 
 class TokenScanner {
-
 	private _rawTokenScanner: ModelRawTokenScanner;
 	private _nextBuff: Token[];
 
@@ -217,7 +213,9 @@ class TokenScanner {
 
 		if (this._cachedLanguageId !== token.languageId) {
 			this._cachedLanguageId = token.languageId;
-			this._cachedLanguageBrackets = LanguageConfigurationRegistry.getBracketsSupport(this._cachedLanguageId);
+			this._cachedLanguageBrackets = LanguageConfigurationRegistry.getBracketsSupport(
+				this._cachedLanguageId
+			);
 		}
 		const modeBrackets = this._cachedLanguageBrackets;
 
@@ -231,31 +229,55 @@ class TokenScanner {
 
 		let foundBracket: Range;
 		do {
-			foundBracket = BracketsUtils.findNextBracketInToken(modeBrackets.forwardRegex, lineNumber, lineText, startOffset, endOffset);
+			foundBracket = BracketsUtils.findNextBracketInToken(
+				modeBrackets.forwardRegex,
+				lineNumber,
+				lineText,
+				startOffset,
+				endOffset
+			);
 			if (foundBracket) {
 				const foundBracketStartOffset = foundBracket.startColumn - 1;
 				const foundBracketEndOffset = foundBracket.endColumn - 1;
 
 				if (startOffset < foundBracketStartOffset) {
 					// there is some text before this bracket in this token
-					this._nextBuff.push(new Token(
-						new Range(lineNumber, startOffset + 1, lineNumber, foundBracketStartOffset + 1),
-						TokenTreeBracket.None,
-						null
-					));
+					this._nextBuff.push(
+						new Token(
+							new Range(
+								lineNumber,
+								startOffset + 1,
+								lineNumber,
+								foundBracketStartOffset + 1
+							),
+							TokenTreeBracket.None,
+							null
+						)
+					);
 				}
 
-				let bracketText = lineText.substring(foundBracketStartOffset, foundBracketEndOffset);
+				let bracketText = lineText.substring(
+					foundBracketStartOffset,
+					foundBracketEndOffset
+				);
 				bracketText = bracketText.toLowerCase();
 
 				const bracketData = modeBrackets.textIsBracket[bracketText];
 				const bracketIsOpen = modeBrackets.textIsOpenBracket[bracketText];
 
-				this._nextBuff.push(new Token(
-					new Range(lineNumber, foundBracketStartOffset + 1, lineNumber, foundBracketEndOffset + 1),
-					bracketIsOpen ? TokenTreeBracket.Open : TokenTreeBracket.Close,
-					`${bracketData.languageIdentifier.language};${bracketData.open};${bracketData.close}`
-				));
+				this._nextBuff.push(
+					new Token(
+						new Range(
+							lineNumber,
+							foundBracketStartOffset + 1,
+							lineNumber,
+							foundBracketEndOffset + 1
+						),
+						bracketIsOpen ? TokenTreeBracket.Open : TokenTreeBracket.Close,
+						`${bracketData.languageIdentifier
+							.language};${bracketData.open};${bracketData.close}`
+					)
+				);
 
 				startOffset = foundBracketEndOffset;
 			}
@@ -263,11 +285,13 @@ class TokenScanner {
 
 		if (startOffset < endOffset) {
 			// there is some remaining none-bracket text in this token
-			this._nextBuff.push(new Token(
-				new Range(lineNumber, startOffset + 1, lineNumber, endOffset + 1),
-				TokenTreeBracket.None,
-				null
-			));
+			this._nextBuff.push(
+				new Token(
+					new Range(lineNumber, startOffset + 1, lineNumber, endOffset + 1),
+					TokenTreeBracket.None,
+					null
+				)
+			);
 		}
 
 		return this._nextBuff.shift();
@@ -275,7 +299,6 @@ class TokenScanner {
 }
 
 class TokenTreeBuilder {
-
 	private _scanner: TokenScanner;
 	private _stack: Token[] = [];
 	private _currentToken: Token;
@@ -327,9 +350,10 @@ class TokenTreeBuilder {
 			return false;
 		});
 
-		while (this._peek(info => info.range.startLineNumber === lineNumber)
-			&& node.append(this._token() || this._block())) {
-
+		while (
+			this._peek(info => info.range.startLineNumber === lineNumber) &&
+			node.append(this._token() || this._block())
+		) {
 			// all children that started on this line
 		}
 
@@ -350,9 +374,7 @@ class TokenTreeBuilder {
 	}
 
 	private _block(): Node {
-
-		var bracketType: string,
-			accepted: boolean;
+		var bracketType: string, accepted: boolean;
 
 		accepted = this._accept(token => {
 			bracketType = token.bracketType;
@@ -368,7 +390,13 @@ class TokenTreeBuilder {
 			// inside brackets
 		}
 
-		if (!this._accept(token => token.bracket === TokenTreeBracket.Close && token.bracketType === bracketType)) {
+		if (
+			!this._accept(
+				token =>
+					token.bracket === TokenTreeBracket.Close &&
+					token.bracketType === bracketType
+			)
+		) {
 			// missing closing bracket -> return just a node list
 			var nodelist = new NodeList();
 			nodelist.append(bracket.open);
@@ -416,9 +444,11 @@ export function find(node: Node, position: Position): Node {
 				result = find(node.children[i], position);
 			}
 		}
-
 	} else if (node instanceof Block) {
-		result = find(node.open, position) || find(node.elements, position) || find(node.close, position);
+		result =
+			find(node.open, position) ||
+			find(node.elements, position) ||
+			find(node.close, position);
 	}
 
 	return result || node;

@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { QuickOpenModel } from 'vs/base/parts/quickopen/browser/quickOpenModel';
 import { IAutoFocus } from 'vs/base/parts/quickopen/common/quickOpen';
@@ -11,7 +11,10 @@ import { ICodeEditor } from 'vs/editor/browser/editorBrowser';
 import { editorContribution } from 'vs/editor/browser/editorBrowserExtensions';
 import { QuickOpenEditorWidget } from './quickOpenEditorWidget';
 import { Selection } from 'vs/editor/common/core/selection';
-import { IActionOptions, EditorAction } from 'vs/editor/common/editorCommonExtensions';
+import {
+	IActionOptions,
+	EditorAction
+} from 'vs/editor/common/editorCommonExtensions';
 import { IThemeService } from 'vs/platform/theme/common/themeService';
 import { Range } from 'vs/editor/common/core/range';
 import { ModelDecorationOptions } from 'vs/editor/common/model/textModelWithDecorations';
@@ -24,10 +27,11 @@ export interface IQuickOpenControllerOpts {
 
 @editorContribution
 export class QuickOpenController implements editorCommon.IEditorContribution {
-
 	private static ID = 'editor.controller.quickOpenController';
 
-	public static get(editor: editorCommon.ICommonCodeEditor): QuickOpenController {
+	public static get(
+		editor: editorCommon.ICommonCodeEditor
+	): QuickOpenController {
 		return editor.getContribution<QuickOpenController>(QuickOpenController.ID);
 	}
 
@@ -36,7 +40,10 @@ export class QuickOpenController implements editorCommon.IEditorContribution {
 	private rangeHighlightDecorationId: string;
 	private lastKnownEditorSelection: Selection;
 
-	constructor(editor: ICodeEditor, @IThemeService private themeService: IThemeService) {
+	constructor(
+		editor: ICodeEditor,
+		@IThemeService private themeService: IThemeService
+	) {
 		this.editor = editor;
 	}
 
@@ -66,7 +73,9 @@ export class QuickOpenController implements editorCommon.IEditorContribution {
 			// Restore selection if canceled
 			if (canceled && this.lastKnownEditorSelection) {
 				this.editor.setSelection(this.lastKnownEditorSelection);
-				this.editor.revealRangeInCenterIfOutsideViewport(this.lastKnownEditorSelection);
+				this.editor.revealRangeInCenterIfOutsideViewport(
+					this.lastKnownEditorSelection
+				);
 			}
 
 			this.lastKnownEditorSelection = null;
@@ -101,31 +110,41 @@ export class QuickOpenController implements editorCommon.IEditorContribution {
 	});
 
 	public decorateLine(range: Range, editor: ICodeEditor): void {
-		editor.changeDecorations((changeAccessor: editorCommon.IModelDecorationsChangeAccessor) => {
-			var oldDecorations: string[] = [];
-			if (this.rangeHighlightDecorationId) {
-				oldDecorations.push(this.rangeHighlightDecorationId);
-				this.rangeHighlightDecorationId = null;
-			}
-
-			var newDecorations: editorCommon.IModelDeltaDecoration[] = [
-				{
-					range: range,
-					options: QuickOpenController._RANGE_HIGHLIGHT_DECORATION
+		editor.changeDecorations(
+			(changeAccessor: editorCommon.IModelDecorationsChangeAccessor) => {
+				var oldDecorations: string[] = [];
+				if (this.rangeHighlightDecorationId) {
+					oldDecorations.push(this.rangeHighlightDecorationId);
+					this.rangeHighlightDecorationId = null;
 				}
-			];
 
-			var decorations = changeAccessor.deltaDecorations(oldDecorations, newDecorations);
-			this.rangeHighlightDecorationId = decorations[0];
-		});
+				var newDecorations: editorCommon.IModelDeltaDecoration[] = [
+					{
+						range: range,
+						options: QuickOpenController._RANGE_HIGHLIGHT_DECORATION
+					}
+				];
+
+				var decorations = changeAccessor.deltaDecorations(
+					oldDecorations,
+					newDecorations
+				);
+				this.rangeHighlightDecorationId = decorations[0];
+			}
+		);
 	}
 
 	public clearDecorations(): void {
 		if (this.rangeHighlightDecorationId) {
-			this.editor.changeDecorations((changeAccessor: editorCommon.IModelDecorationsChangeAccessor) => {
-				changeAccessor.deltaDecorations([this.rangeHighlightDecorationId], []);
-				this.rangeHighlightDecorationId = null;
-			});
+			this.editor.changeDecorations(
+				(changeAccessor: editorCommon.IModelDecorationsChangeAccessor) => {
+					changeAccessor.deltaDecorations(
+						[this.rangeHighlightDecorationId],
+						[]
+					);
+					this.rangeHighlightDecorationId = null;
+				}
+			);
 		}
 	}
 }
@@ -146,7 +165,6 @@ export interface IQuickOpenOpts {
  * Base class for providing quick open in the editor.
  */
 export abstract class BaseEditorQuickOpenAction extends EditorAction {
-
 	private _inputAriaLabel: string;
 
 	constructor(inputAriaLabel: string, opts: IActionOptions) {
@@ -154,7 +172,9 @@ export abstract class BaseEditorQuickOpenAction extends EditorAction {
 		this._inputAriaLabel = inputAriaLabel;
 	}
 
-	protected getController(editor: editorCommon.ICommonCodeEditor): QuickOpenController {
+	protected getController(
+		editor: editorCommon.ICommonCodeEditor
+	): QuickOpenController {
 		return QuickOpenController.get(editor);
 	}
 
@@ -162,7 +182,8 @@ export abstract class BaseEditorQuickOpenAction extends EditorAction {
 		controller.run({
 			inputAriaLabel: this._inputAriaLabel,
 			getModel: (value: string): QuickOpenModel => opts.getModel(value),
-			getAutoFocus: (searchValue: string): IAutoFocus => opts.getAutoFocus(searchValue)
+			getAutoFocus: (searchValue: string): IAutoFocus =>
+				opts.getAutoFocus(searchValue)
 		});
 	}
 }

@@ -8,7 +8,6 @@ import uri from 'vs/base/common/uri';
 import { Source } from 'vs/workbench/parts/debug/common/debugSource';
 
 suite('Debug - Source', () => {
-
 	test('from raw source', () => {
 		const rawSource = {
 			name: 'zz',

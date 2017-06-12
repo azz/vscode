@@ -7,19 +7,24 @@ import { localize } from 'vs/nls';
 import { clipboard } from 'electron';
 import { Marker } from 'vs/workbench/parts/markers/common/markersModel';
 import Constants from 'vs/workbench/parts/markers/common/constants';
-import { CommandsRegistry, ICommandHandler } from 'vs/platform/commands/common/commands';
+import {
+	CommandsRegistry,
+	ICommandHandler
+} from 'vs/platform/commands/common/commands';
 import { MenuId, MenuRegistry } from 'vs/platform/actions/common/actions';
 import { ContextKeyExpr } from 'vs/platform/contextkey/common/contextkey';
-import { KeybindingsRegistry, IKeybindings } from 'vs/platform/keybinding/common/keybindingsRegistry';
+import {
+	KeybindingsRegistry,
+	IKeybindings
+} from 'vs/platform/keybinding/common/keybindingsRegistry';
 import { IPanelService } from 'vs/workbench/services/panel/common/panelService';
 import { MarkersPanel } from 'vs/workbench/parts/markers/browser/markersPanel';
 import { KeyCode, KeyMod } from 'vs/base/common/keyCodes';
 
-
 export function registerContributions(): void {
 	registerAction({
 		id: Constants.MARKER_COPY_ACTION_ID,
-		title: localize('copyMarker', "Copy"),
+		title: localize('copyMarker', 'Copy'),
 		handler(accessor) {
 			copyMarker(accessor.get(IPanelService));
 		},
@@ -58,7 +63,7 @@ interface IActionDescriptor {
 
 	//
 	menu?: {
-		menuId: MenuId,
+		menuId: MenuId;
 		when?: ContextKeyExpr;
 		group?: string;
 	};
@@ -72,7 +77,6 @@ interface IActionDescriptor {
 }
 
 function registerAction(desc: IActionDescriptor) {
-
 	const { id, handler, title, category, iconClass, menu, keybinding } = desc;
 
 	// 1) register as command

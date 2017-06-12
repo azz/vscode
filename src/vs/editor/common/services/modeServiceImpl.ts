@@ -2,38 +2,70 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as nls from 'vs/nls';
 import { onUnexpectedError } from 'vs/base/common/errors';
 import Event, { Emitter } from 'vs/base/common/event';
 import { TPromise } from 'vs/base/common/winjs.base';
-import { IExtensionPoint, ExtensionsRegistry } from 'vs/platform/extensions/common/extensionsRegistry';
+import {
+	IExtensionPoint,
+	ExtensionsRegistry
+} from 'vs/platform/extensions/common/extensionsRegistry';
 import { IMode, LanguageId, LanguageIdentifier } from 'vs/editor/common/modes';
 import { FrankensteinMode } from 'vs/editor/common/modes/abstractMode';
 import { LanguagesRegistry } from 'vs/editor/common/services/languagesRegistry';
-import { ILanguageExtensionPoint, IModeLookupResult, IModeService } from 'vs/editor/common/services/modeService';
+import {
+	ILanguageExtensionPoint,
+	IModeLookupResult,
+	IModeService
+} from 'vs/editor/common/services/modeService';
 
-export const languagesExtPoint: IExtensionPoint<ILanguageExtensionPoint[]> = ExtensionsRegistry.registerExtensionPoint<ILanguageExtensionPoint[]>('languages', [], {
-	description: nls.localize('vscode.extension.contributes.languages', 'Contributes language declarations.'),
+export const languagesExtPoint: IExtensionPoint<
+	ILanguageExtensionPoint[]
+> = ExtensionsRegistry.registerExtensionPoint<
+	ILanguageExtensionPoint[]
+>('languages', [], {
+	description: nls.localize(
+		'vscode.extension.contributes.languages',
+		'Contributes language declarations.'
+	),
 	type: 'array',
 	items: {
 		type: 'object',
-		defaultSnippets: [{ body: { id: '${1:languageId}', aliases: ['${2:label}'], extensions: ['${3:extension}'], configuration: './language-configuration.json' } }],
+		defaultSnippets: [
+			{
+				body: {
+					id: '${1:languageId}',
+					aliases: ['${2:label}'],
+					extensions: ['${3:extension}'],
+					configuration: './language-configuration.json'
+				}
+			}
+		],
 		properties: {
 			id: {
-				description: nls.localize('vscode.extension.contributes.languages.id', 'ID of the language.'),
+				description: nls.localize(
+					'vscode.extension.contributes.languages.id',
+					'ID of the language.'
+				),
 				type: 'string'
 			},
 			aliases: {
-				description: nls.localize('vscode.extension.contributes.languages.aliases', 'Name aliases for the language.'),
+				description: nls.localize(
+					'vscode.extension.contributes.languages.aliases',
+					'Name aliases for the language.'
+				),
 				type: 'array',
 				items: {
 					type: 'string'
 				}
 			},
 			extensions: {
-				description: nls.localize('vscode.extension.contributes.languages.extensions', 'File extensions associated to the language.'),
+				description: nls.localize(
+					'vscode.extension.contributes.languages.extensions',
+					'File extensions associated to the language.'
+				),
 				default: ['.foo'],
 				type: 'array',
 				items: {
@@ -41,32 +73,47 @@ export const languagesExtPoint: IExtensionPoint<ILanguageExtensionPoint[]> = Ext
 				}
 			},
 			filenames: {
-				description: nls.localize('vscode.extension.contributes.languages.filenames', 'File names associated to the language.'),
+				description: nls.localize(
+					'vscode.extension.contributes.languages.filenames',
+					'File names associated to the language.'
+				),
 				type: 'array',
 				items: {
 					type: 'string'
 				}
 			},
 			filenamePatterns: {
-				description: nls.localize('vscode.extension.contributes.languages.filenamePatterns', 'File name glob patterns associated to the language.'),
+				description: nls.localize(
+					'vscode.extension.contributes.languages.filenamePatterns',
+					'File name glob patterns associated to the language.'
+				),
 				type: 'array',
 				items: {
 					type: 'string'
 				}
 			},
 			mimetypes: {
-				description: nls.localize('vscode.extension.contributes.languages.mimetypes', 'Mime types associated to the language.'),
+				description: nls.localize(
+					'vscode.extension.contributes.languages.mimetypes',
+					'Mime types associated to the language.'
+				),
 				type: 'array',
 				items: {
 					type: 'string'
 				}
 			},
 			firstLine: {
-				description: nls.localize('vscode.extension.contributes.languages.firstLine', 'A regular expression matching the first line of a file of the language.'),
+				description: nls.localize(
+					'vscode.extension.contributes.languages.firstLine',
+					'A regular expression matching the first line of a file of the language.'
+				),
 				type: 'string'
 			},
 			configuration: {
-				description: nls.localize('vscode.extension.contributes.languages.configuration', 'A relative path to a file containing configuration options for the language.'),
+				description: nls.localize(
+					'vscode.extension.contributes.languages.configuration',
+					'A relative path to a file containing configuration options for the language.'
+				),
 				type: 'string',
 				default: './language-configuration.json'
 			}
@@ -77,7 +124,7 @@ export const languagesExtPoint: IExtensionPoint<ILanguageExtensionPoint[]> = Ext
 export class ModeServiceImpl implements IModeService {
 	public _serviceBrand: any;
 
-	private readonly _instantiatedModes: { [modeId: string]: IMode; };
+	private readonly _instantiatedModes: { [modeId: string]: IMode };
 	private readonly _registry: LanguagesRegistry;
 
 	private readonly _onDidCreateMode: Emitter<IMode> = new Emitter<IMode>();
@@ -125,8 +172,14 @@ export class ModeServiceImpl implements IModeService {
 		return this._registry.getModeIdForLanguageNameLowercase(alias);
 	}
 
-	public getModeIdByFilenameOrFirstLine(filename: string, firstLine?: string): string {
-		var modeIds = this._registry.getModeIdsFromFilenameOrFirstLine(filename, firstLine);
+	public getModeIdByFilenameOrFirstLine(
+		filename: string,
+		firstLine?: string
+	): string {
+		var modeIds = this._registry.getModeIdsFromFilenameOrFirstLine(
+			filename,
+			firstLine
+		);
 
 		if (modeIds.length > 0) {
 			return modeIds[0];
@@ -136,7 +189,9 @@ export class ModeServiceImpl implements IModeService {
 	}
 
 	public getModeId(commaSeparatedMimetypesOrCommaSeparatedIds: string): string {
-		var modeIds = this._registry.extractModeIds(commaSeparatedMimetypesOrCommaSeparatedIds);
+		var modeIds = this._registry.extractModeIds(
+			commaSeparatedMimetypesOrCommaSeparatedIds
+		);
 
 		if (modeIds.length > 0) {
 			return modeIds[0];
@@ -145,7 +200,9 @@ export class ModeServiceImpl implements IModeService {
 		return null;
 	}
 
-	public getLanguageIdentifier(modeId: string | LanguageId): LanguageIdentifier {
+	public getLanguageIdentifier(
+		modeId: string | LanguageId
+	): LanguageIdentifier {
 		return this._registry.getLanguageIdentifier(modeId);
 	}
 
@@ -155,9 +212,13 @@ export class ModeServiceImpl implements IModeService {
 
 	// --- instantiation
 
-	public lookup(commaSeparatedMimetypesOrCommaSeparatedIds: string): IModeLookupResult[] {
+	public lookup(
+		commaSeparatedMimetypesOrCommaSeparatedIds: string
+	): IModeLookupResult[] {
 		var r: IModeLookupResult[] = [];
-		var modeIds = this._registry.extractModeIds(commaSeparatedMimetypesOrCommaSeparatedIds);
+		var modeIds = this._registry.extractModeIds(
+			commaSeparatedMimetypesOrCommaSeparatedIds
+		);
 
 		for (var i = 0; i < modeIds.length; i++) {
 			var modeId = modeIds[i];
@@ -172,28 +233,34 @@ export class ModeServiceImpl implements IModeService {
 	}
 
 	public getMode(commaSeparatedMimetypesOrCommaSeparatedIds: string): IMode {
-		var modeIds = this._registry.extractModeIds(commaSeparatedMimetypesOrCommaSeparatedIds);
+		var modeIds = this._registry.extractModeIds(
+			commaSeparatedMimetypesOrCommaSeparatedIds
+		);
 
 		var isPlainText = false;
 		for (var i = 0; i < modeIds.length; i++) {
 			if (this._instantiatedModes.hasOwnProperty(modeIds[i])) {
 				return this._instantiatedModes[modeIds[i]];
 			}
-			isPlainText = isPlainText || (modeIds[i] === 'plaintext');
+			isPlainText = isPlainText || modeIds[i] === 'plaintext';
 		}
 
 		if (isPlainText) {
 			// Try to do it synchronously
 			var r: IMode = null;
-			this.getOrCreateMode(commaSeparatedMimetypesOrCommaSeparatedIds).then((mode) => {
-				r = mode;
-			}).done(null, onUnexpectedError);
+			this.getOrCreateMode(commaSeparatedMimetypesOrCommaSeparatedIds)
+				.then(mode => {
+					r = mode;
+				})
+				.done(null, onUnexpectedError);
 			return r;
 		}
 		return null;
 	}
 
-	public getOrCreateMode(commaSeparatedMimetypesOrCommaSeparatedIds: string): TPromise<IMode> {
+	public getOrCreateMode(
+		commaSeparatedMimetypesOrCommaSeparatedIds: string
+	): TPromise<IMode> {
 		return this._onReady().then(() => {
 			var modeId = this.getModeId(commaSeparatedMimetypesOrCommaSeparatedIds);
 			// Fall back to plain text if no mode was found
@@ -219,7 +286,10 @@ export class ModeServiceImpl implements IModeService {
 		return null;
 	}
 
-	public getOrCreateModeByFilenameOrFirstLine(filename: string, firstLine?: string): TPromise<IMode> {
+	public getOrCreateModeByFilenameOrFirstLine(
+		filename: string,
+		firstLine?: string
+	): TPromise<IMode> {
 		return this._onReady().then(() => {
 			var modeId = this.getModeIdByFilenameOrFirstLine(filename, firstLine);
 			// Fall back to plain text if no mode was found
@@ -230,7 +300,9 @@ export class ModeServiceImpl implements IModeService {
 	private _getOrCreateMode(modeId: string): IMode {
 		if (!this._instantiatedModes.hasOwnProperty(modeId)) {
 			let languageIdentifier = this.getLanguageIdentifier(modeId);
-			this._instantiatedModes[modeId] = new FrankensteinMode(languageIdentifier);
+			this._instantiatedModes[modeId] = new FrankensteinMode(
+				languageIdentifier
+			);
 
 			this._onDidCreateMode.fire(this._instantiatedModes[modeId]);
 		}

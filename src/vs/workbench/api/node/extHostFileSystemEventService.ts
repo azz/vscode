@@ -2,16 +2,18 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import Event, { Emitter } from 'vs/base/common/event';
 import { Disposable } from './extHostTypes';
 import { match } from 'vs/base/common/glob';
 import { Uri, FileSystemWatcher as _FileSystemWatcher } from 'vscode';
-import { FileSystemEvents, ExtHostFileSystemEventServiceShape } from './extHost.protocol';
+import {
+	FileSystemEvents,
+	ExtHostFileSystemEventServiceShape
+} from './extHost.protocol';
 
 class FileSystemWatcher implements _FileSystemWatcher {
-
 	private _onDidCreate = new Emitter<Uri>();
 	private _onDidChange = new Emitter<Uri>();
 	private _onDidDelete = new Emitter<Uri>();
@@ -30,8 +32,13 @@ class FileSystemWatcher implements _FileSystemWatcher {
 		return Boolean(this._config & 0b100);
 	}
 
-	constructor(dispatcher: Event<FileSystemEvents>, globPattern: string, ignoreCreateEvents?: boolean, ignoreChangeEvents?: boolean, ignoreDeleteEvents?: boolean) {
-
+	constructor(
+		dispatcher: Event<FileSystemEvents>,
+		globPattern: string,
+		ignoreCreateEvents?: boolean,
+		ignoreChangeEvents?: boolean,
+		ignoreDeleteEvents?: boolean
+	) {
 		this._config = 0;
 		if (ignoreCreateEvents) {
 			this._config += 0b001;
@@ -67,7 +74,12 @@ class FileSystemWatcher implements _FileSystemWatcher {
 			}
 		});
 
-		this._disposable = Disposable.from(this._onDidCreate, this._onDidChange, this._onDidDelete, subscription);
+		this._disposable = Disposable.from(
+			this._onDidCreate,
+			this._onDidChange,
+			this._onDidDelete,
+			subscription
+		);
 	}
 
 	dispose() {
@@ -88,15 +100,25 @@ class FileSystemWatcher implements _FileSystemWatcher {
 }
 
 export class ExtHostFileSystemEventService extends ExtHostFileSystemEventServiceShape {
-
 	private _emitter = new Emitter<FileSystemEvents>();
 
 	constructor() {
 		super();
 	}
 
-	public createFileSystemWatcher(globPattern: string, ignoreCreateEvents?: boolean, ignoreChangeEvents?: boolean, ignoreDeleteEvents?: boolean): _FileSystemWatcher {
-		return new FileSystemWatcher(this._emitter.event, globPattern, ignoreCreateEvents, ignoreChangeEvents, ignoreDeleteEvents);
+	public createFileSystemWatcher(
+		globPattern: string,
+		ignoreCreateEvents?: boolean,
+		ignoreChangeEvents?: boolean,
+		ignoreDeleteEvents?: boolean
+	): _FileSystemWatcher {
+		return new FileSystemWatcher(
+			this._emitter.event,
+			globPattern,
+			ignoreCreateEvents,
+			ignoreChangeEvents,
+			ignoreDeleteEvents
+		);
 	}
 
 	$onFileEvent(events: FileSystemEvents) {

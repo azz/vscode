@@ -9,9 +9,22 @@ import * as DOM from 'vs/base/browser/dom';
 import { Dimension, Builder } from 'vs/base/browser/builder';
 
 import { Registry } from 'vs/platform/platform';
-import { IEditorRegistry, Extensions as EditorExtensions, EditorInput, EditorOptions, SideBySideEditorInput } from 'vs/workbench/common/editor';
-import { BaseEditor, EditorDescriptor } from 'vs/workbench/browser/parts/editor/baseEditor';
-import { IEditorControl, Position, IEditor } from 'vs/platform/editor/common/editor';
+import {
+	IEditorRegistry,
+	Extensions as EditorExtensions,
+	EditorInput,
+	EditorOptions,
+	SideBySideEditorInput
+} from 'vs/workbench/common/editor';
+import {
+	BaseEditor,
+	EditorDescriptor
+} from 'vs/workbench/browser/parts/editor/baseEditor';
+import {
+	IEditorControl,
+	Position,
+	IEditor
+} from 'vs/platform/editor/common/editor';
 import { VSash } from 'vs/base/browser/ui/sash/sash';
 
 import { ITelemetryService } from 'vs/platform/telemetry/common/telemetry';
@@ -20,7 +33,6 @@ import { IThemeService } from 'vs/platform/theme/common/themeService';
 import { scrollbarShadow } from 'vs/platform/theme/common/colorRegistry';
 
 export class SideBySideEditor extends BaseEditor {
-
 	public static ID: string = 'workbench.editor.sidebysideEditor';
 
 	private dimension: Dimension;
@@ -47,9 +59,13 @@ export class SideBySideEditor extends BaseEditor {
 		this.createSash(parentElement);
 	}
 
-	public setInput(newInput: SideBySideEditorInput, options?: EditorOptions): TPromise<void> {
+	public setInput(
+		newInput: SideBySideEditorInput,
+		options?: EditorOptions
+	): TPromise<void> {
 		const oldInput = <SideBySideEditorInput>this.input;
-		return super.setInput(newInput, options)
+		return super
+			.setInput(newInput, options)
 			.then(() => this.updateInput(oldInput, newInput, options));
 	}
 
@@ -110,7 +126,11 @@ export class SideBySideEditor extends BaseEditor {
 		return this.detailsEditor;
 	}
 
-	private updateInput(oldInput: SideBySideEditorInput, newInput: SideBySideEditorInput, options?: EditorOptions): TPromise<void> {
+	private updateInput(
+		oldInput: SideBySideEditorInput,
+		newInput: SideBySideEditorInput,
+		options?: EditorOptions
+	): TPromise<void> {
 		if (!newInput.matches(oldInput)) {
 			if (oldInput) {
 				this.disposeEditors();
@@ -124,19 +144,49 @@ export class SideBySideEditor extends BaseEditor {
 		}
 	}
 
-	private setNewInput(newInput: SideBySideEditorInput, options?: EditorOptions): TPromise<void> {
+	private setNewInput(
+		newInput: SideBySideEditorInput,
+		options?: EditorOptions
+	): TPromise<void> {
 		return TPromise.join([
-			this._createEditor(<EditorInput>newInput.details, this.detailsEditorContainer),
-			this._createEditor(<EditorInput>newInput.master, this.masterEditorContainer)
-		]).then(result => this.onEditorsCreated(result[0], result[1], newInput.details, newInput.master, options));
+			this._createEditor(
+				<EditorInput>newInput.details,
+				this.detailsEditorContainer
+			),
+			this._createEditor(
+				<EditorInput>newInput.master,
+				this.masterEditorContainer
+			)
+		]).then(result =>
+			this.onEditorsCreated(
+				result[0],
+				result[1],
+				newInput.details,
+				newInput.master,
+				options
+			)
+		);
 	}
 
-	private _createEditor(editorInput: EditorInput, container: HTMLElement): TPromise<BaseEditor> {
-		const descriptor = Registry.as<IEditorRegistry>(EditorExtensions.Editors).getEditor(editorInput);
+	private _createEditor(
+		editorInput: EditorInput,
+		container: HTMLElement
+	): TPromise<BaseEditor> {
+		const descriptor = Registry.as<IEditorRegistry>(
+			EditorExtensions.Editors
+		).getEditor(editorInput);
 		if (!descriptor) {
-			return TPromise.wrapError<BaseEditor>(new Error(strings.format('Can not find a registered editor for the input {0}', editorInput)));
+			return TPromise.wrapError<BaseEditor>(
+				new Error(
+					strings.format(
+						'Can not find a registered editor for the input {0}',
+						editorInput
+					)
+				)
+			);
 		}
-		return this.instantiationService.createInstance(<EditorDescriptor>descriptor)
+		return this.instantiationService
+			.createInstance(<EditorDescriptor>descriptor)
 			.then((editor: BaseEditor) => {
 				editor.create(new Builder(container));
 				editor.setVisible(this.isVisible(), this.position);
@@ -144,18 +194,33 @@ export class SideBySideEditor extends BaseEditor {
 			});
 	}
 
-	private onEditorsCreated(details: BaseEditor, master: BaseEditor, detailsInput: EditorInput, masterInput: EditorInput, options: EditorOptions): TPromise<void> {
+	private onEditorsCreated(
+		details: BaseEditor,
+		master: BaseEditor,
+		detailsInput: EditorInput,
+		masterInput: EditorInput,
+		options: EditorOptions
+	): TPromise<void> {
 		this.detailsEditor = details;
 		this.masterEditor = master;
 		this.dolayout(this.sash.getVerticalSashLeft());
-		return TPromise.join([this.detailsEditor.setInput(detailsInput), this.masterEditor.setInput(masterInput, options)]).then(() => this.focus());
+		return TPromise.join([
+			this.detailsEditor.setInput(detailsInput),
+			this.masterEditor.setInput(masterInput, options)
+		]).then(() => this.focus());
 	}
 
 	private createEditorContainers(): void {
 		const parentElement = this.getContainer().getHTMLElement();
-		this.detailsEditorContainer = DOM.append(parentElement, DOM.$('.details-editor-container'));
+		this.detailsEditorContainer = DOM.append(
+			parentElement,
+			DOM.$('.details-editor-container')
+		);
 		this.detailsEditorContainer.style.position = 'absolute';
-		this.masterEditorContainer = DOM.append(parentElement, DOM.$('.master-editor-container'));
+		this.masterEditorContainer = DOM.append(
+			parentElement,
+			DOM.$('.master-editor-container')
+		);
 		this.masterEditorContainer.style.position = 'absolute';
 
 		this.updateStyles();
@@ -165,13 +230,17 @@ export class SideBySideEditor extends BaseEditor {
 		super.updateStyles();
 
 		if (this.masterEditorContainer) {
-			this.masterEditorContainer.style.boxShadow = `-6px 0 5px -5px ${this.getColor(scrollbarShadow)}`;
+			this.masterEditorContainer.style.boxShadow = `-6px 0 5px -5px ${this.getColor(
+				scrollbarShadow
+			)}`;
 		}
 	}
 
 	private createSash(parentElement: HTMLElement): void {
 		this.sash = this._register(new VSash(parentElement, 220));
-		this._register(this.sash.onPositionChange(position => this.dolayout(position)));
+		this._register(
+			this.sash.onPositionChange(position => this.dolayout(position))
+		);
 	}
 
 	private dolayout(splitPoint: number): void {
@@ -189,8 +258,12 @@ export class SideBySideEditor extends BaseEditor {
 		this.masterEditorContainer.style.height = `${this.dimension.height}px`;
 		this.masterEditorContainer.style.left = `${splitPoint}px`;
 
-		this.detailsEditor.layout(new Dimension(detailsEditorWidth, this.dimension.height));
-		this.masterEditor.layout(new Dimension(masterEditorWidth, this.dimension.height));
+		this.detailsEditor.layout(
+			new Dimension(detailsEditorWidth, this.dimension.height)
+		);
+		this.masterEditor.layout(
+			new Dimension(masterEditorWidth, this.dimension.height)
+		);
 	}
 
 	private disposeEditors(): void {

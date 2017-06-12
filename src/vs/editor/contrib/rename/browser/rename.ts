@@ -3,20 +3,39 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as nls from 'vs/nls';
-import { isPromiseCanceledError, onUnexpectedExternalError, illegalArgument } from 'vs/base/common/errors';
+import {
+	isPromiseCanceledError,
+	onUnexpectedExternalError,
+	illegalArgument
+} from 'vs/base/common/errors';
 import { KeyMod, KeyCode } from 'vs/base/common/keyCodes';
 import Severity from 'vs/base/common/severity';
 import { TPromise } from 'vs/base/common/winjs.base';
 import { IFileService } from 'vs/platform/files/common/files';
-import { RawContextKey, IContextKey, IContextKeyService, ContextKeyExpr } from 'vs/platform/contextkey/common/contextkey';
+import {
+	RawContextKey,
+	IContextKey,
+	IContextKeyService,
+	ContextKeyExpr
+} from 'vs/platform/contextkey/common/contextkey';
 import { IMessageService } from 'vs/platform/message/common/message';
 import { IProgressService } from 'vs/platform/progress/common/progress';
-import { editorAction, ServicesAccessor, EditorAction, EditorCommand, CommonEditorRegistry } from 'vs/editor/common/editorCommonExtensions';
+import {
+	editorAction,
+	ServicesAccessor,
+	EditorAction,
+	EditorCommand,
+	CommonEditorRegistry
+} from 'vs/editor/common/editorCommonExtensions';
 import { editorContribution } from 'vs/editor/browser/editorBrowserExtensions';
-import { ICommonCodeEditor, IEditorContribution, IReadOnlyModel } from 'vs/editor/common/editorCommon';
+import {
+	ICommonCodeEditor,
+	IEditorContribution,
+	IReadOnlyModel
+} from 'vs/editor/common/editorCommon';
 import { EditorContextKeys } from 'vs/editor/common/editorContextKeys';
 import { BulkEdit, createBulkEdit } from 'vs/editor/common/services/bulkEdit';
 import { ICodeEditor } from 'vs/editor/browser/editorBrowser';
@@ -30,9 +49,11 @@ import { Position } from 'vs/editor/common/core/position';
 import { alert } from 'vs/base/browser/ui/aria/aria';
 import { Range } from 'vs/editor/common/core/range';
 
-
-export function rename(model: IReadOnlyModel, position: Position, newName: string): TPromise<WorkspaceEdit> {
-
+export function rename(
+	model: IReadOnlyModel,
+	position: Position,
+	newName: string
+): TPromise<WorkspaceEdit> {
 	const supports = RenameProviderRegistry.ordered(model);
 	const rejects: string[] = [];
 	let hasResult = false;
@@ -40,22 +61,25 @@ export function rename(model: IReadOnlyModel, position: Position, newName: strin
 	const factory = supports.map(support => {
 		return (): TPromise<WorkspaceEdit> => {
 			if (!hasResult) {
-				return asWinJsPromise((token) => {
+				return asWinJsPromise(token => {
 					return support.provideRenameEdits(model, position, newName, token);
-				}).then(result => {
-					if (!result) {
-						// ignore
-					} else if (!result.rejectReason) {
-						hasResult = true;
-						return result;
-					} else {
-						rejects.push(result.rejectReason);
+				}).then(
+					result => {
+						if (!result) {
+							// ignore
+						} else if (!result.rejectReason) {
+							hasResult = true;
+							return result;
+						} else {
+							rejects.push(result.rejectReason);
+						}
+						return undefined;
+					},
+					err => {
+						onUnexpectedExternalError(err);
+						return TPromise.wrapError<WorkspaceEdit>('provider failed');
 					}
-					return undefined;
-				}, err => {
-					onUnexpectedExternalError(err);
-					return TPromise.wrapError<WorkspaceEdit>('provider failed');
-				});
+				);
 			}
 			return undefined;
 		};
@@ -71,7 +95,7 @@ export function rename(model: IReadOnlyModel, position: Position, newName: strin
 		} else if (!result) {
 			return {
 				edits: undefined,
-				rejectReason: nls.localize('no result', "No result.")
+				rejectReason: nls.localize('no result', 'No result.')
 			};
 		} else {
 			return result;
@@ -79,14 +103,15 @@ export function rename(model: IReadOnlyModel, position: Position, newName: strin
 	});
 }
 
-
 // ---  register actions and commands
 
-const CONTEXT_RENAME_INPUT_VISIBLE = new RawContextKey<boolean>('renameInputVisible', false);
+const CONTEXT_RENAME_INPUT_VISIBLE = new RawContextKey<boolean>(
+	'renameInputVisible',
+	false
+);
 
 @editorContribution
 class RenameController implements IEditorContribution {
-
 	private static ID = 'editor.contrib.renameController';
 
 	public static get(editor: ICommonCodeEditor): RenameController {
@@ -99,14 +124,17 @@ class RenameController implements IEditorContribution {
 	constructor(
 		private editor: ICodeEditor,
 		@IMessageService private _messageService: IMessageService,
-		@ITextModelResolverService private _textModelResolverService: ITextModelResolverService,
+		@ITextModelResolverService
+		private _textModelResolverService: ITextModelResolverService,
 		@IProgressService private _progressService: IProgressService,
 		@IContextKeyService contextKeyService: IContextKeyService,
 		@IThemeService themeService: IThemeService,
 		@optional(IFileService) private _fileService: IFileService
 	) {
 		this._renameInputField = new RenameInputField(editor, themeService);
-		this._renameInputVisible = CONTEXT_RENAME_INPUT_VISIBLE.bindTo(contextKeyService);
+		this._renameInputVisible = CONTEXT_RENAME_INPUT_VISIBLE.bindTo(
+			contextKeyService
+		);
 	}
 
 	public dispose(): void {
@@ -118,9 +146,10 @@ class RenameController implements IEditorContribution {
 	}
 
 	public run(): TPromise<void> {
-
 		const selection = this.editor.getSelection(),
-			word = this.editor.getModel().getWordAtPosition(selection.getStartPosition());
+			word = this.editor
+				.getModel()
+				.getWordAtPosition(selection.getStartPosition());
 
 		if (!word) {
 			return undefined;
@@ -138,48 +167,71 @@ class RenameController implements IEditorContribution {
 			word.endColumn
 		);
 
-		if (!selection.isEmpty() && selection.startLineNumber === selection.endLineNumber) {
+		if (
+			!selection.isEmpty() &&
+			selection.startLineNumber === selection.endLineNumber
+		) {
 			selectionStart = Math.max(0, selection.startColumn - word.startColumn);
-			selectionEnd = Math.min(word.endColumn, selection.endColumn) - word.startColumn;
+			selectionEnd =
+				Math.min(word.endColumn, selection.endColumn) - word.startColumn;
 		}
 
 		this._renameInputVisible.set(true);
-		return this._renameInputField.getInput(wordRange, word.word, selectionStart, selectionEnd).then(newName => {
-			this._renameInputVisible.reset();
-			this.editor.focus();
+		return this._renameInputField
+			.getInput(wordRange, word.word, selectionStart, selectionEnd)
+			.then(
+				newName => {
+					this._renameInputVisible.reset();
+					this.editor.focus();
 
-			const renameOperation = this._prepareRename(newName).then(edit => {
+					const renameOperation = this._prepareRename(newName).then(
+						edit => {
+							return edit.finish().then(selection => {
+								if (selection) {
+									this.editor.setSelection(selection);
+								}
+								// alert
+								alert(
+									nls.localize(
+										'aria',
+										"Successfully renamed '{0}' to '{1}'. Summary: {2}",
+										word.word,
+										newName,
+										edit.ariaMessage()
+									)
+								);
+							});
+						},
+						err => {
+							if (typeof err === 'string') {
+								this._messageService.show(Severity.Info, err);
+								return undefined;
+							} else {
+								this._messageService.show(
+									Severity.Error,
+									nls.localize(
+										'rename.failed',
+										'Sorry, rename failed to execute.'
+									)
+								);
+								return TPromise.wrapError(err);
+							}
+						}
+					);
 
-				return edit.finish().then(selection => {
-					if (selection) {
-						this.editor.setSelection(selection);
+					this._progressService.showWhile(renameOperation, 250);
+					return renameOperation;
+				},
+				err => {
+					this._renameInputVisible.reset();
+					this.editor.focus();
+
+					if (!isPromiseCanceledError(err)) {
+						return TPromise.wrapError(err);
 					}
-					// alert
-					alert(nls.localize('aria', "Successfully renamed '{0}' to '{1}'. Summary: {2}", word.word, newName, edit.ariaMessage()));
-				});
-
-			}, err => {
-				if (typeof err === 'string') {
-					this._messageService.show(Severity.Info, err);
 					return undefined;
-				} else {
-					this._messageService.show(Severity.Error, nls.localize('rename.failed', "Sorry, rename failed to execute."));
-					return TPromise.wrapError(err);
 				}
-			});
-
-			this._progressService.showWhile(renameOperation, 250);
-			return renameOperation;
-
-		}, err => {
-			this._renameInputVisible.reset();
-			this.editor.focus();
-
-			if (!isPromiseCanceledError(err)) {
-				return TPromise.wrapError(err);
-			}
-			return undefined;
-		});
+			);
 	}
 
 	public acceptRenameInput(): void {
@@ -191,12 +243,19 @@ class RenameController implements IEditorContribution {
 	}
 
 	private _prepareRename(newName: string): TPromise<BulkEdit> {
-
 		// start recording of file changes so that we can figure out if a file that
 		// is to be renamed conflicts with another (concurrent) modification
-		let edit = createBulkEdit(this._textModelResolverService, <ICodeEditor>this.editor, this._fileService);
+		let edit = createBulkEdit(
+			this._textModelResolverService,
+			<ICodeEditor>this.editor,
+			this._fileService
+		);
 
-		return rename(this.editor.getModel(), this.editor.getPosition(), newName).then(result => {
+		return rename(
+			this.editor.getModel(),
+			this.editor.getPosition(),
+			newName
+		).then(result => {
 			if (result.rejectReason) {
 				return TPromise.wrapError<BulkEdit>(result.rejectReason);
 			}
@@ -210,13 +269,15 @@ class RenameController implements IEditorContribution {
 
 @editorAction
 export class RenameAction extends EditorAction {
-
 	constructor() {
 		super({
 			id: 'editor.action.rename',
-			label: nls.localize('rename.label', "Rename Symbol"),
+			label: nls.localize('rename.label', 'Rename Symbol'),
 			alias: 'Rename Symbol',
-			precondition: ContextKeyExpr.and(EditorContextKeys.writable, EditorContextKeys.hasRenameProvider),
+			precondition: ContextKeyExpr.and(
+				EditorContextKeys.writable,
+				EditorContextKeys.hasRenameProvider
+			),
 			kbOpts: {
 				kbExpr: EditorContextKeys.textFocus,
 				primary: KeyCode.F2
@@ -228,7 +289,10 @@ export class RenameAction extends EditorAction {
 		});
 	}
 
-	public run(accessor: ServicesAccessor, editor: ICommonCodeEditor): TPromise<void> {
+	public run(
+		accessor: ServicesAccessor,
+		editor: ICommonCodeEditor
+	): TPromise<void> {
 		let controller = RenameController.get(editor);
 		if (controller) {
 			return controller.run();
@@ -237,37 +301,46 @@ export class RenameAction extends EditorAction {
 	}
 }
 
-const RenameCommand = EditorCommand.bindToContribution<RenameController>(RenameController.get);
+const RenameCommand = EditorCommand.bindToContribution<RenameController>(
+	RenameController.get
+);
 
-CommonEditorRegistry.registerEditorCommand(new RenameCommand({
-	id: 'acceptRenameInput',
-	precondition: CONTEXT_RENAME_INPUT_VISIBLE,
-	handler: x => x.acceptRenameInput(),
-	kbOpts: {
-		weight: CommonEditorRegistry.commandWeight(99),
-		kbExpr: EditorContextKeys.focus,
-		primary: KeyCode.Enter
-	}
-}));
+CommonEditorRegistry.registerEditorCommand(
+	new RenameCommand({
+		id: 'acceptRenameInput',
+		precondition: CONTEXT_RENAME_INPUT_VISIBLE,
+		handler: x => x.acceptRenameInput(),
+		kbOpts: {
+			weight: CommonEditorRegistry.commandWeight(99),
+			kbExpr: EditorContextKeys.focus,
+			primary: KeyCode.Enter
+		}
+	})
+);
 
-CommonEditorRegistry.registerEditorCommand(new RenameCommand({
-	id: 'cancelRenameInput',
-	precondition: CONTEXT_RENAME_INPUT_VISIBLE,
-	handler: x => x.cancelRenameInput(),
-	kbOpts: {
-		weight: CommonEditorRegistry.commandWeight(99),
-		kbExpr: EditorContextKeys.focus,
-		primary: KeyCode.Escape,
-		secondary: [KeyMod.Shift | KeyCode.Escape]
-	}
-}));
+CommonEditorRegistry.registerEditorCommand(
+	new RenameCommand({
+		id: 'cancelRenameInput',
+		precondition: CONTEXT_RENAME_INPUT_VISIBLE,
+		handler: x => x.cancelRenameInput(),
+		kbOpts: {
+			weight: CommonEditorRegistry.commandWeight(99),
+			kbExpr: EditorContextKeys.focus,
+			primary: KeyCode.Escape,
+			secondary: [KeyMod.Shift | KeyCode.Escape]
+		}
+	})
+);
 
 // ---- api bridge command
 
-CommonEditorRegistry.registerDefaultLanguageCommand('_executeDocumentRenameProvider', function (model, position, args) {
-	let { newName } = args;
-	if (typeof newName !== 'string') {
-		throw illegalArgument('newName');
+CommonEditorRegistry.registerDefaultLanguageCommand(
+	'_executeDocumentRenameProvider',
+	function(model, position, args) {
+		let { newName } = args;
+		if (typeof newName !== 'string') {
+			throw illegalArgument('newName');
+		}
+		return rename(model, position, newName);
 	}
-	return rename(model, position, newName);
-});
+);

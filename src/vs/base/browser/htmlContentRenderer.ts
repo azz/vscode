@@ -3,25 +3,40 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import DOM = require('vs/base/browser/dom');
 import { defaultGenerator } from 'vs/base/common/idGenerator';
 import { escape } from 'vs/base/common/strings';
 import { TPromise } from 'vs/base/common/winjs.base';
-import { IHTMLContentElement, MarkedString, removeMarkdownEscapes } from 'vs/base/common/htmlContent';
+import {
+	IHTMLContentElement,
+	MarkedString,
+	removeMarkdownEscapes
+} from 'vs/base/common/htmlContent';
 import { marked } from 'vs/base/common/marked/marked';
 import { IMouseEvent } from 'vs/base/browser/mouseEvent';
 
-export type RenderableContent = string | IHTMLContentElement | IHTMLContentElement[];
+export type RenderableContent =
+	| string
+	| IHTMLContentElement
+	| IHTMLContentElement[];
 
 export interface RenderOptions {
 	actionCallback?: (content: string, event?: IMouseEvent) => void;
-	codeBlockRenderer?: (modeId: string, value: string) => string | TPromise<string>;
+	codeBlockRenderer?: (
+		modeId: string,
+		value: string
+	) => string | TPromise<string>;
 }
 
-export function renderMarkedString(markedString: MarkedString, options: RenderOptions = {}): Node {
-	const htmlContentElement = typeof markedString === 'string' ? { markdown: markedString } : { code: markedString };
+export function renderMarkedString(
+	markedString: MarkedString,
+	options: RenderOptions = {}
+): Node {
+	const htmlContentElement = typeof markedString === 'string'
+		? { markdown: markedString }
+		: { code: markedString };
 	return renderHtml(htmlContentElement, options);
 }
 
@@ -31,7 +46,10 @@ export function renderMarkedString(markedString: MarkedString, options: RenderOp
  * @param content a html element description
  * @param actionCallback a callback function for any action links in the string. Argument is the zero-based index of the clicked action.
  */
-export function renderHtml(content: RenderableContent, options: RenderOptions = {}): Node {
+export function renderHtml(
+	content: RenderableContent,
+	options: RenderOptions = {}
+): Node {
 	if (typeof content === 'string') {
 		return _renderHtml({ isText: true, text: content }, options);
 	} else if (Array.isArray(content)) {
@@ -42,8 +60,10 @@ export function renderHtml(content: RenderableContent, options: RenderOptions = 
 	return undefined;
 }
 
-function _renderHtml(content: IHTMLContentElement, options: RenderOptions = {}): Node {
-
+function _renderHtml(
+	content: IHTMLContentElement,
+	options: RenderOptions = {}
+): Node {
 	let { codeBlockRenderer, actionCallback } = options;
 
 	if (content.isText) {
@@ -63,17 +83,21 @@ function _renderHtml(content: IHTMLContentElement, options: RenderOptions = {}):
 		element.setAttribute('style', content.style);
 	}
 	if (content.customStyle) {
-		Object.keys(content.customStyle).forEach((key) => {
+		Object.keys(content.customStyle).forEach(key => {
 			element.style[key] = content.customStyle[key];
 		});
 	}
 	if (content.children) {
-		content.children.forEach((child) => {
+		content.children.forEach(child => {
 			element.appendChild(renderHtml(child, options));
 		});
 	}
 	if (content.formattedText) {
-		renderFormattedText(element, parseFormattedText(content.formattedText), actionCallback);
+		renderFormattedText(
+			element,
+			parseFormattedText(content.formattedText),
+			actionCallback
+		);
 	}
 
 	if (content.code && codeBlockRenderer) {
@@ -84,11 +108,10 @@ function _renderHtml(content: IHTMLContentElement, options: RenderOptions = {}):
 		content.markdown = '```' + language + '\n' + value + '\n```';
 	}
 	if (content.markdown) {
-
 		// signal to code-block render that the
 		// element has been created
 		let signalInnerHTML: Function;
-		const withInnerHTML = new TPromise(c => signalInnerHTML = c);
+		const withInnerHTML = new TPromise(c => (signalInnerHTML = c));
 
 		const renderer = new marked.Renderer();
 		renderer.image = (href: string, title: string, text: string) => {
@@ -100,8 +123,8 @@ function _renderHtml(content: IHTMLContentElement, options: RenderOptions = {}):
 				if (parameters) {
 					const heightFromParams = /height=(\d+)/.exec(parameters);
 					const widthFromParams = /width=(\d+)/.exec(parameters);
-					const height = (heightFromParams && heightFromParams[1]);
-					const width = (widthFromParams && widthFromParams[1]);
+					const height = heightFromParams && heightFromParams[1];
+					const width = widthFromParams && widthFromParams[1];
 					const widthIsFinite = isFinite(parseInt(width));
 					const heightIsFinite = isFinite(parseInt(height));
 					if (widthIsFinite) {
@@ -129,12 +152,14 @@ function _renderHtml(content: IHTMLContentElement, options: RenderOptions = {}):
 		};
 		renderer.link = (href, title, text): string => {
 			// Remove markdown escapes. Workaround for https://github.com/chjj/marked/issues/829
-			if (href === text) { // raw link case
+			if (href === text) {
+				// raw link case
 				text = removeMarkdownEscapes(text);
 			}
 			title = removeMarkdownEscapes(title);
 			href = removeMarkdownEscapes(href);
-			return `<a href="#" data-href="${href}" title="${title || text}">${text}</a>`;
+			return `<a href="#" data-href="${href}" title="${title ||
+				text}">${text}</a>`;
 		};
 		renderer.paragraph = (text): string => {
 			return `<p>${text}</p>`;
@@ -151,15 +176,18 @@ function _renderHtml(content: IHTMLContentElement, options: RenderOptions = {}):
 					// when code-block rendering is async we return sync
 					// but update the node with the real result later.
 					const id = defaultGenerator.nextId();
-					TPromise.join([value, withInnerHTML]).done(values => {
-						let strValue = values[0] as string;
-						let span = element.querySelector(`span[data-code="${id}"]`);
-						if (span) {
-							span.innerHTML = strValue;
+					TPromise.join([value, withInnerHTML]).done(
+						values => {
+							let strValue = values[0] as string;
+							let span = element.querySelector(`span[data-code="${id}"]`);
+							if (span) {
+								span.innerHTML = strValue;
+							}
+						},
+						err => {
+							// ignore
 						}
-					}, err => {
-						// ignore
-					});
+					);
 					return `<span data-code="${id}">${escape(code)}</span>`;
 				}
 
@@ -214,7 +242,7 @@ var SAFE_TAG_NAMES = {
 	strike: true,
 	ul: true,
 	br: true,
-	hr: true,
+	hr: true
 };
 
 function getSafeTagName(tagName: string): string {
@@ -275,31 +303,30 @@ interface IFormatParseTree {
 	children?: IFormatParseTree[];
 }
 
-function renderFormattedText(element: Node, treeNode: IFormatParseTree, actionCallback?: (content: string, event?: IMouseEvent) => void) {
+function renderFormattedText(
+	element: Node,
+	treeNode: IFormatParseTree,
+	actionCallback?: (content: string, event?: IMouseEvent) => void
+) {
 	var child: Node;
 
 	if (treeNode.type === FormatType.Text) {
 		child = document.createTextNode(treeNode.content);
-	}
-	else if (treeNode.type === FormatType.Bold) {
+	} else if (treeNode.type === FormatType.Bold) {
 		child = document.createElement('b');
-	}
-	else if (treeNode.type === FormatType.Italics) {
+	} else if (treeNode.type === FormatType.Italics) {
 		child = document.createElement('i');
-	}
-	else if (treeNode.type === FormatType.Action) {
+	} else if (treeNode.type === FormatType.Action) {
 		var a = document.createElement('a');
 		a.href = '#';
-		DOM.addStandardDisposableListener(a, 'click', (event) => {
+		DOM.addStandardDisposableListener(a, 'click', event => {
 			actionCallback(String(treeNode.index), event);
 		});
 
 		child = a;
-	}
-	else if (treeNode.type === FormatType.NewLine) {
+	} else if (treeNode.type === FormatType.NewLine) {
 		child = document.createElement('br');
-	}
-	else if (treeNode.type === FormatType.Root) {
+	} else if (treeNode.type === FormatType.Root) {
 		child = element;
 	}
 
@@ -308,14 +335,13 @@ function renderFormattedText(element: Node, treeNode: IFormatParseTree, actionCa
 	}
 
 	if (Array.isArray(treeNode.children)) {
-		treeNode.children.forEach((nodeChild) => {
+		treeNode.children.forEach(nodeChild => {
 			renderFormattedText(child, nodeChild, actionCallback);
 		});
 	}
 }
 
 function parseFormattedText(content: string): IFormatParseTree {
-
 	var root: IFormatParseTree = {
 		type: FormatType.Root,
 		children: []
@@ -329,7 +355,8 @@ function parseFormattedText(content: string): IFormatParseTree {
 	while (!stream.eos()) {
 		var next = stream.next();
 
-		var isEscapedFormatType = (next === '\\' && formatTagType(stream.peek()) !== FormatType.Invalid);
+		var isEscapedFormatType =
+			next === '\\' && formatTagType(stream.peek()) !== FormatType.Invalid;
 		if (isEscapedFormatType) {
 			next = stream.next(); // unread the backslash if it escapes a format tag type
 		}
@@ -342,7 +369,10 @@ function parseFormattedText(content: string): IFormatParseTree {
 			}
 
 			var type = formatTagType(next);
-			if (current.type === type || (current.type === FormatType.Action && type === FormatType.ActionClose)) {
+			if (
+				current.type === type ||
+				(current.type === FormatType.Action && type === FormatType.ActionClose)
+			) {
 				current = stack.pop();
 			} else {
 				var newCurrent: IFormatParseTree = {
@@ -367,7 +397,6 @@ function parseFormattedText(content: string): IFormatParseTree {
 			current.children.push({
 				type: FormatType.NewLine
 			});
-
 		} else {
 			if (current.type !== FormatType.Text) {
 				var textCurrent: IFormatParseTree = {
@@ -377,7 +406,6 @@ function parseFormattedText(content: string): IFormatParseTree {
 				current.children.push(textCurrent);
 				stack.push(current);
 				current = textCurrent;
-
 			} else {
 				current.content += next;
 			}

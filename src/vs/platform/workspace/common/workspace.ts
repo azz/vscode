@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import URI from 'vs/base/common/uri';
 import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
@@ -10,7 +10,9 @@ import paths = require('vs/base/common/paths');
 import { isEqualOrParent } from 'vs/platform/files/common/files';
 import { isLinux } from 'vs/base/common/platform';
 
-export const IWorkspaceContextService = createDecorator<IWorkspaceContextService>('contextService');
+export const IWorkspaceContextService = createDecorator<
+	IWorkspaceContextService
+>('contextService');
 
 export interface IWorkspaceContextService {
 	_serviceBrand: any;
@@ -45,7 +47,6 @@ export interface IWorkspaceContextService {
 }
 
 export interface IWorkspace {
-
 	/**
 	 * the full uri of the workspace. this is a file:// URL to the location
 	 * of the workspace on disk.
@@ -66,7 +67,6 @@ export interface IWorkspace {
 }
 
 export class WorkspaceContextService implements IWorkspaceContextService {
-
 	public _serviceBrand: any;
 
 	private workspace: IWorkspace;
@@ -85,7 +85,11 @@ export class WorkspaceContextService implements IWorkspaceContextService {
 
 	public isInsideWorkspace(resource: URI): boolean {
 		if (resource && this.workspace) {
-			return isEqualOrParent(resource.fsPath, this.workspace.resource.fsPath, !isLinux /* ignorecase */);
+			return isEqualOrParent(
+				resource.fsPath,
+				this.workspace.resource.fsPath,
+				!isLinux /* ignorecase */
+			);
 		}
 
 		return false;
@@ -93,7 +97,10 @@ export class WorkspaceContextService implements IWorkspaceContextService {
 
 	public toWorkspaceRelativePath(resource: URI, toOSPath?: boolean): string {
 		if (this.isInsideWorkspace(resource)) {
-			return paths.normalize(paths.relative(this.workspace.resource.fsPath, resource.fsPath), toOSPath);
+			return paths.normalize(
+				paths.relative(this.workspace.resource.fsPath, resource.fsPath),
+				toOSPath
+			);
 		}
 
 		return null;
@@ -101,7 +108,9 @@ export class WorkspaceContextService implements IWorkspaceContextService {
 
 	public toResource(workspaceRelativePath: string): URI {
 		if (typeof workspaceRelativePath === 'string' && this.workspace) {
-			return URI.file(paths.join(this.workspace.resource.fsPath, workspaceRelativePath));
+			return URI.file(
+				paths.join(this.workspace.resource.fsPath, workspaceRelativePath)
+			);
 		}
 
 		return null;

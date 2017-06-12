@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./media/extensionsWidgets';
 import { IDisposable, dispose } from 'vs/base/common/lifecycle';
@@ -16,16 +16,21 @@ export interface IOptions {
 }
 
 export class Label implements IDisposable {
-
 	private listener: IDisposable;
 	private _extension: IExtension;
-	get extension(): IExtension { return this._extension; }
-	set extension(extension: IExtension) { this._extension = extension; this.render(); }
+	get extension(): IExtension {
+		return this._extension;
+	}
+	set extension(extension: IExtension) {
+		this._extension = extension;
+		this.render();
+	}
 
 	constructor(
 		private element: HTMLElement,
 		private fn: (extension: IExtension) => string,
-		@IExtensionsWorkbenchService extensionsWorkbenchService: IExtensionsWorkbenchService
+		@IExtensionsWorkbenchService
+		extensionsWorkbenchService: IExtensionsWorkbenchService
 	) {
 		this.render();
 		this.listener = extensionsWorkbenchService.onChange(this.render, this);
@@ -41,19 +46,26 @@ export class Label implements IDisposable {
 }
 
 export class InstallWidget implements IDisposable {
-
 	private disposables: IDisposable[] = [];
 	private _extension: IExtension;
-	get extension(): IExtension { return this._extension; }
-	set extension(extension: IExtension) { this._extension = extension; this.render(); }
+	get extension(): IExtension {
+		return this._extension;
+	}
+	set extension(extension: IExtension) {
+		this._extension = extension;
+		this.render();
+	}
 
 	constructor(
 		private container: HTMLElement,
 		private options: IOptions,
-		@IExtensionsWorkbenchService extensionsWorkbenchService: IExtensionsWorkbenchService
+		@IExtensionsWorkbenchService
+		extensionsWorkbenchService: IExtensionsWorkbenchService
 	) {
 		this._extension = options.extension;
-		this.disposables.push(extensionsWorkbenchService.onChange(() => this.render()));
+		this.disposables.push(
+			extensionsWorkbenchService.onChange(() => this.render())
+		);
 		addClass(container, 'extension-install-count');
 		this.render();
 	}
@@ -92,19 +104,26 @@ export class InstallWidget implements IDisposable {
 }
 
 export class RatingsWidget implements IDisposable {
-
 	private disposables: IDisposable[] = [];
 	private _extension: IExtension;
-	get extension(): IExtension { return this._extension; }
-	set extension(extension: IExtension) { this._extension = extension; this.render(); }
+	get extension(): IExtension {
+		return this._extension;
+	}
+	set extension(extension: IExtension) {
+		this._extension = extension;
+		this.render();
+	}
 
 	constructor(
 		private container: HTMLElement,
 		private options: IOptions,
-		@IExtensionsWorkbenchService extensionsWorkbenchService: IExtensionsWorkbenchService
+		@IExtensionsWorkbenchService
+		extensionsWorkbenchService: IExtensionsWorkbenchService
 	) {
 		this._extension = options.extension;
-		this.disposables.push(extensionsWorkbenchService.onChange(() => this.render()));
+		this.disposables.push(
+			extensionsWorkbenchService.onChange(() => this.render())
+		);
 		addClass(container, 'extension-ratings');
 
 		if (options.small) {

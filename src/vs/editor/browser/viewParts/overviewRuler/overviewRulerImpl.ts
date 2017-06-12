@@ -2,17 +2,20 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { FastDomNode, createFastDomNode } from 'vs/base/browser/fastDomNode';
 import { OverviewRulerLane } from 'vs/editor/common/editorCommon';
-import { OverviewZoneManager, ColorZone, OverviewRulerZone } from 'vs/editor/common/view/overviewZoneManager';
+import {
+	OverviewZoneManager,
+	ColorZone,
+	OverviewRulerZone
+} from 'vs/editor/common/view/overviewZoneManager';
 import { Color } from 'vs/base/common/color';
 import { OverviewRulerPosition } from 'vs/editor/common/config/editorOptions';
 import { ThemeType, LIGHT } from 'vs/platform/theme/common/themeService';
 
 export class OverviewRulerImpl {
-
 	private _canvasLeftOffset: number;
 	private _domNode: FastDomNode<HTMLCanvasElement>;
 	private _lanesCount: number;
@@ -21,8 +24,14 @@ export class OverviewRulerImpl {
 	private _background: Color;
 
 	constructor(
-		canvasLeftOffset: number, cssClassName: string, scrollHeight: number, lineHeight: number,
-		canUseTranslate3d: boolean, pixelRatio: number, minimumHeight: number, maximumHeight: number,
+		canvasLeftOffset: number,
+		cssClassName: string,
+		scrollHeight: number,
+		lineHeight: number,
+		canUseTranslate3d: boolean,
+		pixelRatio: number,
+		minimumHeight: number,
+		maximumHeight: number,
 		getVerticalOffsetForLine: (lineNumber: number) => number
 	) {
 		this._canvasLeftOffset = canvasLeftOffset;
@@ -127,7 +136,10 @@ export class OverviewRulerImpl {
 		}
 	}
 
-	public setCanUseTranslate3d(canUseTranslate3d: boolean, render: boolean): void {
+	public setCanUseTranslate3d(
+		canUseTranslate3d: boolean,
+		render: boolean
+	): void {
 		this._canUseTranslate3d = canUseTranslate3d;
 		if (render) {
 			this.render(true);
@@ -191,25 +203,59 @@ export class OverviewRulerImpl {
 		return true;
 	}
 
-	private _renderOneLane(ctx: CanvasRenderingContext2D, colorZones: ColorZone[], id2Color: string[], w: number): void {
-
-		this._renderVerticalPatch(ctx, colorZones, id2Color, OverviewRulerLane.Left | OverviewRulerLane.Center | OverviewRulerLane.Right, this._canvasLeftOffset, w);
-
+	private _renderOneLane(
+		ctx: CanvasRenderingContext2D,
+		colorZones: ColorZone[],
+		id2Color: string[],
+		w: number
+	): void {
+		this._renderVerticalPatch(
+			ctx,
+			colorZones,
+			id2Color,
+			OverviewRulerLane.Left |
+				OverviewRulerLane.Center |
+				OverviewRulerLane.Right,
+			this._canvasLeftOffset,
+			w
+		);
 	}
 
-	private _renderTwoLanes(ctx: CanvasRenderingContext2D, colorZones: ColorZone[], id2Color: string[], w: number): void {
-
+	private _renderTwoLanes(
+		ctx: CanvasRenderingContext2D,
+		colorZones: ColorZone[],
+		id2Color: string[],
+		w: number
+	): void {
 		let leftWidth = Math.floor(w / 2);
 		let rightWidth = w - leftWidth;
 		let leftOffset = this._canvasLeftOffset;
 		let rightOffset = this._canvasLeftOffset + leftWidth;
 
-		this._renderVerticalPatch(ctx, colorZones, id2Color, OverviewRulerLane.Left | OverviewRulerLane.Center, leftOffset, leftWidth);
-		this._renderVerticalPatch(ctx, colorZones, id2Color, OverviewRulerLane.Right, rightOffset, rightWidth);
+		this._renderVerticalPatch(
+			ctx,
+			colorZones,
+			id2Color,
+			OverviewRulerLane.Left | OverviewRulerLane.Center,
+			leftOffset,
+			leftWidth
+		);
+		this._renderVerticalPatch(
+			ctx,
+			colorZones,
+			id2Color,
+			OverviewRulerLane.Right,
+			rightOffset,
+			rightWidth
+		);
 	}
 
-	private _renderThreeLanes(ctx: CanvasRenderingContext2D, colorZones: ColorZone[], id2Color: string[], w: number): void {
-
+	private _renderThreeLanes(
+		ctx: CanvasRenderingContext2D,
+		colorZones: ColorZone[],
+		id2Color: string[],
+		w: number
+	): void {
 		let leftWidth = Math.floor(w / 3);
 		let rightWidth = Math.floor(w / 3);
 		let centerWidth = w - leftWidth - rightWidth;
@@ -217,13 +263,40 @@ export class OverviewRulerImpl {
 		let centerOffset = this._canvasLeftOffset + leftWidth;
 		let rightOffset = this._canvasLeftOffset + leftWidth + centerWidth;
 
-		this._renderVerticalPatch(ctx, colorZones, id2Color, OverviewRulerLane.Left, leftOffset, leftWidth);
-		this._renderVerticalPatch(ctx, colorZones, id2Color, OverviewRulerLane.Center, centerOffset, centerWidth);
-		this._renderVerticalPatch(ctx, colorZones, id2Color, OverviewRulerLane.Right, rightOffset, rightWidth);
+		this._renderVerticalPatch(
+			ctx,
+			colorZones,
+			id2Color,
+			OverviewRulerLane.Left,
+			leftOffset,
+			leftWidth
+		);
+		this._renderVerticalPatch(
+			ctx,
+			colorZones,
+			id2Color,
+			OverviewRulerLane.Center,
+			centerOffset,
+			centerWidth
+		);
+		this._renderVerticalPatch(
+			ctx,
+			colorZones,
+			id2Color,
+			OverviewRulerLane.Right,
+			rightOffset,
+			rightWidth
+		);
 	}
 
-	private _renderVerticalPatch(ctx: CanvasRenderingContext2D, colorZones: ColorZone[], id2Color: string[], laneMask: number, xpos: number, width: number): void {
-
+	private _renderVerticalPatch(
+		ctx: CanvasRenderingContext2D,
+		colorZones: ColorZone[],
+		id2Color: string[],
+		laneMask: number,
+		xpos: number,
+		width: number
+	): void {
 		let currentColorId = 0;
 		let currentFrom = 0;
 		let currentTo = 0;
@@ -258,6 +331,5 @@ export class OverviewRulerImpl {
 		}
 
 		ctx.fillRect(xpos, currentFrom, width, currentTo - currentFrom);
-
 	}
 }

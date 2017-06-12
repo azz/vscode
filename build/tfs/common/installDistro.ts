@@ -17,7 +17,7 @@ function npmInstall(package: string, args: string[]): void {
 }
 
 const product = require('../../../product.json');
-const dependencies = product.dependencies || {} as { [name: string]: string; };
+const dependencies = product.dependencies || ({} as { [name: string]: string });
 const [, , ...args] = process.argv;
 
 Object.keys(dependencies).forEach(name => {

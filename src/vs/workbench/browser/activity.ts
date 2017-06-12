@@ -17,7 +17,8 @@ export interface IGlobalActivity extends IActivity {
 	getActions(): IAction[];
 }
 
-export const GlobalActivityExtensions = 'workbench.contributions.globalActivities';
+export const GlobalActivityExtensions =
+	'workbench.contributions.globalActivities';
 
 export interface IGlobalActivityRegistry {
 	registerActivity(descriptor: IConstructorSignature0<IGlobalActivity>): void;
@@ -25,8 +26,9 @@ export interface IGlobalActivityRegistry {
 }
 
 export class GlobalActivityRegistry implements IGlobalActivityRegistry {
-
-	private activityDescriptors = new Set<IConstructorSignature0<IGlobalActivity>>();
+	private activityDescriptors = new Set<
+		IConstructorSignature0<IGlobalActivity>
+	>();
 
 	registerActivity(descriptor: IConstructorSignature0<IGlobalActivity>): void {
 		this.activityDescriptors.add(descriptor);

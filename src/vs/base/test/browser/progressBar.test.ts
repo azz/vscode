@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { ProgressBar } from 'vs/base/browser/ui/progressbar/progressbar';
@@ -20,7 +20,7 @@ suite('ProgressBar', () => {
 		document.body.removeChild(fixture);
 	});
 
-	test('Progress Bar', function () {
+	test('Progress Bar', function() {
 		const b = new Builder(fixture);
 
 		const bar = new ProgressBar(b);

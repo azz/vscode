@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { ExtHostCommands } from 'vs/workbench/api/node/extHostCommands';
@@ -12,10 +12,8 @@ import { TPromise } from 'vs/base/common/winjs.base';
 import { CommandsRegistry } from 'vs/platform/commands/common/commands';
 import { OneGetThreadService } from './testThreadService';
 
-suite('ExtHostCommands', function () {
-
-	test('dispose calls unregister', function () {
-
+suite('ExtHostCommands', function() {
+	test('dispose calls unregister', function() {
 		let lastUnregister: string;
 
 		const shape = new class extends MainThreadCommandsShape {
@@ -26,17 +24,15 @@ suite('ExtHostCommands', function () {
 				lastUnregister = id;
 				return undefined;
 			}
-		};
+		}();
 
 		const commands = new ExtHostCommands(OneGetThreadService(shape), undefined);
-		commands.registerCommand('foo', () => { }).dispose();
+		commands.registerCommand('foo', () => {}).dispose();
 		assert.equal(lastUnregister, 'foo');
 		assert.equal(CommandsRegistry.getCommand('foo'), undefined);
-
 	});
 
-	test('dispose bubbles only once', function () {
-
+	test('dispose bubbles only once', function() {
 		let unregisterCounter = 0;
 
 		const shape = new class extends MainThreadCommandsShape {
@@ -47,10 +43,10 @@ suite('ExtHostCommands', function () {
 				unregisterCounter += 1;
 				return undefined;
 			}
-		};
+		}();
 
 		const commands = new ExtHostCommands(OneGetThreadService(shape), undefined);
-		const reg = commands.registerCommand('foo', () => { });
+		const reg = commands.registerCommand('foo', () => {});
 		reg.dispose();
 		reg.dispose();
 		reg.dispose();

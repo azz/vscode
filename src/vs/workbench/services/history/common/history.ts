@@ -2,15 +2,23 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
-import { createDecorator, ServiceIdentifier } from 'vs/platform/instantiation/common/instantiation';
-import { IEditorInput, ITextEditorOptions, IResourceInput } from 'vs/platform/editor/common/editor';
+import {
+	createDecorator,
+	ServiceIdentifier
+} from 'vs/platform/instantiation/common/instantiation';
+import {
+	IEditorInput,
+	ITextEditorOptions,
+	IResourceInput
+} from 'vs/platform/editor/common/editor';
 
-export const IHistoryService = createDecorator<IHistoryService>('historyService');
+export const IHistoryService = createDecorator<IHistoryService>(
+	'historyService'
+);
 
 export interface IHistoryService {
-
 	_serviceBrand: ServiceIdentifier<any>;
 
 	/**

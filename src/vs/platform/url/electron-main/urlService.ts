@@ -3,9 +3,15 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
-import Event, { mapEvent, chain, echo, Emitter, any } from 'vs/base/common/event';
+import Event, {
+	mapEvent,
+	chain,
+	echo,
+	Emitter,
+	any
+} from 'vs/base/common/event';
 import { fromEventEmitter } from 'vs/base/node/event';
 import { IURLService } from 'vs/platform/url/common/url';
 import product from 'vs/platform/node/product';
@@ -13,7 +19,6 @@ import { app } from 'electron';
 import URI from 'vs/base/common/uri';
 
 export class URLService implements IURLService {
-
 	_serviceBrand: any;
 
 	private openUrlEmitter: Emitter<string> = new Emitter<string>();
@@ -26,9 +31,15 @@ export class URLService implements IURLService {
 			...globalBuffer
 		];
 
-		app.setAsDefaultProtocolClient(product.urlProtocol, process.execPath, ['--open-url']);
+		app.setAsDefaultProtocolClient(product.urlProtocol, process.execPath, [
+			'--open-url'
+		]);
 
-		const rawOnOpenUrl = fromEventEmitter(app, 'open-url', (event: Electron.Event, url: string) => ({ event, url }));
+		const rawOnOpenUrl = fromEventEmitter(
+			app,
+			'open-url',
+			(event: Electron.Event, url: string) => ({ event, url })
+		);
 
 		// always prevent default and return the url as string
 		const preventedOnOpenUrl = mapEvent(rawOnOpenUrl, ({ event, url }) => {
@@ -47,8 +58,7 @@ export class URLService implements IURLService {
 					return null;
 				}
 			})
-			.filter(uri => !!uri)
-			.event;
+			.filter(uri => !!uri).event;
 	}
 
 	open(url: string): void {

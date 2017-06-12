@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { localize } from 'vs/nls';
 import { IWorkbenchEditorService } from 'vs/workbench/services/editor/common/editorService';
@@ -11,9 +11,11 @@ import { TPromise } from 'vs/base/common/winjs.base';
 import { WalkThroughPart } from 'vs/workbench/parts/welcome/walkThrough/electron-browser/walkThroughPart';
 
 export class WalkThroughArrowUpAction extends Action {
-
 	public static ID = 'workbench.action.interactivePlayground.arrowUp';
-	public static LABEL = localize('editorWalkThrough.arrowUp', "Scroll Up (Line)");
+	public static LABEL = localize(
+		'editorWalkThrough.arrowUp',
+		'Scroll Up (Line)'
+	);
 
 	constructor(
 		id: string,
@@ -33,9 +35,11 @@ export class WalkThroughArrowUpAction extends Action {
 }
 
 export class WalkThroughArrowDownAction extends Action {
-
 	public static ID = 'workbench.action.interactivePlayground.arrowDown';
-	public static LABEL = localize('editorWalkThrough.arrowDown', "Scroll Down (Line)");
+	public static LABEL = localize(
+		'editorWalkThrough.arrowDown',
+		'Scroll Down (Line)'
+	);
 
 	constructor(
 		id: string,
@@ -55,9 +59,11 @@ export class WalkThroughArrowDownAction extends Action {
 }
 
 export class WalkThroughPageUpAction extends Action {
-
 	public static ID = 'workbench.action.interactivePlayground.pageUp';
-	public static LABEL = localize('editorWalkThrough.pageUp', "Scroll Up (Page)");
+	public static LABEL = localize(
+		'editorWalkThrough.pageUp',
+		'Scroll Up (Page)'
+	);
 
 	constructor(
 		id: string,
@@ -77,9 +83,11 @@ export class WalkThroughPageUpAction extends Action {
 }
 
 export class WalkThroughPageDownAction extends Action {
-
 	public static ID = 'workbench.action.interactivePlayground.pageDown';
-	public static LABEL = localize('editorWalkThrough.pageDown', "Scroll Down (Page)");
+	public static LABEL = localize(
+		'editorWalkThrough.pageDown',
+		'Scroll Down (Page)'
+	);
 
 	constructor(
 		id: string,

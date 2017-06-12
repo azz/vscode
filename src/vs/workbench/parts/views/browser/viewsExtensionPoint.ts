@@ -2,18 +2,23 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { localize } from 'vs/nls';
 import { forEach } from 'vs/base/common/collections';
 import { IJSONSchema } from 'vs/base/common/jsonSchema';
-import { ExtensionMessageCollector, ExtensionsRegistry } from 'vs/platform/extensions/common/extensionsRegistry';
-import { ViewLocation, ViewsRegistry } from 'vs/workbench/parts/views/browser/viewsRegistry';
+import {
+	ExtensionMessageCollector,
+	ExtensionsRegistry
+} from 'vs/platform/extensions/common/extensionsRegistry';
+import {
+	ViewLocation,
+	ViewsRegistry
+} from 'vs/workbench/parts/views/browser/viewsRegistry';
 import { TreeView } from 'vs/workbench/parts/views/browser/treeView';
 import { ContextKeyExpr } from 'vs/platform/contextkey/common/contextkey';
 
 namespace schema {
-
 	// --views contribution point
 
 	export interface IUserFriendlyViewDescriptor {
@@ -24,28 +29,50 @@ namespace schema {
 
 	export function parseLocation(value: string): ViewLocation {
 		switch (value) {
-			case ViewLocation.Explorer.id: return ViewLocation.Explorer;
+			case ViewLocation.Explorer.id:
+				return ViewLocation.Explorer;
 		}
 		return void 0;
 	}
 
-	export function isValidViewDescriptors(viewDescriptors: IUserFriendlyViewDescriptor[], collector: ExtensionMessageCollector): boolean {
+	export function isValidViewDescriptors(
+		viewDescriptors: IUserFriendlyViewDescriptor[],
+		collector: ExtensionMessageCollector
+	): boolean {
 		if (!Array.isArray(viewDescriptors)) {
-			collector.error(localize('requirearray', "views must be an array"));
+			collector.error(localize('requirearray', 'views must be an array'));
 			return false;
 		}
 
 		for (let descriptor of viewDescriptors) {
 			if (typeof descriptor.id !== 'string') {
-				collector.error(localize('requirestring', "property `{0}` is mandatory and must be of type `string`", 'id'));
+				collector.error(
+					localize(
+						'requirestring',
+						'property `{0}` is mandatory and must be of type `string`',
+						'id'
+					)
+				);
 				return false;
 			}
 			if (typeof descriptor.name !== 'string') {
-				collector.error(localize('requirestring', "property `{0}` is mandatory and must be of type `string`", 'label'));
+				collector.error(
+					localize(
+						'requirestring',
+						'property `{0}` is mandatory and must be of type `string`',
+						'label'
+					)
+				);
 				return false;
 			}
 			if (descriptor.when && typeof descriptor.when !== 'string') {
-				collector.error(localize('optstring', "property `{0}` can be omitted or must be of type `string`", 'when'));
+				collector.error(
+					localize(
+						'optstring',
+						'property `{0}` can be omitted or must be of type `string`',
+						'when'
+					)
+				);
 				return false;
 			}
 		}
@@ -57,26 +84,38 @@ namespace schema {
 		type: 'object',
 		properties: {
 			id: {
-				description: localize('vscode.extension.contributes.view.id', 'Identifier of the view. Use this to register a data provider through `vscode.window.registerTreeDataProviderForView` API. Also to trigger activating your extension by registering `onView:${id}` event to `activationEvents`.'),
+				description: localize(
+					'vscode.extension.contributes.view.id',
+					'Identifier of the view. Use this to register a data provider through `vscode.window.registerTreeDataProviderForView` API. Also to trigger activating your extension by registering `onView:${id}` event to `activationEvents`.'
+				),
 				type: 'string'
 			},
 			name: {
-				description: localize('vscode.extension.contributes.view.name', 'The human-readable name of the view. Will be shown'),
+				description: localize(
+					'vscode.extension.contributes.view.name',
+					'The human-readable name of the view. Will be shown'
+				),
 				type: 'string'
 			},
 			when: {
-				description: localize('vscode.extension.contributes.view.when', 'Condition which must be true to show this view'),
+				description: localize(
+					'vscode.extension.contributes.view.when',
+					'Condition which must be true to show this view'
+				),
 				type: 'string'
-			},
+			}
 		}
 	};
 
 	export const viewsContribution: IJSONSchema = {
-		description: localize('vscode.extension.contributes.views', "Contributes views to the editor"),
+		description: localize(
+			'vscode.extension.contributes.views',
+			'Contributes views to the editor'
+		),
 		type: 'object',
 		properties: {
-			'explorer': {
-				description: localize('views.explorer', "Explorer View"),
+			explorer: {
+				description: localize('views.explorer', 'Explorer View'),
 				type: 'array',
 				items: viewDescriptor
 			}
@@ -84,7 +123,9 @@ namespace schema {
 	};
 }
 
-ExtensionsRegistry.registerExtensionPoint<{ [loc: string]: schema.IUserFriendlyViewDescriptor[] }>('views', [], schema.viewsContribution).setHandler(extensions => {
+ExtensionsRegistry.registerExtensionPoint<{
+	[loc: string]: schema.IUserFriendlyViewDescriptor[];
+}>('views', [], schema.viewsContribution).setHandler(extensions => {
 	for (let extension of extensions) {
 		const { value, collector } = extension;
 
@@ -95,7 +136,13 @@ ExtensionsRegistry.registerExtensionPoint<{ [loc: string]: schema.IUserFriendlyV
 
 			const location = schema.parseLocation(entry.key);
 			if (!location) {
-				collector.warn(localize('locationId.invalid', "`{0}` is not a valid view location", entry.key));
+				collector.warn(
+					localize(
+						'locationId.invalid',
+						'`{0}` is not a valid view location',
+						entry.key
+					)
+				);
 				return;
 			}
 

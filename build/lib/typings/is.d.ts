@@ -7,5 +7,8 @@ declare module 'is' {
 	function boolean(value: any): boolean;
 	function array(value: any): boolean;
 	function empty<T>(value: Object | Array<T>): boolean;
-	function equal<T extends Object | Array<any> | Function | Date>(value: T, other: T): boolean;
+	function equal<T extends Object | Array<any> | Function | Date>(
+		value: T,
+		other: T
+	): boolean;
 }

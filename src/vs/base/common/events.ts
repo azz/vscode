@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 export class Event {
 	public time: number;
@@ -10,7 +10,7 @@ export class Event {
 	public source: any;
 
 	constructor(originalEvent?: Event) {
-		this.time = (new Date()).getTime();
+		this.time = new Date().getTime();
 		this.originalEvent = originalEvent;
 		this.source = null;
 	}
@@ -21,7 +21,12 @@ export class PropertyChangeEvent extends Event {
 	public oldValue: any;
 	public newValue: any;
 
-	constructor(key?: string, oldValue?: any, newValue?: any, originalEvent?: Event) {
+	constructor(
+		key?: string,
+		oldValue?: any,
+		newValue?: any,
+		originalEvent?: Event
+	) {
 		super(originalEvent);
 
 		this.key = key;
@@ -73,6 +78,5 @@ export const EventType = {
 	SAVE: 'save',
 	CANCEL: 'cancel',
 	CHANGE: 'change',
-	DISPOSE: 'dispose',
+	DISPOSE: 'dispose'
 };
-

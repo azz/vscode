@@ -7,7 +7,6 @@
  * Defines a problem pattern
  */
 export interface ProblemPattern {
-
 	/**
 	 * The regular expression to find a problem in the console output of an
 	 * executed task.
@@ -126,13 +125,11 @@ export enum ApplyToKind {
 	 */
 	OpenDocuments = 2,
 
-
 	/**
 	 * Problems are applied to closed documents only.
 	 */
 	ClosedDocuments = 3
 }
-
 
 /**
  * A background monitor pattern

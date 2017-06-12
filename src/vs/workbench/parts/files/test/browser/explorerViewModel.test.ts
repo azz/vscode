@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { isUndefinedOrNull, isArray } from 'vs/base/common/types';
@@ -22,8 +22,7 @@ function toResource(path) {
 }
 
 suite('Files - View Model', () => {
-
-	test('Properties', function () {
+	test('Properties', function() {
 		const d = new Date().getTime();
 		let s = createStat('/path/to/stat', 'sName', true, true, 8096, d);
 
@@ -39,13 +38,27 @@ suite('Files - View Model', () => {
 		assert(isUndefinedOrNull(s.children));
 	});
 
-	test('Add and Remove Child, check for hasChild', function () {
+	test('Add and Remove Child, check for hasChild', function() {
 		const d = new Date().getTime();
 		const s = createStat('/path/to/stat', 'sName', true, false, 8096, d);
 
 		const child1 = createStat('/path/to/stat/foo', 'foo', true, false, 8096, d);
-		const child2 = createStat('/path/to/stat/bar.html', 'bar', false, false, 8096, d);
-		const child4 = createStat('/otherpath/to/other/otherbar.html', 'otherbar.html', false, false, 8096, d);
+		const child2 = createStat(
+			'/path/to/stat/bar.html',
+			'bar',
+			false,
+			false,
+			8096,
+			d
+		);
+		const child4 = createStat(
+			'/otherpath/to/other/otherbar.html',
+			'otherbar.html',
+			false,
+			false,
+			8096,
+			d
+		);
 
 		assert(!s.hasChild(child1.name));
 		assert(!s.hasChild(child2.name));
@@ -68,10 +81,13 @@ suite('Files - View Model', () => {
 
 		// Assert that adding a child updates its path properly
 		s.addChild(child4);
-		assert.strictEqual(child4.resource.fsPath, toResource('/path/to/stat/' + child4.name).fsPath);
+		assert.strictEqual(
+			child4.resource.fsPath,
+			toResource('/path/to/stat/' + child4.name).fsPath
+		);
 	});
 
-	test('Move', function () {
+	test('Move', function() {
 		const d = new Date().getTime();
 
 		const s1 = createStat('/', '/', true, false, 8096, d);
@@ -96,18 +112,31 @@ suite('Files - View Model', () => {
 		// Move a subtree with children
 		const leaf = createStat('/leaf', 'leaf', true, false, 8096, d);
 		const leafC1 = createStat('/leaf/folder', 'folder', true, false, 8096, d);
-		const leafCC2 = createStat('/leaf/folder/index.html', 'index.html', true, false, 8096, d);
+		const leafCC2 = createStat(
+			'/leaf/folder/index.html',
+			'index.html',
+			true,
+			false,
+			8096,
+			d
+		);
 
 		leaf.addChild(leafC1);
 		leafC1.addChild(leafCC2);
 		s1.addChild(leaf);
 
 		leafC1.move(s3);
-		assert.strictEqual(leafC1.resource.fsPath, URI.file(s3.resource.fsPath + '/' + leafC1.name).fsPath);
-		assert.strictEqual(leafCC2.resource.fsPath, URI.file(leafC1.resource.fsPath + '/' + leafCC2.name).fsPath);
+		assert.strictEqual(
+			leafC1.resource.fsPath,
+			URI.file(s3.resource.fsPath + '/' + leafC1.name).fsPath
+		);
+		assert.strictEqual(
+			leafCC2.resource.fsPath,
+			URI.file(leafC1.resource.fsPath + '/' + leafCC2.name).fsPath
+		);
 	});
 
-	test('Rename', function () {
+	test('Rename', function() {
 		const d = new Date().getTime();
 
 		const s1 = createStat('/', '/', true, false, 8096, d);
@@ -119,22 +148,39 @@ suite('Files - View Model', () => {
 		s2.addChild(s3);
 		s3.addChild(s4);
 
-		const s2renamed = createStat('/otherpath', 'otherpath', true, true, 8096, d);
+		const s2renamed = createStat(
+			'/otherpath',
+			'otherpath',
+			true,
+			true,
+			8096,
+			d
+		);
 		s2.rename(s2renamed);
 
 		// Verify the paths have changed including children
 		assert.strictEqual(s2.name, s2renamed.name);
 		assert.strictEqual(s2.resource.fsPath, s2renamed.resource.fsPath);
 		assert.strictEqual(s3.resource.fsPath, toResource('/otherpath/to').fsPath);
-		assert.strictEqual(s4.resource.fsPath, toResource('/otherpath/to/stat').fsPath);
+		assert.strictEqual(
+			s4.resource.fsPath,
+			toResource('/otherpath/to/stat').fsPath
+		);
 
-		const s4renamed = createStat('/otherpath/to/statother.js', 'statother.js', true, false, 8096, d);
+		const s4renamed = createStat(
+			'/otherpath/to/statother.js',
+			'statother.js',
+			true,
+			false,
+			8096,
+			d
+		);
 		s4.rename(s4renamed);
 		assert.strictEqual(s4.name, s4renamed.name);
 		assert.strictEqual(s4.resource.fsPath, s4renamed.resource.fsPath);
 	});
 
-	test('Find', function () {
+	test('Find', function() {
 		const d = new Date().getTime();
 
 		const s1 = createStat('/', '/', true, false, 8096, d);
@@ -144,7 +190,14 @@ suite('Files - View Model', () => {
 		const s4Upper = createStat('/path/to/STAT', 'stat', true, false, 8096, d);
 
 		const child1 = createStat('/path/to/stat/foo', 'foo', true, false, 8096, d);
-		const child2 = createStat('/path/to/stat/foo/bar.html', 'bar.html', false, false, 8096, d);
+		const child2 = createStat(
+			'/path/to/stat/foo/bar.html',
+			'bar.html',
+			false,
+			false,
+			8096,
+			d
+		);
 
 		s1.addChild(s2);
 		s2.addChild(s3);
@@ -169,7 +222,7 @@ suite('Files - View Model', () => {
 		assert.strictEqual(s1.find(toResource('/')), s1);
 	});
 
-	test('Find with mixed case', function () {
+	test('Find with mixed case', function() {
 		const d = new Date().getTime();
 
 		const s1 = createStat('/', '/', true, false, 8096, d);
@@ -178,7 +231,14 @@ suite('Files - View Model', () => {
 		const s4 = createStat('/path/to/stat', 'stat', true, false, 8096, d);
 
 		const child1 = createStat('/path/to/stat/foo', 'foo', true, false, 8096, d);
-		const child2 = createStat('/path/to/stat/foo/bar.html', 'bar.html', false, false, 8096, d);
+		const child2 = createStat(
+			'/path/to/stat/foo/bar.html',
+			'bar.html',
+			false,
+			false,
+			8096,
+			d
+		);
 
 		s1.addChild(s2);
 		s2.addChild(s3);
@@ -186,7 +246,8 @@ suite('Files - View Model', () => {
 		s4.addChild(child1);
 		child1.addChild(child2);
 
-		if (isLinux) { // linux is case sensitive
+		if (isLinux) {
+			// linux is case sensitive
 			assert.ok(!s1.find(toResource('/path/to/stat/Foo')));
 			assert.ok(!s1.find(toResource('/Path/to/stat/foo/bar.html')));
 		} else {
@@ -195,10 +256,17 @@ suite('Files - View Model', () => {
 		}
 	});
 
-	test('Validate File Name (For Create)', function () {
+	test('Validate File Name (For Create)', function() {
 		const d = new Date().getTime();
 		const s = createStat('/path/to/stat', 'sName', true, true, 8096, d);
-		const sChild = createStat('/path/to/stat/alles.klar', 'alles.klar', true, true, 8096, d);
+		const sChild = createStat(
+			'/path/to/stat/alles.klar',
+			'alles.klar',
+			true,
+			true,
+			8096,
+			d
+		);
 		s.addChild(sChild);
 
 		assert(validateFileName(s, null) !== null);
@@ -222,10 +290,17 @@ suite('Files - View Model', () => {
 		assert(validateFileName(s, 'foo') === null);
 	});
 
-	test('Validate File Name (For Rename)', function () {
+	test('Validate File Name (For Rename)', function() {
 		const d = new Date().getTime();
 		const s = createStat('/path/to/stat', 'sName', true, true, 8096, d);
-		const sChild = createStat('/path/to/stat/alles.klar', 'alles.klar', true, true, 8096, d);
+		const sChild = createStat(
+			'/path/to/stat/alles.klar',
+			'alles.klar',
+			true,
+			true,
+			8096,
+			d
+		);
 		s.addChild(sChild);
 
 		assert(validateFileName(s, 'alles.klar') !== null);
@@ -243,23 +318,53 @@ suite('Files - View Model', () => {
 		assert(validateFileName(s, 'foo') === null);
 	});
 
-	test('Merge Local with Disk', function () {
+	test('Merge Local with Disk', function() {
 		const d = new Date().toUTCString();
 
-		const merge1 = new FileStat(URI.file(join('C:\\', '/path/to')), true, false, 'to', Date.now(), d);
-		const merge2 = new FileStat(URI.file(join('C:\\', '/path/to')), true, false, 'to', Date.now(), new Date(0).toUTCString());
+		const merge1 = new FileStat(
+			URI.file(join('C:\\', '/path/to')),
+			true,
+			false,
+			'to',
+			Date.now(),
+			d
+		);
+		const merge2 = new FileStat(
+			URI.file(join('C:\\', '/path/to')),
+			true,
+			false,
+			'to',
+			Date.now(),
+			new Date(0).toUTCString()
+		);
 
 		// Merge Properties
 		FileStat.mergeLocalWithDisk(merge2, merge1);
 		assert.strictEqual(merge1.mtime, merge2.mtime);
 
 		// Merge Child when isDirectoryResolved=false is a no-op
-		merge2.addChild(new FileStat(URI.file(join('C:\\', '/path/to/foo.html')), true, false, 'foo.html', Date.now(), d));
+		merge2.addChild(
+			new FileStat(
+				URI.file(join('C:\\', '/path/to/foo.html')),
+				true,
+				false,
+				'foo.html',
+				Date.now(),
+				d
+			)
+		);
 		FileStat.mergeLocalWithDisk(merge2, merge1);
 		assert.strictEqual(merge1.children.length, 0);
 
 		// Merge Child with isDirectoryResolved=true
-		const child = new FileStat(URI.file(join('C:\\', '/path/to/foo.html')), true, false, 'foo.html', Date.now(), d);
+		const child = new FileStat(
+			URI.file(join('C:\\', '/path/to/foo.html')),
+			true,
+			false,
+			'foo.html',
+			Date.now(),
+			d
+		);
 		merge2.removeChild(child);
 		merge2.addChild(child);
 		merge2.isDirectoryResolved = true;

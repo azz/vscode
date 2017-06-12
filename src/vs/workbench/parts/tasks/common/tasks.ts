@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as Types from 'vs/base/common/types';
 
@@ -23,12 +23,15 @@ export interface ShellConfiguration {
 export namespace ShellConfiguration {
 	export function is(value: any): value is ShellConfiguration {
 		let candidate: ShellConfiguration = value;
-		return candidate && Types.isString(candidate.executable) && (candidate.args === void 0 || Types.isStringArray(candidate.args));
+		return (
+			candidate &&
+			Types.isString(candidate.executable) &&
+			(candidate.args === void 0 || Types.isStringArray(candidate.args))
+		);
 	}
 }
 
 export interface CommandOptions {
-
 	/**
 	 * The shell to use if the task is a shell command.
 	 */
@@ -44,7 +47,7 @@ export interface CommandOptions {
 	 * The environment of the executed program or shell. If omitted
 	 * the parent process' environment is used.
 	 */
-	env?: { [key: string]: string; };
+	env?: { [key: string]: string };
 }
 
 export enum RevealKind {
@@ -112,7 +115,6 @@ export namespace CommandType {
 }
 
 export interface CommandConfiguration {
-
 	/**
 	 * The task type
 	 */
@@ -160,7 +162,12 @@ export namespace TaskGroup {
 	export const Test: 'test' = 'test';
 
 	export function is(value: string): value is string {
-		return value === Clean || value === Build || value === RebuildAll || value === Test;
+		return (
+			value === Clean ||
+			value === Build ||
+			value === RebuildAll ||
+			value === Test
+		);
 	}
 }
 
@@ -182,7 +189,6 @@ export interface TaskSource {
  * A task description
  */
 export interface Task {
-
 	/**
 	 * The task's internal id
 	 */

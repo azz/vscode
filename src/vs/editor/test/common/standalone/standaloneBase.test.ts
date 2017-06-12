@@ -2,10 +2,13 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
-import { KeyCode as StandaloneKeyCode, Severity as StandaloneSeverity } from 'vs/editor/common/standalone/standaloneBase';
+import {
+	KeyCode as StandaloneKeyCode,
+	Severity as StandaloneSeverity
+} from 'vs/editor/common/standalone/standaloneBase';
 import { KeyCode as RuntimeKeyCode } from 'vs/base/common/keyCodes';
 import RuntimeSeverity from 'vs/base/common/severity';
 
@@ -20,8 +23,10 @@ suite('StandaloneBase', () => {
 
 suite('KeyCode', () => {
 	test('is exported correctly in standalone editor', () => {
-
-		function assertKeyCode(standalone: StandaloneKeyCode, runtime: RuntimeKeyCode): void {
+		function assertKeyCode(
+			standalone: StandaloneKeyCode,
+			runtime: RuntimeKeyCode
+		): void {
 			assert.equal(standalone, runtime);
 		}
 
@@ -112,9 +117,15 @@ suite('KeyCode', () => {
 		assertKeyCode(StandaloneKeyCode.US_DOT, RuntimeKeyCode.US_DOT);
 		assertKeyCode(StandaloneKeyCode.US_SLASH, RuntimeKeyCode.US_SLASH);
 		assertKeyCode(StandaloneKeyCode.US_BACKTICK, RuntimeKeyCode.US_BACKTICK);
-		assertKeyCode(StandaloneKeyCode.US_OPEN_SQUARE_BRACKET, RuntimeKeyCode.US_OPEN_SQUARE_BRACKET);
+		assertKeyCode(
+			StandaloneKeyCode.US_OPEN_SQUARE_BRACKET,
+			RuntimeKeyCode.US_OPEN_SQUARE_BRACKET
+		);
 		assertKeyCode(StandaloneKeyCode.US_BACKSLASH, RuntimeKeyCode.US_BACKSLASH);
-		assertKeyCode(StandaloneKeyCode.US_CLOSE_SQUARE_BRACKET, RuntimeKeyCode.US_CLOSE_SQUARE_BRACKET);
+		assertKeyCode(
+			StandaloneKeyCode.US_CLOSE_SQUARE_BRACKET,
+			RuntimeKeyCode.US_CLOSE_SQUARE_BRACKET
+		);
 		assertKeyCode(StandaloneKeyCode.US_QUOTE, RuntimeKeyCode.US_QUOTE);
 		assertKeyCode(StandaloneKeyCode.OEM_8, RuntimeKeyCode.OEM_8);
 		assertKeyCode(StandaloneKeyCode.OEM_102, RuntimeKeyCode.OEM_102);
@@ -128,13 +139,31 @@ suite('KeyCode', () => {
 		assertKeyCode(StandaloneKeyCode.NUMPAD_7, RuntimeKeyCode.NUMPAD_7);
 		assertKeyCode(StandaloneKeyCode.NUMPAD_8, RuntimeKeyCode.NUMPAD_8);
 		assertKeyCode(StandaloneKeyCode.NUMPAD_9, RuntimeKeyCode.NUMPAD_9);
-		assertKeyCode(StandaloneKeyCode.NUMPAD_MULTIPLY, RuntimeKeyCode.NUMPAD_MULTIPLY);
+		assertKeyCode(
+			StandaloneKeyCode.NUMPAD_MULTIPLY,
+			RuntimeKeyCode.NUMPAD_MULTIPLY
+		);
 		assertKeyCode(StandaloneKeyCode.NUMPAD_ADD, RuntimeKeyCode.NUMPAD_ADD);
-		assertKeyCode(StandaloneKeyCode.NUMPAD_SEPARATOR, RuntimeKeyCode.NUMPAD_SEPARATOR);
-		assertKeyCode(StandaloneKeyCode.NUMPAD_SUBTRACT, RuntimeKeyCode.NUMPAD_SUBTRACT);
-		assertKeyCode(StandaloneKeyCode.NUMPAD_DECIMAL, RuntimeKeyCode.NUMPAD_DECIMAL);
-		assertKeyCode(StandaloneKeyCode.NUMPAD_DIVIDE, RuntimeKeyCode.NUMPAD_DIVIDE);
-		assertKeyCode(StandaloneKeyCode.KEY_IN_COMPOSITION, RuntimeKeyCode.KEY_IN_COMPOSITION);
+		assertKeyCode(
+			StandaloneKeyCode.NUMPAD_SEPARATOR,
+			RuntimeKeyCode.NUMPAD_SEPARATOR
+		);
+		assertKeyCode(
+			StandaloneKeyCode.NUMPAD_SUBTRACT,
+			RuntimeKeyCode.NUMPAD_SUBTRACT
+		);
+		assertKeyCode(
+			StandaloneKeyCode.NUMPAD_DECIMAL,
+			RuntimeKeyCode.NUMPAD_DECIMAL
+		);
+		assertKeyCode(
+			StandaloneKeyCode.NUMPAD_DIVIDE,
+			RuntimeKeyCode.NUMPAD_DIVIDE
+		);
+		assertKeyCode(
+			StandaloneKeyCode.KEY_IN_COMPOSITION,
+			RuntimeKeyCode.KEY_IN_COMPOSITION
+		);
 		assertKeyCode(StandaloneKeyCode.ABNT_C1, RuntimeKeyCode.ABNT_C1);
 		assertKeyCode(StandaloneKeyCode.ABNT_C2, RuntimeKeyCode.ABNT_C2);
 		assertKeyCode(StandaloneKeyCode.MAX_VALUE, RuntimeKeyCode.MAX_VALUE);

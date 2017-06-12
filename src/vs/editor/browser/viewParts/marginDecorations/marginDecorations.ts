@@ -3,10 +3,13 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./marginDecorations';
-import { DecorationToRender, DedupOverlay } from 'vs/editor/browser/viewParts/glyphMargin/glyphMargin';
+import {
+	DecorationToRender,
+	DedupOverlay
+} from 'vs/editor/browser/viewParts/glyphMargin/glyphMargin';
 import { ViewContext } from 'vs/editor/common/view/viewContext';
 import { RenderingContext } from 'vs/editor/common/view/renderingContext';
 import * as viewEvents from 'vs/editor/common/view/viewEvents';
@@ -31,10 +34,14 @@ export class MarginViewLineDecorationsOverlay extends DedupOverlay {
 
 	// --- begin event handlers
 
-	public onConfigurationChanged(e: viewEvents.ViewConfigurationChangedEvent): boolean {
+	public onConfigurationChanged(
+		e: viewEvents.ViewConfigurationChangedEvent
+	): boolean {
 		return true;
 	}
-	public onDecorationsChanged(e: viewEvents.ViewDecorationsChangedEvent): boolean {
+	public onDecorationsChanged(
+		e: viewEvents.ViewDecorationsChangedEvent
+	): boolean {
 		return true;
 	}
 	public onFlushed(e: viewEvents.ViewFlushedEvent): boolean {
@@ -65,7 +72,13 @@ export class MarginViewLineDecorationsOverlay extends DedupOverlay {
 			let d = decorations[i];
 			let marginClassName = d.source.options.marginClassName;
 			if (marginClassName) {
-				r.push(new DecorationToRender(d.range.startLineNumber, d.range.endLineNumber, marginClassName));
+				r.push(
+					new DecorationToRender(
+						d.range.startLineNumber,
+						d.range.endLineNumber,
+						marginClassName
+					)
+				);
 			}
 		}
 		return r;
@@ -74,10 +87,18 @@ export class MarginViewLineDecorationsOverlay extends DedupOverlay {
 	public prepareRender(ctx: RenderingContext): void {
 		let visibleStartLineNumber = ctx.visibleRange.startLineNumber;
 		let visibleEndLineNumber = ctx.visibleRange.endLineNumber;
-		let toRender = this._render(visibleStartLineNumber, visibleEndLineNumber, this._getDecorations(ctx));
+		let toRender = this._render(
+			visibleStartLineNumber,
+			visibleEndLineNumber,
+			this._getDecorations(ctx)
+		);
 
 		let output: string[] = [];
-		for (let lineNumber = visibleStartLineNumber; lineNumber <= visibleEndLineNumber; lineNumber++) {
+		for (
+			let lineNumber = visibleStartLineNumber;
+			lineNumber <= visibleEndLineNumber;
+			lineNumber++
+		) {
 			let lineIndex = lineNumber - visibleStartLineNumber;
 			let classNames = toRender[lineIndex];
 			let lineOutput = '';

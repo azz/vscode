@@ -2,10 +2,15 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { OverviewRulerLane } from 'vs/editor/common/editorCommon';
-import { ThemeType, DARK, HIGH_CONTRAST, LIGHT } from 'vs/platform/theme/common/themeService';
+import {
+	ThemeType,
+	DARK,
+	HIGH_CONTRAST,
+	LIGHT
+} from 'vs/platform/theme/common/themeService';
 
 export class ColorZone {
 	_colorZoneBrand: void;
@@ -15,7 +20,12 @@ export class ColorZone {
 	colorId: number;
 	position: OverviewRulerLane;
 
-	constructor(from: number, to: number, colorId: number, position: OverviewRulerLane) {
+	constructor(
+		from: number,
+		to: number,
+		colorId: number,
+		position: OverviewRulerLane
+	) {
 		this.from = from | 0;
 		this.to = to | 0;
 		this.colorId = colorId | 0;
@@ -41,10 +51,13 @@ export class OverviewRulerZone {
 	private _colorZones: ColorZone[];
 
 	constructor(
-		startLineNumber: number, endLineNumber: number,
+		startLineNumber: number,
+		endLineNumber: number,
 		position: OverviewRulerLane,
 		forceHeight: number,
-		color: string, darkColor: string, hcColor: string
+		color: string,
+		darkColor: string,
+		hcColor: string
 	) {
 		this.startLineNumber = startLineNumber;
 		this.endLineNumber = endLineNumber;
@@ -68,13 +81,13 @@ export class OverviewRulerZone {
 
 	public equals(other: OverviewRulerZone): boolean {
 		return (
-			this.startLineNumber === other.startLineNumber
-			&& this.endLineNumber === other.endLineNumber
-			&& this.position === other.position
-			&& this.forceHeight === other.forceHeight
-			&& this._color === other._color
-			&& this._darkColor === other._darkColor
-			&& this._hcColor === other._hcColor
+			this.startLineNumber === other.startLineNumber &&
+			this.endLineNumber === other.endLineNumber &&
+			this.position === other.position &&
+			this.forceHeight === other.forceHeight &&
+			this._color === other._color &&
+			this._darkColor === other._darkColor &&
+			this._hcColor === other._hcColor
 		);
 	}
 
@@ -113,7 +126,6 @@ export class OverviewRulerZone {
 }
 
 export class OverviewZoneManager {
-
 	private _getVerticalOffsetForLine: (lineNumber: number) => number;
 	private _zones: OverviewRulerZone[];
 	private _colorZonesInvalid: boolean;
@@ -127,7 +139,7 @@ export class OverviewZoneManager {
 	private _pixelRatio: number;
 
 	private _lastAssignedId: number;
-	private _color2Id: { [color: string]: number; };
+	private _color2Id: { [color: string]: number };
 	private _id2Color: string[];
 
 	constructor(getVerticalOffsetForLine: (lineNumber: number) => number) {
@@ -304,14 +316,30 @@ export class OverviewZoneManager {
 			if (zone.forceHeight) {
 				let forcedHeight = Math.floor(zone.forceHeight * this._pixelRatio);
 
-				let y1 = Math.floor(this._getVerticalOffsetForLine(zone.startLineNumber));
+				let y1 = Math.floor(
+					this._getVerticalOffsetForLine(zone.startLineNumber)
+				);
 				y1 = Math.floor(y1 * heightRatio);
 
 				let y2 = y1 + forcedHeight;
-				colorZones.push(this.createZone(totalHeight, y1, y2, forcedHeight, forcedHeight, zone.getColor(themeType), zone.position));
+				colorZones.push(
+					this.createZone(
+						totalHeight,
+						y1,
+						y2,
+						forcedHeight,
+						forcedHeight,
+						zone.getColor(themeType),
+						zone.position
+					)
+				);
 			} else {
-				let y1 = Math.floor(this._getVerticalOffsetForLine(zone.startLineNumber));
-				let y2 = Math.floor(this._getVerticalOffsetForLine(zone.endLineNumber)) + lineHeight;
+				let y1 = Math.floor(
+					this._getVerticalOffsetForLine(zone.startLineNumber)
+				);
+				let y2 =
+					Math.floor(this._getVerticalOffsetForLine(zone.endLineNumber)) +
+					lineHeight;
 
 				y1 = Math.floor(y1 * heightRatio);
 				y2 = Math.floor(y2 * heightRatio);
@@ -322,17 +350,41 @@ export class OverviewZoneManager {
 
 				if (y2 - y1 > zoneMaximumHeight) {
 					// We need to draw one zone per line
-					for (let lineNumber = zone.startLineNumber; lineNumber <= zone.endLineNumber; lineNumber++) {
+					for (
+						let lineNumber = zone.startLineNumber;
+						lineNumber <= zone.endLineNumber;
+						lineNumber++
+					) {
 						y1 = Math.floor(this._getVerticalOffsetForLine(lineNumber));
 						y2 = y1 + lineHeight;
 
 						y1 = Math.floor(y1 * heightRatio);
 						y2 = Math.floor(y2 * heightRatio);
 
-						colorZones.push(this.createZone(totalHeight, y1, y2, minimumHeight, maximumHeight, zone.getColor(themeType), zone.position));
+						colorZones.push(
+							this.createZone(
+								totalHeight,
+								y1,
+								y2,
+								minimumHeight,
+								maximumHeight,
+								zone.getColor(themeType),
+								zone.position
+							)
+						);
 					}
 				} else {
-					colorZones.push(this.createZone(totalHeight, y1, y2, minimumHeight, zoneMaximumHeight, zone.getColor(themeType), zone.position));
+					colorZones.push(
+						this.createZone(
+							totalHeight,
+							y1,
+							y2,
+							minimumHeight,
+							zoneMaximumHeight,
+							zone.getColor(themeType),
+							zone.position
+						)
+					);
 				}
 			}
 
@@ -358,7 +410,15 @@ export class OverviewZoneManager {
 		return allColorZones;
 	}
 
-	public createZone(totalHeight: number, y1: number, y2: number, minimumHeight: number, maximumHeight: number, color: string, position: OverviewRulerLane): ColorZone {
+	public createZone(
+		totalHeight: number,
+		y1: number,
+		y2: number,
+		minimumHeight: number,
+		maximumHeight: number,
+		color: string,
+		position: OverviewRulerLane
+	): ColorZone {
 		totalHeight = Math.floor(totalHeight); // @perf
 		y1 = Math.floor(y1); // @perf
 		y2 = Math.floor(y2); // @perf
@@ -366,8 +426,7 @@ export class OverviewZoneManager {
 		maximumHeight = Math.floor(maximumHeight); // @perf
 
 		let ycenter = Math.floor((y1 + y2) / 2);
-		let halfHeight = (y2 - ycenter);
-
+		let halfHeight = y2 - ycenter;
 
 		if (halfHeight > maximumHeight / 2) {
 			halfHeight = maximumHeight / 2;
@@ -385,10 +444,15 @@ export class OverviewZoneManager {
 
 		let colorId = this._color2Id[color];
 		if (!colorId) {
-			colorId = (++this._lastAssignedId);
+			colorId = ++this._lastAssignedId;
 			this._color2Id[color] = colorId;
 			this._id2Color[colorId] = color;
 		}
-		return new ColorZone(ycenter - halfHeight, ycenter + halfHeight, colorId, position);
+		return new ColorZone(
+			ycenter - halfHeight,
+			ycenter + halfHeight,
+			colorId,
+			position
+		);
 	}
 }

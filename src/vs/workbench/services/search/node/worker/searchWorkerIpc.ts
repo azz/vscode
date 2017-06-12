@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import { IChannel } from 'vs/base/parts/ipc/common/ipc';
@@ -32,27 +32,32 @@ export interface ISearchWorker {
 
 export interface ISearchWorkerChannel extends IChannel {
 	call(command: 'initialize'): TPromise<void>;
-	call(command: 'search', args: ISearchWorkerSearchArgs): TPromise<ISearchWorkerSearchResult>;
+	call(
+		command: 'search',
+		args: ISearchWorkerSearchArgs
+	): TPromise<ISearchWorkerSearchResult>;
 	call(command: 'cancel'): TPromise<void>;
 	call(command: string, arg?: any): TPromise<any>;
 }
 
 export class SearchWorkerChannel implements ISearchWorkerChannel {
-	constructor(private worker: SearchWorker) {
-	}
+	constructor(private worker: SearchWorker) {}
 
 	call(command: string, arg?: any): TPromise<any> {
 		switch (command) {
-			case 'initialize': return this.worker.initialize();
-			case 'search': return this.worker.search(arg);
-			case 'cancel': return this.worker.cancel();
+			case 'initialize':
+				return this.worker.initialize();
+			case 'search':
+				return this.worker.search(arg);
+			case 'cancel':
+				return this.worker.cancel();
 		}
 		return undefined;
 	}
 }
 
 export class SearchWorkerChannelClient implements ISearchWorker {
-	constructor(private channel: ISearchWorkerChannel) { }
+	constructor(private channel: ISearchWorkerChannel) {}
 
 	initialize(): TPromise<void> {
 		return this.channel.call('initialize');

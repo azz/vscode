@@ -2,15 +2,19 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
-import { createDecorator, ServiceIdentifier } from 'vs/platform/instantiation/common/instantiation';
+import {
+	createDecorator,
+	ServiceIdentifier
+} from 'vs/platform/instantiation/common/instantiation';
 
-export const IConfigurationEditingService = createDecorator<IConfigurationEditingService>('configurationEditingService');
+export const IConfigurationEditingService = createDecorator<
+	IConfigurationEditingService
+>('configurationEditingService');
 
 export enum ConfigurationEditingErrorCode {
-
 	/**
 	 * Error when trying to write a configuration key that is not registered.
 	 */
@@ -43,7 +47,6 @@ export interface IConfigurationEditingError {
 }
 
 export enum ConfigurationTarget {
-
 	/**
 	 * Targets the user configuration file for writing.
 	 */
@@ -73,12 +76,15 @@ export interface IConfigurationEditingOptions {
 }
 
 export interface IConfigurationEditingService {
-
 	_serviceBrand: ServiceIdentifier<any>;
 
 	/**
 	 * Allows to write the configuration value to either the user or workspace configuration file and save it if asked to save.
 	 * The returned promise will be in error state in any of the error cases from [ConfigurationEditingErrorCode](#ConfigurationEditingErrorCode)
 	 */
-	writeConfiguration(target: ConfigurationTarget, value: IConfigurationValue, options?: IConfigurationEditingOptions): TPromise<void>;
+	writeConfiguration(
+		target: ConfigurationTarget,
+		value: IConfigurationValue,
+		options?: IConfigurationEditingOptions
+	): TPromise<void>;
 }

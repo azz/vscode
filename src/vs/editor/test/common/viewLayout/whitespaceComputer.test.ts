@@ -2,15 +2,13 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { WhitespaceComputer } from 'vs/editor/common/viewLayout/whitespaceComputer';
 
 suite('Editor ViewLayout - WhitespaceComputer', () => {
-
 	test('WhitespaceComputer', () => {
-
 		var whitespaceComputer = new WhitespaceComputer();
 
 		// Insert a whitespace after line number 2, of height 10
@@ -23,8 +21,14 @@ suite('Editor ViewLayout - WhitespaceComputer', () => {
 		assert.equal(whitespaceComputer.getTotalHeight(), 10);
 		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(1), 0);
 		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(2), 0);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(3), 10);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(4), 10);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(3),
+			10
+		);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(4),
+			10
+		);
 
 		// Insert a whitespace again after line number 2, of height 20
 		var b = whitespaceComputer.insertWhitespace(2, 0, 20);
@@ -39,8 +43,14 @@ suite('Editor ViewLayout - WhitespaceComputer', () => {
 		assert.equal(whitespaceComputer.getTotalHeight(), 30);
 		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(1), 0);
 		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(2), 0);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(3), 30);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(4), 30);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(3),
+			30
+		);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(4),
+			30
+		);
 
 		// Change last inserted whitespace height to 30
 		whitespaceComputer.changeWhitespaceHeight(b, 30);
@@ -55,8 +65,14 @@ suite('Editor ViewLayout - WhitespaceComputer', () => {
 		assert.equal(whitespaceComputer.getTotalHeight(), 40);
 		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(1), 0);
 		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(2), 0);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(3), 40);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(4), 40);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(3),
+			40
+		);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(4),
+			40
+		);
 
 		// Remove last inserted whitespace
 		whitespaceComputer.removeWhitespace(b);
@@ -68,8 +84,14 @@ suite('Editor ViewLayout - WhitespaceComputer', () => {
 		assert.equal(whitespaceComputer.getTotalHeight(), 10);
 		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(1), 0);
 		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(2), 0);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(3), 10);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(4), 10);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(3),
+			10
+		);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(4),
+			10
+		);
 
 		// Add a whitespace before the first line of height 50
 		b = whitespaceComputer.insertWhitespace(0, 0, 50);
@@ -82,10 +104,22 @@ suite('Editor ViewLayout - WhitespaceComputer', () => {
 		assert.equal(whitespaceComputer.getAccumulatedHeight(0), 50);
 		assert.equal(whitespaceComputer.getAccumulatedHeight(1), 60);
 		assert.equal(whitespaceComputer.getTotalHeight(), 60);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(1), 50);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(2), 50);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(3), 60);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(4), 60);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(1),
+			50
+		);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(2),
+			50
+		);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(3),
+			60
+		);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(4),
+			60
+		);
 
 		// Add a whitespace after line 4 of height 20
 		whitespaceComputer.insertWhitespace(4, 0, 20);
@@ -101,11 +135,26 @@ suite('Editor ViewLayout - WhitespaceComputer', () => {
 		assert.equal(whitespaceComputer.getAccumulatedHeight(1), 60);
 		assert.equal(whitespaceComputer.getAccumulatedHeight(2), 80);
 		assert.equal(whitespaceComputer.getTotalHeight(), 80);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(1), 50);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(2), 50);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(3), 60);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(4), 60);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(5), 80);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(1),
+			50
+		);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(2),
+			50
+		);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(3),
+			60
+		);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(4),
+			60
+		);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(5),
+			80
+		);
 
 		// Add a whitespace after line 3 of height 30
 		whitespaceComputer.insertWhitespace(3, 0, 30);
@@ -124,11 +173,26 @@ suite('Editor ViewLayout - WhitespaceComputer', () => {
 		assert.equal(whitespaceComputer.getAccumulatedHeight(2), 90);
 		assert.equal(whitespaceComputer.getAccumulatedHeight(3), 110);
 		assert.equal(whitespaceComputer.getTotalHeight(), 110);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(1), 50);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(2), 50);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(3), 60);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(4), 90);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(5), 110);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(1),
+			50
+		);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(2),
+			50
+		);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(3),
+			60
+		);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(4),
+			90
+		);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(5),
+			110
+		);
 
 		// Change whitespace after line 2 to height of 100
 		whitespaceComputer.changeWhitespaceHeight(a, 100);
@@ -147,11 +211,26 @@ suite('Editor ViewLayout - WhitespaceComputer', () => {
 		assert.equal(whitespaceComputer.getAccumulatedHeight(2), 180);
 		assert.equal(whitespaceComputer.getAccumulatedHeight(3), 200);
 		assert.equal(whitespaceComputer.getTotalHeight(), 200);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(1), 50);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(2), 50);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(3), 150);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(4), 180);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(5), 200);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(1),
+			50
+		);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(2),
+			50
+		);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(3),
+			150
+		);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(4),
+			180
+		);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(5),
+			200
+		);
 
 		// Remove whitespace after line 2
 		whitespaceComputer.removeWhitespace(a);
@@ -167,11 +246,26 @@ suite('Editor ViewLayout - WhitespaceComputer', () => {
 		assert.equal(whitespaceComputer.getAccumulatedHeight(1), 80);
 		assert.equal(whitespaceComputer.getAccumulatedHeight(2), 100);
 		assert.equal(whitespaceComputer.getTotalHeight(), 100);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(1), 50);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(2), 50);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(3), 50);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(4), 80);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(5), 100);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(1),
+			50
+		);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(2),
+			50
+		);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(3),
+			50
+		);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(4),
+			80
+		);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(5),
+			100
+		);
 
 		// Remove whitespace before line 1
 		whitespaceComputer.removeWhitespace(b);
@@ -187,8 +281,14 @@ suite('Editor ViewLayout - WhitespaceComputer', () => {
 		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(1), 0);
 		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(2), 0);
 		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(3), 0);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(4), 30);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(5), 50);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(4),
+			30
+		);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(5),
+			50
+		);
 
 		// Delete line 1
 		whitespaceComputer.onLinesDeleted(1, 1);
@@ -203,9 +303,18 @@ suite('Editor ViewLayout - WhitespaceComputer', () => {
 		assert.equal(whitespaceComputer.getTotalHeight(), 50);
 		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(1), 0);
 		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(2), 0);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(3), 30);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(4), 50);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(5), 50);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(3),
+			30
+		);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(4),
+			50
+		);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(5),
+			50
+		);
 
 		// Insert a line before line 1
 		whitespaceComputer.onLinesInserted(1, 1);
@@ -221,8 +330,14 @@ suite('Editor ViewLayout - WhitespaceComputer', () => {
 		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(1), 0);
 		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(2), 0);
 		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(3), 0);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(4), 30);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(5), 50);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(4),
+			30
+		);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(5),
+			50
+		);
 
 		// Delete line 4
 		whitespaceComputer.onLinesDeleted(4, 4);
@@ -238,12 +353,17 @@ suite('Editor ViewLayout - WhitespaceComputer', () => {
 		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(1), 0);
 		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(2), 0);
 		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(3), 0);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(4), 50);
-		assert.equal(whitespaceComputer.getAccumulatedHeightBeforeLineNumber(5), 50);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(4),
+			50
+		);
+		assert.equal(
+			whitespaceComputer.getAccumulatedHeightBeforeLineNumber(5),
+			50
+		);
 	});
 
 	test('WhitespaceComputer findInsertionIndex', () => {
-
 		var makeArray = (size: number, fillValue: number) => {
 			var r: number[] = [];
 			for (var i = 0; i < size; i++) {
@@ -319,7 +439,10 @@ suite('Editor ViewLayout - WhitespaceComputer', () => {
 		assert.equal(WhitespaceComputer.findInsertionIndex(arr, 7, ordinals, 0), 4);
 		assert.equal(WhitespaceComputer.findInsertionIndex(arr, 8, ordinals, 0), 4);
 		assert.equal(WhitespaceComputer.findInsertionIndex(arr, 9, ordinals, 0), 5);
-		assert.equal(WhitespaceComputer.findInsertionIndex(arr, 10, ordinals, 0), 5);
+		assert.equal(
+			WhitespaceComputer.findInsertionIndex(arr, 10, ordinals, 0),
+			5
+		);
 
 		arr = [1, 3, 5, 7, 9, 11];
 		ordinals = makeArray(arr.length, 0);
@@ -333,9 +456,18 @@ suite('Editor ViewLayout - WhitespaceComputer', () => {
 		assert.equal(WhitespaceComputer.findInsertionIndex(arr, 7, ordinals, 0), 4);
 		assert.equal(WhitespaceComputer.findInsertionIndex(arr, 8, ordinals, 0), 4);
 		assert.equal(WhitespaceComputer.findInsertionIndex(arr, 9, ordinals, 0), 5);
-		assert.equal(WhitespaceComputer.findInsertionIndex(arr, 10, ordinals, 0), 5);
-		assert.equal(WhitespaceComputer.findInsertionIndex(arr, 11, ordinals, 0), 6);
-		assert.equal(WhitespaceComputer.findInsertionIndex(arr, 12, ordinals, 0), 6);
+		assert.equal(
+			WhitespaceComputer.findInsertionIndex(arr, 10, ordinals, 0),
+			5
+		);
+		assert.equal(
+			WhitespaceComputer.findInsertionIndex(arr, 11, ordinals, 0),
+			6
+		);
+		assert.equal(
+			WhitespaceComputer.findInsertionIndex(arr, 12, ordinals, 0),
+			6
+		);
 
 		arr = [1, 3, 5, 7, 9, 11, 13];
 		ordinals = makeArray(arr.length, 0);
@@ -349,11 +481,26 @@ suite('Editor ViewLayout - WhitespaceComputer', () => {
 		assert.equal(WhitespaceComputer.findInsertionIndex(arr, 7, ordinals, 0), 4);
 		assert.equal(WhitespaceComputer.findInsertionIndex(arr, 8, ordinals, 0), 4);
 		assert.equal(WhitespaceComputer.findInsertionIndex(arr, 9, ordinals, 0), 5);
-		assert.equal(WhitespaceComputer.findInsertionIndex(arr, 10, ordinals, 0), 5);
-		assert.equal(WhitespaceComputer.findInsertionIndex(arr, 11, ordinals, 0), 6);
-		assert.equal(WhitespaceComputer.findInsertionIndex(arr, 12, ordinals, 0), 6);
-		assert.equal(WhitespaceComputer.findInsertionIndex(arr, 13, ordinals, 0), 7);
-		assert.equal(WhitespaceComputer.findInsertionIndex(arr, 14, ordinals, 0), 7);
+		assert.equal(
+			WhitespaceComputer.findInsertionIndex(arr, 10, ordinals, 0),
+			5
+		);
+		assert.equal(
+			WhitespaceComputer.findInsertionIndex(arr, 11, ordinals, 0),
+			6
+		);
+		assert.equal(
+			WhitespaceComputer.findInsertionIndex(arr, 12, ordinals, 0),
+			6
+		);
+		assert.equal(
+			WhitespaceComputer.findInsertionIndex(arr, 13, ordinals, 0),
+			7
+		);
+		assert.equal(
+			WhitespaceComputer.findInsertionIndex(arr, 14, ordinals, 0),
+			7
+		);
 
 		arr = [1, 3, 5, 7, 9, 11, 13, 15];
 		ordinals = makeArray(arr.length, 0);
@@ -367,13 +514,34 @@ suite('Editor ViewLayout - WhitespaceComputer', () => {
 		assert.equal(WhitespaceComputer.findInsertionIndex(arr, 7, ordinals, 0), 4);
 		assert.equal(WhitespaceComputer.findInsertionIndex(arr, 8, ordinals, 0), 4);
 		assert.equal(WhitespaceComputer.findInsertionIndex(arr, 9, ordinals, 0), 5);
-		assert.equal(WhitespaceComputer.findInsertionIndex(arr, 10, ordinals, 0), 5);
-		assert.equal(WhitespaceComputer.findInsertionIndex(arr, 11, ordinals, 0), 6);
-		assert.equal(WhitespaceComputer.findInsertionIndex(arr, 12, ordinals, 0), 6);
-		assert.equal(WhitespaceComputer.findInsertionIndex(arr, 13, ordinals, 0), 7);
-		assert.equal(WhitespaceComputer.findInsertionIndex(arr, 14, ordinals, 0), 7);
-		assert.equal(WhitespaceComputer.findInsertionIndex(arr, 15, ordinals, 0), 8);
-		assert.equal(WhitespaceComputer.findInsertionIndex(arr, 16, ordinals, 0), 8);
+		assert.equal(
+			WhitespaceComputer.findInsertionIndex(arr, 10, ordinals, 0),
+			5
+		);
+		assert.equal(
+			WhitespaceComputer.findInsertionIndex(arr, 11, ordinals, 0),
+			6
+		);
+		assert.equal(
+			WhitespaceComputer.findInsertionIndex(arr, 12, ordinals, 0),
+			6
+		);
+		assert.equal(
+			WhitespaceComputer.findInsertionIndex(arr, 13, ordinals, 0),
+			7
+		);
+		assert.equal(
+			WhitespaceComputer.findInsertionIndex(arr, 14, ordinals, 0),
+			7
+		);
+		assert.equal(
+			WhitespaceComputer.findInsertionIndex(arr, 15, ordinals, 0),
+			8
+		);
+		assert.equal(
+			WhitespaceComputer.findInsertionIndex(arr, 16, ordinals, 0),
+			8
+		);
 	});
 
 	test('WhitespaceComputer changeWhitespaceAfterLineNumber & getFirstWhitespaceIndexAfterLineNumber', () => {
@@ -390,14 +558,38 @@ suite('Editor ViewLayout - WhitespaceComputer', () => {
 		assert.equal(whitespaceComputer.getIdForWhitespaceIndex(2), b); // 7
 		assert.equal(whitespaceComputer.getAfterLineNumberForWhitespaceIndex(2), 7);
 
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(1), 1); // c
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(2), 1); // c
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(3), 1); // c
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(4), 2); // b
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(5), 2); // b
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(6), 2); // b
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(7), 2); // b
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(8), -1); // --
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(1),
+			1
+		); // c
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(2),
+			1
+		); // c
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(3),
+			1
+		); // c
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(4),
+			2
+		); // b
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(5),
+			2
+		); // b
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(6),
+			2
+		); // b
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(7),
+			2
+		); // b
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(8),
+			-1
+		); // --
 
 		// Do not really move a
 		whitespaceComputer.changeWhitespaceAfterLineNumber(a, 1);
@@ -409,15 +601,38 @@ suite('Editor ViewLayout - WhitespaceComputer', () => {
 		assert.equal(whitespaceComputer.getIdForWhitespaceIndex(2), b); // 7
 		assert.equal(whitespaceComputer.getAfterLineNumberForWhitespaceIndex(2), 7);
 
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(1), 0); // a
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(2), 1); // c
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(3), 1); // c
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(4), 2); // b
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(5), 2); // b
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(6), 2); // b
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(7), 2); // b
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(8), -1); // --
-
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(1),
+			0
+		); // a
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(2),
+			1
+		); // c
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(3),
+			1
+		); // c
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(4),
+			2
+		); // b
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(5),
+			2
+		); // b
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(6),
+			2
+		); // b
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(7),
+			2
+		); // b
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(8),
+			-1
+		); // --
 
 		// Do not really move a
 		whitespaceComputer.changeWhitespaceAfterLineNumber(a, 2);
@@ -429,15 +644,38 @@ suite('Editor ViewLayout - WhitespaceComputer', () => {
 		assert.equal(whitespaceComputer.getIdForWhitespaceIndex(2), b); // 7
 		assert.equal(whitespaceComputer.getAfterLineNumberForWhitespaceIndex(2), 7);
 
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(1), 0); // a
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(2), 0); // a
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(3), 1); // c
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(4), 2); // b
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(5), 2); // b
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(6), 2); // b
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(7), 2); // b
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(8), -1); // --
-
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(1),
+			0
+		); // a
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(2),
+			0
+		); // a
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(3),
+			1
+		); // c
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(4),
+			2
+		); // b
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(5),
+			2
+		); // b
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(6),
+			2
+		); // b
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(7),
+			2
+		); // b
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(8),
+			-1
+		); // --
 
 		// Change a to conflict with c => a gets placed after c
 		whitespaceComputer.changeWhitespaceAfterLineNumber(a, 3);
@@ -449,15 +687,38 @@ suite('Editor ViewLayout - WhitespaceComputer', () => {
 		assert.equal(whitespaceComputer.getIdForWhitespaceIndex(2), b); // 7
 		assert.equal(whitespaceComputer.getAfterLineNumberForWhitespaceIndex(2), 7);
 
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(1), 0); // c
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(2), 0); // c
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(3), 0); // c
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(4), 2); // b
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(5), 2); // b
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(6), 2); // b
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(7), 2); // b
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(8), -1); // --
-
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(1),
+			0
+		); // c
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(2),
+			0
+		); // c
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(3),
+			0
+		); // c
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(4),
+			2
+		); // b
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(5),
+			2
+		); // b
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(6),
+			2
+		); // b
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(7),
+			2
+		); // b
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(8),
+			-1
+		); // --
 
 		// Make a no-op
 		whitespaceComputer.changeWhitespaceAfterLineNumber(c, 3);
@@ -469,16 +730,38 @@ suite('Editor ViewLayout - WhitespaceComputer', () => {
 		assert.equal(whitespaceComputer.getIdForWhitespaceIndex(2), b); // 7
 		assert.equal(whitespaceComputer.getAfterLineNumberForWhitespaceIndex(2), 7);
 
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(1), 0); // c
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(2), 0); // c
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(3), 0); // c
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(4), 2); // b
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(5), 2); // b
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(6), 2); // b
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(7), 2); // b
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(8), -1); // --
-
-
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(1),
+			0
+		); // c
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(2),
+			0
+		); // c
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(3),
+			0
+		); // c
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(4),
+			2
+		); // b
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(5),
+			2
+		); // b
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(6),
+			2
+		); // b
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(7),
+			2
+		); // b
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(8),
+			-1
+		); // --
 
 		// Conflict c with b => c gets placed after b
 		whitespaceComputer.changeWhitespaceAfterLineNumber(c, 7);
@@ -490,16 +773,39 @@ suite('Editor ViewLayout - WhitespaceComputer', () => {
 		assert.equal(whitespaceComputer.getIdForWhitespaceIndex(2), c); // 7
 		assert.equal(whitespaceComputer.getAfterLineNumberForWhitespaceIndex(2), 7);
 
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(1), 0); // a
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(2), 0); // a
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(3), 0); // a
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(4), 1); // b
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(5), 1); // b
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(6), 1); // b
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(7), 1); // b
-		assert.equal(whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(8), -1); // --
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(1),
+			0
+		); // a
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(2),
+			0
+		); // a
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(3),
+			0
+		); // a
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(4),
+			1
+		); // b
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(5),
+			1
+		); // b
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(6),
+			1
+		); // b
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(7),
+			1
+		); // b
+		assert.equal(
+			whitespaceComputer.getFirstWhitespaceIndexAfterLineNumber(8),
+			-1
+		); // --
 	});
-
 
 	test('WhitespaceComputer Bug', () => {
 		var whitespaceComputer = new WhitespaceComputer();
@@ -557,4 +863,3 @@ suite('Editor ViewLayout - WhitespaceComputer', () => {
 		assert.equal(whitespaceComputer.getIdForWhitespaceIndex(7), f); // 11
 	});
 });
-

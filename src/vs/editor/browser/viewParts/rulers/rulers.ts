@@ -3,19 +3,21 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./rulers';
 import { FastDomNode, createFastDomNode } from 'vs/base/browser/fastDomNode';
 import { ViewPart } from 'vs/editor/browser/view/viewPart';
 import { ViewContext } from 'vs/editor/common/view/viewContext';
-import { RenderingContext, RestrictedRenderingContext } from 'vs/editor/common/view/renderingContext';
+import {
+	RenderingContext,
+	RestrictedRenderingContext
+} from 'vs/editor/common/view/renderingContext';
 import * as viewEvents from 'vs/editor/common/view/viewEvents';
 import { registerThemingParticipant } from 'vs/platform/theme/common/themeService';
 import { editorRuler } from 'vs/editor/common/view/editorColorRegistry';
 
 export class Rulers extends ViewPart {
-
 	public domNode: FastDomNode<HTMLElement>;
 	private _renderedRulers: FastDomNode<HTMLElement>[];
 	private _rulers: number[];
@@ -24,7 +26,9 @@ export class Rulers extends ViewPart {
 
 	constructor(context: ViewContext) {
 		super(context);
-		this.domNode = createFastDomNode<HTMLElement>(document.createElement('div'));
+		this.domNode = createFastDomNode<HTMLElement>(
+			document.createElement('div')
+		);
 		this.domNode.setAttribute('role', 'presentation');
 		this.domNode.setAttribute('aria-hidden', 'true');
 		this.domNode.setClassName('view-rulers');
@@ -40,7 +44,9 @@ export class Rulers extends ViewPart {
 
 	// --- begin event handlers
 
-	public onConfigurationChanged(e: viewEvents.ViewConfigurationChangedEvent): boolean {
+	public onConfigurationChanged(
+		e: viewEvents.ViewConfigurationChangedEvent
+	): boolean {
 		if (e.viewInfo || e.layoutInfo || e.fontInfo) {
 			this._rulers = this._context.configuration.editor.viewInfo.rulers;
 			this._height = this._context.configuration.editor.layoutInfo.contentHeight;
@@ -90,7 +96,6 @@ export class Rulers extends ViewPart {
 	}
 
 	public render(ctx: RestrictedRenderingContext): void {
-
 		this._ensureRulersCount();
 
 		for (let i = 0, len = this._rulers.length; i < len; i++) {
@@ -105,6 +110,8 @@ export class Rulers extends ViewPart {
 registerThemingParticipant((theme, collector) => {
 	let rulerColor = theme.getColor(editorRuler);
 	if (rulerColor) {
-		collector.addRule(`.monaco-editor .view-ruler { background-color: ${rulerColor}; }`);
+		collector.addRule(
+			`.monaco-editor .view-ruler { background-color: ${rulerColor}; }`
+		);
 	}
 });

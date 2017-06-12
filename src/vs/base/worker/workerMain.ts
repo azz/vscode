@@ -3,11 +3,13 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-(function () {
-	'use strict';
+(function() {
+	('use strict');
 
 	let MonacoEnvironment = (<any>self).MonacoEnvironment;
-	let monacoBaseUrl = MonacoEnvironment && MonacoEnvironment.baseUrl ? MonacoEnvironment.baseUrl : '../../../';
+	let monacoBaseUrl = MonacoEnvironment && MonacoEnvironment.baseUrl
+		? MonacoEnvironment.baseUrl
+		: '../../../';
 
 	if (typeof (<any>self).define !== 'function' || !(<any>self).define.amd) {
 		importScripts(monacoBaseUrl + 'vs/loader.js');
@@ -18,14 +20,14 @@
 		catchError: true
 	});
 
-	let loadCode = function (moduleId: string) {
-		require([moduleId], function (ws) {
-			setTimeout(function () {
+	let loadCode = function(moduleId: string) {
+		require([moduleId], function(ws) {
+			setTimeout(function() {
 				let messageHandler = ws.create((msg: any) => {
 					(<any>self).postMessage(msg);
 				}, null);
 
-				self.onmessage = (e) => messageHandler.onmessage(e.data);
+				self.onmessage = e => messageHandler.onmessage(e.data);
 				while (beforeReadyMessages.length > 0) {
 					self.onmessage(beforeReadyMessages.shift());
 				}
@@ -35,7 +37,7 @@
 
 	let isFirstMessage = true;
 	let beforeReadyMessages: MessageEvent[] = [];
-	self.onmessage = (message) => {
+	self.onmessage = message => {
 		if (!isFirstMessage) {
 			beforeReadyMessages.push(message);
 			return;

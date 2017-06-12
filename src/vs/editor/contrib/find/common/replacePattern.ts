@@ -6,7 +6,6 @@
 import { CharCode } from 'vs/base/common/charCode';
 
 export class ReplacePattern {
-
 	public static fromStaticValue(value: string): ReplacePattern {
 		return new ReplacePattern([ReplacePiece.staticValue(value)]);
 	}
@@ -68,7 +67,7 @@ export class ReplacePattern {
 		while (matchIndex > 0) {
 			if (matchIndex < matches.length) {
 				// A match can be undefined
-				let match = (matches[matchIndex] || '');
+				let match = matches[matchIndex] || '';
 				return match + remainder;
 			}
 			remainder = String(matchIndex % 10) + remainder;
@@ -82,7 +81,6 @@ export class ReplacePattern {
  * A replace piece can either be a static string or an index to a specific match.
  */
 export class ReplacePiece {
-
 	public static staticValue(value: string): ReplacePiece {
 		return new ReplacePiece(value, -1);
 	}
@@ -101,7 +99,6 @@ export class ReplacePiece {
 }
 
 class ReplacePieceBuilder {
-
 	private readonly _source: string;
 	private _lastCharIndex: number;
 	private readonly _result: ReplacePiece[];
@@ -135,18 +132,21 @@ class ReplacePieceBuilder {
 
 	public emitMatchIndex(index: number, toCharIndex: number): void {
 		if (this._currentStaticPiece.length !== 0) {
-			this._result[this._resultLen++] = ReplacePiece.staticValue(this._currentStaticPiece);
+			this._result[this._resultLen++] = ReplacePiece.staticValue(
+				this._currentStaticPiece
+			);
 			this._currentStaticPiece = '';
 		}
 		this._result[this._resultLen++] = ReplacePiece.matchIndex(index);
 		this._lastCharIndex = toCharIndex;
 	}
 
-
 	public finalize(): ReplacePattern {
 		this.emitUnchanged(this._source.length);
 		if (this._currentStaticPiece.length !== 0) {
-			this._result[this._resultLen++] = ReplacePiece.staticValue(this._currentStaticPiece);
+			this._result[this._resultLen++] = ReplacePiece.staticValue(
+				this._currentStaticPiece
+			);
 			this._currentStaticPiece = '';
 		}
 		return new ReplacePattern(this._result);
@@ -175,7 +175,6 @@ export function parseReplaceString(replaceString: string): ReplacePattern {
 		let chCode = replaceString.charCodeAt(i);
 
 		if (chCode === CharCode.Backslash) {
-
 			// move to next char
 			i++;
 
@@ -209,7 +208,6 @@ export function parseReplaceString(replaceString: string): ReplacePattern {
 		}
 
 		if (chCode === CharCode.DollarSign) {
-
 			// move to next char
 			i++;
 
@@ -242,7 +240,10 @@ export function parseReplaceString(replaceString: string): ReplacePattern {
 				// peek next char to probe for $nn
 				if (i + 1 < len) {
 					let nextNextChCode = replaceString.charCodeAt(i + 1);
-					if (CharCode.Digit0 <= nextNextChCode && nextNextChCode <= CharCode.Digit9) {
+					if (
+						CharCode.Digit0 <= nextNextChCode &&
+						nextNextChCode <= CharCode.Digit9
+					) {
 						// $nn
 
 						// move to next char

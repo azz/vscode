@@ -3,10 +3,15 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { IStandaloneThemeData } from 'vs/editor/common/services/standaloneThemeService';
-import { editorBackground, editorForeground, editorSelectionHighlight, editorInactiveSelection } from 'vs/platform/theme/common/colorRegistry';
+import {
+	editorBackground,
+	editorForeground,
+	editorSelectionHighlight,
+	editorInactiveSelection
+} from 'vs/platform/theme/common/colorRegistry';
 import { editorIndentGuides } from 'vs/editor/common/view/editorColorRegistry';
 
 /* -------------------------------- Begin vs theme -------------------------------- */
@@ -67,7 +72,7 @@ export const vs: IStandaloneThemeData = {
 		{ token: 'operator.scss', foreground: '666666' },
 		{ token: 'operator.sql', foreground: '778899' },
 		{ token: 'operator.swift', foreground: '666666' },
-		{ token: 'predefined.sql', foreground: 'FF00FF' },
+		{ token: 'predefined.sql', foreground: 'FF00FF' }
 	],
 	colors: {
 		[editorBackground]: '#FFFFFE',
@@ -78,7 +83,6 @@ export const vs: IStandaloneThemeData = {
 	}
 };
 /* -------------------------------- End vs theme -------------------------------- */
-
 
 /* -------------------------------- Begin vs-dark theme -------------------------------- */
 export const vs_dark: IStandaloneThemeData = {
@@ -137,7 +141,7 @@ export const vs_dark: IStandaloneThemeData = {
 		{ token: 'operator.scss', foreground: '909090' },
 		{ token: 'operator.sql', foreground: '778899' },
 		{ token: 'operator.swift', foreground: '909090' },
-		{ token: 'predefined.sql', foreground: 'FF00FF' },
+		{ token: 'predefined.sql', foreground: 'FF00FF' }
 	],
 	colors: {
 		[editorBackground]: '#1E1E1E',
@@ -148,8 +152,6 @@ export const vs_dark: IStandaloneThemeData = {
 	}
 };
 /* -------------------------------- End vs-dark theme -------------------------------- */
-
-
 
 /* -------------------------------- Begin hc-black theme -------------------------------- */
 export const hc_black: IStandaloneThemeData = {
@@ -199,12 +201,12 @@ export const hc_black: IStandaloneThemeData = {
 
 		{ token: 'operator.sql', foreground: '778899' },
 		{ token: 'operator.swift', foreground: '909090' },
-		{ token: 'predefined.sql', foreground: 'FF00FF' },
+		{ token: 'predefined.sql', foreground: 'FF00FF' }
 	],
 	colors: {
 		[editorBackground]: '#000000',
 		[editorForeground]: '#FFFFFF',
-		[editorIndentGuides]: '#FFFFFF',
+		[editorIndentGuides]: '#FFFFFF'
 	}
 };
 /* -------------------------------- End hc-black theme -------------------------------- */

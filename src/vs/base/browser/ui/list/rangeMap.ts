@@ -66,7 +66,10 @@ export function each(range: IRange, fn: (index: number) => void): void {
  * Returns the intersection between a ranged group and a range.
  * Returns `[]` if the intersection is empty.
  */
-export function groupIntersect(range: IRange, groups: IRangedGroup[]): IRangedGroup[] {
+export function groupIntersect(
+	range: IRange,
+	groups: IRangedGroup[]
+): IRangedGroup[] {
 	const result: IRangedGroup[] = [];
 
 	for (let r of groups) {
@@ -132,19 +135,22 @@ export function consolidate(groups: IRangedGroup[]): IRangedGroup[] {
  * collection.
  */
 function concat(...groups: IRangedGroup[][]): IRangedGroup[] {
-	return consolidate(groups.reduce((r, g) => r.concat(g), [] as IRangedGroup[]));
+	return consolidate(
+		groups.reduce((r, g) => r.concat(g), [] as IRangedGroup[])
+	);
 }
 
 export class RangeMap {
-
 	private groups: IRangedGroup[] = [];
 	private _size = 0;
 
 	splice(index: number, deleteCount: number, ...items: IItem[]): void {
 		const diff = items.length - deleteCount;
 		const before = groupIntersect({ start: 0, end: index }, this.groups);
-		const after = groupIntersect({ start: index + deleteCount, end: Number.POSITIVE_INFINITY }, this.groups)
-			.map<IRangedGroup>(g => ({ range: shift(g.range, diff), size: g.size }));
+		const after = groupIntersect(
+			{ start: index + deleteCount, end: Number.POSITIVE_INFINITY },
+			this.groups
+		).map<IRangedGroup>(g => ({ range: shift(g.range, diff), size: g.size }));
 
 		const middle = items.map<IRangedGroup>((item, i) => ({
 			range: { start: index + i, end: index + i + 1 },
@@ -152,7 +158,10 @@ export class RangeMap {
 		}));
 
 		this.groups = concat(before, middle, after);
-		this._size = this.groups.reduce((t, g) => t + (g.size * (g.range.end - g.range.start)), 0);
+		this._size = this.groups.reduce(
+			(t, g) => t + g.size * (g.range.end - g.range.start),
+			0
+		);
 	}
 
 	/**
@@ -188,7 +197,7 @@ export class RangeMap {
 
 		for (let group of this.groups) {
 			const count = group.range.end - group.range.start;
-			const newSize = size + (count * group.size);
+			const newSize = size + count * group.size;
 
 			if (position < newSize) {
 				return index + Math.floor((position - size) / group.size);
@@ -225,7 +234,7 @@ export class RangeMap {
 			const newCount = count + groupCount;
 
 			if (index < newCount) {
-				return position + ((index - count) * group.size);
+				return position + (index - count) * group.size;
 			}
 
 			position += groupCount * group.size;

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import nls = require('vs/nls');
 import { BasicEmmetEditorAction } from 'vs/workbench/parts/emmet/electron-browser/emmetActions';
@@ -15,7 +15,7 @@ class UpdateImageSizeAction extends BasicEmmetEditorAction {
 	constructor() {
 		super(
 			'editor.emmet.action.updateImageSize',
-			nls.localize('updateImageSize', "Emmet: Update Image Size"),
+			nls.localize('updateImageSize', 'Emmet: Update Image Size'),
 			'Emmet: Update Image Size',
 			'update_image_size'
 		);

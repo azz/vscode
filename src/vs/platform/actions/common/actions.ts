@@ -2,14 +2,23 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { Action } from 'vs/base/common/actions';
 import { TPromise } from 'vs/base/common/winjs.base';
-import { SyncDescriptor0, createSyncDescriptor } from 'vs/platform/instantiation/common/descriptors';
-import { IConstructorSignature2, createDecorator } from 'vs/platform/instantiation/common/instantiation';
+import {
+	SyncDescriptor0,
+	createSyncDescriptor
+} from 'vs/platform/instantiation/common/descriptors';
+import {
+	IConstructorSignature2,
+	createDecorator
+} from 'vs/platform/instantiation/common/instantiation';
 import { IKeybindings } from 'vs/platform/keybinding/common/keybindingsRegistry';
-import { ContextKeyExpr, IContextKeyService } from 'vs/platform/contextkey/common/contextkey';
+import {
+	ContextKeyExpr,
+	IContextKeyService
+} from 'vs/platform/contextkey/common/contextkey';
 import { ICommandService } from 'vs/platform/commands/common/commands';
 import { IDisposable } from 'vs/base/common/lifecycle';
 import Event from 'vs/base/common/event';
@@ -35,7 +44,6 @@ export interface IMenuItem {
 }
 
 export class MenuId {
-
 	static readonly EditorTitle = new MenuId('1');
 	static readonly EditorTitleContext = new MenuId('2');
 	static readonly EditorContext = new MenuId('3');
@@ -53,9 +61,7 @@ export class MenuId {
 	static readonly ViewTitle = new MenuId('15');
 	static readonly ViewItemContext = new MenuId('16');
 
-	constructor(private _id: string) {
-
-	}
+	constructor(private _id: string) {}
 
 	get id(): string {
 		return this._id;
@@ -75,7 +81,6 @@ export interface IMenu extends IDisposable {
 export const IMenuService = createDecorator<IMenuService>('menuService');
 
 export interface IMenuService {
-
 	_serviceBrand: any;
 
 	createMenu(id: MenuId, scopedKeybindingService: IContextKeyService): IMenu;
@@ -89,7 +94,6 @@ export interface IMenuRegistry {
 }
 
 export const MenuRegistry: IMenuRegistry = new class {
-
 	private _commands: { [id: string]: ICommandAction } = Object.create(null);
 
 	private _menuItems: { [loc: string]: IMenuItem[] } = Object.create(null);
@@ -146,15 +150,14 @@ export const MenuRegistry: IMenuRegistry = new class {
 			}
 		}
 	}
-};
+}();
 
 export class ExecuteCommandAction extends Action {
-
 	constructor(
 		id: string,
 		label: string,
-		@ICommandService private _commandService: ICommandService) {
-
+		@ICommandService private _commandService: ICommandService
+	) {
 		super(id, label);
 	}
 
@@ -164,7 +167,6 @@ export class ExecuteCommandAction extends Action {
 }
 
 export class MenuItemAction extends ExecuteCommandAction {
-
 	private _options: IMenuActionOptions;
 
 	readonly item: ICommandAction;
@@ -176,13 +178,17 @@ export class MenuItemAction extends ExecuteCommandAction {
 		options: IMenuActionOptions,
 		@ICommandService commandService: ICommandService
 	) {
-		typeof item.title === 'string' ? super(item.id, item.title, commandService) : super(item.id, item.title.value, commandService);
+		typeof item.title === 'string'
+			? super(item.id, item.title, commandService)
+			: super(item.id, item.title.value, commandService);
 		this._cssClass = item.iconClass;
 		this._enabled = true;
 		this._options = options || {};
 
 		this.item = item;
-		this.alt = alt ? new MenuItemAction(alt, undefined, this._options, commandService) : undefined;
+		this.alt = alt
+			? new MenuItemAction(alt, undefined, this._options, commandService)
+			: undefined;
 	}
 
 	run(...args: any[]): TPromise<any> {
@@ -201,7 +207,6 @@ export class MenuItemAction extends ExecuteCommandAction {
 }
 
 export class SyncActionDescriptor {
-
 	private _descriptor: SyncDescriptor0<Action>;
 
 	private _id: string;
@@ -210,8 +215,13 @@ export class SyncActionDescriptor {
 	private _keybindingContext: ContextKeyExpr;
 	private _keybindingWeight: number;
 
-	constructor(ctor: IConstructorSignature2<string, string, Action>,
-		id: string, label: string, keybindings?: IKeybindings, keybindingContext?: ContextKeyExpr, keybindingWeight?: number
+	constructor(
+		ctor: IConstructorSignature2<string, string, Action>,
+		id: string,
+		label: string,
+		keybindings?: IKeybindings,
+		keybindingContext?: ContextKeyExpr,
+		keybindingWeight?: number
 	) {
 		this._id = id;
 		this._label = label;

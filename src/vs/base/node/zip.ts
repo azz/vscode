@@ -34,21 +34,34 @@ function modeFromEntry(entry: Entry) {
 		.reduce((a, b) => a + b, attr & 61440 /* S_IFMT */);
 }
 
-function extractEntry(stream: Readable, fileName: string, mode: number, targetPath: string, options: IOptions): Promise {
+function extractEntry(
+	stream: Readable,
+	fileName: string,
+	mode: number,
+	targetPath: string,
+	options: IOptions
+): Promise {
 	const dirName = path.dirname(fileName);
 	const targetDirName = path.join(targetPath, dirName);
 	const targetFileName = path.join(targetPath, fileName);
 
-	return mkdirp(targetDirName).then(() => new Promise((c, e) => {
-		let istream = createWriteStream(targetFileName, { mode });
-		istream.once('finish', () => c(null));
-		istream.once('error', e);
-		stream.once('error', e);
-		stream.pipe(istream);
-	}));
+	return mkdirp(targetDirName).then(
+		() =>
+			new Promise((c, e) => {
+				let istream = createWriteStream(targetFileName, { mode });
+				istream.once('finish', () => c(null));
+				istream.once('error', e);
+				stream.once('error', e);
+				stream.pipe(istream);
+			})
+	);
 }
 
-function extractZip(zipfile: ZipFile, targetPath: string, options: IOptions): Promise {
+function extractZip(
+	zipfile: ZipFile,
+	targetPath: string,
+	options: IOptions
+): Promise {
 	return new Promise((c, e) => {
 		const throttler = new SimpleThrottler();
 		let last = TPromise.as<any>(null);
@@ -72,13 +85,23 @@ function extractZip(zipfile: ZipFile, targetPath: string, options: IOptions): Pr
 			const stream = ninvoke(zipfile, zipfile.openReadStream, entry);
 			const mode = modeFromEntry(entry);
 
-			last = throttler.queue(() => stream.then(stream => extractEntry(stream, fileName, mode, targetPath, options)));
+			last = throttler.queue(() =>
+				stream.then(stream =>
+					extractEntry(stream, fileName, mode, targetPath, options)
+				)
+			);
 		});
 	});
 }
 
-export function extract(zipPath: string, targetPath: string, options: IExtractOptions = {}): Promise {
-	const sourcePathRegex = new RegExp(options.sourcePath ? `^${options.sourcePath}` : '');
+export function extract(
+	zipPath: string,
+	targetPath: string,
+	options: IExtractOptions = {}
+): Promise {
+	const sourcePathRegex = new RegExp(
+		options.sourcePath ? `^${options.sourcePath}` : ''
+	);
 
 	let promise = nfcall<ZipFile>(openZip, zipPath);
 
@@ -86,7 +109,9 @@ export function extract(zipPath: string, targetPath: string, options: IExtractOp
 		promise = promise.then(zipfile => rimraf(targetPath).then(() => zipfile));
 	}
 
-	return promise.then(zipfile => extractZip(zipfile, targetPath, { sourcePathRegex }));
+	return promise.then(zipfile =>
+		extractZip(zipfile, targetPath, { sourcePathRegex })
+	);
 }
 
 function read(zipPath: string, filePath: string): TPromise<Readable> {
@@ -94,11 +119,20 @@ function read(zipPath: string, filePath: string): TPromise<Readable> {
 		return new TPromise<Readable>((c, e) => {
 			zipfile.on('entry', (entry: Entry) => {
 				if (entry.fileName === filePath) {
-					ninvoke<Readable>(zipfile, zipfile.openReadStream, entry).done(stream => c(stream), err => e(err));
+					ninvoke<Readable>(zipfile, zipfile.openReadStream, entry).done(
+						stream => c(stream),
+						err => e(err)
+					);
 				}
 			});
 
-			zipfile.once('close', () => e(new Error(nls.localize('notFound', "{0} not found inside zip.", filePath))));
+			zipfile.once('close', () =>
+				e(
+					new Error(
+						nls.localize('notFound', '{0} not found inside zip.', filePath)
+					)
+				)
+			);
 		});
 	});
 }

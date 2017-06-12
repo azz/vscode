@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./media/activityaction';
 import nls = require('vs/nls');
@@ -12,8 +12,19 @@ import { TPromise } from 'vs/base/common/winjs.base';
 import { Builder, $ } from 'vs/base/browser/builder';
 import { DelayedDragHandler } from 'vs/base/browser/dnd';
 import { Action } from 'vs/base/common/actions';
-import { BaseActionItem, Separator, IBaseActionItemOptions } from 'vs/base/browser/ui/actionbar/actionbar';
-import { IActivityBarService, ProgressBadge, TextBadge, NumberBadge, IconBadge, IBadge } from 'vs/workbench/services/activity/common/activityBarService';
+import {
+	BaseActionItem,
+	Separator,
+	IBaseActionItemOptions
+} from 'vs/base/browser/ui/actionbar/actionbar';
+import {
+	IActivityBarService,
+	ProgressBadge,
+	TextBadge,
+	NumberBadge,
+	IconBadge,
+	IBadge
+} from 'vs/workbench/services/activity/common/activityBarService';
 import Event, { Emitter } from 'vs/base/common/event';
 import { IContextMenuService } from 'vs/platform/contextview/browser/contextView';
 import { ICommandService } from 'vs/platform/commands/common/commands';
@@ -22,11 +33,28 @@ import { IKeybindingService } from 'vs/platform/keybinding/common/keybinding';
 import { ViewletDescriptor } from 'vs/workbench/browser/viewlet';
 import { IActivity, IGlobalActivity } from 'vs/workbench/browser/activity';
 import { dispose } from 'vs/base/common/lifecycle';
-import { IViewletService, } from 'vs/workbench/services/viewlet/browser/viewlet';
-import { IPartService, Parts } from 'vs/workbench/services/part/common/partService';
-import { IThemeService, ITheme, registerThemingParticipant, ICssStyleCollector } from 'vs/platform/theme/common/themeService';
-import { ACTIVITY_BAR_BADGE_FOREGROUND, ACTIVITY_BAR_BADGE_BACKGROUND, ACTIVITY_BAR_DRAG_AND_DROP_BACKGROUND, ACTIVITY_BAR_FOREGROUND } from 'vs/workbench/common/theme';
-import { contrastBorder, activeContrastBorder, focusBorder } from 'vs/platform/theme/common/colorRegistry';
+import { IViewletService } from 'vs/workbench/services/viewlet/browser/viewlet';
+import {
+	IPartService,
+	Parts
+} from 'vs/workbench/services/part/common/partService';
+import {
+	IThemeService,
+	ITheme,
+	registerThemingParticipant,
+	ICssStyleCollector
+} from 'vs/platform/theme/common/themeService';
+import {
+	ACTIVITY_BAR_BADGE_FOREGROUND,
+	ACTIVITY_BAR_BADGE_BACKGROUND,
+	ACTIVITY_BAR_DRAG_AND_DROP_BACKGROUND,
+	ACTIVITY_BAR_FOREGROUND
+} from 'vs/workbench/common/theme';
+import {
+	contrastBorder,
+	activeContrastBorder,
+	focusBorder
+} from 'vs/platform/theme/common/colorRegistry';
 import { StandardMouseEvent } from 'vs/base/browser/mouseEvent';
 import { KeyCode } from 'vs/base/common/keyCodes';
 import { StandardKeyboardEvent } from 'vs/base/browser/keyboardEvent';
@@ -77,7 +105,6 @@ export class ActivityAction extends Action {
 }
 
 export class ViewletActivityAction extends ActivityAction {
-
 	private static preventDoubleClickDelay = 300;
 
 	private lastRun: number = 0;
@@ -97,7 +124,11 @@ export class ViewletActivityAction extends ActivityAction {
 
 		// prevent accident trigger on a doubleclick (to help nervous people)
 		const now = Date.now();
-		if (now > this.lastRun /* https://github.com/Microsoft/vscode/issues/25830 */ && now - this.lastRun < ViewletActivityAction.preventDoubleClickDelay) {
+		if (
+			now >
+				this.lastRun /* https://github.com/Microsoft/vscode/issues/25830 */ &&
+			now - this.lastRun < ViewletActivityAction.preventDoubleClickDelay
+		) {
 			return TPromise.as(true);
 		}
 		this.lastRun = now;
@@ -106,11 +137,16 @@ export class ViewletActivityAction extends ActivityAction {
 		const activeViewlet = this.viewletService.getActiveViewlet();
 
 		// Hide sidebar if selected viewlet already visible
-		if (sideBarVisible && activeViewlet && activeViewlet.getId() === this.viewlet.id) {
+		if (
+			sideBarVisible &&
+			activeViewlet &&
+			activeViewlet.getId() === this.viewlet.id
+		) {
 			return this.partService.setSideBarHidden(true);
 		}
 
-		return this.viewletService.openViewlet(this.viewlet.id, true)
+		return this.viewletService
+			.openViewlet(this.viewlet.id, true)
 			.then(() => this.activate());
 	}
 }
@@ -130,8 +166,16 @@ export class ActivityActionItem extends BaseActionItem {
 	) {
 		super(null, action, options);
 
-		this.themeService.onThemeChange(this.onThemeChange, this, this._callOnDispose);
-		action.onDidChangeBadge(this.handleBadgeChangeEvenet, this, this._callOnDispose);
+		this.themeService.onThemeChange(
+			this.onThemeChange,
+			this,
+			this._callOnDispose
+		);
+		action.onDidChangeBadge(
+			this.handleBadgeChangeEvenet,
+			this,
+			this._callOnDispose
+		);
 	}
 
 	protected get activity(): IActivity {
@@ -145,7 +189,10 @@ export class ActivityActionItem extends BaseActionItem {
 		if (this.$label) {
 			const background = theme.getColor(ACTIVITY_BAR_FOREGROUND);
 
-			this.$label.style('background-color', background ? background.toString() : null);
+			this.$label.style(
+				'background-color',
+				background ? background.toString() : null
+			);
 		}
 
 		// Badge
@@ -154,12 +201,27 @@ export class ActivityActionItem extends BaseActionItem {
 			const badgeBackground = theme.getColor(ACTIVITY_BAR_BADGE_BACKGROUND);
 			const contrastBorderColor = theme.getColor(contrastBorder);
 
-			this.$badgeContent.style('color', badgeForeground ? badgeForeground.toString() : null);
-			this.$badgeContent.style('background-color', badgeBackground ? badgeBackground.toString() : null);
+			this.$badgeContent.style(
+				'color',
+				badgeForeground ? badgeForeground.toString() : null
+			);
+			this.$badgeContent.style(
+				'background-color',
+				badgeBackground ? badgeBackground.toString() : null
+			);
 
-			this.$badgeContent.style('border-style', contrastBorderColor ? 'solid' : null);
-			this.$badgeContent.style('border-width', contrastBorderColor ? '1px' : null);
-			this.$badgeContent.style('border-color', contrastBorderColor ? contrastBorderColor.toString() : null);
+			this.$badgeContent.style(
+				'border-style',
+				contrastBorderColor ? 'solid' : null
+			);
+			this.$badgeContent.style(
+				'border-width',
+				contrastBorderColor ? '1px' : null
+			);
+			this.$badgeContent.style(
+				'border-color',
+				contrastBorderColor ? contrastBorderColor.toString() : null
+			);
 		}
 	}
 
@@ -194,9 +256,11 @@ export class ActivityActionItem extends BaseActionItem {
 			this.$label.addClass(this.activity.cssClass);
 		}
 
-		this.$badge = this.builder.clone().div({ 'class': 'badge' }, (badge: Builder) => {
-			this.$badgeContent = badge.div({ 'class': 'badge-content' });
-		});
+		this.$badge = this.builder
+			.clone()
+			.div({ class: 'badge' }, (badge: Builder) => {
+				this.$badgeContent = badge.div({ class: 'badge-content' });
+			});
 
 		this.$badge.hide();
 
@@ -216,32 +280,30 @@ export class ActivityActionItem extends BaseActionItem {
 		this.$badge.hide();
 
 		if (badge) {
-
 			// Number
 			if (badge instanceof NumberBadge) {
 				if (badge.number) {
-					this.$badgeContent.text(badge.number > 99 ? '99+' : badge.number.toString());
+					this.$badgeContent.text(
+						badge.number > 99 ? '99+' : badge.number.toString()
+					);
 					this.$badge.show();
 				}
-			}
-
-			// Text
-			else if (badge instanceof TextBadge) {
+			} else if (badge instanceof TextBadge) {
+				// Text
 				this.$badgeContent.text(badge.text);
 				this.$badge.show();
-			}
-
-			// Text
-			else if (badge instanceof IconBadge) {
+			} else if (badge instanceof IconBadge) {
+				// Text
+				this.$badge.show();
+			} else if (badge instanceof ProgressBadge) {
+				// Progress
 				this.$badge.show();
 			}
 
-			// Progress
-			else if (badge instanceof ProgressBadge) {
-				this.$badge.show();
-			}
-
-			this.$label.attr('aria-label', `${this.activity.name} - ${badge.getDescription()}`);
+			this.$label.attr(
+				'aria-label',
+				`${this.activity.name} - ${badge.getDescription()}`
+			);
 		}
 	}
 
@@ -264,7 +326,6 @@ export class ActivityActionItem extends BaseActionItem {
 }
 
 export class ViewletActionItem extends ActivityActionItem {
-
 	private static manageExtensionAction: ManageExtensionAction;
 	private static toggleViewletPinnedAction: ToggleViewletPinnedAction;
 	private static draggedViewlet: ViewletDescriptor;
@@ -286,11 +347,16 @@ export class ViewletActionItem extends ActivityActionItem {
 		this._keybinding = this.getKeybindingLabel(this.viewlet.id);
 
 		if (!ViewletActionItem.manageExtensionAction) {
-			ViewletActionItem.manageExtensionAction = instantiationService.createInstance(ManageExtensionAction);
+			ViewletActionItem.manageExtensionAction = instantiationService.createInstance(
+				ManageExtensionAction
+			);
 		}
 
 		if (!ViewletActionItem.toggleViewletPinnedAction) {
-			ViewletActionItem.toggleViewletPinnedAction = instantiationService.createInstance(ToggleViewletPinnedAction, void 0);
+			ViewletActionItem.toggleViewletPinnedAction = instantiationService.createInstance(
+				ToggleViewletPinnedAction,
+				void 0
+			);
 		}
 	}
 
@@ -376,20 +442,30 @@ export class ViewletActionItem extends ActivityActionItem {
 		this.keybinding = this._keybinding; // force update
 
 		// Activate on drag over to reveal targets
-		[this.$badge, this.$label].forEach(b => new DelayedDragHandler(b.getHTMLElement(), () => {
-			if (!ViewletActionItem.getDraggedViewlet() && !this.getAction().checked) {
-				this.getAction().run();
-			}
-		}));
+		[this.$badge, this.$label].forEach(
+			b =>
+				new DelayedDragHandler(b.getHTMLElement(), () => {
+					if (
+						!ViewletActionItem.getDraggedViewlet() &&
+						!this.getAction().checked
+					) {
+						this.getAction().run();
+					}
+				})
+		);
 
 		this.updateStyles();
 	}
 
 	private updateFromDragging(element: HTMLElement, isDragging: boolean): void {
 		const theme = this.themeService.getTheme();
-		const dragBackground = theme.getColor(ACTIVITY_BAR_DRAG_AND_DROP_BACKGROUND);
+		const dragBackground = theme.getColor(
+			ACTIVITY_BAR_DRAG_AND_DROP_BACKGROUND
+		);
 
-		element.style.backgroundColor = isDragging && dragBackground ? dragBackground.toString() : null;
+		element.style.backgroundColor = isDragging && dragBackground
+			? dragBackground.toString()
+			: null;
 	}
 
 	public static getDraggedViewlet(): ViewletDescriptor {
@@ -413,9 +489,15 @@ export class ViewletActionItem extends ActivityActionItem {
 
 		const isPinned = this.activityBarService.isPinned(this.viewlet.id);
 		if (isPinned) {
-			ViewletActionItem.toggleViewletPinnedAction.label = nls.localize('removeFromActivityBar', "Remove from Activity Bar");
+			ViewletActionItem.toggleViewletPinnedAction.label = nls.localize(
+				'removeFromActivityBar',
+				'Remove from Activity Bar'
+			);
 		} else {
-			ViewletActionItem.toggleViewletPinnedAction.label = nls.localize('keepInActivityBar', "Keep in Activity Bar");
+			ViewletActionItem.toggleViewletPinnedAction.label = nls.localize(
+				'keepInActivityBar',
+				'Keep in Activity Bar'
+			);
 		}
 
 		this.contextMenuService.showContextMenu({
@@ -438,7 +520,12 @@ export class ViewletActionItem extends ActivityActionItem {
 
 		let title: string;
 		if (keybinding) {
-			title = nls.localize('titleKeybinding', "{0} ({1})", this.activity.name, keybinding);
+			title = nls.localize(
+				'titleKeybinding',
+				'{0} ({1})',
+				this.activity.name,
+				keybinding
+			);
 		} else {
 			title = this.activity.name;
 		}
@@ -482,13 +569,10 @@ export class ViewletActionItem extends ActivityActionItem {
 }
 
 export class ViewletOverflowActivityAction extends ActivityAction {
-
-	constructor(
-		private showMenu: () => void
-	) {
+	constructor(private showMenu: () => void) {
 		super({
 			id: 'activitybar.additionalViewlets.action',
-			name: nls.localize('additionalViews', "Additional Views"),
+			name: nls.localize('additionalViews', 'Additional Views'),
 			cssClass: 'toggle-more'
 		});
 	}
@@ -527,19 +611,24 @@ export class ViewletOverflowActivityActionItem extends ActivityActionItem {
 		if (this.$label) {
 			const background = theme.getColor(ACTIVITY_BAR_FOREGROUND);
 
-			this.$label.style('background-color', background ? background.toString() : null);
+			this.$label.style(
+				'background-color',
+				background ? background.toString() : null
+			);
 		}
 	}
 
 	public render(container: HTMLElement): void {
 		super.render(container);
 
-		this.$label = $('a.action-label').attr({
-			tabIndex: '0',
-			role: 'button',
-			title: this.name,
-			class: this.cssClass
-		}).appendTo(this.builder);
+		this.$label = $('a.action-label')
+			.attr({
+				tabIndex: '0',
+				role: 'button',
+				title: this.name,
+				class: this.cssClass
+			})
+			.appendTo(this.builder);
 
 		this.updateStyles();
 	}
@@ -562,7 +651,10 @@ export class ViewletOverflowActivityActionItem extends ActivityActionItem {
 		const activeViewlet = this.viewletService.getActiveViewlet();
 
 		return this.getOverflowingViewlets().map(viewlet => {
-			const action = this.instantiationService.createInstance(OpenViewletAction, viewlet);
+			const action = this.instantiationService.createInstance(
+				OpenViewletAction,
+				viewlet
+			);
 			action.radio = activeViewlet && activeViewlet.getId() === action.id;
 
 			const badge = this.getBadge(action.viewlet);
@@ -574,7 +666,12 @@ export class ViewletOverflowActivityActionItem extends ActivityActionItem {
 			}
 
 			if (suffix) {
-				action.label = nls.localize('numberBadge', "{0} ({1})", action.viewlet.name, suffix);
+				action.label = nls.localize(
+					'numberBadge',
+					'{0} ({1})',
+					action.viewlet.name,
+					suffix
+				);
 			} else {
 				action.label = action.viewlet.name;
 			}
@@ -591,20 +688,22 @@ export class ViewletOverflowActivityActionItem extends ActivityActionItem {
 }
 
 class ManageExtensionAction extends Action {
-
-	constructor(
-		@ICommandService private commandService: ICommandService
-	) {
-		super('activitybar.manage.extension', nls.localize('manageExtension', "Manage Extension"));
+	constructor(@ICommandService private commandService: ICommandService) {
+		super(
+			'activitybar.manage.extension',
+			nls.localize('manageExtension', 'Manage Extension')
+		);
 	}
 
 	public run(viewlet: ViewletDescriptor): TPromise<any> {
-		return this.commandService.executeCommand('_extensions.manage', viewlet.extensionId);
+		return this.commandService.executeCommand(
+			'_extensions.manage',
+			viewlet.extensionId
+		);
 	}
 }
 
 class OpenViewletAction extends Action {
-
 	constructor(
 		private _viewlet: ViewletDescriptor,
 		@IPartService private partService: IPartService,
@@ -622,7 +721,11 @@ class OpenViewletAction extends Action {
 		const activeViewlet = this.viewletService.getActiveViewlet();
 
 		// Hide sidebar if selected viewlet already visible
-		if (sideBarVisible && activeViewlet && activeViewlet.getId() === this.viewlet.id) {
+		if (
+			sideBarVisible &&
+			activeViewlet &&
+			activeViewlet.getId() === this.viewlet.id
+		) {
 			return this.partService.setSideBarHidden(true);
 		}
 
@@ -631,14 +734,17 @@ class OpenViewletAction extends Action {
 }
 
 export class ToggleViewletPinnedAction extends Action {
-
 	constructor(
 		private viewlet: ViewletDescriptor,
 		@IActivityBarService private activityBarService: IActivityBarService
 	) {
-		super('activitybar.show.toggleViewletPinned', viewlet ? viewlet.name : nls.localize('toggle', "Toggle View Pinned"));
+		super(
+			'activitybar.show.toggleViewletPinned',
+			viewlet ? viewlet.name : nls.localize('toggle', 'Toggle View Pinned')
+		);
 
-		this.checked = this.viewlet && this.activityBarService.isPinned(this.viewlet.id);
+		this.checked =
+			this.viewlet && this.activityBarService.isPinned(this.viewlet.id);
 	}
 
 	public run(context?: ViewletDescriptor): TPromise<any> {
@@ -655,14 +761,12 @@ export class ToggleViewletPinnedAction extends Action {
 }
 
 export class GlobalActivityAction extends ActivityAction {
-
 	constructor(activity: IGlobalActivity) {
 		super(activity);
 	}
 }
 
 export class GlobalActivityActionItem extends ActivityActionItem {
-
 	constructor(
 		action: GlobalActivityAction,
 		@IThemeService themeService: IThemeService,
@@ -693,7 +797,9 @@ export class GlobalActivityActionItem extends ActivityActionItem {
 		});
 	}
 
-	private showContextMenu(location: HTMLElement | { x: number, y: number }): void {
+	private showContextMenu(
+		location: HTMLElement | { x: number; y: number }
+	): void {
 		const globalAction = this._action as GlobalActivityAction;
 		const activity = globalAction.activity as IGlobalActivity;
 		const actions = activity.getActions();
@@ -707,7 +813,6 @@ export class GlobalActivityActionItem extends ActivityActionItem {
 }
 
 registerThemingParticipant((theme: ITheme, collector: ICssStyleCollector) => {
-
 	// Styling with Outline color (e.g. high contrast theme)
 	const outline = theme.getColor(activeContrastBorder);
 	if (outline) {
@@ -751,10 +856,8 @@ registerThemingParticipant((theme: ITheme, collector: ICssStyleCollector) => {
 				outline-color: ${outline};
 			}
 		`);
-	}
-
-	// Styling without outline color
-	else {
+	} else {
+		// Styling without outline color
 		const focusBorderColor = theme.getColor(focusBorder);
 		if (focusBorderColor) {
 			collector.addRule(`

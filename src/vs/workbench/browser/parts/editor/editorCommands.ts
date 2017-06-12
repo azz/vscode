@@ -8,14 +8,24 @@ import * as types from 'vs/base/common/types';
 import { ServicesAccessor } from 'vs/platform/instantiation/common/instantiation';
 import { KeybindingsRegistry } from 'vs/platform/keybinding/common/keybindingsRegistry';
 import { IEditorGroupService } from 'vs/workbench/services/group/common/groupService';
-import { ActiveEditorMoveArguments, ActiveEditorMovePositioning, ActiveEditorMovePositioningBy, EditorCommands, TextCompareEditorVisible } from 'vs/workbench/common/editor';
+import {
+	ActiveEditorMoveArguments,
+	ActiveEditorMovePositioning,
+	ActiveEditorMovePositioningBy,
+	EditorCommands,
+	TextCompareEditorVisible
+} from 'vs/workbench/common/editor';
 import { IWorkbenchEditorService } from 'vs/workbench/services/editor/common/editorService';
 import { IEditor, Position, POSITIONS } from 'vs/platform/editor/common/editor';
 import { EditorContextKeys } from 'vs/editor/common/editorContextKeys';
 import { TextDiffEditor } from 'vs/workbench/browser/parts/editor/textDiffEditor';
 import { EditorStacksModel } from 'vs/workbench/common/editor/editorStacksModel';
 import { ICommandService } from 'vs/platform/commands/common/commands';
-import { IMessageService, Severity, CloseAction } from 'vs/platform/message/common/message';
+import {
+	IMessageService,
+	Severity,
+	CloseAction
+} from 'vs/platform/message/common/message';
 import { Action } from 'vs/base/common/actions';
 import { KeyMod, KeyCode } from 'vs/base/common/keyCodes';
 
@@ -26,7 +36,9 @@ export function setup(): void {
 	handleCommandDeprecations();
 }
 
-const isActiveEditorMoveArg = function (arg: ActiveEditorMoveArguments): boolean {
+const isActiveEditorMoveArg = function(
+	arg: ActiveEditorMoveArguments
+): boolean {
 	if (!types.isObject(arg)) {
 		return false;
 	}
@@ -37,11 +49,17 @@ const isActiveEditorMoveArg = function (arg: ActiveEditorMoveArguments): boolean
 		return false;
 	}
 
-	if (!types.isUndefined(activeEditorMoveArg.by) && !types.isString(activeEditorMoveArg.by)) {
+	if (
+		!types.isUndefined(activeEditorMoveArg.by) &&
+		!types.isString(activeEditorMoveArg.by)
+	) {
 		return false;
 	}
 
-	if (!types.isUndefined(activeEditorMoveArg.value) && !types.isNumber(activeEditorMoveArg.value)) {
+	if (
+		!types.isUndefined(activeEditorMoveArg.value) &&
+		!types.isNumber(activeEditorMoveArg.value)
+	) {
 		return false;
 	}
 
@@ -56,15 +74,24 @@ function registerActiveEditorMoveCommand(): void {
 		primary: null,
 		handler: (accessor, args: any) => moveActiveEditor(args, accessor),
 		description: {
-			description: nls.localize('editorCommand.activeEditorMove.description', "Move the active editor by tabs or groups"),
+			description: nls.localize(
+				'editorCommand.activeEditorMove.description',
+				'Move the active editor by tabs or groups'
+			),
 			args: [
 				{
-					name: nls.localize('editorCommand.activeEditorMove.arg.name', "Active editor move argument"),
-					description: nls.localize('editorCommand.activeEditorMove.arg.description', `Argument Properties:
+					name: nls.localize(
+						'editorCommand.activeEditorMove.arg.name',
+						'Active editor move argument'
+					),
+					description: nls.localize(
+						'editorCommand.activeEditorMove.arg.description',
+						`Argument Properties:
 						* 'to': String value providing where to move.
 						* 'by': String value providing the unit for move. By tab or by group.
 						* 'value': Number value providing how many positions or an absolute position to move.
-					`),
+					`
+					),
 					constraint: isActiveEditorMoveArg
 				}
 			]
@@ -72,10 +99,15 @@ function registerActiveEditorMoveCommand(): void {
 	});
 }
 
-function moveActiveEditor(args: ActiveEditorMoveArguments = {}, accessor: ServicesAccessor): void {
+function moveActiveEditor(
+	args: ActiveEditorMoveArguments = {},
+	accessor: ServicesAccessor
+): void {
 	const showTabs = accessor.get(IEditorGroupService).getTabOptions().showTabs;
 	args.to = args.to || ActiveEditorMovePositioning.RIGHT;
-	args.by = showTabs ? args.by || ActiveEditorMovePositioningBy.TAB : ActiveEditorMovePositioningBy.GROUP;
+	args.by = showTabs
+		? args.by || ActiveEditorMovePositioningBy.TAB
+		: ActiveEditorMovePositioningBy.GROUP;
 	args.value = types.isUndefined(args.value) ? 1 : args.value;
 
 	const activeEditor = accessor.get(IWorkbenchEditorService).getActiveEditor();
@@ -89,9 +121,17 @@ function moveActiveEditor(args: ActiveEditorMoveArguments = {}, accessor: Servic
 	}
 }
 
-function moveActiveTab(args: ActiveEditorMoveArguments, activeEditor: IEditor, accessor: ServicesAccessor): void {
-	const editorGroupsService: IEditorGroupService = accessor.get(IEditorGroupService);
-	const editorGroup = editorGroupsService.getStacksModel().groupAt(activeEditor.position);
+function moveActiveTab(
+	args: ActiveEditorMoveArguments,
+	activeEditor: IEditor,
+	accessor: ServicesAccessor
+): void {
+	const editorGroupsService: IEditorGroupService = accessor.get(
+		IEditorGroupService
+	);
+	const editorGroup = editorGroupsService
+		.getStacksModel()
+		.groupAt(activeEditor.position);
 	let index = editorGroup.indexOf(activeEditor.input);
 	switch (args.to) {
 		case ActiveEditorMovePositioning.FIRST:
@@ -114,11 +154,19 @@ function moveActiveTab(args: ActiveEditorMoveArguments, activeEditor: IEditor, a
 			break;
 	}
 
-	index = index < 0 ? 0 : index >= editorGroup.count ? editorGroup.count - 1 : index;
-	editorGroupsService.moveEditor(activeEditor.input, editorGroup, editorGroup, { index });
+	index = index < 0
+		? 0
+		: index >= editorGroup.count ? editorGroup.count - 1 : index;
+	editorGroupsService.moveEditor(activeEditor.input, editorGroup, editorGroup, {
+		index
+	});
 }
 
-function moveActiveEditorToGroup(args: ActiveEditorMoveArguments, activeEditor: IEditor, accessor: ServicesAccessor): void {
+function moveActiveEditorToGroup(
+	args: ActiveEditorMoveArguments,
+	activeEditor: IEditor,
+	accessor: ServicesAccessor
+): void {
 	let newPosition = activeEditor.position;
 	switch (args.to) {
 		case ActiveEditorMovePositioning.LEFT:
@@ -141,8 +189,12 @@ function moveActiveEditorToGroup(args: ActiveEditorMoveArguments, activeEditor: 
 			break;
 	}
 
-	newPosition = POSITIONS.indexOf(newPosition) !== -1 ? newPosition : activeEditor.position;
-	accessor.get(IEditorGroupService).moveEditor(activeEditor.input, activeEditor.position, newPosition);
+	newPosition = POSITIONS.indexOf(newPosition) !== -1
+		? newPosition
+		: activeEditor.position;
+	accessor
+		.get(IEditorGroupService)
+		.moveEditor(activeEditor.input, activeEditor.position, newPosition);
 }
 
 function registerDiffEditorCommands(): void {
@@ -162,12 +214,20 @@ function registerDiffEditorCommands(): void {
 		handler: accessor => navigateInDiffEditor(accessor, false)
 	});
 
-	function navigateInDiffEditor(accessor: ServicesAccessor, next: boolean): void {
+	function navigateInDiffEditor(
+		accessor: ServicesAccessor,
+		next: boolean
+	): void {
 		let editorService = accessor.get(IWorkbenchEditorService);
-		const candidates = [editorService.getActiveEditor(), ...editorService.getVisibleEditors()].filter(e => e instanceof TextDiffEditor);
+		const candidates = [
+			editorService.getActiveEditor(),
+			...editorService.getVisibleEditors()
+		].filter(e => e instanceof TextDiffEditor);
 
 		if (candidates.length > 0) {
-			next ? (<TextDiffEditor>candidates[0]).getDiffNavigator().next() : (<TextDiffEditor>candidates[0]).getDiffNavigator().previous();
+			next
+				? (<TextDiffEditor>candidates[0]).getDiffNavigator().next()
+				: (<TextDiffEditor>candidates[0]).getDiffNavigator().previous();
 		}
 	}
 
@@ -175,7 +235,9 @@ function registerDiffEditorCommands(): void {
 		id: '_workbench.printStacksModel',
 		weight: KeybindingsRegistry.WEIGHT.workbenchContrib(0),
 		handler(accessor: ServicesAccessor) {
-			console.log(`${accessor.get(IEditorGroupService).getStacksModel().toString()}\n\n`);
+			console.log(
+				`${accessor.get(IEditorGroupService).getStacksModel().toString()}\n\n`
+			);
 		},
 		when: undefined,
 		primary: undefined
@@ -185,7 +247,9 @@ function registerDiffEditorCommands(): void {
 		id: '_workbench.validateStacksModel',
 		weight: KeybindingsRegistry.WEIGHT.workbenchContrib(0),
 		handler(accessor: ServicesAccessor) {
-			(<EditorStacksModel>accessor.get(IEditorGroupService).getStacksModel()).validate();
+			(<EditorStacksModel>accessor
+				.get(IEditorGroupService)
+				.getStacksModel()).validate();
 		},
 		when: undefined,
 		primary: undefined
@@ -209,11 +273,24 @@ function handleCommandDeprecations(): void {
 				const commandService = accessor.get(ICommandService);
 
 				messageService.show(Severity.Warning, {
-					message: nls.localize('commandDeprecated', "Command **{0}** has been removed. You can use **{1}** instead", deprecatedCommandId, newCommandId),
+					message: nls.localize(
+						'commandDeprecated',
+						'Command **{0}** has been removed. You can use **{1}** instead',
+						deprecatedCommandId,
+						newCommandId
+					),
 					actions: [
-						new Action('openKeybindings', nls.localize('openKeybindings', "Configure Keyboard Shortcuts"), null, true, () => {
-							return commandService.executeCommand('workbench.action.openGlobalKeybindings');
-						}),
+						new Action(
+							'openKeybindings',
+							nls.localize('openKeybindings', 'Configure Keyboard Shortcuts'),
+							null,
+							true,
+							() => {
+								return commandService.executeCommand(
+									'workbench.action.openGlobalKeybindings'
+								);
+							}
+						),
 						CloseAction
 					]
 				});
@@ -225,7 +302,6 @@ function handleCommandDeprecations(): void {
 }
 
 function registerOpenEditorAtIndexCommands(): void {
-
 	// Keybindings to focus a specific index in the tab folder if tabs are enabled
 	for (let i = 0; i < 9; i++) {
 		const editorIndex = i;
@@ -243,7 +319,9 @@ function registerOpenEditorAtIndexCommands(): void {
 
 				const active = editorService.getActiveEditor();
 				if (active) {
-					const group = editorGroupService.getStacksModel().groupAt(active.position);
+					const group = editorGroupService
+						.getStacksModel()
+						.groupAt(active.position);
 					const editor = group.getEditor(editorIndex);
 
 					if (editor) {
@@ -257,16 +335,26 @@ function registerOpenEditorAtIndexCommands(): void {
 
 	function toKeyCode(index: number): KeyCode {
 		switch (index) {
-			case 0: return KeyCode.KEY_0;
-			case 1: return KeyCode.KEY_1;
-			case 2: return KeyCode.KEY_2;
-			case 3: return KeyCode.KEY_3;
-			case 4: return KeyCode.KEY_4;
-			case 5: return KeyCode.KEY_5;
-			case 6: return KeyCode.KEY_6;
-			case 7: return KeyCode.KEY_7;
-			case 8: return KeyCode.KEY_8;
-			case 9: return KeyCode.KEY_9;
+			case 0:
+				return KeyCode.KEY_0;
+			case 1:
+				return KeyCode.KEY_1;
+			case 2:
+				return KeyCode.KEY_2;
+			case 3:
+				return KeyCode.KEY_3;
+			case 4:
+				return KeyCode.KEY_4;
+			case 5:
+				return KeyCode.KEY_5;
+			case 6:
+				return KeyCode.KEY_6;
+			case 7:
+				return KeyCode.KEY_7;
+			case 8:
+				return KeyCode.KEY_8;
+			case 9:
+				return KeyCode.KEY_9;
 		}
 		return undefined;
 	}

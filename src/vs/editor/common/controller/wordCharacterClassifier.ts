@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { CharCode } from 'vs/base/common/charCode';
 import { CharacterClassifier } from 'vs/editor/common/core/characterClassifier';
@@ -13,8 +13,9 @@ export const enum WordCharacterClass {
 	WordSeparator = 2
 }
 
-export class WordCharacterClassifier extends CharacterClassifier<WordCharacterClass> {
-
+export class WordCharacterClassifier extends CharacterClassifier<
+	WordCharacterClass
+> {
 	constructor(wordSeparators: string) {
 		super(WordCharacterClass.Regular);
 
@@ -25,11 +26,10 @@ export class WordCharacterClassifier extends CharacterClassifier<WordCharacterCl
 		this.set(CharCode.Space, WordCharacterClass.Whitespace);
 		this.set(CharCode.Tab, WordCharacterClass.Whitespace);
 	}
-
 }
 
 function once<R>(computeFn: (input: string) => R): (input: string) => R {
-	let cache: { [key: string]: R; } = {}; // TODO@Alex unbounded cache
+	let cache: { [key: string]: R } = {}; // TODO@Alex unbounded cache
 	return (input: string): R => {
 		if (!cache.hasOwnProperty(input)) {
 			cache[input] = computeFn(input);
@@ -39,5 +39,5 @@ function once<R>(computeFn: (input: string) => R): (input: string) => R {
 }
 
 export const getMapForWordSeparators = once<WordCharacterClassifier>(
-	(input) => new WordCharacterClassifier(input)
+	input => new WordCharacterClassifier(input)
 );

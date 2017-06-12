@@ -2,15 +2,20 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { WrappingIndent } from 'vs/editor/common/config/editorOptions';
 import { CharacterHardWrappingLineMapperFactory } from 'vs/editor/common/viewModel/characterHardWrappingLineMapper';
 import { ILineMapperFactory } from 'vs/editor/common/viewModel/splitLinesCollection';
 
-function assertLineMapping(factory: ILineMapperFactory, tabSize: number, breakAfter: number, annotatedText: string, wrappingIndent = WrappingIndent.None) {
-
+function assertLineMapping(
+	factory: ILineMapperFactory,
+	tabSize: number,
+	breakAfter: number,
+	annotatedText: string,
+	wrappingIndent = WrappingIndent.None
+) {
 	let rawText = '';
 	let currentLineIndex = 0;
 	let lineIndices: number[] = [];
@@ -23,7 +28,13 @@ function assertLineMapping(factory: ILineMapperFactory, tabSize: number, breakAf
 		}
 	}
 
-	let mapper = factory.createLineMapping(rawText, tabSize, breakAfter, 2, wrappingIndent);
+	let mapper = factory.createLineMapping(
+		rawText,
+		tabSize,
+		breakAfter,
+		2,
+		wrappingIndent
+	);
 
 	let actualAnnotatedText = '';
 	if (mapper) {
@@ -46,7 +57,6 @@ function assertLineMapping(factory: ILineMapperFactory, tabSize: number, breakAf
 
 suite('Editor ViewModel - CharacterHardWrappingLineMapper', () => {
 	test('CharacterHardWrappingLineMapper', () => {
-
 		let factory = new CharacterHardWrappingLineMapperFactory('(', ')', '.');
 
 		// Empty string
@@ -99,11 +109,23 @@ suite('Editor ViewModel - CharacterHardWrappingLineMapper', () => {
 
 	test('CharacterHardWrappingLineMapper - WrappingIndent.Same', () => {
 		let factory = new CharacterHardWrappingLineMapperFactory('', ' ', '');
-		assertLineMapping(factory, 4, 38, ' *123456789012345678901234567890123456|7890', WrappingIndent.Same);
+		assertLineMapping(
+			factory,
+			4,
+			38,
+			' *123456789012345678901234567890123456|7890',
+			WrappingIndent.Same
+		);
 	});
 
 	test('issue #16332: Scroll bar overlaying on top of text', () => {
 		let factory = new CharacterHardWrappingLineMapperFactory('', ' ', '');
-		assertLineMapping(factory, 4, 24, 'a/ very/long/line/of/tex|t/that/expands/beyon|d/your/typical/line/|of/code/', WrappingIndent.Indent);
+		assertLineMapping(
+			factory,
+			4,
+			24,
+			'a/ very/long/line/of/tex|t/that/expands/beyon|d/your/typical/line/|of/code/',
+			WrappingIndent.Indent
+		);
 	});
 });

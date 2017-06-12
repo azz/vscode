@@ -3,7 +3,10 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { IEnvironmentService, ParsedArgs } from 'vs/platform/environment/common/environment';
+import {
+	IEnvironmentService,
+	ParsedArgs
+} from 'vs/platform/environment/common/environment';
 import * as crypto from 'crypto';
 import * as paths from 'vs/base/node/paths';
 import * as os from 'os';
@@ -26,7 +29,11 @@ function getUniqueUserId(): string {
 	}
 
 	// use sha256 to ensure the userid value can be used in filenames and are unique
-	return crypto.createHash('sha256').update(username).digest('hex').substr(0, 6);
+	return crypto
+		.createHash('sha256')
+		.update(username)
+		.digest('hex')
+		.substr(0, 6);
 }
 
 function getNixIPCHandle(userDataPath: string, type: string): string {
@@ -51,69 +58,123 @@ function getIPCHandle(userDataPath: string, type: string): string {
 }
 
 export class EnvironmentService implements IEnvironmentService {
-
 	_serviceBrand: any;
 
-	get args(): ParsedArgs { return this._args; }
+	get args(): ParsedArgs {
+		return this._args;
+	}
 
 	@memoize
-	get appRoot(): string { return path.dirname(URI.parse(require.toUrl('')).fsPath); }
+	get appRoot(): string {
+		return path.dirname(URI.parse(require.toUrl('')).fsPath);
+	}
 
-	get execPath(): string { return this._execPath; }
-
-	@memoize
-	get userHome(): string { return os.homedir(); }
-
-	@memoize
-	get userDataPath(): string { return parseUserDataDir(this._args, process); }
-
-	get appNameLong(): string { return product.nameLong; }
-
-	get appQuality(): string { return product.quality; }
+	get execPath(): string {
+		return this._execPath;
+	}
 
 	@memoize
-	get appSettingsHome(): string { return path.join(this.userDataPath, 'User'); }
+	get userHome(): string {
+		return os.homedir();
+	}
 
 	@memoize
-	get appSettingsPath(): string { return path.join(this.appSettingsHome, 'settings.json'); }
+	get userDataPath(): string {
+		return parseUserDataDir(this._args, process);
+	}
+
+	get appNameLong(): string {
+		return product.nameLong;
+	}
+
+	get appQuality(): string {
+		return product.quality;
+	}
 
 	@memoize
-	get appKeybindingsPath(): string { return path.join(this.appSettingsHome, 'keybindings.json'); }
+	get appSettingsHome(): string {
+		return path.join(this.userDataPath, 'User');
+	}
 
 	@memoize
-	get isExtensionDevelopment(): boolean { return !!this._args.extensionDevelopmentPath; }
+	get appSettingsPath(): string {
+		return path.join(this.appSettingsHome, 'settings.json');
+	}
 
 	@memoize
-	get backupHome(): string { return path.join(this.userDataPath, 'Backups'); }
+	get appKeybindingsPath(): string {
+		return path.join(this.appSettingsHome, 'keybindings.json');
+	}
 
 	@memoize
-	get backupWorkspacesPath(): string { return path.join(this.backupHome, 'workspaces.json'); }
+	get isExtensionDevelopment(): boolean {
+		return !!this._args.extensionDevelopmentPath;
+	}
 
 	@memoize
-	get extensionsPath(): string { return parsePathArg(this._args['extensions-dir'], process) || path.join(this.userHome, product.dataFolderName, 'extensions'); }
+	get backupHome(): string {
+		return path.join(this.userDataPath, 'Backups');
+	}
 
 	@memoize
-	get extensionDevelopmentPath(): string { return this._args.extensionDevelopmentPath ? path.normalize(this._args.extensionDevelopmentPath) : this._args.extensionDevelopmentPath; }
+	get backupWorkspacesPath(): string {
+		return path.join(this.backupHome, 'workspaces.json');
+	}
 
 	@memoize
-	get extensionTestsPath(): string { return this._args.extensionTestsPath ? path.normalize(this._args.extensionTestsPath) : this._args.extensionTestsPath; }
-
-	get disableExtensions(): boolean { return this._args['disable-extensions']; }
-
-	get skipGettingStarted(): boolean { return this._args['skip-getting-started']; }
-
-	@memoize
-	get debugExtensionHost(): { port: number; break: boolean; } { return parseExtensionHostPort(this._args, this.isBuilt); }
-
-	get isBuilt(): boolean { return !process.env['VSCODE_DEV']; }
-	get verbose(): boolean { return this._args.verbose; }
-	get wait(): boolean { return this._args.wait; }
-	get logExtensionHostCommunication(): boolean { return this._args.logExtensionHostCommunication; }
-
-	get performance(): boolean { return this._args.performance; }
+	get extensionsPath(): string {
+		return (
+			parsePathArg(this._args['extensions-dir'], process) ||
+			path.join(this.userHome, product.dataFolderName, 'extensions')
+		);
+	}
 
 	@memoize
-	get profileStartup(): { prefix: string, dir: string } | undefined {
+	get extensionDevelopmentPath(): string {
+		return this._args.extensionDevelopmentPath
+			? path.normalize(this._args.extensionDevelopmentPath)
+			: this._args.extensionDevelopmentPath;
+	}
+
+	@memoize
+	get extensionTestsPath(): string {
+		return this._args.extensionTestsPath
+			? path.normalize(this._args.extensionTestsPath)
+			: this._args.extensionTestsPath;
+	}
+
+	get disableExtensions(): boolean {
+		return this._args['disable-extensions'];
+	}
+
+	get skipGettingStarted(): boolean {
+		return this._args['skip-getting-started'];
+	}
+
+	@memoize
+	get debugExtensionHost(): { port: number; break: boolean } {
+		return parseExtensionHostPort(this._args, this.isBuilt);
+	}
+
+	get isBuilt(): boolean {
+		return !process.env['VSCODE_DEV'];
+	}
+	get verbose(): boolean {
+		return this._args.verbose;
+	}
+	get wait(): boolean {
+		return this._args.wait;
+	}
+	get logExtensionHostCommunication(): boolean {
+		return this._args.logExtensionHostCommunication;
+	}
+
+	get performance(): boolean {
+		return this._args.performance;
+	}
+
+	@memoize
+	get profileStartup(): { prefix: string; dir: string } | undefined {
 		if (this._args['prof-startup']) {
 			return {
 				prefix: process.env.VSCODE_PROFILES_PREFIX,
@@ -125,18 +186,29 @@ export class EnvironmentService implements IEnvironmentService {
 	}
 
 	@memoize
-	get mainIPCHandle(): string { return getIPCHandle(this.userDataPath, 'main'); }
+	get mainIPCHandle(): string {
+		return getIPCHandle(this.userDataPath, 'main');
+	}
 
 	@memoize
-	get sharedIPCHandle(): string { return getIPCHandle(this.userDataPath, 'shared'); }
+	get sharedIPCHandle(): string {
+		return getIPCHandle(this.userDataPath, 'shared');
+	}
 
 	@memoize
-	get nodeCachedDataDir(): string { return this.isBuilt ? path.join(this.userDataPath, 'CachedData', product.commit) : undefined; }
+	get nodeCachedDataDir(): string {
+		return this.isBuilt
+			? path.join(this.userDataPath, 'CachedData', product.commit)
+			: undefined;
+	}
 
-	constructor(private _args: ParsedArgs, private _execPath: string) { }
+	constructor(private _args: ParsedArgs, private _execPath: string) {}
 }
 
-export function parseExtensionHostPort(args: ParsedArgs, isBuild: boolean): { port: number; break: boolean; } {
+export function parseExtensionHostPort(
+	args: ParsedArgs,
+	isBuild: boolean
+): { port: number; break: boolean } {
 	const portStr = args.debugBrkPluginHost || args.debugPluginHost;
 	const port = Number(portStr) || (!isBuild ? 5870 : null);
 	const brk = port ? Boolean(!!args.debugBrkPluginHost) : false;
@@ -159,6 +231,12 @@ function parsePathArg(arg: string, process: NodeJS.Process): string {
 	}
 }
 
-export function parseUserDataDir(args: ParsedArgs, process: NodeJS.Process): string {
-	return parsePathArg(args['user-data-dir'], process) || path.resolve(paths.getDefaultUserDataPath(process.platform));
+export function parseUserDataDir(
+	args: ParsedArgs,
+	process: NodeJS.Process
+): string {
+	return (
+		parsePathArg(args['user-data-dir'], process) ||
+		path.resolve(paths.getDefaultUserDataPath(process.platform))
+	);
 }

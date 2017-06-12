@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { LineTokens } from 'vs/editor/common/core/lineTokens';
@@ -11,7 +11,6 @@ import { MetadataConsts } from 'vs/editor/common/modes';
 import { ViewLineToken } from 'vs/editor/common/core/viewLineToken';
 
 suite('LineTokens', () => {
-
 	interface ILineToken {
 		startIndex: number;
 		foreground: number;
@@ -22,34 +21,33 @@ suite('LineTokens', () => {
 
 		for (let i = 0, len = tokens.length; i < len; i++) {
 			let token = tokens[i];
-			binTokens[(i << 1)] = token.startIndex;
-			binTokens[(i << 1) + 1] = (
-				token.foreground << MetadataConsts.FOREGROUND_OFFSET
-			) >>> 0;
+			binTokens[i << 1] = token.startIndex;
+			binTokens[(i << 1) + 1] =
+				token.foreground << MetadataConsts.FOREGROUND_OFFSET >>> 0;
 		}
 
 		return new LineTokens(binTokens, text);
 	}
 
 	function createTestLineTokens(): LineTokens {
-		return createLineTokens(
-			'Hello world, this is a lovely day',
-			[
-				{ startIndex: 0, foreground: 1 }, // Hello_
-				{ startIndex: 6, foreground: 2 }, // world,_
-				{ startIndex: 13, foreground: 3 }, // this_
-				{ startIndex: 18, foreground: 4 }, // is_
-				{ startIndex: 21, foreground: 5 }, // a_
-				{ startIndex: 23, foreground: 6 }, // lovely_
-				{ startIndex: 30, foreground: 7 }, // day
-			]
-		);
+		return createLineTokens('Hello world, this is a lovely day', [
+			{ startIndex: 0, foreground: 1 }, // Hello_
+			{ startIndex: 6, foreground: 2 }, // world,_
+			{ startIndex: 13, foreground: 3 }, // this_
+			{ startIndex: 18, foreground: 4 }, // is_
+			{ startIndex: 21, foreground: 5 }, // a_
+			{ startIndex: 23, foreground: 6 }, // lovely_
+			{ startIndex: 30, foreground: 7 } // day
+		]);
 	}
 
 	test('basics', () => {
 		const lineTokens = createTestLineTokens();
 
-		assert.equal(lineTokens.getLineContent(), 'Hello world, this is a lovely day');
+		assert.equal(
+			lineTokens.getLineContent(),
+			'Hello world, this is a lovely day'
+		);
 		assert.equal(lineTokens.getLineLength(), 33);
 		assert.equal(lineTokens.getTokenCount(), 7);
 
@@ -206,13 +204,19 @@ suite('LineTokens', () => {
 		foreground: number;
 	}
 
-	function assertViewLineTokens(actual: ViewLineToken[], expected: ITestViewLineToken[]): void {
-		assert.deepEqual(actual.map(token => {
-			return {
-				endIndex: token.endIndex,
-				foreground: token.getForeground()
-			};
-		}), expected);
+	function assertViewLineTokens(
+		actual: ViewLineToken[],
+		expected: ITestViewLineToken[]
+	): void {
+		assert.deepEqual(
+			actual.map(token => {
+				return {
+					endIndex: token.endIndex,
+					foreground: token.getForeground()
+				};
+			}),
+			expected
+		);
 	}
 
 	test('inflate', () => {
@@ -224,7 +228,7 @@ suite('LineTokens', () => {
 			{ endIndex: 21, foreground: 4 },
 			{ endIndex: 23, foreground: 5 },
 			{ endIndex: 30, foreground: 6 },
-			{ endIndex: 33, foreground: 7 },
+			{ endIndex: 33, foreground: 7 }
 		]);
 	});
 
@@ -237,7 +241,7 @@ suite('LineTokens', () => {
 			{ endIndex: 21, foreground: 4 },
 			{ endIndex: 23, foreground: 5 },
 			{ endIndex: 30, foreground: 6 },
-			{ endIndex: 33, foreground: 7 },
+			{ endIndex: 33, foreground: 7 }
 		]);
 
 		assertViewLineTokens(lineTokens.sliceAndInflate(0, 32, 0), [
@@ -247,7 +251,7 @@ suite('LineTokens', () => {
 			{ endIndex: 21, foreground: 4 },
 			{ endIndex: 23, foreground: 5 },
 			{ endIndex: 30, foreground: 6 },
-			{ endIndex: 32, foreground: 7 },
+			{ endIndex: 32, foreground: 7 }
 		]);
 
 		assertViewLineTokens(lineTokens.sliceAndInflate(0, 30, 0), [
@@ -286,7 +290,7 @@ suite('LineTokens', () => {
 		assertViewLineTokens(lineTokens.sliceAndInflate(6, 19, 0), [
 			{ endIndex: 7, foreground: 2 },
 			{ endIndex: 12, foreground: 3 },
-			{ endIndex: 13, foreground: 4 },
+			{ endIndex: 13, foreground: 4 }
 		]);
 	});
 });

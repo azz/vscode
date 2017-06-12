@@ -3,9 +3,16 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
-import { ExtensionContext, workspace, window, Disposable, commands, Uri } from 'vscode';
+import {
+	ExtensionContext,
+	workspace,
+	window,
+	Disposable,
+	commands,
+	Uri
+} from 'vscode';
 import { findGit, Git, IGit } from './git';
 import { Model } from './model';
 import { GitSCMProvider } from './scmProvider';
@@ -20,9 +27,18 @@ import * as nls from 'vscode-nls';
 
 const localize = nls.config(process.env.VSCODE_NLS_CONFIG)();
 
-async function init(context: ExtensionContext, disposables: Disposable[]): Promise<void> {
-	const { name, version, aiKey } = require(context.asAbsolutePath('./package.json')) as { name: string, version: string, aiKey: string };
-	const telemetryReporter: TelemetryReporter = new TelemetryReporter(name, version, aiKey);
+async function init(
+	context: ExtensionContext,
+	disposables: Disposable[]
+): Promise<void> {
+	const { name, version, aiKey } = require(context.asAbsolutePath(
+		'./package.json'
+	)) as { name: string; version: string; aiKey: string };
+	const telemetryReporter: TelemetryReporter = new TelemetryReporter(
+		name,
+		version,
+		aiKey
+	);
 	disposables.push(telemetryReporter);
 
 	const outputChannel = window.createOutputChannel('Git');
@@ -39,20 +55,34 @@ async function init(context: ExtensionContext, disposables: Disposable[]): Promi
 	const git = new Git({ gitPath: info.path, version: info.version, env });
 
 	if (!workspaceRootPath || !enabled) {
-		const commandCenter = new CommandCenter(git, undefined, outputChannel, telemetryReporter);
+		const commandCenter = new CommandCenter(
+			git,
+			undefined,
+			outputChannel,
+			telemetryReporter
+		);
 		disposables.push(commandCenter);
 		return;
 	}
 
 	const model = new Model(git, workspaceRootPath);
 
-	outputChannel.appendLine(localize('using git', "Using git {0} from {1}", info.version, info.path));
+	outputChannel.appendLine(
+		localize('using git', 'Using git {0} from {1}', info.version, info.path)
+	);
 
 	const onOutput = str => outputChannel.append(str);
 	git.onOutput.addListener('log', onOutput);
-	disposables.push(toDisposable(() => git.onOutput.removeListener('log', onOutput)));
+	disposables.push(
+		toDisposable(() => git.onOutput.removeListener('log', onOutput))
+	);
 
-	const commandCenter = new CommandCenter(git, model, outputChannel, telemetryReporter);
+	const commandCenter = new CommandCenter(
+		git,
+		model,
+		outputChannel,
+		telemetryReporter
+	);
 	const statusBarCommands = new StatusBarCommands(model);
 	const provider = new GitSCMProvider(model, commandCenter, statusBarCommands);
 	const contentProvider = new GitContentProvider(model);
@@ -71,10 +101,11 @@ async function init(context: ExtensionContext, disposables: Disposable[]): Promi
 
 export function activate(context: ExtensionContext): any {
 	const disposables: Disposable[] = [];
-	context.subscriptions.push(new Disposable(() => Disposable.from(...disposables).dispose()));
+	context.subscriptions.push(
+		new Disposable(() => Disposable.from(...disposables).dispose())
+	);
 
-	init(context, disposables)
-		.catch(err => console.error(err));
+	init(context, disposables).catch(err => console.error(err));
 }
 
 async function checkGitVersion(info: IGit): Promise<void> {
@@ -89,11 +120,15 @@ async function checkGitVersion(info: IGit): Promise<void> {
 		return;
 	}
 
-	const update = localize('updateGit', "Update Git");
+	const update = localize('updateGit', 'Update Git');
 	const neverShowAgain = localize('neverShowAgain', "Don't show again");
 
 	const choice = await window.showWarningMessage(
-		localize('git20', "You seem to have git {0} installed. Code works best with git >= 2", info.version),
+		localize(
+			'git20',
+			'You seem to have git {0} installed. Code works best with git >= 2',
+			info.version
+		),
 		update,
 		neverShowAgain
 	);

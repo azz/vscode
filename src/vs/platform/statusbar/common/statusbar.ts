@@ -3,23 +3,25 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
 import { IDisposable } from 'vs/base/common/lifecycle';
 import { ThemeColor } from 'vs/editor/common/editorCommon';
 
-export var IStatusbarService = createDecorator<IStatusbarService>('statusbarService');
+export var IStatusbarService = createDecorator<IStatusbarService>(
+	'statusbarService'
+);
 
 export enum StatusbarAlignment {
-	LEFT, RIGHT
+	LEFT,
+	RIGHT
 }
 
 /**
  * A declarative way of describing a status bar entry
  */
 export interface IStatusbarEntry {
-
 	/**
 	 * The text to show for the entry. You can embed icons in the text by leveraging the syntax:
 	 *
@@ -49,17 +51,24 @@ export interface IStatusbarEntry {
 }
 
 export interface IStatusbarService {
-
 	_serviceBrand: any;
 
 	/**
 	 * Adds an entry to the statusbar with the given alignment and priority. Use the returned IDisposable
 	 * to remove the statusbar entry.
 	 */
-	addEntry(entry: IStatusbarEntry, alignment: StatusbarAlignment, priority?: number): IDisposable;
+	addEntry(
+		entry: IStatusbarEntry,
+		alignment: StatusbarAlignment,
+		priority?: number
+	): IDisposable;
 
 	/**
 	 * Prints something to the status bar area with optional auto dispose and delay.
 	 */
-	setStatusMessage(message: string, autoDisposeAfter?: number, delayBy?: number): IDisposable;
+	setStatusMessage(
+		message: string,
+		autoDisposeAfter?: number,
+		delayBy?: number
+	): IDisposable;
 }

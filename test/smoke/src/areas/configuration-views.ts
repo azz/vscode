@@ -8,7 +8,7 @@ import { SpectronApplication } from '../spectron/application';
 export enum ActivityBarPosition {
 	LEFT = 0,
 	RIGHT = 1
-};
+}
 
 export class ConfigurationView {
 	// Stores key binding defined for the toggle of activity bar position
@@ -27,7 +27,10 @@ export class ConfigurationView {
 	}
 
 	public selectFirstKeybindingsMatch(): any {
-		return this.spectron.waitFor(this.spectron.client.click, 'div[aria-label="Keybindings"] .monaco-list-row.keybinding-item');
+		return this.spectron.waitFor(
+			this.spectron.client.click,
+			'div[aria-label="Keybindings"] .monaco-list-row.keybinding-item'
+		);
 	}
 
 	public changeKeybinding(): any {
@@ -54,9 +57,12 @@ export class ConfigurationView {
 			throw new Error('No such position for activity bar defined.');
 		}
 		try {
-			return await this.spectron.waitFor(this.spectron.client.getHTML, `.part.activitybar.${positionClass}`);
+			return await this.spectron.waitFor(
+				this.spectron.client.getHTML,
+				`.part.activitybar.${positionClass}`
+			);
 		} catch (e) {
 			return undefined;
-		};
+		}
 	}
 }

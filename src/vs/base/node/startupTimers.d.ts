@@ -3,15 +3,14 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { Profile } from './profiler'
+import { Profile } from './profiler';
 
-declare interface TickStart {
+interface TickStart {
 	name: string;
 	started: number;
 }
 
 export declare class Tick {
-
 	readonly duration: number;
 	readonly name: string;
 	readonly started: number;
@@ -21,7 +20,7 @@ export declare class Tick {
 	static compareByStart(a: Tick, b: Tick): number;
 }
 
-declare interface TickController {
+interface TickController {
 	while<T extends Thenable<any>>(t: T): T;
 	stop(stopped?: number): void;
 }

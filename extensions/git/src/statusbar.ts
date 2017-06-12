@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { Disposable, Command, EventEmitter, Event } from 'vscode';
 import { RefType, Branch } from './git';
@@ -14,13 +14,18 @@ import * as nls from 'vscode-nls';
 const localize = nls.loadMessageBundle();
 
 class CheckoutStatusBar {
-
 	private _onDidChange = new EventEmitter<void>();
-	get onDidChange(): Event<void> { return this._onDidChange.event; }
+	get onDidChange(): Event<void> {
+		return this._onDidChange.event;
+	}
 	private disposables: Disposable[] = [];
 
 	constructor(private model: Model) {
-		model.onDidChange(this._onDidChange.fire, this._onDidChange, this.disposables);
+		model.onDidChange(
+			this._onDidChange.fire,
+			this._onDidChange,
+			this.disposables
+		);
 	}
 
 	get command(): Command | undefined {
@@ -30,14 +35,17 @@ class CheckoutStatusBar {
 			return undefined;
 		}
 
-		const tag = this.model.refs.filter(iref => iref.type === RefType.Tag && iref.commit === HEAD.commit)[0];
+		const tag = this.model.refs.filter(
+			iref => iref.type === RefType.Tag && iref.commit === HEAD.commit
+		)[0];
 		const tagName = tag && tag.name;
 		const head = HEAD.name || tagName || (HEAD.commit || '').substr(0, 8);
-		const title = '$(git-branch) '
-			+ head
-			+ (this.model.workingTreeGroup.resources.length > 0 ? '*' : '')
-			+ (this.model.indexGroup.resources.length > 0 ? '+' : '')
-			+ (this.model.mergeGroup.resources.length > 0 ? '!' : '');
+		const title =
+			'$(git-branch) ' +
+			head +
+			(this.model.workingTreeGroup.resources.length > 0 ? '*' : '') +
+			(this.model.indexGroup.resources.length > 0 ? '+' : '') +
+			(this.model.mergeGroup.resources.length > 0 ? '!' : '');
 
 		return {
 			command: 'git.checkout',
@@ -58,7 +66,6 @@ interface SyncStatusBarState {
 }
 
 class SyncStatusBar {
-
 	private static StartState: SyncStatusBarState = {
 		isSyncRunning: false,
 		hasRemotes: false,
@@ -66,11 +73,15 @@ class SyncStatusBar {
 	};
 
 	private _onDidChange = new EventEmitter<void>();
-	get onDidChange(): Event<void> { return this._onDidChange.event; }
+	get onDidChange(): Event<void> {
+		return this._onDidChange.event;
+	}
 	private disposables: Disposable[] = [];
 
 	private _state: SyncStatusBarState = SyncStatusBar.StartState;
-	private get state() { return this._state; }
+	private get state() {
+		return this._state;
+	}
 	private set state(state: SyncStatusBarState) {
 		this._state = state;
 		this._onDidChange.fire();
@@ -78,7 +89,11 @@ class SyncStatusBar {
 
 	constructor(private model: Model) {
 		model.onDidChange(this.onModelChange, this, this.disposables);
-		model.onDidChangeOperations(this.onOperationsChange, this, this.disposables);
+		model.onDidChangeOperations(
+			this.onOperationsChange,
+			this,
+			this.disposables
+		);
 		this._onDidChange.fire();
 	}
 
@@ -114,11 +129,11 @@ class SyncStatusBar {
 					text += `${HEAD.behind}↓ ${HEAD.ahead}↑`;
 				}
 				command = 'git.sync';
-				tooltip = localize('sync changes', "Synchronize Changes");
+				tooltip = localize('sync changes', 'Synchronize Changes');
 			} else {
 				icon = '$(cloud-upload)';
 				command = 'git.publish';
-				tooltip = localize('publish changes', "Publish Changes");
+				tooltip = localize('publish changes', 'Publish Changes');
 			}
 		} else {
 			command = '';
@@ -128,7 +143,7 @@ class SyncStatusBar {
 		if (this.state.isSyncRunning) {
 			icon = '$(sync~spin)';
 			command = '';
-			tooltip = localize('syncing changes', "Synchronizing Changes...");
+			tooltip = localize('syncing changes', 'Synchronizing Changes...');
 		}
 
 		return {
@@ -144,7 +159,6 @@ class SyncStatusBar {
 }
 
 export class StatusBarCommands {
-
 	private syncStatusBar: SyncStatusBar;
 	private checkoutStatusBar: CheckoutStatusBar;
 	private disposables: Disposable[] = [];

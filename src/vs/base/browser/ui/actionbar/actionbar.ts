@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./actionbar';
 import nls = require('vs/nls');
@@ -11,7 +11,13 @@ import lifecycle = require('vs/base/common/lifecycle');
 import { Promise } from 'vs/base/common/winjs.base';
 import { Builder, $ } from 'vs/base/browser/builder';
 import { SelectBox } from 'vs/base/browser/ui/selectBox/selectBox';
-import { IAction, IActionRunner, Action, IActionChangeEvent, ActionRunner } from 'vs/base/common/actions';
+import {
+	IAction,
+	IActionRunner,
+	Action,
+	IActionChangeEvent,
+	ActionRunner
+} from 'vs/base/common/actions';
 import DOM = require('vs/base/browser/dom');
 import { EventType as CommonEventType } from 'vs/base/common/events';
 import types = require('vs/base/common/types');
@@ -35,7 +41,6 @@ export interface IBaseActionItemOptions {
 }
 
 export class BaseActionItem extends EventEmitter implements IActionItem {
-
 	public builder: Builder;
 	public _callOnDispose: lifecycle.IDisposable[];
 	public _context: any;
@@ -44,7 +49,11 @@ export class BaseActionItem extends EventEmitter implements IActionItem {
 	private gesture: Gesture;
 	private _actionRunner: IActionRunner;
 
-	constructor(context: any, action: IAction, protected options?: IBaseActionItemOptions) {
+	constructor(
+		context: any,
+		action: IAction,
+		protected options?: IBaseActionItemOptions
+	) {
 		super();
 
 		this._callOnDispose = [];
@@ -52,14 +61,16 @@ export class BaseActionItem extends EventEmitter implements IActionItem {
 		this._action = action;
 
 		if (action instanceof Action) {
-			this._callOnDispose.push(action.onDidChange(event => {
-				if (!this.builder) {
-					// we have not been rendered yet, so there
-					// is no point in updating the UI
-					return;
-				}
-				this._handleActionChangeEvent(event);
-			}));
+			this._callOnDispose.push(
+				action.onDidChange(event => {
+					if (!this.builder) {
+						// we have not been rendered yet, so there
+						// is no point in updating the UI
+						return;
+					}
+					this._handleActionChangeEvent(event);
+				})
+			);
 		}
 	}
 
@@ -132,10 +143,13 @@ export class BaseActionItem extends EventEmitter implements IActionItem {
 			setTimeout(() => this.onClick(e), 50);
 		});
 
-		this.builder.on([DOM.EventType.MOUSE_UP, DOM.EventType.MOUSE_OUT], (e: MouseEvent) => {
-			DOM.EventHelper.stop(e);
-			this.builder.removeClass('active');
-		});
+		this.builder.on(
+			[DOM.EventType.MOUSE_UP, DOM.EventType.MOUSE_OUT],
+			(e: MouseEvent) => {
+				DOM.EventHelper.stop(e);
+				this.builder.removeClass('active');
+			}
+		);
 	}
 
 	public onClick(event: Event): void {
@@ -202,7 +216,6 @@ export class BaseActionItem extends EventEmitter implements IActionItem {
 }
 
 export class Separator extends Action {
-
 	public static ID = 'vs.actions.separator';
 
 	constructor(label?: string, order?: number) {
@@ -222,7 +235,6 @@ export interface IActionItemOptions extends IBaseActionItemOptions {
 }
 
 export class ActionItem extends BaseActionItem {
-
 	protected $e: Builder;
 	protected options: IActionItemOptions;
 	private cssClass: string;
@@ -273,12 +285,20 @@ export class ActionItem extends BaseActionItem {
 
 		if (this.getAction().tooltip) {
 			title = this.getAction().tooltip;
-
-		} else if (!this.options.label && this.getAction().label && this.options.icon) {
+		} else if (
+			!this.options.label &&
+			this.getAction().label &&
+			this.options.icon
+		) {
 			title = this.getAction().label;
 
 			if (this.options.keybinding) {
-				title = nls.localize({ key: 'titleLabel', comment: ['action title', 'action keybinding'] }, "{0} ({1})", title, this.options.keybinding);
+				title = nls.localize(
+					{ key: 'titleLabel', comment: ['action title', 'action keybinding'] },
+					'{0} ({1})',
+					title,
+					this.options.keybinding
+				);
 			}
 		}
 
@@ -361,7 +381,6 @@ export interface IActionOptions extends IActionItemOptions {
 }
 
 export class ActionBar extends EventEmitter implements IActionRunner {
-
 	public options: IActionBarOptions;
 
 	private _actionRunner: IActionRunner;
@@ -379,7 +398,10 @@ export class ActionBar extends EventEmitter implements IActionRunner {
 
 	private toDispose: lifecycle.IDisposable[];
 
-	constructor(container: HTMLElement | Builder, options: IActionBarOptions = defaultOptions) {
+	constructor(
+		container: HTMLElement | Builder,
+		options: IActionBarOptions = defaultOptions
+	) {
 		super();
 		this.options = options;
 		this._context = options.context;
@@ -414,7 +436,9 @@ export class ActionBar extends EventEmitter implements IActionRunner {
 
 			if (event.equals(isVertical ? KeyCode.UpArrow : KeyCode.LeftArrow)) {
 				this.focusPrevious();
-			} else if (event.equals(isVertical ? KeyCode.DownArrow : KeyCode.RightArrow)) {
+			} else if (
+				event.equals(isVertical ? KeyCode.DownArrow : KeyCode.RightArrow)
+			) {
 				this.focusNext();
 			} else if (event.equals(KeyCode.Escape)) {
 				this.cancel();
@@ -444,17 +468,21 @@ export class ActionBar extends EventEmitter implements IActionRunner {
 				this.doTrigger(event);
 				event.preventDefault();
 				event.stopPropagation();
-			}
-
-			// Recompute focused item
-			else if (event.equals(KeyCode.Tab) || event.equals(KeyMod.Shift | KeyCode.Tab)) {
+			} else if (
+				event.equals(KeyCode.Tab) ||
+				event.equals(KeyMod.Shift | KeyCode.Tab)
+			) {
+				// Recompute focused item
 				this.updateFocusedItem();
 			}
 		});
 
 		this.focusTracker = DOM.trackFocus(this.domNode);
 		this.focusTracker.addBlurListener(() => {
-			if (document.activeElement === this.domNode || !DOM.isAncestor(document.activeElement, this.domNode)) {
+			if (
+				document.activeElement === this.domNode ||
+				!DOM.isAncestor(document.activeElement, this.domNode)
+			) {
 				this.emit(DOM.EventType.BLUR, {});
 				this.focusedItem = undefined;
 			}
@@ -475,7 +503,9 @@ export class ActionBar extends EventEmitter implements IActionRunner {
 
 		this.domNode.appendChild(this.actionsList);
 
-		((container instanceof Builder) ? container.getHTMLElement() : container).appendChild(this.domNode);
+		(container instanceof Builder
+			? container.getHTMLElement()
+			: container).appendChild(this.domNode);
 	}
 
 	public setAriaLabel(label: string): void {
@@ -512,7 +542,7 @@ export class ActionBar extends EventEmitter implements IActionRunner {
 	public set actionRunner(actionRunner: IActionRunner) {
 		if (actionRunner) {
 			this._actionRunner = actionRunner;
-			this.items.forEach(item => item.actionRunner = actionRunner);
+			this.items.forEach(item => (item.actionRunner = actionRunner));
 		}
 	}
 
@@ -521,7 +551,6 @@ export class ActionBar extends EventEmitter implements IActionRunner {
 	}
 
 	public push(arg: IAction | IAction[], options: IActionOptions = {}): void {
-
 		const actions: IAction[] = !Array.isArray(arg) ? [arg] : arg;
 
 		let index = types.isNumber(options.index) ? options.index : null;
@@ -546,10 +575,17 @@ export class ActionBar extends EventEmitter implements IActionRunner {
 			this.addEmitter(item);
 			item.render(actionItemElement);
 
-			if (index === null || index < 0 || index >= this.actionsList.children.length) {
+			if (
+				index === null ||
+				index < 0 ||
+				index >= this.actionsList.children.length
+			) {
 				this.actionsList.appendChild(actionItemElement);
 			} else {
-				this.actionsList.insertBefore(actionItemElement, this.actionsList.children[index++]);
+				this.actionsList.insertBefore(
+					actionItemElement,
+					this.actionsList.children[index++]
+				);
 			}
 
 			this.items.push(item);
@@ -660,7 +696,10 @@ export class ActionBar extends EventEmitter implements IActionRunner {
 		// trigger action
 		let actionItem = this.items[this.focusedItem];
 		if (actionItem instanceof BaseActionItem) {
-			const context = (actionItem._context === null || actionItem._context === undefined) ? event : actionItem._context;
+			const context = actionItem._context === null ||
+				actionItem._context === undefined
+				? event
+				: actionItem._context;
 			this.run(actionItem._action, context).done();
 		}
 	}
@@ -718,9 +757,13 @@ export class SelectActionItem extends BaseActionItem {
 	}
 
 	private registerListeners(): void {
-		this.toDispose.push(this.selectBox.onDidSelect(selected => {
-			this.actionRunner.run(this._action, this.getActionContext(selected)).done();
-		}));
+		this.toDispose.push(
+			this.selectBox.onDidSelect(selected => {
+				this.actionRunner
+					.run(this._action, this.getActionContext(selected))
+					.done();
+			})
+		);
 	}
 
 	protected getActionContext(option: string) {

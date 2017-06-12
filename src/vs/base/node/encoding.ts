@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import stream = require('vs/base/node/stream');
 import iconv = require('iconv-lite');
@@ -27,11 +27,19 @@ export function bomLength(encoding: string): number {
 	return 0;
 }
 
-export function decode(buffer: NodeBuffer, encoding: string, options?: any): string {
+export function decode(
+	buffer: NodeBuffer,
+	encoding: string,
+	options?: any
+): string {
 	return iconv.decode(buffer, toNodeEncoding(encoding), options);
 }
 
-export function encode(content: string, encoding: string, options?: any): NodeBuffer {
+export function encode(
+	content: string,
+	encoding: string,
+	options?: any
+): NodeBuffer {
 	return iconv.encode(content, toNodeEncoding(encoding), options);
 }
 
@@ -55,7 +63,10 @@ function toNodeEncoding(enc: string): string {
 	return enc;
 }
 
-export function detectEncodingByBOMFromBuffer(buffer: NodeBuffer, bytesRead: number): string {
+export function detectEncodingByBOMFromBuffer(
+	buffer: NodeBuffer,
+	bytesRead: number
+): string {
 	if (!buffer || bytesRead < 2) {
 		return null;
 	}
@@ -64,12 +75,12 @@ export function detectEncodingByBOMFromBuffer(buffer: NodeBuffer, bytesRead: num
 	const b1 = buffer.readUInt8(1);
 
 	// UTF-16 BE
-	if (b0 === 0xFE && b1 === 0xFF) {
+	if (b0 === 0xfe && b1 === 0xff) {
 		return UTF16be;
 	}
 
 	// UTF-16 LE
-	if (b0 === 0xFF && b1 === 0xFE) {
+	if (b0 === 0xff && b1 === 0xfe) {
 		return UTF16le;
 	}
 
@@ -80,7 +91,7 @@ export function detectEncodingByBOMFromBuffer(buffer: NodeBuffer, bytesRead: num
 	const b2 = buffer.readUInt8(2);
 
 	// UTF-8
-	if (b0 === 0xEF && b1 === 0xBB && b2 === 0xBF) {
+	if (b0 === 0xef && b1 === 0xbb && b2 === 0xbf) {
 		return UTF8;
 	}
 
@@ -92,7 +103,11 @@ export function detectEncodingByBOMFromBuffer(buffer: NodeBuffer, bytesRead: num
  * If no BOM is detected, null will be passed to callback.
  */
 export function detectEncodingByBOM(file: string): TPromise<string> {
-	return stream.readExactlyByFile(file, 3).then(({ buffer, bytesRead }) => detectEncodingByBOMFromBuffer(buffer, bytesRead));
+	return stream
+		.readExactlyByFile(file, 3)
+		.then(({ buffer, bytesRead }) =>
+			detectEncodingByBOMFromBuffer(buffer, bytesRead)
+		);
 }
 
 const MINIMUM_THRESHOLD = 0.2;
@@ -100,7 +115,7 @@ jschardet.Constants.MINIMUM_THRESHOLD = MINIMUM_THRESHOLD;
 
 const IGNORE_ENCODINGS = ['ascii', 'utf-8', 'utf-16', 'utf-32'];
 const MAPPED_ENCODINGS = {
-	'ibm866': 'cp866'
+	ibm866: 'cp866'
 };
 
 /**
@@ -124,7 +139,9 @@ export function guessEncodingByBuffer(buffer: NodeBuffer): string {
 }
 
 function toIconvLiteEncoding(encodingName: string): string {
-	const normalizedEncodingName = encodingName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+	const normalizedEncodingName = encodingName
+		.replace(/[^a-zA-Z0-9]/g, '')
+		.toLowerCase();
 	const mapped = MAPPED_ENCODINGS[normalizedEncodingName];
 
 	return mapped || normalizedEncodingName;

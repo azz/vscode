@@ -2,21 +2,28 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { FastDomNode, createFastDomNode } from 'vs/base/browser/fastDomNode';
 import { IConfiguration } from 'vs/editor/common/editorCommon';
-import { IVisibleLine, VisibleLinesCollection, IVisibleLinesHost } from 'vs/editor/browser/view/viewLayer';
+import {
+	IVisibleLine,
+	VisibleLinesCollection,
+	IVisibleLinesHost
+} from 'vs/editor/browser/view/viewLayer';
 import { DynamicViewOverlay } from 'vs/editor/browser/view/dynamicViewOverlay';
 import { Configuration } from 'vs/editor/browser/config/configuration';
 import { ViewContext } from 'vs/editor/common/view/viewContext';
-import { RenderingContext, RestrictedRenderingContext } from 'vs/editor/common/view/renderingContext';
+import {
+	RenderingContext,
+	RestrictedRenderingContext
+} from 'vs/editor/common/view/renderingContext';
 import { ViewportData } from 'vs/editor/common/viewLayout/viewLinesViewportData';
 import * as viewEvents from 'vs/editor/common/view/viewEvents';
 import { ViewPart } from 'vs/editor/browser/view/viewPart';
 
-export class ViewOverlays extends ViewPart implements IVisibleLinesHost<ViewOverlayLine> {
-
+export class ViewOverlays extends ViewPart
+	implements IVisibleLinesHost<ViewOverlayLine> {
 	private readonly _visibleLines: VisibleLinesCollection<ViewOverlayLine>;
 	protected readonly domNode: FastDomNode<HTMLElement>;
 	private _dynamicOverlays: DynamicViewOverlay[];
@@ -66,7 +73,10 @@ export class ViewOverlays extends ViewPart implements IVisibleLinesHost<ViewOver
 	// ---- begin IVisibleLinesHost
 
 	public createVisibleLine(): ViewOverlayLine {
-		return new ViewOverlayLine(this._context.configuration, this._dynamicOverlays);
+		return new ViewOverlayLine(
+			this._context.configuration,
+			this._dynamicOverlays
+		);
 	}
 
 	// ---- end IVisibleLinesHost
@@ -77,11 +87,17 @@ export class ViewOverlays extends ViewPart implements IVisibleLinesHost<ViewOver
 
 	// ----- event handlers
 
-	public onConfigurationChanged(e: viewEvents.ViewConfigurationChangedEvent): boolean {
+	public onConfigurationChanged(
+		e: viewEvents.ViewConfigurationChangedEvent
+	): boolean {
 		this._visibleLines.onConfigurationChanged(e);
 		let startLineNumber = this._visibleLines.getStartLineNumber();
 		let endLineNumber = this._visibleLines.getEndLineNumber();
-		for (let lineNumber = startLineNumber; lineNumber <= endLineNumber; lineNumber++) {
+		for (
+			let lineNumber = startLineNumber;
+			lineNumber <= endLineNumber;
+			lineNumber++
+		) {
 			let line = this._visibleLines.getVisibleLine(lineNumber);
 			line.onConfigurationChanged(e);
 		}
@@ -116,7 +132,9 @@ export class ViewOverlays extends ViewPart implements IVisibleLinesHost<ViewOver
 	// ----- end event handlers
 
 	public prepareRender(ctx: RenderingContext): void {
-		let toRender = this._dynamicOverlays.filter(overlay => overlay.shouldRender());
+		let toRender = this._dynamicOverlays.filter(overlay =>
+			overlay.shouldRender()
+		);
 
 		for (let i = 0, len = toRender.length; i < len; i++) {
 			let dynamicOverlay = toRender[i];
@@ -140,14 +158,16 @@ export class ViewOverlays extends ViewPart implements IVisibleLinesHost<ViewOver
 }
 
 export class ViewOverlayLine implements IVisibleLine {
-
 	private _configuration: IConfiguration;
 	private _dynamicOverlays: DynamicViewOverlay[];
 	private _domNode: FastDomNode<HTMLElement>;
 	private _renderedContent: string;
 	private _lineHeight: number;
 
-	constructor(configuration: IConfiguration, dynamicOverlays: DynamicViewOverlay[]) {
+	constructor(
+		configuration: IConfiguration,
+		dynamicOverlays: DynamicViewOverlay[]
+	) {
 		this._configuration = configuration;
 		this._lineHeight = this._configuration.editor.lineHeight;
 		this._dynamicOverlays = dynamicOverlays;
@@ -172,13 +192,19 @@ export class ViewOverlayLine implements IVisibleLine {
 	public onTokensChanged(): void {
 		// Nothing
 	}
-	public onConfigurationChanged(e: viewEvents.ViewConfigurationChangedEvent): void {
+	public onConfigurationChanged(
+		e: viewEvents.ViewConfigurationChangedEvent
+	): void {
 		if (e.lineHeight) {
 			this._lineHeight = this._configuration.editor.lineHeight;
 		}
 	}
 
-	public renderLine(lineNumber: number, deltaTop: number, viewportData: ViewportData): string {
+	public renderLine(
+		lineNumber: number,
+		deltaTop: number,
+		viewportData: ViewportData
+	): string {
 		let result = '';
 		for (let i = 0, len = this._dynamicOverlays.length; i < len; i++) {
 			let dynamicOverlay = this._dynamicOverlays[i];
@@ -192,7 +218,8 @@ export class ViewOverlayLine implements IVisibleLine {
 
 		this._renderedContent = result;
 
-		return `<div style="position:absolute;top:${deltaTop}px;width:100%;height:${this._lineHeight}px;">${result}</div>`;
+		return `<div style="position:absolute;top:${deltaTop}px;width:100%;height:${this
+			._lineHeight}px;">${result}</div>`;
 	}
 
 	public layoutLine(lineNumber: number, deltaTop: number): void {
@@ -204,7 +231,6 @@ export class ViewOverlayLine implements IVisibleLine {
 }
 
 export class ContentViewOverlays extends ViewOverlays {
-
 	private _contentWidth: number;
 
 	constructor(context: ViewContext) {
@@ -217,7 +243,9 @@ export class ContentViewOverlays extends ViewOverlays {
 
 	// --- begin event handlers
 
-	public onConfigurationChanged(e: viewEvents.ViewConfigurationChangedEvent): boolean {
+	public onConfigurationChanged(
+		e: viewEvents.ViewConfigurationChangedEvent
+	): boolean {
 		if (e.layoutInfo) {
 			this._contentWidth = this._context.configuration.editor.layoutInfo.contentWidth;
 		}
@@ -237,7 +265,6 @@ export class ContentViewOverlays extends ViewOverlays {
 }
 
 export class MarginViewOverlays extends ViewOverlays {
-
 	private _contentLeft: number;
 
 	constructor(context: ViewContext) {
@@ -248,13 +275,21 @@ export class MarginViewOverlays extends ViewOverlays {
 		this.domNode.setClassName('margin-view-overlays');
 		this.domNode.setWidth(1);
 
-		Configuration.applyFontInfo(this.domNode, this._context.configuration.editor.fontInfo);
+		Configuration.applyFontInfo(
+			this.domNode,
+			this._context.configuration.editor.fontInfo
+		);
 	}
 
-	public onConfigurationChanged(e: viewEvents.ViewConfigurationChangedEvent): boolean {
+	public onConfigurationChanged(
+		e: viewEvents.ViewConfigurationChangedEvent
+	): boolean {
 		let shouldRender = false;
 		if (e.fontInfo) {
-			Configuration.applyFontInfo(this.domNode, this._context.configuration.editor.fontInfo);
+			Configuration.applyFontInfo(
+				this.domNode,
+				this._context.configuration.editor.fontInfo
+			);
 			shouldRender = true;
 		}
 		if (e.layoutInfo) {

@@ -2,16 +2,15 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import URI from 'vs/base/common/uri';
 import { illegalArgument } from 'vs/base/common/errors';
 import * as vscode from 'vscode';
 
 export class Disposable {
-
 	static from(...disposables: { dispose(): any }[]): Disposable {
-		return new Disposable(function () {
+		return new Disposable(function() {
 			if (disposables) {
 				for (let disposable of disposables) {
 					if (disposable && typeof disposable.dispose === 'function') {
@@ -38,7 +37,6 @@ export class Disposable {
 }
 
 export class Position {
-
 	static Min(...positions: Position[]): Position {
 		let result = positions.pop();
 		for (let p of positions) {
@@ -145,10 +143,12 @@ export class Position {
 		}
 	}
 
-	translate(change: { lineDelta?: number; characterDelta?: number; }): Position;
+	translate(change: { lineDelta?: number; characterDelta?: number }): Position;
 	translate(lineDelta?: number, characterDelta?: number): Position;
-	translate(lineDeltaOrChange: number | { lineDelta?: number; characterDelta?: number; }, characterDelta: number = 0): Position {
-
+	translate(
+		lineDeltaOrChange: number | { lineDelta?: number; characterDelta?: number },
+		characterDelta: number = 0
+	): Position {
 		if (lineDeltaOrChange === null || characterDelta === null) {
 			throw illegalArgument();
 		}
@@ -159,8 +159,12 @@ export class Position {
 		} else if (typeof lineDeltaOrChange === 'number') {
 			lineDelta = lineDeltaOrChange;
 		} else {
-			lineDelta = typeof lineDeltaOrChange.lineDelta === 'number' ? lineDeltaOrChange.lineDelta : 0;
-			characterDelta = typeof lineDeltaOrChange.characterDelta === 'number' ? lineDeltaOrChange.characterDelta : 0;
+			lineDelta = typeof lineDeltaOrChange.lineDelta === 'number'
+				? lineDeltaOrChange.lineDelta
+				: 0;
+			characterDelta = typeof lineDeltaOrChange.characterDelta === 'number'
+				? lineDeltaOrChange.characterDelta
+				: 0;
 		}
 
 		if (lineDelta === 0 && characterDelta === 0) {
@@ -169,10 +173,12 @@ export class Position {
 		return new Position(this.line + lineDelta, this.character + characterDelta);
 	}
 
-	with(change: { line?: number; character?: number; }): Position;
+	with(change: { line?: number; character?: number }): Position;
 	with(line?: number, character?: number): Position;
-	with(lineOrChange: number | { line?: number; character?: number; }, character: number = this.character): Position {
-
+	with(
+		lineOrChange: number | { line?: number; character?: number },
+		character: number = this.character
+	): Position {
 		if (lineOrChange === null || character === null) {
 			throw illegalArgument();
 		}
@@ -180,13 +186,15 @@ export class Position {
 		let line: number;
 		if (typeof lineOrChange === 'undefined') {
 			line = this.line;
-
 		} else if (typeof lineOrChange === 'number') {
 			line = lineOrChange;
-
 		} else {
-			line = typeof lineOrChange.line === 'number' ? lineOrChange.line : this.line;
-			character = typeof lineOrChange.character === 'number' ? lineOrChange.character : this.character;
+			line = typeof lineOrChange.line === 'number'
+				? lineOrChange.line
+				: this.line;
+			character = typeof lineOrChange.character === 'number'
+				? lineOrChange.character
+				: this.character;
 		}
 
 		if (line === this.line && character === this.character) {
@@ -201,7 +209,6 @@ export class Position {
 }
 
 export class Range {
-
 	static isRange(thing: any): thing is Range {
 		if (thing instanceof Range) {
 			return true;
@@ -209,8 +216,10 @@ export class Range {
 		if (!thing) {
 			return false;
 		}
-		return Position.isPosition((<Range>thing).start)
-			&& Position.isPosition((<Range>thing.end));
+		return (
+			Position.isPosition((<Range>thing).start) &&
+			Position.isPosition(<Range>thing.end)
+		);
 	}
 
 	protected _start: Position;
@@ -225,15 +234,33 @@ export class Range {
 	}
 
 	constructor(start: Position, end: Position);
-	constructor(startLine: number, startColumn: number, endLine: number, endColumn: number);
-	constructor(startLineOrStart: number | Position, startColumnOrEnd: number | Position, endLine?: number, endColumn?: number) {
+	constructor(
+		startLine: number,
+		startColumn: number,
+		endLine: number,
+		endColumn: number
+	);
+	constructor(
+		startLineOrStart: number | Position,
+		startColumnOrEnd: number | Position,
+		endLine?: number,
+		endColumn?: number
+	) {
 		let start: Position;
 		let end: Position;
 
-		if (typeof startLineOrStart === 'number' && typeof startColumnOrEnd === 'number' && typeof endLine === 'number' && typeof endColumn === 'number') {
+		if (
+			typeof startLineOrStart === 'number' &&
+			typeof startColumnOrEnd === 'number' &&
+			typeof endLine === 'number' &&
+			typeof endColumn === 'number'
+		) {
 			start = new Position(startLineOrStart, startColumnOrEnd);
 			end = new Position(endLine, endColumn);
-		} else if (startLineOrStart instanceof Position && startColumnOrEnd instanceof Position) {
+		} else if (
+			startLineOrStart instanceof Position &&
+			startColumnOrEnd instanceof Position
+		) {
 			start = startLineOrStart;
 			end = startColumnOrEnd;
 		}
@@ -253,9 +280,10 @@ export class Range {
 
 	contains(positionOrRange: Position | Range): boolean {
 		if (positionOrRange instanceof Range) {
-			return this.contains(positionOrRange._start)
-				&& this.contains(positionOrRange._end);
-
+			return (
+				this.contains(positionOrRange._start) &&
+				this.contains(positionOrRange._end)
+			);
 		} else if (positionOrRange instanceof Position) {
 			if (positionOrRange.isBefore(this._start)) {
 				return false;
@@ -303,10 +331,12 @@ export class Range {
 		return this._start.line === this._end.line;
 	}
 
-	with(change: { start?: Position, end?: Position }): Range;
+	with(change: { start?: Position; end?: Position }): Range;
 	with(start?: Position, end?: Position): Range;
-	with(startOrChange: Position | { start?: Position, end?: Position }, end: Position = this.end): Range {
-
+	with(
+		startOrChange: Position | { start?: Position; end?: Position },
+		end: Position = this.end
+	): Range {
 		if (startOrChange === null || end === null) {
 			throw illegalArgument();
 		}
@@ -314,10 +344,8 @@ export class Range {
 		let start: Position;
 		if (!startOrChange) {
 			start = this.start;
-
 		} else if (Position.isPosition(startOrChange)) {
 			start = startOrChange;
-
 		} else {
 			start = startOrChange.start || this.start;
 			end = startOrChange.end || this.end;
@@ -335,7 +363,6 @@ export class Range {
 }
 
 export class Selection extends Range {
-
 	static isSelection(thing: any): thing is Selection {
 		if (thing instanceof Selection) {
 			return true;
@@ -343,10 +370,12 @@ export class Selection extends Range {
 		if (!thing) {
 			return false;
 		}
-		return Range.isRange(thing)
-			&& Position.isPosition((<Selection>thing).anchor)
-			&& Position.isPosition((<Selection>thing).active)
-			&& typeof (<Selection>thing).isReversed === 'boolean';
+		return (
+			Range.isRange(thing) &&
+			Position.isPosition((<Selection>thing).anchor) &&
+			Position.isPosition((<Selection>thing).active) &&
+			typeof (<Selection>thing).isReversed === 'boolean'
+		);
 	}
 
 	private _anchor: Position;
@@ -362,15 +391,33 @@ export class Selection extends Range {
 	}
 
 	constructor(anchor: Position, active: Position);
-	constructor(anchorLine: number, anchorColumn: number, activeLine: number, activeColumn: number);
-	constructor(anchorLineOrAnchor: number | Position, anchorColumnOrActive: number | Position, activeLine?: number, activeColumn?: number) {
+	constructor(
+		anchorLine: number,
+		anchorColumn: number,
+		activeLine: number,
+		activeColumn: number
+	);
+	constructor(
+		anchorLineOrAnchor: number | Position,
+		anchorColumnOrActive: number | Position,
+		activeLine?: number,
+		activeColumn?: number
+	) {
 		let anchor: Position;
 		let active: Position;
 
-		if (typeof anchorLineOrAnchor === 'number' && typeof anchorColumnOrActive === 'number' && typeof activeLine === 'number' && typeof activeColumn === 'number') {
+		if (
+			typeof anchorLineOrAnchor === 'number' &&
+			typeof anchorColumnOrActive === 'number' &&
+			typeof activeLine === 'number' &&
+			typeof activeColumn === 'number'
+		) {
 			anchor = new Position(anchorLineOrAnchor, anchorColumnOrActive);
 			active = new Position(activeLine, activeColumn);
-		} else if (anchorLineOrAnchor instanceof Position && anchorColumnOrActive instanceof Position) {
+		} else if (
+			anchorLineOrAnchor instanceof Position &&
+			anchorColumnOrActive instanceof Position
+		) {
 			anchor = anchorLineOrAnchor;
 			active = anchorColumnOrActive;
 		}
@@ -405,7 +452,6 @@ export enum EndOfLine {
 }
 
 export class TextEdit {
-
 	static isTextEdit(thing: any): thing is TextEdit {
 		if (thing instanceof TextEdit) {
 			return true;
@@ -413,8 +459,10 @@ export class TextEdit {
 		if (!thing) {
 			return false;
 		}
-		return Range.isRange((<TextEdit>thing))
-			&& typeof (<TextEdit>thing).newText === 'string';
+		return (
+			Range.isRange(<TextEdit>thing) &&
+			typeof (<TextEdit>thing).newText === 'string'
+		);
 	}
 
 	static replace(range: Range, newText: string): TextEdit {
@@ -486,10 +534,9 @@ export class TextEdit {
 	}
 }
 
-export class Uri extends URI { }
+export class Uri extends URI {}
 
 export class WorkspaceEdit {
-
 	private _values: [Uri, TextEdit[]][] = [];
 	private _index = new Map<string, number>();
 
@@ -544,7 +591,6 @@ export class WorkspaceEdit {
 }
 
 export class SnippetString {
-
 	static isSnippetString(thing: any): thing is SnippetString {
 		if (thing instanceof SnippetString) {
 			return true;
@@ -578,8 +624,10 @@ export class SnippetString {
 		return this;
 	}
 
-	appendPlaceholder(value: string | ((snippet: SnippetString) => any), number: number = this._tabstop++): SnippetString {
-
+	appendPlaceholder(
+		value: string | ((snippet: SnippetString) => any),
+		number: number = this._tabstop++
+	): SnippetString {
 		if (typeof value === 'function') {
 			const nested = new SnippetString();
 			nested._tabstop = this._tabstop;
@@ -599,15 +647,16 @@ export class SnippetString {
 		return this;
 	}
 
-	appendVariable(name: string, defaultValue?: string | ((snippet: SnippetString) => any)): SnippetString {
-
+	appendVariable(
+		name: string,
+		defaultValue?: string | ((snippet: SnippetString) => any)
+	): SnippetString {
 		if (typeof defaultValue === 'function') {
 			const nested = new SnippetString();
 			nested._tabstop = this._tabstop;
 			defaultValue(nested);
 			this._tabstop = nested._tabstop;
 			defaultValue = nested.value;
-
 		} else if (typeof defaultValue === 'string') {
 			defaultValue = defaultValue.replace(/\$|}/g, '\\$&');
 		}
@@ -619,7 +668,6 @@ export class SnippetString {
 			this.value += defaultValue;
 		}
 		this.value += '}';
-
 
 		return this;
 	}
@@ -633,7 +681,6 @@ export enum DiagnosticSeverity {
 }
 
 export class Location {
-
 	static isLocation(thing: any): thing is Location {
 		if (thing instanceof Location) {
 			return true;
@@ -641,8 +688,9 @@ export class Location {
 		if (!thing) {
 			return false;
 		}
-		return Range.isRange((<Location>thing).range)
-			&& URI.isUri((<Location>thing).uri);
+		return (
+			Range.isRange((<Location>thing).range) && URI.isUri((<Location>thing).uri)
+		);
 	}
 
 	uri: URI;
@@ -671,14 +719,17 @@ export class Location {
 }
 
 export class Diagnostic {
-
 	range: Range;
 	message: string;
 	source: string;
 	code: string | number;
 	severity: DiagnosticSeverity;
 
-	constructor(range: Range, message: string, severity: DiagnosticSeverity = DiagnosticSeverity.Error) {
+	constructor(
+		range: Range,
+		message: string,
+		severity: DiagnosticSeverity = DiagnosticSeverity.Error
+	) {
 		this.range = range;
 		this.message = message;
 		this.severity = severity;
@@ -690,17 +741,19 @@ export class Diagnostic {
 			message: this.message,
 			range: this.range,
 			source: this.source,
-			code: this.code,
+			code: this.code
 		};
 	}
 }
 
 export class Hover {
-
 	public contents: vscode.MarkedString[];
 	public range: Range;
 
-	constructor(contents: vscode.MarkedString | vscode.MarkedString[], range?: Range) {
+	constructor(
+		contents: vscode.MarkedString | vscode.MarkedString[],
+		range?: Range
+	) {
 		if (!contents) {
 			throw new Error('Illegal argument, contents must be defined');
 		}
@@ -721,11 +774,13 @@ export enum DocumentHighlightKind {
 }
 
 export class DocumentHighlight {
-
 	range: Range;
 	kind: DocumentHighlightKind;
 
-	constructor(range: Range, kind: DocumentHighlightKind = DocumentHighlightKind.Text) {
+	constructor(
+		range: Range,
+		kind: DocumentHighlightKind = DocumentHighlightKind.Text
+	) {
 		this.range = range;
 		this.kind = kind;
 	}
@@ -768,15 +823,31 @@ export enum SymbolKind {
 }
 
 export class SymbolInformation {
-
 	name: string;
 	location: Location;
 	kind: SymbolKind;
 	containerName: string;
 
-	constructor(name: string, kind: SymbolKind, containerName: string, location: Location);
-	constructor(name: string, kind: SymbolKind, range: Range, uri?: URI, containerName?: string);
-	constructor(name: string, kind: SymbolKind, rangeOrContainer: string | Range, locationOrUri?: Location | URI, containerName?: string) {
+	constructor(
+		name: string,
+		kind: SymbolKind,
+		containerName: string,
+		location: Location
+	);
+	constructor(
+		name: string,
+		kind: SymbolKind,
+		range: Range,
+		uri?: URI,
+		containerName?: string
+	);
+	constructor(
+		name: string,
+		kind: SymbolKind,
+		rangeOrContainer: string | Range,
+		locationOrUri?: Location | URI,
+		containerName?: string
+	) {
 		this.name = name;
 		this.kind = kind;
 		this.containerName = containerName;
@@ -803,7 +874,6 @@ export class SymbolInformation {
 }
 
 export class CodeLens {
-
 	range: Range;
 
 	command: vscode.Command;
@@ -819,7 +889,6 @@ export class CodeLens {
 }
 
 export class ParameterInformation {
-
 	label: string;
 	documentation?: string;
 
@@ -830,7 +899,6 @@ export class ParameterInformation {
 }
 
 export class SignatureInformation {
-
 	label: string;
 	documentation?: string;
 	parameters: ParameterInformation[];
@@ -843,7 +911,6 @@ export class SignatureInformation {
 }
 
 export class SignatureHelp {
-
 	signatures: SignatureInformation[];
 	activeSignature: number;
 	activeParameter: number;
@@ -882,7 +949,6 @@ export enum CompletionItemKind {
 }
 
 export class CompletionItem {
-
 	label: string;
 	kind: CompletionItemKind;
 	detail: string;
@@ -915,12 +981,14 @@ export class CompletionItem {
 }
 
 export class CompletionList {
-
 	isIncomplete?: boolean;
 
 	items: vscode.CompletionItem[];
 
-	constructor(items: vscode.CompletionItem[] = [], isIncomplete: boolean = false) {
+	constructor(
+		items: vscode.CompletionItem[] = [],
+		isIncomplete: boolean = false
+	) {
 		this.items = items;
 		this.isIncomplete = isIncomplete;
 	}
@@ -987,16 +1055,18 @@ export enum DecorationRangeBehavior {
 export namespace TextEditorSelectionChangeKind {
 	export function fromValue(s: string) {
 		switch (s) {
-			case 'keyboard': return TextEditorSelectionChangeKind.Keyboard;
-			case 'mouse': return TextEditorSelectionChangeKind.Mouse;
-			case 'api': return TextEditorSelectionChangeKind.Command;
+			case 'keyboard':
+				return TextEditorSelectionChangeKind.Keyboard;
+			case 'mouse':
+				return TextEditorSelectionChangeKind.Mouse;
+			case 'api':
+				return TextEditorSelectionChangeKind.Command;
 		}
 		return undefined;
 	}
 }
 
 export class DocumentLink {
-
 	range: Range;
 
 	target: URI;
@@ -1038,7 +1108,6 @@ export enum TaskRevealKind {
 }
 
 export class BaseTask {
-
 	private _name: string;
 	private _problemMatchers: string[];
 	private _identifier: string;
@@ -1150,7 +1219,12 @@ namespace ProblemMatcher {
 
 namespace ShellOptions {
 	export function is(value: any): value is vscode.ShellTaskOptions {
-		return value && ((typeof value.executable === 'string') || (typeof value.cwd === 'string') || !!value.env);
+		return (
+			value &&
+			(typeof value.executable === 'string' ||
+				typeof value.cwd === 'string' ||
+				!!value.env)
+		);
 	}
 }
 
@@ -1176,19 +1250,40 @@ export namespace TaskGroup {
 	export const Test: 'test' = 'test';
 
 	export function is(value: string): value is string {
-		return value === Clean || value === Build || value === RebuildAll || value === Test;
+		return (
+			value === Clean ||
+			value === Build ||
+			value === RebuildAll ||
+			value === Test
+		);
 	}
 }
 
 export class ProcessTask extends BaseTask {
-
 	private _process: string;
 	private _args: string[];
 	private _options: vscode.ProcessTaskOptions;
 
-	constructor(name: string, process: string, args?: string[], problemMatchers?: string | string[]);
-	constructor(name: string, process: string, args: string[] | undefined, options: vscode.ProcessTaskOptions, problemMatchers?: string | string[]);
-	constructor(name: string, process: string, arg3?: string[], arg4?: vscode.ProcessTaskOptions | string | string[], arg5?: string | string[]) {
+	constructor(
+		name: string,
+		process: string,
+		args?: string[],
+		problemMatchers?: string | string[]
+	);
+	constructor(
+		name: string,
+		process: string,
+		args: string[] | undefined,
+		options: vscode.ProcessTaskOptions,
+		problemMatchers?: string | string[]
+	);
+	constructor(
+		name: string,
+		process: string,
+		arg3?: string[],
+		arg4?: vscode.ProcessTaskOptions | string | string[],
+		arg5?: string | string[]
+	) {
 		if (typeof process !== 'string') {
 			throw illegalArgument('process');
 		}
@@ -1208,7 +1303,7 @@ export class ProcessTask extends BaseTask {
 			problemMatchers = arg5;
 		}
 		let pm: string[];
-		if (problemMatchers && (typeof problemMatchers === 'string')) {
+		if (problemMatchers && typeof problemMatchers === 'string') {
 			pm = [problemMatchers];
 		} else if (Array.isArray(problemMatchers)) {
 			pm = problemMatchers;
@@ -1248,13 +1343,26 @@ export class ProcessTask extends BaseTask {
 }
 
 export class ShellTask extends BaseTask implements vscode.ShellTask {
-
 	private _commandLine: string;
 	private _options: vscode.ShellTaskOptions;
 
-	constructor(name: string, commandLine: string, problemMatchers?: string | string[]);
-	constructor(name: string, commandLine: string, options: vscode.ShellTaskOptions, problemMatchers?: string | string[]);
-	constructor(name: string, commandLine: string, optionsOrProblemMatchers?: vscode.ShellTaskOptions | string | string[], problemMatchers?: string | string[]) {
+	constructor(
+		name: string,
+		commandLine: string,
+		problemMatchers?: string | string[]
+	);
+	constructor(
+		name: string,
+		commandLine: string,
+		options: vscode.ShellTaskOptions,
+		problemMatchers?: string | string[]
+	);
+	constructor(
+		name: string,
+		commandLine: string,
+		optionsOrProblemMatchers?: vscode.ShellTaskOptions | string | string[],
+		problemMatchers?: string | string[]
+	) {
 		if (typeof commandLine !== 'string') {
 			throw illegalArgument('commandLine');
 		}
@@ -1265,7 +1373,7 @@ export class ShellTask extends BaseTask implements vscode.ShellTask {
 		} else {
 			problemMatchers = optionsOrProblemMatchers;
 		}
-		if (problemMatchers && (typeof problemMatchers === 'string')) {
+		if (problemMatchers && typeof problemMatchers === 'string') {
 			pm = [problemMatchers];
 		} else if (Array.isArray(problemMatchers)) {
 			pm = problemMatchers;
@@ -1294,18 +1402,18 @@ export class ShellTask extends BaseTask implements vscode.ShellTask {
 
 export enum ProgressLocation {
 	SourceControl = 1,
-	Window = 10,
+	Window = 10
 }
 
 export class TreeItem {
-
 	iconPath?: string | Uri | { light: string | Uri; dark: string | Uri };
 	command?: vscode.Command;
 	contextValue?: string;
 
-	constructor(public label: string, public collapsibleState: vscode.TreeItemCollapsibleState = TreeItemCollapsibleState.None) {
-	}
-
+	constructor(
+		public label: string,
+		public collapsibleState: vscode.TreeItemCollapsibleState = TreeItemCollapsibleState.None
+	) {}
 }
 
 export enum TreeItemCollapsibleState {

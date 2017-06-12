@@ -26,7 +26,6 @@ const defaultStyles = {
 };
 
 export class SelectBox extends Widget {
-
 	private selectElement: HTMLSelectElement;
 	private options: string[];
 	private selected: number;
@@ -37,7 +36,11 @@ export class SelectBox extends Widget {
 	private selectForeground: Color;
 	private selectBorder: Color;
 
-	constructor(options: string[], selected: number, styles: ISelectBoxStyles = clone(defaultStyles)) {
+	constructor(
+		options: string[],
+		selected: number,
+		styles: ISelectBoxStyles = clone(defaultStyles)
+	) {
 		super();
 
 		this.selectElement = document.createElement('select');
@@ -51,23 +54,29 @@ export class SelectBox extends Widget {
 		this.selectForeground = styles.selectForeground;
 		this.selectBorder = styles.selectBorder;
 
-		this.toDispose.push(dom.addStandardDisposableListener(this.selectElement, 'change', (e) => {
-			this.selectElement.title = e.target.value;
-			this._onDidSelect.fire(e.target.value);
-		}));
+		this.toDispose.push(
+			dom.addStandardDisposableListener(this.selectElement, 'change', e => {
+				this.selectElement.title = e.target.value;
+				this._onDidSelect.fire(e.target.value);
+			})
+		);
 	}
 
 	public get onDidSelect(): Event<string> {
 		return this._onDidSelect.event;
 	}
 
-	public setOptions(options: string[], selected?: number, disabled?: number): void {
+	public setOptions(
+		options: string[],
+		selected?: number,
+		disabled?: number
+	): void {
 		if (!this.options || !arrays.equals(this.options, options)) {
 			this.options = options;
 
 			this.selectElement.options.length = 0;
 			let i = 0;
-			this.options.forEach((option) => {
+			this.options.forEach(option => {
 				this.selectElement.add(this.createOption(option, disabled === i++));
 			});
 		}
@@ -116,8 +125,12 @@ export class SelectBox extends Widget {
 
 	protected applyStyles(): void {
 		if (this.selectElement) {
-			const background = this.selectBackground ? this.selectBackground.toString() : null;
-			const foreground = this.selectForeground ? this.selectForeground.toString() : null;
+			const background = this.selectBackground
+				? this.selectBackground.toString()
+				: null;
+			const foreground = this.selectForeground
+				? this.selectForeground.toString()
+				: null;
 			const border = this.selectBorder ? this.selectBorder.toString() : null;
 
 			this.selectElement.style.backgroundColor = background;

@@ -5,7 +5,11 @@
 
 import * as assert from 'assert';
 
-import { SpectronApplication, LATEST_PATH, WORKSPACE_PATH } from "../spectron/application";
+import {
+	SpectronApplication,
+	LATEST_PATH,
+	WORKSPACE_PATH
+} from '../spectron/application';
 import { CommonActions } from '../areas/common';
 import { CSS, CSSProblem } from '../areas/css';
 
@@ -16,18 +20,23 @@ export function testCSS() {
 	context('CSS', () => {
 		let css: CSS;
 
-		beforeEach(async function () {
-			app = new SpectronApplication(LATEST_PATH, this.currentTest.fullTitle(), (this.currentTest as any).currentRetry(), [WORKSPACE_PATH]);
+		beforeEach(async function() {
+			app = new SpectronApplication(
+				LATEST_PATH,
+				this.currentTest.fullTitle(),
+				(this.currentTest as any).currentRetry(),
+				[WORKSPACE_PATH]
+			);
 			common = new CommonActions(app);
 			css = new CSS(app);
 
 			return await app.start();
 		});
-		afterEach(async function () {
+		afterEach(async function() {
 			return await app.stop();
 		});
 
-		it('verifies quick outline', async function () {
+		it('verifies quick outline', async function() {
 			await common.openFirstMatchFile('style.css');
 			await css.openQuickOutline();
 			await app.wait();
@@ -35,7 +44,7 @@ export function testCSS() {
 			assert.equal(count, 2);
 		});
 
-		it('verifies warnings for the empty rule', async function () {
+		it('verifies warnings for the empty rule', async function() {
 			await common.openFirstMatchFile('style.css');
 			await common.type('.foo{}');
 			await app.wait();
@@ -46,7 +55,7 @@ export function testCSS() {
 			assert.ok(warning);
 		});
 
-		it('verifies that warning becomes an error once setting changed', async function () {
+		it('verifies that warning becomes an error once setting changed', async function() {
 			await common.addSetting('css.lint.emptyRules', 'error');
 			await common.openFirstMatchFile('style.css');
 			await common.type('.foo{}');

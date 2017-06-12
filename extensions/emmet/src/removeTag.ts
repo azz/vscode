@@ -20,7 +20,9 @@ export function removeTag() {
 
 	let rangesToRemove = [];
 	editor.selections.reverse().forEach(selection => {
-		rangesToRemove = rangesToRemove.concat(getRangeToRemove(editor, selection, indentInSpaces));
+		rangesToRemove = rangesToRemove.concat(
+			getRangeToRemove(editor, selection, indentInSpaces)
+		);
 	});
 
 	editor.edit(editBuilder => {
@@ -30,10 +32,17 @@ export function removeTag() {
 	});
 }
 
-function getRangeToRemove(editor: vscode.TextEditor, selection: vscode.Selection, indentInSpaces: string): vscode.Range[] {
+function getRangeToRemove(
+	editor: vscode.TextEditor,
+	selection: vscode.Selection,
+	indentInSpaces: string
+): vscode.Range[] {
 	let offset = editor.document.offsetAt(selection.start);
 	let [openRange, closeRange] = getOpenCloseRange(editor.document, offset);
-	if (!openRange.contains(selection.start) && !closeRange.contains(selection.start)) {
+	if (
+		!openRange.contains(selection.start) &&
+		!closeRange.contains(selection.start)
+	) {
 		return [];
 	}
 	let ranges = [openRange];
@@ -50,5 +59,3 @@ function getRangeToRemove(editor: vscode.TextEditor, selection: vscode.Selection
 	}
 	return ranges;
 }
-
-

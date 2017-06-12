@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { toUint8 } from 'vs/editor/common/core/uint';
 
@@ -63,7 +63,6 @@ const enum Boolean {
 }
 
 export class CharacterSet {
-
 	private _actual: CharacterClassifier<Boolean>;
 
 	constructor() {
@@ -75,6 +74,6 @@ export class CharacterSet {
 	}
 
 	public has(charCode: number): boolean {
-		return (this._actual.get(charCode) === Boolean.True);
+		return this._actual.get(charCode) === Boolean.True;
 	}
 }

@@ -4,14 +4,12 @@
  *--------------------------------------------------------------------------------------------*/
 
 declare module 'chokidar' {
-
 	/**
 	 *  takes paths to be watched recursively and options
 	 */
 	export function watch(paths: string, options: IOptions): FSWatcher;
 
 	export interface IOptions {
-
 		/**
 		 * (regexp or function) files to be ignored. This function or regexp is tested against the whole path, not just filename.
 		 * If it is a function with two arguments, it gets called twice per path - once with a single argument (the path), second time with two arguments (the path and the fs.Stats object of that path).
@@ -65,7 +63,6 @@ declare module 'chokidar' {
 	}
 
 	export interface FSWatcher {
-
 		add(fileDirOrGlob: string): void;
 		add(filesDirsOrGlobs: Array<string>): void;
 

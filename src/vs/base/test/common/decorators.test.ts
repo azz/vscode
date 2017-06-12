@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { memoize } from 'vs/base/common/decorators';
@@ -13,7 +13,7 @@ suite('Decorators', () => {
 		class Foo {
 			count = 0;
 
-			constructor(private _answer: number) { }
+			constructor(private _answer: number) {}
 
 			@memoize
 			answer() {
@@ -58,7 +58,7 @@ suite('Decorators', () => {
 		class Foo {
 			count = 0;
 
-			constructor(private _answer: number) { }
+			constructor(private _answer: number) {}
 
 			@memoize
 			get answer() {
@@ -102,7 +102,9 @@ suite('Decorators', () => {
 	test('memoized property should not be enumerable', () => {
 		class Foo {
 			@memoize
-			get answer() { return 42; }
+			get answer() {
+				return 42;
+			}
 		}
 
 		const foo = new Foo();
@@ -114,7 +116,9 @@ suite('Decorators', () => {
 	test('memoized property should not be writable', () => {
 		class Foo {
 			@memoize
-			get answer() { return 42; }
+			get answer() {
+				return 42;
+			}
 		}
 
 		const foo = new Foo();

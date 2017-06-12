@@ -2,10 +2,14 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as env from 'vs/base/common/platform';
-import { WinTerminalService, MacTerminalService, LinuxTerminalService } from 'vs/workbench/parts/execution/electron-browser/terminalService';
+import {
+	WinTerminalService,
+	MacTerminalService,
+	LinuxTerminalService
+} from 'vs/workbench/parts/execution/electron-browser/terminalService';
 import { registerSingleton } from 'vs/platform/instantiation/common/extensions';
 import { ITerminalService } from 'vs/workbench/parts/execution/common/execution';
 

@@ -2,23 +2,28 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import Event, { Emitter } from 'vs/base/common/event';
-import { ICommonCodeEditor, ICommonDiffEditor, IDecorationRenderOptions, IModelDecorationOptions, IModel } from 'vs/editor/common/editorCommon';
+import {
+	ICommonCodeEditor,
+	ICommonDiffEditor,
+	IDecorationRenderOptions,
+	IModelDecorationOptions,
+	IModel
+} from 'vs/editor/common/editorCommon';
 import { ICodeEditorService } from 'vs/editor/common/services/codeEditorService';
 
 export abstract class AbstractCodeEditorService implements ICodeEditorService {
-
 	_serviceBrand: any;
 
 	private _onCodeEditorAdd: Emitter<ICommonCodeEditor>;
 	private _onCodeEditorRemove: Emitter<ICommonCodeEditor>;
-	private _codeEditors: { [editorId: string]: ICommonCodeEditor; };
+	private _codeEditors: { [editorId: string]: ICommonCodeEditor };
 
 	private _onDiffEditorAdd: Emitter<ICommonDiffEditor>;
 	private _onDiffEditorRemove: Emitter<ICommonDiffEditor>;
-	private _diffEditors: { [editorId: string]: ICommonDiffEditor; };
+	private _diffEditors: { [editorId: string]: ICommonDiffEditor };
 
 	constructor() {
 		this._codeEditors = Object.create(null);
@@ -103,13 +108,26 @@ export abstract class AbstractCodeEditorService implements ICodeEditorService {
 		return editorWithWidgetFocus;
 	}
 
-	abstract registerDecorationType(key: string, options: IDecorationRenderOptions, parentTypeKey?: string): void;
+	abstract registerDecorationType(
+		key: string,
+		options: IDecorationRenderOptions,
+		parentTypeKey?: string
+	): void;
 	abstract removeDecorationType(key: string): void;
-	abstract resolveDecorationOptions(decorationTypeKey: string, writable: boolean): IModelDecorationOptions;
+	abstract resolveDecorationOptions(
+		decorationTypeKey: string,
+		writable: boolean
+	): IModelDecorationOptions;
 
-	private _transientWatchers: { [uri: string]: ModelTransientSettingWatcher; } = {};
+	private _transientWatchers: {
+		[uri: string]: ModelTransientSettingWatcher;
+	} = {};
 
-	public setTransientModelProperty(model: IModel, key: string, value: any): void {
+	public setTransientModelProperty(
+		model: IModel,
+		key: string,
+		value: any
+	): void {
 		const uri = model.uri.toString();
 
 		let w: ModelTransientSettingWatcher;
@@ -140,7 +158,7 @@ export abstract class AbstractCodeEditorService implements ICodeEditorService {
 
 export class ModelTransientSettingWatcher {
 	public readonly uri: string;
-	private readonly _values: { [key: string]: any; };
+	private readonly _values: { [key: string]: any };
 
 	constructor(uri: string, model: IModel, owner: AbstractCodeEditorService) {
 		this.uri = uri;

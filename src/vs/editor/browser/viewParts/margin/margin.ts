@@ -3,16 +3,18 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { FastDomNode, createFastDomNode } from 'vs/base/browser/fastDomNode';
 import { ViewPart } from 'vs/editor/browser/view/viewPart';
 import { ViewContext } from 'vs/editor/common/view/viewContext';
-import { RenderingContext, RestrictedRenderingContext } from 'vs/editor/common/view/renderingContext';
+import {
+	RenderingContext,
+	RestrictedRenderingContext
+} from 'vs/editor/common/view/renderingContext';
 import * as viewEvents from 'vs/editor/common/view/viewEvents';
 
 export class Margin extends ViewPart {
-
 	public static CLASS_NAME = 'glyph-margin';
 
 	private _domNode: FastDomNode<HTMLElement>;
@@ -47,7 +49,9 @@ export class Margin extends ViewPart {
 		domNode.setAttribute('role', 'presentation');
 		domNode.setAttribute('aria-hidden', 'true');
 
-		this._glyphMarginBackgroundDomNode = createFastDomNode(document.createElement('div'));
+		this._glyphMarginBackgroundDomNode = createFastDomNode(
+			document.createElement('div')
+		);
 		this._glyphMarginBackgroundDomNode.setClassName(Margin.CLASS_NAME);
 
 		domNode.appendChild(this._glyphMarginBackgroundDomNode);
@@ -56,7 +60,9 @@ export class Margin extends ViewPart {
 
 	// --- begin event handlers
 
-	public onConfigurationChanged(e: viewEvents.ViewConfigurationChangedEvent): boolean {
+	public onConfigurationChanged(
+		e: viewEvents.ViewConfigurationChangedEvent
+	): boolean {
 		if (e.canUseTranslate3d) {
 			this._canUseTranslate3d = this._context.configuration.editor.canUseTranslate3d;
 		}

@@ -3,11 +3,20 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
-import { RawContextKey, IContextKey, IContextKeyService, ContextKeyExpr } from 'vs/platform/contextkey/common/contextkey';
+import {
+	RawContextKey,
+	IContextKey,
+	IContextKeyService,
+	ContextKeyExpr
+} from 'vs/platform/contextkey/common/contextkey';
 import { ICommonCodeEditor } from 'vs/editor/common/editorCommon';
-import { commonEditorContribution, CommonEditorRegistry, EditorCommand } from 'vs/editor/common/editorCommonExtensions';
+import {
+	commonEditorContribution,
+	CommonEditorRegistry,
+	EditorCommand
+} from 'vs/editor/common/editorCommonExtensions';
 import { dispose, IDisposable } from 'vs/base/common/lifecycle';
 import { SnippetSession } from './snippetSession';
 import { EditorContextKeys } from 'vs/editor/common/editorContextKeys';
@@ -15,7 +24,6 @@ import { KeyCode, KeyMod } from 'vs/base/common/keyCodes';
 
 @commonEditorContribution
 export class SnippetController2 {
-
 	static get(editor: ICommonCodeEditor): SnippetController2 {
 		return editor.getContribution<SnippetController2>('snippetController2');
 	}
@@ -36,9 +44,15 @@ export class SnippetController2 {
 		private readonly _editor: ICommonCodeEditor,
 		@IContextKeyService contextKeyService: IContextKeyService
 	) {
-		this._inSnippet = SnippetController2.InSnippetMode.bindTo(contextKeyService);
-		this._hasNextTabstop = SnippetController2.HasNextTabstop.bindTo(contextKeyService);
-		this._hasPrevTabstop = SnippetController2.HasPrevTabstop.bindTo(contextKeyService);
+		this._inSnippet = SnippetController2.InSnippetMode.bindTo(
+			contextKeyService
+		);
+		this._hasNextTabstop = SnippetController2.HasNextTabstop.bindTo(
+			contextKeyService
+		);
+		this._hasPrevTabstop = SnippetController2.HasPrevTabstop.bindTo(
+			contextKeyService
+		);
 	}
 
 	dispose(): void {
@@ -54,10 +68,11 @@ export class SnippetController2 {
 
 	insert(
 		template: string,
-		overwriteBefore: number = 0, overwriteAfter: number = 0,
-		undoStopBefore: boolean = true, undoStopAfter: boolean = true
+		overwriteBefore: number = 0,
+		overwriteAfter: number = 0,
+		undoStopBefore: boolean = true,
+		undoStopAfter: boolean = true
 	): void {
-
 		// don't listen while inserting the snippet
 		// as that is the inflight state causing cancelation
 		this._snippetListener = dispose(this._snippetListener);
@@ -68,7 +83,12 @@ export class SnippetController2 {
 
 		if (!this._session) {
 			this._modelVersionId = this._editor.getModel().getAlternativeVersionId();
-			this._session = new SnippetSession(this._editor, template, overwriteBefore, overwriteAfter);
+			this._session = new SnippetSession(
+				this._editor,
+				template,
+				overwriteBefore,
+				overwriteAfter
+			);
 			this._session.insert();
 		} else {
 			this._session.merge(template, overwriteBefore, overwriteAfter);
@@ -91,7 +111,9 @@ export class SnippetController2 {
 			return;
 		}
 
-		if (this._modelVersionId === this._editor.getModel().getAlternativeVersionId()) {
+		if (
+			this._modelVersionId === this._editor.getModel().getAlternativeVersionId()
+		) {
 			// undo until the 'before' state happened
 			// and makes use cancel snippet mode
 			return this.cancel();
@@ -103,7 +125,10 @@ export class SnippetController2 {
 			return this.cancel();
 		}
 
-		if (this._session.isAtLastPlaceholder || !this._session.isSelectionWithinPlaceholders()) {
+		if (
+			this._session.isAtLastPlaceholder ||
+			!this._session.isSelectionWithinPlaceholders()
+		) {
 			return this.cancel();
 		}
 
@@ -139,48 +164,63 @@ export class SnippetController2 {
 	}
 }
 
+const CommandCtor = EditorCommand.bindToContribution<SnippetController2>(
+	SnippetController2.get
+);
 
-const CommandCtor = EditorCommand.bindToContribution<SnippetController2>(SnippetController2.get);
+CommonEditorRegistry.registerEditorCommand(
+	new CommandCtor({
+		id: 'jumpToNextSnippetPlaceholder',
+		precondition: ContextKeyExpr.and(
+			SnippetController2.InSnippetMode,
+			SnippetController2.HasNextTabstop
+		),
+		handler: ctrl => ctrl.next(),
+		kbOpts: {
+			weight: CommonEditorRegistry.commandWeight(30),
+			kbExpr: EditorContextKeys.textFocus,
+			primary: KeyCode.Tab
+		}
+	})
+);
+CommonEditorRegistry.registerEditorCommand(
+	new CommandCtor({
+		id: 'jumpToPrevSnippetPlaceholder',
+		precondition: ContextKeyExpr.and(
+			SnippetController2.InSnippetMode,
+			SnippetController2.HasPrevTabstop
+		),
+		handler: ctrl => ctrl.prev(),
+		kbOpts: {
+			weight: CommonEditorRegistry.commandWeight(30),
+			kbExpr: EditorContextKeys.textFocus,
+			primary: KeyMod.Shift | KeyCode.Tab
+		}
+	})
+);
+CommonEditorRegistry.registerEditorCommand(
+	new CommandCtor({
+		id: 'leaveSnippet',
+		precondition: SnippetController2.InSnippetMode,
+		handler: ctrl => ctrl.cancel(),
+		kbOpts: {
+			weight: CommonEditorRegistry.commandWeight(30),
+			kbExpr: EditorContextKeys.textFocus,
+			primary: KeyCode.Escape,
+			secondary: [KeyMod.Shift | KeyCode.Escape]
+		}
+	})
+);
 
-CommonEditorRegistry.registerEditorCommand(new CommandCtor({
-	id: 'jumpToNextSnippetPlaceholder',
-	precondition: ContextKeyExpr.and(SnippetController2.InSnippetMode, SnippetController2.HasNextTabstop),
-	handler: ctrl => ctrl.next(),
-	kbOpts: {
-		weight: CommonEditorRegistry.commandWeight(30),
-		kbExpr: EditorContextKeys.textFocus,
-		primary: KeyCode.Tab
-	}
-}));
-CommonEditorRegistry.registerEditorCommand(new CommandCtor({
-	id: 'jumpToPrevSnippetPlaceholder',
-	precondition: ContextKeyExpr.and(SnippetController2.InSnippetMode, SnippetController2.HasPrevTabstop),
-	handler: ctrl => ctrl.prev(),
-	kbOpts: {
-		weight: CommonEditorRegistry.commandWeight(30),
-		kbExpr: EditorContextKeys.textFocus,
-		primary: KeyMod.Shift | KeyCode.Tab
-	}
-}));
-CommonEditorRegistry.registerEditorCommand(new CommandCtor({
-	id: 'leaveSnippet',
-	precondition: SnippetController2.InSnippetMode,
-	handler: ctrl => ctrl.cancel(),
-	kbOpts: {
-		weight: CommonEditorRegistry.commandWeight(30),
-		kbExpr: EditorContextKeys.textFocus,
-		primary: KeyCode.Escape,
-		secondary: [KeyMod.Shift | KeyCode.Escape]
-	}
-}));
-
-CommonEditorRegistry.registerEditorCommand(new CommandCtor({
-	id: 'acceptSnippet',
-	precondition: SnippetController2.InSnippetMode,
-	handler: ctrl => ctrl.finish(),
-	// kbOpts: {
-	// 	weight: CommonEditorRegistry.commandWeight(30),
-	// 	kbExpr: EditorContextKeys.textFocus,
-	// 	primary: KeyCode.Enter,
-	// }
-}));
+CommonEditorRegistry.registerEditorCommand(
+	new CommandCtor({
+		id: 'acceptSnippet',
+		precondition: SnippetController2.InSnippetMode,
+		handler: ctrl => ctrl.finish()
+		// kbOpts: {
+		// 	weight: CommonEditorRegistry.commandWeight(30),
+		// 	kbExpr: EditorContextKeys.textFocus,
+		// 	primary: KeyCode.Enter,
+		// }
+	})
+);

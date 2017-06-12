@@ -5,7 +5,6 @@
 
 import { extensions } from 'vscode';
 
-
 export interface TypeScriptServerPlugin {
 	path: string;
 	name: string;
@@ -16,7 +15,11 @@ export function getContributedTypeScriptServerPlugins(): TypeScriptServerPlugin[
 	const plugins: TypeScriptServerPlugin[] = [];
 	for (const extension of extensions.all) {
 		const pack = extension.packageJSON;
-		if (pack.contributes && pack.contributes.typescriptServerPlugins && Array.isArray(pack.contributes.typescriptServerPlugins)) {
+		if (
+			pack.contributes &&
+			pack.contributes.typescriptServerPlugins &&
+			Array.isArray(pack.contributes.typescriptServerPlugins)
+		) {
 			for (const plugin of pack.contributes.typescriptServerPlugins) {
 				plugins.push({
 					name: plugin.name,

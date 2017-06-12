@@ -4,10 +4,9 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { SpectronApplication } from '../spectron/application';
-import { CommonActions } from "./common";
+import { CommonActions } from './common';
 
 export class IntegratedTerminal {
-
 	constructor(private spectron: SpectronApplication) {
 		// noop
 	}
@@ -28,7 +27,9 @@ export class IntegratedTerminal {
 
 		const rows = await this.spectron.client.elements(`${selector} div`);
 		for (let i = 0; i < rows.value.length; i++) {
-			const rowText = await this.spectron.client.getText(`${selector}>:nth-child(${i+1})`);
+			const rowText = await this.spectron.client.getText(
+				`${selector}>:nth-child(${i + 1})`
+			);
 			if (rowText.trim() === result) {
 				return true;
 			}

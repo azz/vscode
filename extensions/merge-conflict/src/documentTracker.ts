@@ -14,7 +14,9 @@ class ScanTask {
 
 	constructor(delayTime: number, initialOrigin: string) {
 		this.origins.add(initialOrigin);
-		this.delayTask = new Delayer<interfaces.IDocumentMergeConflict[]>(delayTime);
+		this.delayTask = new Delayer<interfaces.IDocumentMergeConflict[]>(
+			delayTime
+		);
 	}
 
 	public addOrigin(name: string): boolean {
@@ -30,11 +32,16 @@ class ScanTask {
 	}
 }
 
-class OriginDocumentMergeConflictTracker implements interfaces.IDocumentMergeConflictTracker {
-	constructor(private parent: DocumentMergeConflictTracker, private origin: string) {
-	}
+class OriginDocumentMergeConflictTracker
+	implements interfaces.IDocumentMergeConflictTracker {
+	constructor(
+		private parent: DocumentMergeConflictTracker,
+		private origin: string
+	) {}
 
-	getConflicts(document: vscode.TextDocument): PromiseLike<interfaces.IDocumentMergeConflict[]> {
+	getConflicts(
+		document: vscode.TextDocument
+	): PromiseLike<interfaces.IDocumentMergeConflict[]> {
 		return this.parent.getConflicts(document, this.origin);
 	}
 
@@ -47,11 +54,16 @@ class OriginDocumentMergeConflictTracker implements interfaces.IDocumentMergeCon
 	}
 }
 
-export default class DocumentMergeConflictTracker implements vscode.Disposable, interfaces.IDocumentMergeConflictTrackerService {
+export default class DocumentMergeConflictTracker
+	implements vscode.Disposable,
+		interfaces.IDocumentMergeConflictTrackerService {
 	private cache: Map<string, ScanTask> = new Map();
 	private delayExpireTime: number = 250;
 
-	getConflicts(document: vscode.TextDocument, origin: string): PromiseLike<interfaces.IDocumentMergeConflict[]> {
+	getConflicts(
+		document: vscode.TextDocument,
+		origin: string
+	): PromiseLike<interfaces.IDocumentMergeConflict[]> {
 		// Attempt from cache
 
 		let key = this.getCacheKey(document);
@@ -65,13 +77,15 @@ export default class DocumentMergeConflictTracker implements vscode.Disposable, 
 		if (!cacheItem) {
 			cacheItem = new ScanTask(this.delayExpireTime, origin);
 			this.cache.set(key, cacheItem);
-		}
-		else {
+		} else {
 			cacheItem.addOrigin(origin);
 		}
 
 		return cacheItem.delayTask.trigger(() => {
-			let conflicts = this.getConflictsOrEmpty(document, Array.from(cacheItem!.origins));
+			let conflicts = this.getConflictsOrEmpty(
+				document,
+				Array.from(cacheItem!.origins)
+			);
 
 			if (this.cache) {
 				this.cache.delete(key!);
@@ -116,7 +130,10 @@ export default class DocumentMergeConflictTracker implements vscode.Disposable, 
 		this.cache.clear();
 	}
 
-	private getConflictsOrEmpty(document: vscode.TextDocument, origins: string[]): interfaces.IDocumentMergeConflict[] {
+	private getConflictsOrEmpty(
+		document: vscode.TextDocument,
+		origins: string[]
+	): interfaces.IDocumentMergeConflict[] {
 		const containsConflict = MergeConflictParser.containsConflict(document);
 
 		if (!containsConflict) {
@@ -135,4 +152,3 @@ export default class DocumentMergeConflictTracker implements vscode.Disposable, 
 		return null;
 	}
 }
-

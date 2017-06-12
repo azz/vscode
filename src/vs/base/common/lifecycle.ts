@@ -3,12 +3,12 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { once } from 'vs/base/common/functional';
 
 export const empty: IDisposable = Object.freeze({
-	dispose() { }
+	dispose() {}
 });
 
 export interface IDisposable {
@@ -18,8 +18,10 @@ export interface IDisposable {
 export function dispose<T extends IDisposable>(disposable: T): T;
 export function dispose<T extends IDisposable>(...disposables: T[]): T[];
 export function dispose<T extends IDisposable>(disposables: T[]): T[];
-export function dispose<T extends IDisposable>(first: T | T[], ...rest: T[]): T | T[] {
-
+export function dispose<T extends IDisposable>(
+	first: T | T[],
+	...rest: T[]
+): T | T[] {
 	if (Array.isArray(first)) {
 		first.forEach(d => d && d.dispose());
 		return [];
@@ -45,7 +47,6 @@ export function toDisposable(...fns: (() => void)[]): IDisposable {
 }
 
 export abstract class Disposable implements IDisposable {
-
 	private _toDispose: IDisposable[];
 
 	constructor() {
@@ -63,7 +64,6 @@ export abstract class Disposable implements IDisposable {
 }
 
 export class Disposables extends Disposable {
-
 	public add<T extends IDisposable>(e: T): T;
 	public add(...elements: IDisposable[]): void;
 	public add<T extends IDisposable>(arg: T | T[]): T {
@@ -79,7 +79,6 @@ export class Disposables extends Disposable {
 }
 
 export class OneDisposable implements IDisposable {
-
 	private _value: IDisposable;
 
 	set value(value: IDisposable) {
@@ -99,16 +98,20 @@ export interface IReference<T> extends IDisposable {
 }
 
 export abstract class ReferenceCollection<T> {
+	private references: {
+		[key: string]: { readonly object: T; counter: number };
+	} = Object.create(null);
 
-	private references: { [key: string]: { readonly object: T; counter: number; } } = Object.create(null);
-
-	constructor() { }
+	constructor() {}
 
 	acquire(key: string): IReference<T> {
 		let reference = this.references[key];
 
 		if (!reference) {
-			reference = this.references[key] = { counter: 0, object: this.createReferencedObject(key) };
+			reference = this.references[key] = {
+				counter: 0,
+				object: this.createReferencedObject(key)
+			};
 		}
 
 		const { object } = reference;
@@ -129,6 +132,8 @@ export abstract class ReferenceCollection<T> {
 }
 
 export class ImmortalReference<T> implements IReference<T> {
-	constructor(public object: T) { }
-	dispose(): void { /* noop */ }
+	constructor(public object: T) {}
+	dispose(): void {
+		/* noop */
+	}
 }

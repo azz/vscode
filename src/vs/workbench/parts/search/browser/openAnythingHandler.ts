@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as arrays from 'vs/base/common/arrays';
 import * as objects from 'vs/base/common/objects';
@@ -14,18 +14,30 @@ import types = require('vs/base/common/types');
 import { isWindows } from 'vs/base/common/platform';
 import strings = require('vs/base/common/strings');
 import { IAutoFocus } from 'vs/base/parts/quickopen/common/quickOpen';
-import { QuickOpenEntry, QuickOpenModel } from 'vs/base/parts/quickopen/browser/quickOpenModel';
+import {
+	QuickOpenEntry,
+	QuickOpenModel
+} from 'vs/base/parts/quickopen/browser/quickOpenModel';
 import { QuickOpenHandler } from 'vs/workbench/browser/quickopen';
-import { FileEntry, OpenFileHandler, FileQuickOpenModel } from 'vs/workbench/parts/search/browser/openFileHandler';
+import {
+	FileEntry,
+	OpenFileHandler,
+	FileQuickOpenModel
+} from 'vs/workbench/parts/search/browser/openFileHandler';
 import * as openSymbolHandler from 'vs/workbench/parts/search/browser/openSymbolHandler';
 import { IMessageService, Severity } from 'vs/platform/message/common/message';
 import { IInstantiationService } from 'vs/platform/instantiation/common/instantiation';
-import { ISearchStats, ICachedSearchStats, IUncachedSearchStats } from 'vs/platform/search/common/search';
+import {
+	ISearchStats,
+	ICachedSearchStats,
+	IUncachedSearchStats
+} from 'vs/platform/search/common/search';
 import { ITelemetryService } from 'vs/platform/telemetry/common/telemetry';
 import { IConfigurationService } from 'vs/platform/configuration/common/configuration';
 import { IWorkbenchSearchConfiguration } from 'vs/workbench/parts/search/common/search';
 
-const objects_assign: <T, U>(destination: T, source: U) => T & U = objects.assign;
+const objects_assign: <T, U>(destination: T, source: U) => T & U =
+	objects.assign;
 
 interface ISearchWithRange {
 	search: string;
@@ -45,23 +57,25 @@ interface ITimerEventData {
 		unsortedResultDuration: number;
 		sortedResultDuration: number;
 		resultCount: number;
-	} & ({
-		traversal: string;
-		errors: string[];
-		fileWalkStartDuration: number;
-		fileWalkResultDuration: number;
-		directoriesWalked: number;
-		filesWalked: number;
-		cmdForkStartTime?: number;
-		cmdForkResultTime?: number;
-		cmdResultCount?: number;
-	} | {
-			cacheLookupStartDuration: number;
-			cacheFilterStartDuration: number;
-			cacheLookupResultDuration: number;
-			cacheEntryCount: number;
-			joined?: any;
-		});
+	} & (
+		| {
+				traversal: string;
+				errors: string[];
+				fileWalkStartDuration: number;
+				fileWalkResultDuration: number;
+				directoriesWalked: number;
+				filesWalked: number;
+				cmdForkStartTime?: number;
+				cmdForkResultTime?: number;
+				cmdResultCount?: number;
+			}
+		| {
+				cacheLookupStartDuration: number;
+				cacheFilterStartDuration: number;
+				cacheLookupResultDuration: number;
+				cacheEntryCount: number;
+				joined?: any;
+			});
 }
 
 interface ITelemetryData {
@@ -80,7 +94,6 @@ export import OpenSymbolHandler = openSymbolHandler.OpenSymbolHandler;
 import { IRange } from 'vs/editor/common/core/range';
 
 export class OpenAnythingHandler extends QuickOpenHandler {
-
 	private static LINE_COLON_PATTERN = /[#|:|\(](\d*)([#|:|,](\d*))?\)?$/;
 
 	private static FILE_SEARCH_DELAY = 300;
@@ -105,22 +118,36 @@ export class OpenAnythingHandler extends QuickOpenHandler {
 		super();
 
 		this.scorerCache = Object.create(null);
-		this.searchDelayer = new ThrottledDelayer<QuickOpenModel>(OpenAnythingHandler.FILE_SEARCH_DELAY);
+		this.searchDelayer = new ThrottledDelayer<QuickOpenModel>(
+			OpenAnythingHandler.FILE_SEARCH_DELAY
+		);
 
-		this.openSymbolHandler = instantiationService.createInstance(OpenSymbolHandler);
+		this.openSymbolHandler = instantiationService.createInstance(
+			OpenSymbolHandler
+		);
 		this.openFileHandler = instantiationService.createInstance(OpenFileHandler);
 
-		this.updateHandlers(this.configurationService.getConfiguration<IWorkbenchSearchConfiguration>());
+		this.updateHandlers(
+			this.configurationService.getConfiguration<
+				IWorkbenchSearchConfiguration
+			>()
+		);
 
 		this.registerListeners();
 	}
 
 	private registerListeners(): void {
-		this.configurationService.onDidUpdateConfiguration(e => this.updateHandlers(e.config));
+		this.configurationService.onDidUpdateConfiguration(e =>
+			this.updateHandlers(e.config)
+		);
 	}
 
 	private updateHandlers(configuration: IWorkbenchSearchConfiguration): void {
-		this.includeSymbols = configuration && configuration.search && configuration.search.quickOpen && configuration.search.quickOpen.includeSymbols;
+		this.includeSymbols =
+			configuration &&
+			configuration.search &&
+			configuration.search.quickOpen &&
+			configuration.search.quickOpen.includeSymbols;
 
 		// Files
 		this.openFileHandler.setOptions({
@@ -129,9 +156,9 @@ export class OpenAnythingHandler extends QuickOpenHandler {
 
 		// Symbols
 		this.openSymbolHandler.setOptions({
-			skipDelay: true,		// we have our own delay
-			skipLocalSymbols: true,	// we only want global symbols
-			skipSorting: true 		// we sort combined with file results
+			skipDelay: true, // we have our own delay
+			skipLocalSymbols: true, // we only want global symbols
+			skipSorting: true // we sort combined with file results
 		});
 	}
 
@@ -158,10 +185,15 @@ export class OpenAnythingHandler extends QuickOpenHandler {
 
 		// The throttler needs a factory for its promises
 		const promiseFactory = () => {
-			const resultPromises: TPromise<QuickOpenModel | FileQuickOpenModel>[] = [];
+			const resultPromises: TPromise<
+				QuickOpenModel | FileQuickOpenModel
+			>[] = [];
 
 			// File Results
-			const filePromise = this.openFileHandler.getResults(searchValue, OpenAnythingHandler.MAX_DISPLAYED_RESULTS);
+			const filePromise = this.openFileHandler.getResults(
+				searchValue,
+				OpenAnythingHandler.MAX_DISPLAYED_RESULTS
+			);
 			resultPromises.push(filePromise);
 
 			// Symbol Results (unless disabled or a range or absolute path is specified)
@@ -170,59 +202,95 @@ export class OpenAnythingHandler extends QuickOpenHandler {
 			}
 
 			// Join and sort unified
-			this.pendingSearch = TPromise.join(resultPromises).then(results => {
-				this.pendingSearch = null;
+			this.pendingSearch = TPromise.join(resultPromises).then(
+				results => {
+					this.pendingSearch = null;
 
-				// If the quick open widget has been closed meanwhile, ignore the result
-				if (this.isClosed) {
-					return TPromise.as<QuickOpenModel>(new QuickOpenModel());
-				}
-
-				// Combine results.
-				const mergedResults = [].concat(...results.map(r => r.entries));
-
-				// Sort
-				const unsortedResultTime = Date.now();
-				const normalizedSearchValue = strings.stripWildcards(searchValue).toLowerCase();
-				const compare = (elementA: QuickOpenEntry, elementB: QuickOpenEntry) => QuickOpenEntry.compareByScore(elementA, elementB, searchValue, normalizedSearchValue, this.scorerCache);
-				const viewResults = arrays.top(mergedResults, compare, OpenAnythingHandler.MAX_DISPLAYED_RESULTS);
-				const sortedResultTime = Date.now();
-
-				// Apply range and highlights to file entries
-				viewResults.forEach(entry => {
-					if (entry instanceof FileEntry) {
-						entry.setRange(searchWithRange ? searchWithRange.range : null);
-
-						const { labelHighlights, descriptionHighlights } = QuickOpenEntry.highlight(entry, searchValue, true /* fuzzy highlight */);
-						entry.setHighlights(labelHighlights, descriptionHighlights);
+					// If the quick open widget has been closed meanwhile, ignore the result
+					if (this.isClosed) {
+						return TPromise.as<QuickOpenModel>(new QuickOpenModel());
 					}
-				});
 
-				const duration = new Date().getTime() - startTime;
-				filePromise.then(fileModel => {
-					const data = this.createTimerEventData(startTime, {
-						searchLength: searchValue.length,
-						unsortedResultTime,
-						sortedResultTime,
-						resultCount: mergedResults.length,
-						symbols: { fromCache: false },
-						files: fileModel.stats,
+					// Combine results.
+					const mergedResults = [].concat(...results.map(r => r.entries));
+
+					// Sort
+					const unsortedResultTime = Date.now();
+					const normalizedSearchValue = strings
+						.stripWildcards(searchValue)
+						.toLowerCase();
+					const compare = (
+						elementA: QuickOpenEntry,
+						elementB: QuickOpenEntry
+					) =>
+						QuickOpenEntry.compareByScore(
+							elementA,
+							elementB,
+							searchValue,
+							normalizedSearchValue,
+							this.scorerCache
+						);
+					const viewResults = arrays.top(
+						mergedResults,
+						compare,
+						OpenAnythingHandler.MAX_DISPLAYED_RESULTS
+					);
+					const sortedResultTime = Date.now();
+
+					// Apply range and highlights to file entries
+					viewResults.forEach(entry => {
+						if (entry instanceof FileEntry) {
+							entry.setRange(searchWithRange ? searchWithRange.range : null);
+
+							const {
+								labelHighlights,
+								descriptionHighlights
+							} = QuickOpenEntry.highlight(
+								entry,
+								searchValue,
+								true /* fuzzy highlight */
+							);
+							entry.setHighlights(labelHighlights, descriptionHighlights);
+						}
 					});
 
-					this.telemetryService.publicLog('openAnything', objects.assign(data, { duration }));
-				});
+					const duration = new Date().getTime() - startTime;
+					filePromise.then(fileModel => {
+						const data = this.createTimerEventData(startTime, {
+							searchLength: searchValue.length,
+							unsortedResultTime,
+							sortedResultTime,
+							resultCount: mergedResults.length,
+							symbols: { fromCache: false },
+							files: fileModel.stats
+						});
 
-				return TPromise.as<QuickOpenModel>(new QuickOpenModel(viewResults));
-			}, (error: Error) => {
-				this.pendingSearch = null;
-				this.messageService.show(Severity.Error, error);
-			});
+						this.telemetryService.publicLog(
+							'openAnything',
+							objects.assign(data, { duration })
+						);
+					});
+
+					return TPromise.as<QuickOpenModel>(new QuickOpenModel(viewResults));
+				},
+				(error: Error) => {
+					this.pendingSearch = null;
+					this.messageService.show(Severity.Error, error);
+				}
+			);
 
 			return this.pendingSearch;
 		};
 
 		// Trigger through delayer to prevent accumulation while the user is typing (except when expecting results to come from cache)
-		return this.hasShortResponseTime() ? promiseFactory() : this.searchDelayer.trigger(promiseFactory, this.includeSymbols ? OpenAnythingHandler.SYMBOL_SEARCH_DELAY : OpenAnythingHandler.FILE_SEARCH_DELAY);
+		return this.hasShortResponseTime()
+			? promiseFactory()
+			: this.searchDelayer.trigger(
+					promiseFactory,
+					this.includeSymbols
+						? OpenAnythingHandler.SYMBOL_SEARCH_DELAY
+						: OpenAnythingHandler.FILE_SEARCH_DELAY
+				);
 	}
 
 	public hasShortResponseTime(): boolean {
@@ -230,7 +298,10 @@ export class OpenAnythingHandler extends QuickOpenHandler {
 			return this.openFileHandler.hasShortResponseTime();
 		}
 
-		return this.openFileHandler.hasShortResponseTime() && this.openSymbolHandler.hasShortResponseTime();
+		return (
+			this.openFileHandler.hasShortResponseTime() &&
+			this.openSymbolHandler.hasShortResponseTime()
+		);
 	}
 
 	private extractRange(value: string): ISearchWithRange {
@@ -266,10 +337,8 @@ export class OpenAnythingHandler extends QuickOpenHandler {
 						};
 					}
 				}
-			}
-
-			// User has typed "something:" or "something#" without a line number, in this case treat as start of file
-			else if (patternMatch[1] === '') {
+			} else if (patternMatch[1] === '') {
+				// User has typed "something:" or "something#" without a line number, in this case treat as start of file
 				range = {
 					startLineNumber: 1,
 					startColumn: 1,
@@ -290,7 +359,9 @@ export class OpenAnythingHandler extends QuickOpenHandler {
 	}
 
 	public getGroupLabel(): string {
-		return this.includeSymbols ? nls.localize('fileAndTypeResults', "file and symbol results") : nls.localize('fileResults', "file results");
+		return this.includeSymbols
+			? nls.localize('fileAndTypeResults', 'file and symbol results')
+			: nls.localize('fileResults', 'file results');
 	}
 
 	public getAutoFocus(searchValue: string): IAutoFocus {
@@ -325,14 +396,18 @@ export class OpenAnythingHandler extends QuickOpenHandler {
 		}
 	}
 
-	private createTimerEventData(startTime: number, telemetry: ITelemetryData): ITimerEventData {
+	private createTimerEventData(
+		startTime: number,
+		telemetry: ITelemetryData
+	): ITimerEventData {
 		return {
 			searchLength: telemetry.searchLength,
 			unsortedResultDuration: telemetry.unsortedResultTime - startTime,
 			sortedResultDuration: telemetry.sortedResultTime - startTime,
 			resultCount: telemetry.resultCount,
 			symbols: telemetry.symbols,
-			files: telemetry.files && this.createFileEventData(startTime, telemetry.files)
+			files:
+				telemetry.files && this.createFileEventData(startTime, telemetry.files)
 		};
 	}
 
@@ -340,27 +415,40 @@ export class OpenAnythingHandler extends QuickOpenHandler {
 		const cached = stats as ICachedSearchStats;
 		const uncached = stats as IUncachedSearchStats;
 
-		return objects_assign({
-			fromCache: stats.fromCache,
-			unsortedResultDuration: stats.unsortedResultTime && stats.unsortedResultTime - startTime,
-			sortedResultDuration: stats.sortedResultTime && stats.sortedResultTime - startTime,
-			resultCount: stats.resultCount
-		}, stats.fromCache ? {
-			cacheLookupStartDuration: cached.cacheLookupStartTime - startTime,
-			cacheFilterStartDuration: cached.cacheFilterStartTime - startTime,
-			cacheLookupResultDuration: cached.cacheLookupResultTime - startTime,
-			cacheEntryCount: cached.cacheEntryCount,
-			joined: cached.joined && this.createFileEventData(startTime, cached.joined)
-		} : {
-					traversal: uncached.traversal,
-					errors: uncached.errors,
-					fileWalkStartDuration: uncached.fileWalkStartTime - startTime,
-					fileWalkResultDuration: uncached.fileWalkResultTime - startTime,
-					directoriesWalked: uncached.directoriesWalked,
-					filesWalked: uncached.filesWalked,
-					cmdForkStartDuration: uncached.cmdForkStartTime && uncached.cmdForkStartTime - startTime,
-					cmdForkResultDuration: uncached.cmdForkResultTime && uncached.cmdForkResultTime - startTime,
-					cmdResultCount: uncached.cmdResultCount
-				});
+		return objects_assign(
+			{
+				fromCache: stats.fromCache,
+				unsortedResultDuration:
+					stats.unsortedResultTime && stats.unsortedResultTime - startTime,
+				sortedResultDuration:
+					stats.sortedResultTime && stats.sortedResultTime - startTime,
+				resultCount: stats.resultCount
+			},
+			stats.fromCache
+				? {
+						cacheLookupStartDuration: cached.cacheLookupStartTime - startTime,
+						cacheFilterStartDuration: cached.cacheFilterStartTime - startTime,
+						cacheLookupResultDuration: cached.cacheLookupResultTime - startTime,
+						cacheEntryCount: cached.cacheEntryCount,
+						joined:
+							cached.joined &&
+								this.createFileEventData(startTime, cached.joined)
+					}
+				: {
+						traversal: uncached.traversal,
+						errors: uncached.errors,
+						fileWalkStartDuration: uncached.fileWalkStartTime - startTime,
+						fileWalkResultDuration: uncached.fileWalkResultTime - startTime,
+						directoriesWalked: uncached.directoriesWalked,
+						filesWalked: uncached.filesWalked,
+						cmdForkStartDuration:
+							uncached.cmdForkStartTime &&
+								uncached.cmdForkStartTime - startTime,
+						cmdForkResultDuration:
+							uncached.cmdForkResultTime &&
+								uncached.cmdForkResultTime - startTime,
+						cmdResultCount: uncached.cmdResultCount
+					}
+		);
 	}
 }

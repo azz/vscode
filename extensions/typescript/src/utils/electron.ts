@@ -15,7 +15,25 @@ export interface IForkOptions {
 }
 
 export function makeRandomHexString(length: number): string {
-	let chars = ['0', '1', '2', '3', '4', '5', '6', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
+	let chars = [
+		'0',
+		'1',
+		'2',
+		'3',
+		'4',
+		'5',
+		'6',
+		'6',
+		'7',
+		'8',
+		'9',
+		'a',
+		'b',
+		'c',
+		'd',
+		'e',
+		'f'
+	];
 	let result = '';
 	for (let i = 0; i < length; i++) {
 		let idx = Math.floor(chars.length * Math.random());
@@ -38,8 +56,12 @@ export function getPipeName(name: string): string {
 	return path.join(os.tmpdir(), fullName + '.sock');
 }
 
-
-function generatePatchedEnv(env: any, stdInPipeName: string, stdOutPipeName: string, stdErrPipeName: string): any {
+function generatePatchedEnv(
+	env: any,
+	stdInPipeName: string,
+	stdOutPipeName: string,
+	stdErrPipeName: string
+): any {
 	// Set the two unique pipe names and the electron flag as process env
 
 	var newEnv: any = {};
@@ -60,9 +82,8 @@ export function fork(
 	args: string[],
 	options: IForkOptions,
 	logger: Logger,
-	callback: (error: any, cp: cp.ChildProcess | null) => void,
+	callback: (error: any, cp: cp.ChildProcess | null) => void
 ): void {
-
 	var callbackCalled = false;
 	const resolve = (result: cp.ChildProcess) => {
 		if (callbackCalled) {
@@ -84,19 +105,23 @@ export function fork(
 	const stdOutPipeName = generatePipeName();
 	const stdErrPipeName = generatePipeName();
 
-
-	const newEnv = generatePatchedEnv(process.env, stdInPipeName, stdOutPipeName, stdErrPipeName);
+	const newEnv = generatePatchedEnv(
+		process.env,
+		stdInPipeName,
+		stdOutPipeName,
+		stdErrPipeName
+	);
 	var childProcess: cp.ChildProcess;
 
 	// Begin listening to stderr pipe
-	let stdErrServer = net.createServer((stdErrStream) => {
+	let stdErrServer = net.createServer(stdErrStream => {
 		// From now on the childProcess.stderr is available for reading
 		childProcess.stderr = stdErrStream;
 	});
 	stdErrServer.listen(stdErrPipeName);
 
 	// Begin listening to stdout pipe
-	let stdOutServer = net.createServer((stdOutStream) => {
+	let stdOutServer = net.createServer(stdOutStream => {
 		// The child process will write exactly one chunk with content `ready` when it has installed a listener to the stdin pipe
 
 		stdOutStream.once('data', (_chunk: Buffer) => {
@@ -125,12 +150,16 @@ export function fork(
 	logger.info('Forking TSServer', `PATH: ${newEnv['PATH']}`);
 
 	const bootstrapperPath = path.join(__dirname, 'electronForkStart');
-	childProcess = cp.fork(bootstrapperPath, [modulePath].concat(args), <any>{
-		silent: true,
-		cwd: options.cwd,
-		env: newEnv,
-		execArgv: options.execArgv
-	});
+	childProcess = cp.fork(
+		bootstrapperPath,
+		[modulePath].concat(args),
+		<any>{
+			silent: true,
+			cwd: options.cwd,
+			env: newEnv,
+			execArgv: options.execArgv
+		}
+	);
 
 	childProcess.once('error', (err: Error) => {
 		closeServer();

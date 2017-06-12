@@ -2,14 +2,13 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { RunOnceScheduler } from 'vs/base/common/async';
 import { onUnexpectedError } from 'vs/base/common/errors';
 import { TPromise } from 'vs/base/common/winjs.base';
 
 export interface IHoverComputer<Result> {
-
 	/**
 	 * Overwrite the default hover time
 	 */
@@ -36,7 +35,6 @@ export interface IHoverComputer<Result> {
 	getResult: () => Result;
 
 	getResultWithLoadingMessage: () => Result;
-
 }
 
 const enum ComputeHoverOperationState {
@@ -47,7 +45,6 @@ const enum ComputeHoverOperationState {
 }
 
 export class HoverOperation<Result> {
-
 	static HOVER_TIME = 300;
 
 	private _computer: IHoverComputer<Result>;
@@ -63,13 +60,27 @@ export class HoverOperation<Result> {
 	private _errorCallback: (err: any) => void;
 	private _progressCallback: (progress: any) => void;
 
-	constructor(computer: IHoverComputer<Result>, success: (r: Result) => void, error: (err: any) => void, progress: (progress: any) => void) {
+	constructor(
+		computer: IHoverComputer<Result>,
+		success: (r: Result) => void,
+		error: (err: any) => void,
+		progress: (progress: any) => void
+	) {
 		this._computer = computer;
 		this._state = ComputeHoverOperationState.IDLE;
 
-		this._firstWaitScheduler = new RunOnceScheduler(() => this._triggerAsyncComputation(), this._getHoverTimeMillis() / 2);
-		this._secondWaitScheduler = new RunOnceScheduler(() => this._triggerSyncComputation(), this._getHoverTimeMillis() / 2);
-		this._loadingMessageScheduler = new RunOnceScheduler(() => this._showLoadingMessage(), 3 * this._getHoverTimeMillis());
+		this._firstWaitScheduler = new RunOnceScheduler(
+			() => this._triggerAsyncComputation(),
+			this._getHoverTimeMillis() / 2
+		);
+		this._secondWaitScheduler = new RunOnceScheduler(
+			() => this._triggerSyncComputation(),
+			this._getHoverTimeMillis() / 2
+		);
+		this._loadingMessageScheduler = new RunOnceScheduler(
+			() => this._showLoadingMessage(),
+			3 * this._getHoverTimeMillis()
+		);
 
 		this._asyncComputationPromise = null;
 		this._asyncComputationPromiseDone = false;
@@ -96,10 +107,12 @@ export class HoverOperation<Result> {
 
 		if (this._computer.computeAsync) {
 			this._asyncComputationPromiseDone = false;
-			this._asyncComputationPromise = this._computer.computeAsync().then((asyncResult: Result) => {
-				this._asyncComputationPromiseDone = true;
-				this._withAsyncResult(asyncResult);
-			}, () => this._onError);
+			this._asyncComputationPromise = this._computer
+				.computeAsync()
+				.then((asyncResult: Result) => {
+					this._asyncComputationPromiseDone = true;
+					this._withAsyncResult(asyncResult);
+				}, () => this._onError);
 		} else {
 			this._asyncComputationPromiseDone = true;
 		}
@@ -120,7 +133,9 @@ export class HoverOperation<Result> {
 	}
 
 	private _showLoadingMessage(): void {
-		if (this._state === ComputeHoverOperationState.WAITING_FOR_ASYNC_COMPUTATION) {
+		if (
+			this._state === ComputeHoverOperationState.WAITING_FOR_ASYNC_COMPUTATION
+		) {
 			this._onProgress(this._computer.getResultWithLoadingMessage());
 		}
 	}
@@ -130,7 +145,9 @@ export class HoverOperation<Result> {
 			this._computer.onResult(asyncResult, false);
 		}
 
-		if (this._state === ComputeHoverOperationState.WAITING_FOR_ASYNC_COMPUTATION) {
+		if (
+			this._state === ComputeHoverOperationState.WAITING_FOR_ASYNC_COMPUTATION
+		) {
 			this._state = ComputeHoverOperationState.IDLE;
 			this._onComplete(this._computer.getResult());
 		}
@@ -176,7 +193,9 @@ export class HoverOperation<Result> {
 				this._asyncComputationPromise = null;
 			}
 		}
-		if (this._state === ComputeHoverOperationState.WAITING_FOR_ASYNC_COMPUTATION) {
+		if (
+			this._state === ComputeHoverOperationState.WAITING_FOR_ASYNC_COMPUTATION
+		) {
 			if (this._asyncComputationPromise) {
 				this._asyncComputationPromise.cancel();
 				this._asyncComputationPromise = null;
@@ -184,6 +203,4 @@ export class HoverOperation<Result> {
 		}
 		this._state = ComputeHoverOperationState.IDLE;
 	}
-
 }
-

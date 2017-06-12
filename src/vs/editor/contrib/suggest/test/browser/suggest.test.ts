@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import URI from 'vs/base/common/uri';
@@ -12,35 +12,44 @@ import { provideSuggestionItems } from 'vs/editor/contrib/suggest/browser/sugges
 import { Position } from 'vs/editor/common/core/position';
 import { Model } from 'vs/editor/common/model/model';
 
-
-suite('Suggest', function () {
-
+suite('Suggest', function() {
 	let model: Model;
 	let registration: IDisposable;
 
-	setup(function () {
-
-		model = Model.createFromString('FOO\nbar\BAR\nfoo', undefined, undefined, URI.parse('foo:bar/path'));
-		registration = SuggestRegistry.register({ pattern: 'bar/path', scheme: 'foo' }, {
-			provideCompletionItems() {
-				return {
-					incomplete: false,
-					suggestions: [{
-						label: 'aaa',
-						type: 'snippet',
-						insertText: 'aaa'
-					}, {
-						label: 'zzz',
-						type: 'snippet',
-						insertText: 'zzz'
-					}, {
-						label: 'fff',
-						type: 'property',
-						insertText: 'fff'
-					}]
-				};
+	setup(function() {
+		model = Model.createFromString(
+			'FOO\nbarBAR\nfoo',
+			undefined,
+			undefined,
+			URI.parse('foo:bar/path')
+		);
+		registration = SuggestRegistry.register(
+			{ pattern: 'bar/path', scheme: 'foo' },
+			{
+				provideCompletionItems() {
+					return {
+						incomplete: false,
+						suggestions: [
+							{
+								label: 'aaa',
+								type: 'snippet',
+								insertText: 'aaa'
+							},
+							{
+								label: 'zzz',
+								type: 'snippet',
+								insertText: 'zzz'
+							},
+							{
+								label: 'fff',
+								type: 'property',
+								insertText: 'fff'
+							}
+						]
+					};
+				}
 			}
-		});
+		);
 	});
 
 	teardown(() => {
@@ -48,8 +57,12 @@ suite('Suggest', function () {
 		model.dispose();
 	});
 
-	test('sort - snippet inline', function () {
-		return provideSuggestionItems(model, new Position(1, 1), 'inline').then(items => {
+	test('sort - snippet inline', function() {
+		return provideSuggestionItems(
+			model,
+			new Position(1, 1),
+			'inline'
+		).then(items => {
 			assert.equal(items.length, 3);
 			assert.equal(items[0].suggestion.label, 'aaa');
 			assert.equal(items[1].suggestion.label, 'fff');
@@ -57,8 +70,12 @@ suite('Suggest', function () {
 		});
 	});
 
-	test('sort - snippet top', function () {
-		return provideSuggestionItems(model, new Position(1, 1), 'top').then(items => {
+	test('sort - snippet top', function() {
+		return provideSuggestionItems(
+			model,
+			new Position(1, 1),
+			'top'
+		).then(items => {
 			assert.equal(items.length, 3);
 			assert.equal(items[0].suggestion.label, 'aaa');
 			assert.equal(items[1].suggestion.label, 'zzz');
@@ -66,8 +83,12 @@ suite('Suggest', function () {
 		});
 	});
 
-	test('sort - snippet bottom', function () {
-		return provideSuggestionItems(model, new Position(1, 1), 'bottom').then(items => {
+	test('sort - snippet bottom', function() {
+		return provideSuggestionItems(
+			model,
+			new Position(1, 1),
+			'bottom'
+		).then(items => {
 			assert.equal(items.length, 3);
 			assert.equal(items[0].suggestion.label, 'fff');
 			assert.equal(items[1].suggestion.label, 'aaa');
@@ -75,32 +96,42 @@ suite('Suggest', function () {
 		});
 	});
 
-	test('sort - snippet none', function () {
-		return provideSuggestionItems(model, new Position(1, 1), 'none').then(items => {
+	test('sort - snippet none', function() {
+		return provideSuggestionItems(
+			model,
+			new Position(1, 1),
+			'none'
+		).then(items => {
 			assert.equal(items.length, 1);
 			assert.equal(items[0].suggestion.label, 'fff');
 		});
 	});
 
-	test('only from', function () {
-
+	test('only from', function() {
 		const foo: any = {
 			triggerCharacters: [],
 			provideCompletionItems() {
 				return {
 					currentWord: '',
 					incomplete: false,
-					suggestions: [{
-						label: 'jjj',
-						type: 'property',
-						insertText: 'jjj'
-					}]
+					suggestions: [
+						{
+							label: 'jjj',
+							type: 'property',
+							insertText: 'jjj'
+						}
+					]
 				};
 			}
 		};
-		const registration = SuggestRegistry.register({ pattern: 'bar/path', scheme: 'foo' }, foo);
+		const registration = SuggestRegistry.register(
+			{ pattern: 'bar/path', scheme: 'foo' },
+			foo
+		);
 
-		provideSuggestionItems(model, new Position(1, 1), undefined, [foo]).then(items => {
+		provideSuggestionItems(model, new Position(1, 1), undefined, [
+			foo
+		]).then(items => {
 			registration.dispose();
 
 			assert.equal(items.length, 1);

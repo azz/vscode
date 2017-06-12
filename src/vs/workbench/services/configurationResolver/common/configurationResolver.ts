@@ -7,7 +7,9 @@ import { TPromise } from 'vs/base/common/winjs.base';
 import { IStringDictionary } from 'vs/base/common/collections';
 import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
 
-export const IConfigurationResolverService = createDecorator<IConfigurationResolverService>('configurationResolverService');
+export const IConfigurationResolverService = createDecorator<
+	IConfigurationResolverService
+>('configurationResolverService');
 
 export interface IConfigurationResolverService {
 	_serviceBrand: any;
@@ -17,5 +19,8 @@ export interface IConfigurationResolverService {
 	resolve(value: string[]): string[];
 	resolve(value: IStringDictionary<string>): IStringDictionary<string>;
 	resolveAny<T>(value: T): T;
-	resolveInteractiveVariables(configuration: any, interactiveVariablesMap: { [key: string]: string }): TPromise<any>;
+	resolveInteractiveVariables(
+		configuration: any,
+		interactiveVariablesMap: { [key: string]: string }
+	): TPromise<any>;
 }

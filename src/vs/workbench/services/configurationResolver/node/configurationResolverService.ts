@@ -17,7 +17,8 @@ import { ICommonCodeEditor } from 'vs/editor/common/editorCommon';
 import { IWorkbenchEditorService } from 'vs/workbench/services/editor/common/editorService';
 import { toResource } from 'vs/workbench/common/editor';
 
-export class ConfigurationResolverService implements IConfigurationResolverService {
+export class ConfigurationResolverService
+	implements IConfigurationResolverService {
 	_serviceBrand: any;
 	private _workspaceRoot: string;
 	private _execPath: string;
@@ -30,7 +31,10 @@ export class ConfigurationResolverService implements IConfigurationResolverServi
 		@IConfigurationService private configurationService: IConfigurationService,
 		@ICommandService private commandService: ICommandService
 	) {
-		this._workspaceRoot = paths.normalize(workspaceRoot ? workspaceRoot.fsPath : '', true);
+		this._workspaceRoot = paths.normalize(
+			workspaceRoot ? workspaceRoot.fsPath : '',
+			true
+		);
 		this._execPath = environmentService.execPath;
 		Object.keys(envVariables).forEach(key => {
 			this[`env:${key}`] = envVariables[key];
@@ -58,7 +62,9 @@ export class ConfigurationResolverService implements IConfigurationResolverServi
 	}
 
 	private get relativeFile(): string {
-		return (this.workspaceRoot) ? paths.relative(this.workspaceRoot, this.file) : this.file;
+		return this.workspaceRoot
+			? paths.relative(this.workspaceRoot, this.file)
+			: this.file;
 	}
 
 	private get fileBasename(): string {
@@ -81,7 +87,7 @@ export class ConfigurationResolverService implements IConfigurationResolverServi
 	private get lineNumber(): string {
 		const activeEditor = this.editorService.getActiveEditor();
 		if (activeEditor) {
-			const editorControl = (<ICommonCodeEditor>activeEditor.getControl());
+			const editorControl = <ICommonCodeEditor>activeEditor.getControl();
 			if (editorControl) {
 				const lineNumber = editorControl.getSelection().positionLineNumber;
 				return String(lineNumber);
@@ -134,14 +140,17 @@ export class ConfigurationResolverService implements IConfigurationResolverServi
 	private resolveString(value: string): string {
 		let regexp = /\$\{(.*?)\}/g;
 		const originalValue = value;
-		const resolvedString = value.replace(regexp, (match: string, name: string) => {
-			let newValue = (<any>this)[name];
-			if (types.isString(newValue)) {
-				return newValue;
-			} else {
-				return match && match.indexOf('env:') > 0 ? '' : match;
+		const resolvedString = value.replace(
+			regexp,
+			(match: string, name: string) => {
+				let newValue = (<any>this)[name];
+				if (types.isString(newValue)) {
+					return newValue;
+				} else {
+					return match && match.indexOf('env:') > 0 ? '' : match;
+				}
 			}
-		});
+		);
 
 		return this.resolveConfigVariable(resolvedString, originalValue);
 	}
@@ -162,7 +171,9 @@ export class ConfigurationResolverService implements IConfigurationResolverServi
 					}
 					config = config[key];
 				}
-				newValue = config && config.hasOwnProperty(keys[0]) ? config[keys[0]] : '';
+				newValue = config && config.hasOwnProperty(keys[0])
+					? config[keys[0]]
+					: '';
 			} catch (e) {
 				return '';
 			}
@@ -177,8 +188,12 @@ export class ConfigurationResolverService implements IConfigurationResolverServi
 		return value.replace(/\$\{config:(.+?)\}/g, replacer);
 	}
 
-	private resolveLiteral(values: IStringDictionary<string | IStringDictionary<string> | string[]>): IStringDictionary<string | IStringDictionary<string> | string[]> {
-		let result: IStringDictionary<string | IStringDictionary<string> | string[]> = Object.create(null);
+	private resolveLiteral(
+		values: IStringDictionary<string | IStringDictionary<string> | string[]>
+	): IStringDictionary<string | IStringDictionary<string> | string[]> {
+		let result: IStringDictionary<
+			string | IStringDictionary<string> | string[]
+		> = Object.create(null);
 		Object.keys(values).forEach(key => {
 			let value = values[key];
 			result[key] = <any>this.resolve(<any>value);
@@ -188,7 +203,9 @@ export class ConfigurationResolverService implements IConfigurationResolverServi
 
 	private resolveAnyLiteral<T>(values: T): T;
 	private resolveAnyLiteral<T>(values: any): any {
-		let result: IStringDictionary<string | IStringDictionary<string> | string[]> = Object.create(null);
+		let result: IStringDictionary<
+			string | IStringDictionary<string> | string[]
+		> = Object.create(null);
 		Object.keys(values).forEach(key => {
 			let value = values[key];
 			result[key] = <any>this.resolveAny(<any>value);
@@ -208,14 +225,19 @@ export class ConfigurationResolverService implements IConfigurationResolverServi
 	/**
 	 * Resolve all interactive variables in configuration #6569
 	 */
-	public resolveInteractiveVariables(configuration: any, interactiveVariablesMap: { [key: string]: string }): TPromise<any> {
+	public resolveInteractiveVariables(
+		configuration: any,
+		interactiveVariablesMap: { [key: string]: string }
+	): TPromise<any> {
 		if (!configuration) {
 			return TPromise.as(null);
 		}
 
 		// We need a map from interactive variables to keys because we only want to trigger an command once per key -
 		// even though it might occure multiple times in configuration #7026.
-		const interactiveVariablesToSubstitutes: { [interactiveVariable: string]: { object: any, key: string }[] } = {};
+		const interactiveVariablesToSubstitutes: {
+			[interactiveVariable: string]: { object: any; key: string }[];
+		} = {};
 		const findInteractiveVariables = (object: any) => {
 			Object.keys(object).forEach(key => {
 				if (object[key] && typeof object[key] === 'object') {
@@ -227,7 +249,10 @@ export class ConfigurationResolverService implements IConfigurationResolverServi
 						if (!interactiveVariablesToSubstitutes[interactiveVariable]) {
 							interactiveVariablesToSubstitutes[interactiveVariable] = [];
 						}
-						interactiveVariablesToSubstitutes[interactiveVariable].push({ object, key });
+						interactiveVariablesToSubstitutes[interactiveVariable].push({
+							object,
+							key
+						});
 					}
 				}
 			});
@@ -235,29 +260,45 @@ export class ConfigurationResolverService implements IConfigurationResolverServi
 		findInteractiveVariables(configuration);
 		let substitionCanceled = false;
 
-		const factory: { (): TPromise<any> }[] = Object.keys(interactiveVariablesToSubstitutes).map(interactiveVariable => {
+		const factory: { (): TPromise<any> }[] = Object.keys(
+			interactiveVariablesToSubstitutes
+		).map(interactiveVariable => {
 			return () => {
 				let commandId: string = null;
-				commandId = interactiveVariablesMap ? interactiveVariablesMap[interactiveVariable] : null;
+				commandId = interactiveVariablesMap
+					? interactiveVariablesMap[interactiveVariable]
+					: null;
 				if (!commandId) {
 					// Just launch any command if the interactive variable is not contributed by the adapter #12735
 					commandId = interactiveVariable;
 				}
 
-				return this.commandService.executeCommand<string>(commandId, configuration).then(result => {
-					if (result) {
-						interactiveVariablesToSubstitutes[interactiveVariable].forEach(substitute => {
-							if (substitute.object[substitute.key].indexOf(`\${command:${interactiveVariable}}`) >= 0) {
-								substitute.object[substitute.key] = substitute.object[substitute.key].replace(`\${command:${interactiveVariable}}`, result);
-							}
-						});
-					} else {
-						substitionCanceled = true;
-					}
-				});
+				return this.commandService
+					.executeCommand<string>(commandId, configuration)
+					.then(result => {
+						if (result) {
+							interactiveVariablesToSubstitutes[
+								interactiveVariable
+							].forEach(substitute => {
+								if (
+									substitute.object[substitute.key].indexOf(
+										`\${command:${interactiveVariable}}`
+									) >= 0
+								) {
+									substitute.object[substitute.key] = substitute.object[
+										substitute.key
+									].replace(`\${command:${interactiveVariable}}`, result);
+								}
+							});
+						} else {
+							substitionCanceled = true;
+						}
+					});
 			};
 		});
 
-		return sequence(factory).then(() => substitionCanceled ? null : configuration);
+		return sequence(factory).then(
+			() => (substitionCanceled ? null : configuration)
+		);
 	}
 }

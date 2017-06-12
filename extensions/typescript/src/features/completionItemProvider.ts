@@ -3,13 +3,31 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { CompletionItem, TextDocument, Position, CompletionItemKind, CompletionItemProvider, CancellationToken, TextEdit, Range, SnippetString, workspace, ProviderResult } from 'vscode';
+import {
+	CompletionItem,
+	TextDocument,
+	Position,
+	CompletionItemKind,
+	CompletionItemProvider,
+	CancellationToken,
+	TextEdit,
+	Range,
+	SnippetString,
+	workspace,
+	ProviderResult
+} from 'vscode';
 
 import { ITypescriptServiceClient } from '../typescriptService';
 import TypingsStatus from '../utils/typingsStatus';
 
 import * as PConst from '../protocol.const';
-import { CompletionEntry, CompletionsRequestArgs, CompletionDetailsRequestArgs, CompletionEntryDetails, FileLocationRequestArgs } from '../protocol';
+import {
+	CompletionEntry,
+	CompletionsRequestArgs,
+	CompletionDetailsRequestArgs,
+	CompletionEntryDetails,
+	FileLocationRequestArgs
+} from '../protocol';
 import * as Previewer from './previewer';
 
 import * as nls from 'vscode-nls';
@@ -27,20 +45,49 @@ class MyCompletionItem extends CompletionItem {
 		this.sortText = entry.sortText;
 		this.kind = MyCompletionItem.convertKind(entry.kind);
 		this.position = position;
-		this.commitCharacters = MyCompletionItem.getCommitCharacters(enableDotCompletions, enableCallCompletions, entry.kind);
+		this.commitCharacters = MyCompletionItem.getCommitCharacters(
+			enableDotCompletions,
+			enableCallCompletions,
+			entry.kind
+		);
 		if (entry.replacementSpan) {
 			let span: protocol.TextSpan = entry.replacementSpan;
 			// The indexing for the range returned by the server uses 1-based indexing.
 			// We convert to 0-based indexing.
-			this.textEdit = TextEdit.replace(new Range(span.start.line - 1, span.start.offset - 1, span.end.line - 1, span.end.offset - 1), entry.name);
+			this.textEdit = TextEdit.replace(
+				new Range(
+					span.start.line - 1,
+					span.start.offset - 1,
+					span.end.line - 1,
+					span.end.offset - 1
+				),
+				entry.name
+			);
 		} else {
 			// Try getting longer, prefix based range for completions that span words
 			const wordRange = document.getWordRangeAtPosition(position);
-			const text = document.getText(new Range(position.line, Math.max(0, position.character - entry.name.length), position.line, position.character)).toLowerCase();
+			const text = document
+				.getText(
+					new Range(
+						position.line,
+						Math.max(0, position.character - entry.name.length),
+						position.line,
+						position.character
+					)
+				)
+				.toLowerCase();
 			const entryName = entry.name.toLowerCase();
 			for (let i = entryName.length; i >= 0; --i) {
-				if (text.endsWith(entryName.substr(0, i)) && (!wordRange || wordRange.start.character > position.character - i)) {
-					this.range = new Range(position.line, Math.max(0, position.character - i), position.line, position.character);
+				if (
+					text.endsWith(entryName.substr(0, i)) &&
+					(!wordRange || wordRange.start.character > position.character - i)
+				) {
+					this.range = new Range(
+						position.line,
+						Math.max(0, position.character - i),
+						position.line,
+						position.character
+					);
 					break;
 				}
 			}
@@ -90,14 +137,18 @@ class MyCompletionItem extends CompletionItem {
 		return CompletionItemKind.Property;
 	}
 
-	private static getCommitCharacters(enableDotCompletions: boolean, enableCallCompletions: boolean, kind: string): string[] | undefined {
+	private static getCommitCharacters(
+		enableDotCompletions: boolean,
+		enableCallCompletions: boolean,
+		kind: string
+	): string[] | undefined {
 		switch (kind) {
 			case PConst.Kind.externalModuleName:
-				return ['"', '\''];
+				return ['"', "'"];
 
 			case PConst.Kind.file:
 			case PConst.Kind.directory:
-				return ['"', '\''];
+				return ['"', "'"];
 
 			case PConst.Kind.memberGetAccessor:
 			case PConst.Kind.memberSetAccessor:
@@ -118,7 +169,9 @@ class MyCompletionItem extends CompletionItem {
 			case PConst.Kind.class:
 			case PConst.Kind.function:
 			case PConst.Kind.memberFunction:
-				return enableDotCompletions ? (enableCallCompletions ? ['.', '('] : ['.']) : undefined;
+				return enableDotCompletions
+					? enableCallCompletions ? ['.', '('] : ['.']
+					: undefined;
 		}
 
 		return undefined;
@@ -131,12 +184,13 @@ interface Configuration {
 }
 
 namespace Configuration {
-	export const useCodeSnippetsOnMethodSuggest = 'useCodeSnippetsOnMethodSuggest';
+	export const useCodeSnippetsOnMethodSuggest =
+		'useCodeSnippetsOnMethodSuggest';
 	export const nameSuggestions = 'nameSuggestions';
 }
 
-export default class TypeScriptCompletionItemProvider implements CompletionItemProvider {
-
+export default class TypeScriptCompletionItemProvider
+	implements CompletionItemProvider {
 	private config: Configuration;
 
 	constructor(
@@ -152,21 +206,43 @@ export default class TypeScriptCompletionItemProvider implements CompletionItemP
 	public updateConfiguration(): void {
 		// Use shared setting for js and ts
 		const typeScriptConfig = workspace.getConfiguration('typescript');
-		this.config.useCodeSnippetsOnMethodSuggest = typeScriptConfig.get(Configuration.useCodeSnippetsOnMethodSuggest, false);
+		this.config.useCodeSnippetsOnMethodSuggest = typeScriptConfig.get(
+			Configuration.useCodeSnippetsOnMethodSuggest,
+			false
+		);
 
 		const jsConfig = workspace.getConfiguration('javascript');
-		this.config.nameSuggestions = jsConfig.get(Configuration.nameSuggestions, true);
+		this.config.nameSuggestions = jsConfig.get(
+			Configuration.nameSuggestions,
+			true
+		);
 	}
 
-	public provideCompletionItems(document: TextDocument, position: Position, token: CancellationToken): Promise<CompletionItem[]> {
+	public provideCompletionItems(
+		document: TextDocument,
+		position: Position,
+		token: CancellationToken
+	): Promise<CompletionItem[]> {
 		if (this.typingsStatus.isAcquiringTypings) {
 			return Promise.reject<CompletionItem[]>({
 				label: localize(
-					{ key: 'acquiringTypingsLabel', comment: ['Typings refers to the *.d.ts typings files that power our IntelliSense. It should not be localized'] },
-					'Acquiring typings...'),
+					{
+						key: 'acquiringTypingsLabel',
+						comment: [
+							'Typings refers to the *.d.ts typings files that power our IntelliSense. It should not be localized'
+						]
+					},
+					'Acquiring typings...'
+				),
 				detail: localize(
-					{ key: 'acquiringTypingsDetail', comment: ['Typings refers to the *.d.ts typings files that power our IntelliSense. It should not be localized'] },
-					'Acquiring typings definitions for IntelliSense.')
+					{
+						key: 'acquiringTypingsDetail',
+						comment: [
+							'Typings refers to the *.d.ts typings files that power our IntelliSense. It should not be localized'
+						]
+					},
+					'Acquiring typings definitions for IntelliSense.'
+				)
 			});
 		}
 
@@ -180,55 +256,74 @@ export default class TypeScriptCompletionItemProvider implements CompletionItemP
 			offset: position.character + 1
 		};
 
-		return this.client.execute('completions', args, token).then((msg) => {
-			// This info has to come from the tsserver. See https://github.com/Microsoft/TypeScript/issues/2831
-			// let isMemberCompletion = false;
-			// let requestColumn = position.character;
-			// if (wordAtPosition) {
-			// 	requestColumn = wordAtPosition.startColumn;
-			// }
-			// if (requestColumn > 0) {
-			// 	let value = model.getValueInRange({
-			// 		startLineNumber: position.line,
-			// 		startColumn: requestColumn - 1,
-			// 		endLineNumber: position.line,
-			// 		endColumn: requestColumn
-			// 	});
-			// 	isMemberCompletion = value === '.';
-			// }
+		return this.client.execute('completions', args, token).then(
+			msg => {
+				// This info has to come from the tsserver. See https://github.com/Microsoft/TypeScript/issues/2831
+				// let isMemberCompletion = false;
+				// let requestColumn = position.character;
+				// if (wordAtPosition) {
+				// 	requestColumn = wordAtPosition.startColumn;
+				// }
+				// if (requestColumn > 0) {
+				// 	let value = model.getValueInRange({
+				// 		startLineNumber: position.line,
+				// 		startColumn: requestColumn - 1,
+				// 		endLineNumber: position.line,
+				// 		endColumn: requestColumn
+				// 	});
+				// 	isMemberCompletion = value === '.';
+				// }
 
-			const completionItems: CompletionItem[] = [];
-			const body = msg.body;
-			if (body) {
-				// Only enable dot completions in TS files for now
-				let enableDotCompletions = document && (document.languageId === 'typescript' || document.languageId === 'typescriptreact');
+				const completionItems: CompletionItem[] = [];
+				const body = msg.body;
+				if (body) {
+					// Only enable dot completions in TS files for now
+					let enableDotCompletions =
+						document &&
+						(document.languageId === 'typescript' ||
+							document.languageId === 'typescriptreact');
 
-				// TODO: Workaround for https://github.com/Microsoft/TypeScript/issues/13456
-				// Only enable dot completions when previous character is an identifier.
-				// Prevents incorrectly completing while typing spread operators.
-				if (position.character > 0) {
-					const preText = document.getText(new Range(
-						position.line, 0,
-						position.line, position.character - 1));
-					enableDotCompletions = preText.match(/[a-z_$\)\]\}]\s*$/ig) !== null;
-				}
-
-				for (const element of body) {
-					if (element.kind === PConst.Kind.warning && !this.config.nameSuggestions) {
-						continue;
+					// TODO: Workaround for https://github.com/Microsoft/TypeScript/issues/13456
+					// Only enable dot completions when previous character is an identifier.
+					// Prevents incorrectly completing while typing spread operators.
+					if (position.character > 0) {
+						const preText = document.getText(
+							new Range(position.line, 0, position.line, position.character - 1)
+						);
+						enableDotCompletions =
+							preText.match(/[a-z_$\)\]\}]\s*$/gi) !== null;
 					}
-					const item = new MyCompletionItem(position, document, element, enableDotCompletions, !this.config.useCodeSnippetsOnMethodSuggest);
-					completionItems.push(item);
-				}
-			}
 
-			return completionItems;
-		}, () => {
-			return [];
-		});
+					for (const element of body) {
+						if (
+							element.kind === PConst.Kind.warning &&
+							!this.config.nameSuggestions
+						) {
+							continue;
+						}
+						const item = new MyCompletionItem(
+							position,
+							document,
+							element,
+							enableDotCompletions,
+							!this.config.useCodeSnippetsOnMethodSuggest
+						);
+						completionItems.push(item);
+					}
+				}
+
+				return completionItems;
+			},
+			() => {
+				return [];
+			}
+		);
 	}
 
-	public resolveCompletionItem(item: CompletionItem, token: CancellationToken): ProviderResult<CompletionItem> {
+	public resolveCompletionItem(
+		item: CompletionItem,
+		token: CancellationToken
+	): ProviderResult<CompletionItem> {
 		if (!(item instanceof MyCompletionItem)) {
 			return null;
 		}
@@ -243,32 +338,49 @@ export default class TypeScriptCompletionItemProvider implements CompletionItemP
 			offset: item.position.character + 1,
 			entryNames: [item.label]
 		};
-		return this.client.execute('completionEntryDetails', args, token).then((response) => {
-			const details = response.body;
-			if (!details || !details.length || !details[0]) {
+		return this.client.execute('completionEntryDetails', args, token).then(
+			response => {
+				const details = response.body;
+				if (!details || !details.length || !details[0]) {
+					return item;
+				}
+				const detail = details[0];
+				item.detail = Previewer.plain(detail.displayParts);
+
+				item.documentation = Previewer.plainDocumentation(
+					detail.documentation,
+					detail.tags
+				);
+
+				if (
+					detail &&
+					this.config.useCodeSnippetsOnMethodSuggest &&
+					(item.kind === CompletionItemKind.Function ||
+						item.kind === CompletionItemKind.Method)
+				) {
+					return this.isValidFunctionCompletionContext(
+						filepath,
+						item.position
+					).then(shouldCompleteFunction => {
+						if (shouldCompleteFunction) {
+							item.insertText = this.snippetForFunctionCall(detail);
+						}
+						return item;
+					});
+				}
+
+				return item;
+			},
+			() => {
 				return item;
 			}
-			const detail = details[0];
-			item.detail = Previewer.plain(detail.displayParts);
-
-			item.documentation = Previewer.plainDocumentation(detail.documentation, detail.tags);
-
-			if (detail && this.config.useCodeSnippetsOnMethodSuggest && (item.kind === CompletionItemKind.Function || item.kind === CompletionItemKind.Method)) {
-				return this.isValidFunctionCompletionContext(filepath, item.position).then(shouldCompleteFunction => {
-					if (shouldCompleteFunction) {
-						item.insertText = this.snippetForFunctionCall(detail);
-					}
-					return item;
-				});
-			}
-
-			return item;
-		}, () => {
-			return item;
-		});
+		);
 	}
 
-	private isValidFunctionCompletionContext(filepath: string, position: Position): Promise<boolean> {
+	private isValidFunctionCompletionContext(
+		filepath: string,
+		position: Position
+	): Promise<boolean> {
 		const args: FileLocationRequestArgs = {
 			file: filepath,
 			line: position.line + 1,
@@ -276,23 +388,28 @@ export default class TypeScriptCompletionItemProvider implements CompletionItemP
 		};
 		// Workaround for https://github.com/Microsoft/TypeScript/issues/12677
 		// Don't complete function calls inside of destructive assigments or imports
-		return this.client.execute('quickinfo', args).then(infoResponse => {
-			const info = infoResponse.body;
-			switch (info && info.kind) {
-				case 'var':
-				case 'let':
-				case 'const':
-				case 'alias':
-					return false;
-				default:
-					return true;
+		return this.client.execute('quickinfo', args).then(
+			infoResponse => {
+				const info = infoResponse.body;
+				switch (info && info.kind) {
+					case 'var':
+					case 'let':
+					case 'const':
+					case 'alias':
+						return false;
+					default:
+						return true;
+				}
+			},
+			() => {
+				return true;
 			}
-		}, () => {
-			return true;
-		});
+		);
 	}
 
-	private snippetForFunctionCall(detail: CompletionEntryDetails): SnippetString {
+	private snippetForFunctionCall(
+		detail: CompletionEntryDetails
+	): SnippetString {
 		const suggestionArgumentNames: string[] = [];
 		let parenCount = 0;
 		for (let i = 0; i < detail.displayParts.length; ++i) {

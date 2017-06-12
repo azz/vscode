@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as vscode from 'vscode';
 import * as fs from 'fs';
@@ -17,7 +17,7 @@ function rndName() {
 export function createRandomFile(contents = ''): Thenable<vscode.Uri> {
 	return new Promise((resolve, reject) => {
 		const tmpFile = join(os.tmpdir(), rndName());
-		fs.writeFile(tmpFile, contents, (error) => {
+		fs.writeFile(tmpFile, contents, error => {
 			if (error) {
 				return reject(error);
 			}
@@ -38,7 +38,7 @@ export function pathEquals(path1: string, path2: string): boolean {
 
 export function deleteFile(file: vscode.Uri): Thenable<boolean> {
 	return new Promise((resolve, reject) => {
-		fs.unlink(file.fsPath, (err) => {
+		fs.unlink(file.fsPath, err => {
 			if (err) {
 				reject(err);
 			} else {
@@ -50,5 +50,4 @@ export function deleteFile(file: vscode.Uri): Thenable<boolean> {
 
 export function closeAllEditors(): Thenable<any> {
 	return vscode.commands.executeCommand('workbench.action.closeAllEditors');
-
 }

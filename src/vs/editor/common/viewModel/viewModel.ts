@@ -2,14 +2,22 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
-import { INewScrollPosition, IModelDecoration, EndOfLinePreference, IViewState } from 'vs/editor/common/editorCommon';
+import {
+	INewScrollPosition,
+	IModelDecoration,
+	EndOfLinePreference,
+	IViewState
+} from 'vs/editor/common/editorCommon';
 import { ViewLineToken } from 'vs/editor/common/core/viewLineToken';
 import { Position, IPosition } from 'vs/editor/common/core/position';
 import { Range } from 'vs/editor/common/core/range';
 import { Selection } from 'vs/editor/common/core/selection';
-import { ViewEvent, IViewEventListener } from 'vs/editor/common/view/viewEvents';
+import {
+	ViewEvent,
+	IViewEventListener
+} from 'vs/editor/common/view/viewEvents';
 import { IDisposable } from 'vs/base/common/lifecycle';
 import { Scrollable } from 'vs/base/common/scrollable';
 import { IPartialViewLinesViewportData } from 'vs/editor/common/viewLayout/viewLinesViewportData';
@@ -39,7 +47,6 @@ export class Viewport {
 }
 
 export interface IViewLayout {
-
 	readonly scrollable: Scrollable;
 
 	onMaxLineWidthChanged(width: number): void;
@@ -52,7 +59,9 @@ export interface IViewLayout {
 	setScrollPosition(position: INewScrollPosition): void;
 
 	getLinesViewportData(): IPartialViewLinesViewportData;
-	getLinesViewportDataAtScrollTop(scrollTop: number): IPartialViewLinesViewportData;
+	getLinesViewportDataAtScrollTop(
+		scrollTop: number
+	): IPartialViewLinesViewportData;
 	getWhitespaces(): IEditorWhitespace[];
 
 	saveState(): IViewState;
@@ -61,7 +70,9 @@ export interface IViewLayout {
 	isAfterLines(verticalOffset: number): boolean;
 	getLineNumberAtVerticalOffset(verticalOffset: number): number;
 	getVerticalOffsetForLineNumber(lineNumber: number): number;
-	getWhitespaceAtVerticalOffset(verticalOffset: number): IViewWhitespaceViewportData;
+	getWhitespaceAtVerticalOffset(
+		verticalOffset: number
+	): IViewWhitespaceViewportData;
 
 	// --------------- Begin vertical whitespace management
 
@@ -69,11 +80,19 @@ export interface IViewLayout {
 	 * Reserve rendering space.
 	 * @return an identifier that can be later used to remove or change the whitespace.
 	 */
-	addWhitespace(afterLineNumber: number, ordinal: number, height: number): number;
+	addWhitespace(
+		afterLineNumber: number,
+		ordinal: number,
+		height: number
+	): number;
 	/**
 	 * Change the properties of a whitespace.
 	 */
-	changeWhitespace(id: number, newAfterLineNumber: number, newHeight: number): boolean;
+	changeWhitespace(
+		id: number,
+		newAfterLineNumber: number,
+		newHeight: number
+	): boolean;
 	/**
 	 * Remove rendering space
 	 */
@@ -94,7 +113,10 @@ export interface ICoordinatesConverter {
 	convertViewPositionToModelPosition(viewPosition: Position): Position;
 	convertViewRangeToModelRange(viewRange: Range): Range;
 	convertViewSelectionToModelSelection(viewSelection: Selection): Selection;
-	validateViewPosition(viewPosition: Position, expectedModelPosition: Position): Position;
+	validateViewPosition(
+		viewPosition: Position,
+		expectedModelPosition: Position
+	): Position;
 	validateViewRange(viewRange: Range, expectedModelRange: Range): Range;
 
 	// Model -> View conversion and related methods
@@ -105,7 +127,6 @@ export interface ICoordinatesConverter {
 }
 
 export interface IViewModel {
-
 	addEventListener(listener: IViewEventListener): IDisposable;
 
 	readonly coordinatesConverter: ICoordinatesConverter;
@@ -115,11 +136,22 @@ export interface IViewModel {
 	/**
 	 * Gives a hint that a lot of requests are about to come in for these line numbers.
 	 */
-	setViewport(startLineNumber: number, endLineNumber: number, centeredLineNumber: number): void;
+	setViewport(
+		startLineNumber: number,
+		endLineNumber: number,
+		centeredLineNumber: number
+	): void;
 
 	getDecorationsInViewport(visibleRange: Range): ViewModelDecoration[];
-	getViewLineRenderingData(visibleRange: Range, lineNumber: number): ViewLineRenderingData;
-	getMinimapLinesRenderingData(startLineNumber: number, endLineNumber: number, needed: boolean[]): MinimapLinesRenderingData;
+	getViewLineRenderingData(
+		visibleRange: Range,
+		lineNumber: number
+	): ViewLineRenderingData;
+	getMinimapLinesRenderingData(
+		startLineNumber: number,
+		endLineNumber: number,
+		needed: boolean[]
+	): MinimapLinesRenderingData;
 	getCompletelyVisibleViewRange(): Range;
 	getCompletelyVisibleViewRangeAtScrollTop(scrollTop: number): Range;
 
@@ -145,10 +177,7 @@ export class MinimapLinesRenderingData {
 	public readonly tabSize: number;
 	public readonly data: ViewLineData[];
 
-	constructor(
-		tabSize: number,
-		data: ViewLineData[]
-	) {
+	constructor(tabSize: number, data: ViewLineData[]) {
 		this.tabSize = tabSize;
 		this.data = data;
 	}
@@ -249,7 +278,11 @@ export class InlineDecoration {
 	readonly inlineClassName: string;
 	readonly insertsBeforeOrAfter: boolean;
 
-	constructor(range: Range, inlineClassName: string, insertsBeforeOrAfter: boolean) {
+	constructor(
+		range: Range,
+		inlineClassName: string,
+		insertsBeforeOrAfter: boolean
+	) {
 		this.range = range;
 		this.inlineClassName = inlineClassName;
 		this.insertsBeforeOrAfter = insertsBeforeOrAfter;
@@ -269,7 +302,6 @@ export class ViewModelDecoration {
 }
 
 export class ViewEventsCollector {
-
 	private _events: ViewEvent[];
 	private _eventsLen = 0;
 
@@ -287,5 +319,4 @@ export class ViewEventsCollector {
 		this._events = null;
 		return result;
 	}
-
 }

@@ -3,16 +3,18 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import * as Platform from 'vs/platform/platform';
 import { SyncActionDescriptor } from 'vs/platform/actions/common/actions';
 import { Separator } from 'vs/base/browser/ui/actionbar/actionbar';
-import { Extensions, IWorkbenchActionRegistry } from 'vs/workbench/common/actionRegistry';
+import {
+	Extensions,
+	IWorkbenchActionRegistry
+} from 'vs/workbench/common/actionRegistry';
 import { prepareActions } from 'vs/workbench/browser/actions';
 import { Action } from 'vs/base/common/actions';
-
 
 class MyClass extends Action {
 	constructor(id: string, label: string) {
@@ -21,9 +23,10 @@ class MyClass extends Action {
 }
 
 suite('Workbench Action Registry', () => {
-
-	test('Workbench Action Registration', function () {
-		let Registry = <IWorkbenchActionRegistry>Platform.Registry.as(Extensions.WorkbenchActions);
+	test('Workbench Action Registration', function() {
+		let Registry = <IWorkbenchActionRegistry>Platform.Registry.as(
+			Extensions.WorkbenchActions
+		);
 
 		let d = new SyncActionDescriptor(MyClass, 'id', 'name');
 
@@ -42,7 +45,7 @@ suite('Workbench Action Registry', () => {
 		(<any>Registry).setWorkbenchActions(oldActions);
 	});
 
-	test('Workbench Action Bar prepareActions()', function () {
+	test('Workbench Action Bar prepareActions()', function() {
 		let a1 = new Separator();
 		let a2 = new Separator();
 		let a3 = new Action('a3');

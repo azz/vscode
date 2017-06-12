@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import 'vs/css!./media/editor';
 import 'vs/css!./media/tokens';
@@ -21,7 +21,11 @@ import { ICodeEditorService } from 'vs/editor/common/services/codeEditorService'
 import { Configuration } from 'vs/editor/browser/config/configuration';
 import * as editorBrowser from 'vs/editor/browser/editorBrowser';
 import { Colorizer } from 'vs/editor/browser/standalone/colorizer';
-import { View, IOverlayWidgetData, IContentWidgetData } from 'vs/editor/browser/view/viewImpl';
+import {
+	View,
+	IOverlayWidgetData,
+	IContentWidgetData
+} from 'vs/editor/browser/view/viewImpl';
 import { Disposable } from 'vs/base/common/lifecycle';
 import Event, { Emitter } from 'vs/base/common/event';
 import { IKeyboardEvent } from 'vs/base/browser/keyboardEvent';
@@ -30,45 +34,84 @@ import { IEditorOptions } from 'vs/editor/common/config/editorOptions';
 import { IPosition } from 'vs/editor/common/core/position';
 import { IEditorWhitespace } from 'vs/editor/common/viewLayout/whitespaceComputer';
 import { CoreEditorCommand } from 'vs/editor/common/controller/coreCommands';
-import { IThemeService, registerThemingParticipant } from 'vs/platform/theme/common/themeService';
-import { editorErrorForeground, editorErrorBorder, editorWarningForeground, editorWarningBorder } from 'vs/editor/common/view/editorColorRegistry';
+import {
+	IThemeService,
+	registerThemingParticipant
+} from 'vs/platform/theme/common/themeService';
+import {
+	editorErrorForeground,
+	editorErrorBorder,
+	editorWarningForeground,
+	editorWarningBorder
+} from 'vs/editor/common/view/editorColorRegistry';
 import { Color } from 'vs/base/common/color';
-import { IMouseEvent } from "vs/base/browser/mouseEvent";
+import { IMouseEvent } from 'vs/base/browser/mouseEvent';
 
-export abstract class CodeEditorWidget extends CommonCodeEditor implements editorBrowser.ICodeEditor {
+export abstract class CodeEditorWidget extends CommonCodeEditor
+	implements editorBrowser.ICodeEditor {
+	private readonly _onMouseUp: Emitter<
+		editorBrowser.IEditorMouseEvent
+	> = this._register(new Emitter<editorBrowser.IEditorMouseEvent>());
+	public readonly onMouseUp: Event<editorBrowser.IEditorMouseEvent> = this
+		._onMouseUp.event;
 
-	private readonly _onMouseUp: Emitter<editorBrowser.IEditorMouseEvent> = this._register(new Emitter<editorBrowser.IEditorMouseEvent>());
-	public readonly onMouseUp: Event<editorBrowser.IEditorMouseEvent> = this._onMouseUp.event;
+	private readonly _onMouseDown: Emitter<
+		editorBrowser.IEditorMouseEvent
+	> = this._register(new Emitter<editorBrowser.IEditorMouseEvent>());
+	public readonly onMouseDown: Event<editorBrowser.IEditorMouseEvent> = this
+		._onMouseDown.event;
 
-	private readonly _onMouseDown: Emitter<editorBrowser.IEditorMouseEvent> = this._register(new Emitter<editorBrowser.IEditorMouseEvent>());
-	public readonly onMouseDown: Event<editorBrowser.IEditorMouseEvent> = this._onMouseDown.event;
+	private readonly _onMouseDrag: Emitter<
+		editorBrowser.IEditorMouseEvent
+	> = this._register(new Emitter<editorBrowser.IEditorMouseEvent>());
+	public readonly onMouseDrag: Event<editorBrowser.IEditorMouseEvent> = this
+		._onMouseDrag.event;
 
-	private readonly _onMouseDrag: Emitter<editorBrowser.IEditorMouseEvent> = this._register(new Emitter<editorBrowser.IEditorMouseEvent>());
-	public readonly onMouseDrag: Event<editorBrowser.IEditorMouseEvent> = this._onMouseDrag.event;
+	private readonly _onMouseDrop: Emitter<
+		editorBrowser.IEditorMouseEvent
+	> = this._register(new Emitter<editorBrowser.IEditorMouseEvent>());
+	public readonly onMouseDrop: Event<editorBrowser.IEditorMouseEvent> = this
+		._onMouseDrop.event;
 
-	private readonly _onMouseDrop: Emitter<editorBrowser.IEditorMouseEvent> = this._register(new Emitter<editorBrowser.IEditorMouseEvent>());
-	public readonly onMouseDrop: Event<editorBrowser.IEditorMouseEvent> = this._onMouseDrop.event;
+	private readonly _onContextMenu: Emitter<
+		editorBrowser.IEditorMouseEvent
+	> = this._register(new Emitter<editorBrowser.IEditorMouseEvent>());
+	public readonly onContextMenu: Event<editorBrowser.IEditorMouseEvent> = this
+		._onContextMenu.event;
 
-	private readonly _onContextMenu: Emitter<editorBrowser.IEditorMouseEvent> = this._register(new Emitter<editorBrowser.IEditorMouseEvent>());
-	public readonly onContextMenu: Event<editorBrowser.IEditorMouseEvent> = this._onContextMenu.event;
+	private readonly _onMouseMove: Emitter<
+		editorBrowser.IEditorMouseEvent
+	> = this._register(new Emitter<editorBrowser.IEditorMouseEvent>());
+	public readonly onMouseMove: Event<editorBrowser.IEditorMouseEvent> = this
+		._onMouseMove.event;
 
-	private readonly _onMouseMove: Emitter<editorBrowser.IEditorMouseEvent> = this._register(new Emitter<editorBrowser.IEditorMouseEvent>());
-	public readonly onMouseMove: Event<editorBrowser.IEditorMouseEvent> = this._onMouseMove.event;
+	private readonly _onMouseLeave: Emitter<
+		editorBrowser.IEditorMouseEvent
+	> = this._register(new Emitter<editorBrowser.IEditorMouseEvent>());
+	public readonly onMouseLeave: Event<editorBrowser.IEditorMouseEvent> = this
+		._onMouseLeave.event;
 
-	private readonly _onMouseLeave: Emitter<editorBrowser.IEditorMouseEvent> = this._register(new Emitter<editorBrowser.IEditorMouseEvent>());
-	public readonly onMouseLeave: Event<editorBrowser.IEditorMouseEvent> = this._onMouseLeave.event;
-
-	private readonly _onKeyUp: Emitter<IKeyboardEvent> = this._register(new Emitter<IKeyboardEvent>());
+	private readonly _onKeyUp: Emitter<IKeyboardEvent> = this._register(
+		new Emitter<IKeyboardEvent>()
+	);
 	public readonly onKeyUp: Event<IKeyboardEvent> = this._onKeyUp.event;
 
-	private readonly _onKeyDown: Emitter<IKeyboardEvent> = this._register(new Emitter<IKeyboardEvent>());
+	private readonly _onKeyDown: Emitter<IKeyboardEvent> = this._register(
+		new Emitter<IKeyboardEvent>()
+	);
 	public readonly onKeyDown: Event<IKeyboardEvent> = this._onKeyDown.event;
 
-	private readonly _onDidScrollChange: Emitter<editorCommon.IScrollEvent> = this._register(new Emitter<editorCommon.IScrollEvent>());
-	public readonly onDidScrollChange: Event<editorCommon.IScrollEvent> = this._onDidScrollChange.event;
+	private readonly _onDidScrollChange: Emitter<
+		editorCommon.IScrollEvent
+	> = this._register(new Emitter<editorCommon.IScrollEvent>());
+	public readonly onDidScrollChange: Event<editorCommon.IScrollEvent> = this
+		._onDidScrollChange.event;
 
-	private readonly _onDidChangeViewZones: Emitter<void> = this._register(new Emitter<void>());
-	public readonly onDidChangeViewZones: Event<void> = this._onDidChangeViewZones.event;
+	private readonly _onDidChangeViewZones: Emitter<void> = this._register(
+		new Emitter<void>()
+	);
+	public readonly onDidChangeViewZones: Event<void> = this._onDidChangeViewZones
+		.event;
 
 	private _codeEditorService: ICodeEditorService;
 	private _commandService: ICommandService;
@@ -79,8 +122,8 @@ export abstract class CodeEditorWidget extends CommonCodeEditor implements edito
 
 	_configuration: Configuration;
 
-	private contentWidgets: { [key: string]: IContentWidgetData; };
-	private overlayWidgets: { [key: string]: IOverlayWidgetData; };
+	private contentWidgets: { [key: string]: IContentWidgetData };
+	private overlayWidgets: { [key: string]: IOverlayWidgetData };
 
 	_view: View;
 
@@ -116,21 +159,24 @@ export abstract class CodeEditorWidget extends CommonCodeEditor implements edito
 		for (let i = 0, len = contributions.length; i < len; i++) {
 			let ctor = contributions[i];
 			try {
-				let contribution = this._instantiationService.createInstance(ctor, this);
+				let contribution = this._instantiationService.createInstance(
+					ctor,
+					this
+				);
 				this._contributions[contribution.getId()] = contribution;
 			} catch (err) {
 				onUnexpectedError(err);
 			}
 		}
 
-		this._getActions().forEach((action) => {
+		this._getActions().forEach(action => {
 			const internalAction = new InternalEditorAction(
 				action.id,
 				action.label,
 				action.alias,
 				action.precondition,
 				(): void | TPromise<void> => {
-					return this._instantiationService.invokeFunction((accessor) => {
+					return this._instantiationService.invokeFunction(accessor => {
 						return action.runEditorCommand(accessor, this, null);
 					});
 				},
@@ -145,7 +191,9 @@ export abstract class CodeEditorWidget extends CommonCodeEditor implements edito
 	protected abstract _getContributions(): editorBrowser.IEditorContributionCtor[];
 	protected abstract _getActions(): EditorAction[];
 
-	protected _createConfiguration(options: IEditorOptions): CommonEditorConfiguration {
+	protected _createConfiguration(
+		options: IEditorOptions
+	): CommonEditorConfiguration {
 		return new Configuration(options, this.domElement);
 	}
 
@@ -159,7 +207,10 @@ export abstract class CodeEditorWidget extends CommonCodeEditor implements edito
 		super.dispose();
 	}
 
-	public colorizeModelLine(lineNumber: number, model: editorCommon.IModel = this.model): string {
+	public colorizeModelLine(
+		lineNumber: number,
+		model: editorCommon.IModel = this.model
+	): string {
 		if (!model) {
 			return '';
 		}
@@ -168,11 +219,24 @@ export abstract class CodeEditorWidget extends CommonCodeEditor implements edito
 		let tokens = model.getLineTokens(lineNumber);
 		let inflatedTokens = tokens.inflate();
 		let tabSize = model.getOptions().tabSize;
-		return Colorizer.colorizeLine(content, model.mightContainRTL(), inflatedTokens, tabSize);
+		return Colorizer.colorizeLine(
+			content,
+			model.mightContainRTL(),
+			inflatedTokens,
+			tabSize
+		);
 	}
 
-	public createOverviewRuler(cssClassName: string, minimumHeight: number, maximumHeight: number): editorBrowser.IOverviewRuler {
-		return this._view.createOverviewRuler(cssClassName, minimumHeight, maximumHeight);
+	public createOverviewRuler(
+		cssClassName: string,
+		minimumHeight: number,
+		maximumHeight: number
+	): editorBrowser.IOverviewRuler {
+		return this._view.createOverviewRuler(
+			cssClassName,
+			minimumHeight,
+			maximumHeight
+		);
 	}
 
 	public getDomNode(): HTMLElement {
@@ -187,7 +251,9 @@ export abstract class CodeEditorWidget extends CommonCodeEditor implements edito
 			return null;
 		}
 		const viewRange = this.viewModel.getCompletelyVisibleViewRange();
-		return this.viewModel.coordinatesConverter.convertViewRangeToModelRange(viewRange);
+		return this.viewModel.coordinatesConverter.convertViewRangeToModelRange(
+			viewRange
+		);
 	}
 
 	public delegateVerticalScrollbarMouseDown(browserEvent: IMouseEvent): void {
@@ -295,7 +361,9 @@ export abstract class CodeEditorWidget extends CommonCodeEditor implements edito
 		}
 	}
 
-	public changeViewZones(callback: (accessor: editorBrowser.IViewZoneChangeAccessor) => void): void {
+	public changeViewZones(
+		callback: (accessor: editorBrowser.IViewZoneChangeAccessor) => void
+	): void {
 		if (!this.hasView) {
 			return;
 		}
@@ -312,13 +380,20 @@ export abstract class CodeEditorWidget extends CommonCodeEditor implements edito
 		return this.viewModel.viewLayout.getWhitespaces();
 	}
 
-	private _getVerticalOffsetForPosition(modelLineNumber: number, modelColumn: number): number {
+	private _getVerticalOffsetForPosition(
+		modelLineNumber: number,
+		modelColumn: number
+	): number {
 		let modelPosition = this.model.validatePosition({
 			lineNumber: modelLineNumber,
 			column: modelColumn
 		});
-		let viewPosition = this.viewModel.coordinatesConverter.convertModelPositionToViewPosition(modelPosition);
-		return this.viewModel.viewLayout.getVerticalOffsetForLineNumber(viewPosition.lineNumber);
+		let viewPosition = this.viewModel.coordinatesConverter.convertModelPositionToViewPosition(
+			modelPosition
+		);
+		return this.viewModel.viewLayout.getVerticalOffsetForLineNumber(
+			viewPosition.lineNumber
+		);
 	}
 
 	public getTopForLineNumber(lineNumber: number): number {
@@ -335,14 +410,19 @@ export abstract class CodeEditorWidget extends CommonCodeEditor implements edito
 		return this._getVerticalOffsetForPosition(lineNumber, column);
 	}
 
-	public getTargetAtClientPoint(clientX: number, clientY: number): editorBrowser.IMouseTarget {
+	public getTargetAtClientPoint(
+		clientX: number,
+		clientY: number
+	): editorBrowser.IMouseTarget {
 		if (!this.hasView) {
 			return null;
 		}
 		return this._view.getTargetAtClientPoint(clientX, clientY);
 	}
 
-	public getScrolledVisiblePosition(rawPosition: IPosition): { top: number; left: number; height: number; } {
+	public getScrolledVisiblePosition(
+		rawPosition: IPosition
+	): { top: number; left: number; height: number } {
 		if (!this.hasView) {
 			return null;
 		}
@@ -350,8 +430,15 @@ export abstract class CodeEditorWidget extends CommonCodeEditor implements edito
 		let position = this.model.validatePosition(rawPosition);
 		let layoutInfo = this._configuration.editor.layoutInfo;
 
-		let top = this._getVerticalOffsetForPosition(position.lineNumber, position.column) - this.getScrollTop();
-		let left = this._view.getOffsetForColumn(position.lineNumber, position.column) + layoutInfo.glyphMarginWidth + layoutInfo.lineNumbersWidth + layoutInfo.decorationsWidth - this.getScrollLeft();
+		let top =
+			this._getVerticalOffsetForPosition(position.lineNumber, position.column) -
+			this.getScrollTop();
+		let left =
+			this._view.getOffsetForColumn(position.lineNumber, position.column) +
+			layoutInfo.glyphMarginWidth +
+			layoutInfo.lineNumbersWidth +
+			layoutInfo.decorationsWidth -
+			this.getScrollLeft();
 
 		return {
 			top: top,
@@ -388,7 +475,10 @@ export abstract class CodeEditorWidget extends CommonCodeEditor implements edito
 	}
 
 	public applyFontInfo(target: HTMLElement): void {
-		Configuration.applyFontInfoSlow(target, this._configuration.editor.fontInfo);
+		Configuration.applyFontInfoSlow(
+			target,
+			this._configuration.editor.fontInfo
+		);
 	}
 
 	_attachModel(model: editorCommon.IModel): void {
@@ -433,55 +523,79 @@ export abstract class CodeEditorWidget extends CommonCodeEditor implements edito
 
 		const viewEventBus = this._view.getInternalEventBus();
 
-		this.listenersToRemove.push(viewEventBus.onDidGainFocus(() => {
-			this._onDidFocusEditorText.fire();
-			// In IE, the focus is not synchronous, so we give it a little help
-			this._onDidFocusEditor.fire();
-		}));
+		this.listenersToRemove.push(
+			viewEventBus.onDidGainFocus(() => {
+				this._onDidFocusEditorText.fire();
+				// In IE, the focus is not synchronous, so we give it a little help
+				this._onDidFocusEditor.fire();
+			})
+		);
 
-		this.listenersToRemove.push(viewEventBus.onDidScroll((e) => {
-			this._onDidScrollChange.fire(e);
-		}));
+		this.listenersToRemove.push(
+			viewEventBus.onDidScroll(e => {
+				this._onDidScrollChange.fire(e);
+			})
+		);
 
-		this.listenersToRemove.push(viewEventBus.onDidLoseFocus(() => {
-			this._onDidBlurEditorText.fire();
-		}));
+		this.listenersToRemove.push(
+			viewEventBus.onDidLoseFocus(() => {
+				this._onDidBlurEditorText.fire();
+			})
+		);
 
-		this.listenersToRemove.push(viewEventBus.onContextMenu((e) => {
-			this._onContextMenu.fire(e);
-		}));
+		this.listenersToRemove.push(
+			viewEventBus.onContextMenu(e => {
+				this._onContextMenu.fire(e);
+			})
+		);
 
-		this.listenersToRemove.push(viewEventBus.onMouseDown((e) => {
-			this._onMouseDown.fire(e);
-		}));
+		this.listenersToRemove.push(
+			viewEventBus.onMouseDown(e => {
+				this._onMouseDown.fire(e);
+			})
+		);
 
-		this.listenersToRemove.push(viewEventBus.onMouseUp((e) => {
-			this._onMouseUp.fire(e);
-		}));
+		this.listenersToRemove.push(
+			viewEventBus.onMouseUp(e => {
+				this._onMouseUp.fire(e);
+			})
+		);
 
-		this.listenersToRemove.push(viewEventBus.onMouseDrag((e) => {
-			this._onMouseDrag.fire(e);
-		}));
+		this.listenersToRemove.push(
+			viewEventBus.onMouseDrag(e => {
+				this._onMouseDrag.fire(e);
+			})
+		);
 
-		this.listenersToRemove.push(viewEventBus.onMouseDrop((e) => {
-			this._onMouseDrop.fire(e);
-		}));
+		this.listenersToRemove.push(
+			viewEventBus.onMouseDrop(e => {
+				this._onMouseDrop.fire(e);
+			})
+		);
 
-		this.listenersToRemove.push(viewEventBus.onKeyUp((e) => {
-			this._onKeyUp.fire(e);
-		}));
+		this.listenersToRemove.push(
+			viewEventBus.onKeyUp(e => {
+				this._onKeyUp.fire(e);
+			})
+		);
 
-		this.listenersToRemove.push(viewEventBus.onMouseMove((e) => {
-			this._onMouseMove.fire(e);
-		}));
+		this.listenersToRemove.push(
+			viewEventBus.onMouseMove(e => {
+				this._onMouseMove.fire(e);
+			})
+		);
 
-		this.listenersToRemove.push(viewEventBus.onMouseLeave((e) => {
-			this._onMouseLeave.fire(e);
-		}));
+		this.listenersToRemove.push(
+			viewEventBus.onMouseLeave(e => {
+				this._onMouseLeave.fire(e);
+			})
+		);
 
-		this.listenersToRemove.push(viewEventBus.onKeyDown((e) => {
-			this._onKeyDown.fire(e);
-		}));
+		this.listenersToRemove.push(
+			viewEventBus.onKeyDown(e => {
+				this._onKeyDown.fire(e);
+			})
+		);
 	}
 
 	protected _detachModel(): editorCommon.IModel {
@@ -504,7 +618,11 @@ export abstract class CodeEditorWidget extends CommonCodeEditor implements edito
 
 	// BEGIN decorations
 
-	protected _registerDecorationType(key: string, options: editorCommon.IDecorationRenderOptions, parentTypeKey?: string): void {
+	protected _registerDecorationType(
+		key: string,
+		options: editorCommon.IDecorationRenderOptions,
+		parentTypeKey?: string
+	): void {
 		this._codeEditorService.registerDecorationType(key, options, parentTypeKey);
 	}
 
@@ -512,7 +630,10 @@ export abstract class CodeEditorWidget extends CommonCodeEditor implements edito
 		this._codeEditorService.removeDecorationType(key);
 	}
 
-	protected _resolveDecorationOptions(typeKey: string, writable: boolean): editorCommon.IModelDecorationOptions {
+	protected _resolveDecorationOptions(
+		typeKey: string,
+		writable: boolean
+	): editorCommon.IModelDecorationOptions {
 		return this._codeEditorService.resolveDecorationOptions(typeKey, writable);
 	}
 
@@ -520,7 +641,6 @@ export abstract class CodeEditorWidget extends CommonCodeEditor implements edito
 }
 
 class CodeEditorWidgetFocusTracker extends Disposable {
-
 	private _hasFocus: boolean;
 	private _domFocusTracker: dom.IFocusTracker;
 
@@ -548,8 +668,12 @@ class CodeEditorWidgetFocusTracker extends Disposable {
 	}
 }
 
-const squigglyStart = encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' height='3' width='6'><g fill='`);
-const squigglyEnd = encodeURIComponent(`'><polygon points='5.5,0 2.5,3 1.1,3 4.1,0'/><polygon points='4,0 6,2 6,0.6 5.4,0'/><polygon points='0,2 1,3 2.4,3 0,0.6'/></g></svg>`);
+const squigglyStart = encodeURIComponent(
+	`<svg xmlns='http://www.w3.org/2000/svg' height='3' width='6'><g fill='`
+);
+const squigglyEnd = encodeURIComponent(
+	`'><polygon points='5.5,0 2.5,3 1.1,3 4.1,0'/><polygon points='4,0 6,2 6,0.6 5.4,0'/><polygon points='0,2 1,3 2.4,3 0,0.6'/></g></svg>`
+);
 
 function getSquigglySVGData(color: Color) {
 	return squigglyStart + encodeURIComponent(color.toString()) + squigglyEnd;
@@ -558,19 +682,31 @@ function getSquigglySVGData(color: Color) {
 registerThemingParticipant((theme, collector) => {
 	let errorBorderColor = theme.getColor(editorErrorBorder);
 	if (errorBorderColor) {
-		collector.addRule(`.monaco-editor .redsquiggly { border-bottom: 4px double ${errorBorderColor}; }`);
+		collector.addRule(
+			`.monaco-editor .redsquiggly { border-bottom: 4px double ${errorBorderColor}; }`
+		);
 	}
 	let errorForeground = theme.getColor(editorErrorForeground);
 	if (errorForeground) {
-		collector.addRule(`.monaco-editor .redsquiggly { background: url("data:image/svg+xml,${getSquigglySVGData(errorForeground)}") repeat-x bottom left; }`);
+		collector.addRule(
+			`.monaco-editor .redsquiggly { background: url("data:image/svg+xml,${getSquigglySVGData(
+				errorForeground
+			)}") repeat-x bottom left; }`
+		);
 	}
 
 	let warningBorderColor = theme.getColor(editorWarningBorder);
 	if (warningBorderColor) {
-		collector.addRule(`.monaco-editor .greensquiggly { border-bottom: 4px double ${warningBorderColor}; }`);
+		collector.addRule(
+			`.monaco-editor .greensquiggly { border-bottom: 4px double ${warningBorderColor}; }`
+		);
 	}
 	let warningForeground = theme.getColor(editorWarningForeground);
 	if (warningForeground) {
-		collector.addRule(`.monaco-editor .greensquiggly { background: url("data:image/svg+xml;utf8,${getSquigglySVGData(warningForeground)}") repeat-x bottom left; }`);
+		collector.addRule(
+			`.monaco-editor .greensquiggly { background: url("data:image/svg+xml;utf8,${getSquigglySVGData(
+				warningForeground
+			)}") repeat-x bottom left; }`
+		);
 	}
 });

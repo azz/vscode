@@ -11,16 +11,35 @@ import URI from 'vs/base/common/uri';
 import { IDisposable, dispose } from 'vs/base/common/lifecycle';
 import { IEditor } from 'vs/platform/editor/common/editor';
 import { IInstantiationService } from 'vs/platform/instantiation/common/instantiation';
-import { IStorageService, StorageScope } from 'vs/platform/storage/common/storage';
+import {
+	IStorageService,
+	StorageScope
+} from 'vs/platform/storage/common/storage';
 import { Registry } from 'vs/platform/platform';
 import { EditorOptions } from 'vs/workbench/common/editor';
-import { IOutputChannelIdentifier, OutputEditors, IOutputEvent, IOutputChannel, IOutputService, IOutputDelta, Extensions, OUTPUT_PANEL_ID, IOutputChannelRegistry, MAX_OUTPUT_LENGTH, OUTPUT_SCHEME, OUTPUT_MIME } from 'vs/workbench/parts/output/common/output';
+import {
+	IOutputChannelIdentifier,
+	OutputEditors,
+	IOutputEvent,
+	IOutputChannel,
+	IOutputService,
+	IOutputDelta,
+	Extensions,
+	OUTPUT_PANEL_ID,
+	IOutputChannelRegistry,
+	MAX_OUTPUT_LENGTH,
+	OUTPUT_SCHEME,
+	OUTPUT_MIME
+} from 'vs/workbench/parts/output/common/output';
 import { OutputPanel } from 'vs/workbench/parts/output/browser/outputPanel';
 import { IPanelService } from 'vs/workbench/services/panel/common/panelService';
 import { IModelService } from 'vs/editor/common/services/modelService';
 import { IWorkspaceContextService } from 'vs/platform/workspace/common/workspace';
 import { OutputLinkProvider } from 'vs/workbench/parts/output/common/outputLinkProvider';
-import { ITextModelResolverService, ITextModelContentProvider } from 'vs/editor/common/services/resolverService';
+import {
+	ITextModelResolverService,
+	ITextModelContentProvider
+} from 'vs/editor/common/services/resolverService';
 import { IModel } from 'vs/editor/common/editorCommon';
 import { IModeService } from 'vs/editor/common/services/modeService';
 import { RunOnceScheduler } from 'vs/base/common/async';
@@ -30,7 +49,6 @@ import { Position } from 'vs/editor/common/core/position';
 const OUTPUT_ACTIVE_CHANNEL_KEY = 'output.activechannel';
 
 export class BufferedContent {
-
 	private data: string[] = [];
 	private dataIds: number[] = [];
 	private idPool = 0;
@@ -69,7 +87,9 @@ export class BufferedContent {
 
 		const id = this.idPool;
 		if (idx >= 0) {
-			const value = strings.removeAnsiEscapeCodes(this.data.slice(idx + 1).join(''));
+			const value = strings.removeAnsiEscapeCodes(
+				this.data.slice(idx + 1).join('')
+			);
 			return { value, id, append: true };
 		} else {
 			const value = strings.removeAnsiEscapeCodes(this.data.join(''));
@@ -79,11 +99,16 @@ export class BufferedContent {
 }
 
 export class OutputService implements IOutputService {
-
 	public _serviceBrand: any;
 
-	private receivedOutput: Map<string, BufferedContent> = new Map<string, BufferedContent>();
-	private channels: Map<string, IOutputChannel> = new Map<string, IOutputChannel>();
+	private receivedOutput: Map<string, BufferedContent> = new Map<
+		string,
+		BufferedContent
+	>();
+	private channels: Map<string, IOutputChannel> = new Map<
+		string,
+		IOutputChannel
+	>();
 
 	private activeChannelId: string;
 
@@ -101,21 +126,35 @@ export class OutputService implements IOutputService {
 		@IPanelService private panelService: IPanelService,
 		@IWorkspaceContextService contextService: IWorkspaceContextService,
 		@IModelService modelService: IModelService,
-		@ITextModelResolverService textModelResolverService: ITextModelResolverService
+		@ITextModelResolverService
+		textModelResolverService: ITextModelResolverService
 	) {
 		this._onOutput = new Emitter<IOutputEvent>();
 		this._onOutputChannel = new Emitter<string>();
 		this._onActiveOutputChannel = new Emitter<string>();
 
 		const channels = this.getChannels();
-		this.activeChannelId = this.storageService.get(OUTPUT_ACTIVE_CHANNEL_KEY, StorageScope.WORKSPACE, channels && channels.length > 0 ? channels[0].id : null);
+		this.activeChannelId = this.storageService.get(
+			OUTPUT_ACTIVE_CHANNEL_KEY,
+			StorageScope.WORKSPACE,
+			channels && channels.length > 0 ? channels[0].id : null
+		);
 
-		this._outputLinkDetector = new OutputLinkProvider(contextService, modelService);
+		this._outputLinkDetector = new OutputLinkProvider(
+			contextService,
+			modelService
+		);
 
-		this._outputContentProvider = instantiationService.createInstance(OutputContentProvider, this);
+		this._outputContentProvider = instantiationService.createInstance(
+			OutputContentProvider,
+			this
+		);
 
 		// Register as text model content provider for output
-		textModelResolverService.registerTextModelContentProvider(OUTPUT_SCHEME, this._outputContentProvider);
+		textModelResolverService.registerTextModelContentProvider(
+			OUTPUT_SCHEME,
+			this._outputContentProvider
+		);
 	}
 
 	public get onOutput(): Event<IOutputEvent> {
@@ -132,7 +171,9 @@ export class OutputService implements IOutputService {
 
 	public getChannel(id: string): IOutputChannel {
 		if (!this.channels.has(id)) {
-			const channelData = Registry.as<IOutputChannelRegistry>(Extensions.OutputChannels).getChannel(id);
+			const channelData = Registry.as<IOutputChannelRegistry>(
+				Extensions.OutputChannels
+			).getChannel(id);
 
 			const self = this;
 			this.channels.set(id, {
@@ -158,11 +199,12 @@ export class OutputService implements IOutputService {
 	}
 
 	public getChannels(): IOutputChannelIdentifier[] {
-		return Registry.as<IOutputChannelRegistry>(Extensions.OutputChannels).getChannels();
+		return Registry.as<IOutputChannelRegistry>(
+			Extensions.OutputChannels
+		).getChannels();
 	}
 
 	private append(channelId: string, output: string): void {
-
 		// Initialize
 		if (!this.receivedOutput.has(channelId)) {
 			this.receivedOutput.set(channelId, new BufferedContent());
@@ -183,7 +225,10 @@ export class OutputService implements IOutputService {
 		return this.getChannel(this.activeChannelId);
 	}
 
-	private getOutput(channelId: string, previousDelta: IOutputDelta): IOutputDelta {
+	private getOutput(
+		channelId: string,
+		previousDelta: IOutputDelta
+	): IOutputDelta {
 		if (this.receivedOutput.has(channelId)) {
 			return this.receivedOutput.get(channelId).getDelta(previousDelta);
 		}
@@ -200,12 +245,20 @@ export class OutputService implements IOutputService {
 
 	private removeOutput(channelId: string): void {
 		this.receivedOutput.delete(channelId);
-		Registry.as<IOutputChannelRegistry>(Extensions.OutputChannels).removeChannel(channelId);
+		Registry.as<IOutputChannelRegistry>(
+			Extensions.OutputChannels
+		).removeChannel(channelId);
 		if (this.activeChannelId === channelId) {
 			const channels = this.getChannels();
 			this.activeChannelId = channels.length ? channels[0].id : undefined;
 			if (this._outputPanel && this.activeChannelId) {
-				this._outputPanel.setInput(OutputEditors.getInstance(this.instantiationService, this.getChannel(this.activeChannelId)), EditorOptions.create({ preserveFocus: true }));
+				this._outputPanel.setInput(
+					OutputEditors.getInstance(
+						this.instantiationService,
+						this.getChannel(this.activeChannelId)
+					),
+					EditorOptions.create({ preserveFocus: true })
+				);
 			}
 			this._onActiveOutputChannel.fire(this.activeChannelId);
 		}
@@ -213,30 +266,52 @@ export class OutputService implements IOutputService {
 		this._onOutputChannel.fire(channelId);
 	}
 
-	private showOutput(channelId: string, preserveFocus?: boolean): TPromise<IEditor> {
+	private showOutput(
+		channelId: string,
+		preserveFocus?: boolean
+	): TPromise<IEditor> {
 		const panel = this.panelService.getActivePanel();
-		if (this.activeChannelId === channelId && panel && panel.getId() === OUTPUT_PANEL_ID) {
+		if (
+			this.activeChannelId === channelId &&
+			panel &&
+			panel.getId() === OUTPUT_PANEL_ID
+		) {
 			return TPromise.as(<OutputPanel>panel);
 		}
 
 		this.activeChannelId = channelId;
-		this.storageService.store(OUTPUT_ACTIVE_CHANNEL_KEY, this.activeChannelId, StorageScope.WORKSPACE);
+		this.storageService.store(
+			OUTPUT_ACTIVE_CHANNEL_KEY,
+			this.activeChannelId,
+			StorageScope.WORKSPACE
+		);
 		this._onActiveOutputChannel.fire(channelId); // emit event that a new channel is active
 
-		return this.panelService.openPanel(OUTPUT_PANEL_ID, !preserveFocus).then((outputPanel: OutputPanel) => {
-			this._outputPanel = outputPanel;
-			return outputPanel && outputPanel.setInput(OutputEditors.getInstance(this.instantiationService, this.getChannel(this.activeChannelId)), EditorOptions.create({ preserveFocus: preserveFocus })).
-				then(() => outputPanel);
-		});
+		return this.panelService
+			.openPanel(OUTPUT_PANEL_ID, !preserveFocus)
+			.then((outputPanel: OutputPanel) => {
+				this._outputPanel = outputPanel;
+				return (
+					outputPanel &&
+					outputPanel
+						.setInput(
+							OutputEditors.getInstance(
+								this.instantiationService,
+								this.getChannel(this.activeChannelId)
+							),
+							EditorOptions.create({ preserveFocus: preserveFocus })
+						)
+						.then(() => outputPanel)
+				);
+			});
 	}
 }
 
 class OutputContentProvider implements ITextModelContentProvider {
-
 	private static OUTPUT_DELAY = 300;
 
 	private bufferedOutput = new Map<string, IOutputDelta>();
-	private appendOutputScheduler: { [channel: string]: RunOnceScheduler; };
+	private appendOutputScheduler: { [channel: string]: RunOnceScheduler };
 	private channelIdsWithScrollLock: Set<string> = new Set<string>();
 	private toDispose: IDisposable[];
 
@@ -253,13 +328,21 @@ class OutputContentProvider implements ITextModelContentProvider {
 	}
 
 	private registerListeners(): void {
-		this.toDispose.push(this.outputService.onOutput(e => this.onOutputReceived(e)));
-		this.toDispose.push(this.outputService.onActiveOutputChannel(channel => this.scheduleOutputAppend(channel)));
-		this.toDispose.push(this.panelService.onDidPanelOpen(panel => {
-			if (panel.getId() === OUTPUT_PANEL_ID) {
-				this.appendOutput();
-			}
-		}));
+		this.toDispose.push(
+			this.outputService.onOutput(e => this.onOutputReceived(e))
+		);
+		this.toDispose.push(
+			this.outputService.onActiveOutputChannel(channel =>
+				this.scheduleOutputAppend(channel)
+			)
+		);
+		this.toDispose.push(
+			this.panelService.onDidPanelOpen(panel => {
+				if (panel.getId() === OUTPUT_PANEL_ID) {
+					this.appendOutput();
+				}
+			})
+		);
 	}
 
 	private onOutputReceived(e: IOutputEvent): void {
@@ -277,7 +360,9 @@ class OutputContentProvider implements ITextModelContentProvider {
 	}
 
 	private getModel(channel: string): IModel {
-		return this.modelService.getModel(URI.from({ scheme: OUTPUT_SCHEME, path: channel }));
+		return this.modelService.getModel(
+			URI.from({ scheme: OUTPUT_SCHEME, path: channel })
+		);
 	}
 
 	private scheduleOutputAppend(channel: string): void {
@@ -320,7 +405,9 @@ class OutputContentProvider implements ITextModelContentProvider {
 		}
 
 		const bufferedOutput = this.bufferedOutput.get(channel);
-		const newOutput = this.outputService.getChannel(channel).getOutput(bufferedOutput);
+		const newOutput = this.outputService
+			.getChannel(channel)
+			.getOutput(bufferedOutput);
 		if (!newOutput) {
 			model.setValue('');
 			return;
@@ -330,14 +417,17 @@ class OutputContentProvider implements ITextModelContentProvider {
 		// just fill in the full (trimmed) output if we exceed max length
 		if (!newOutput.append) {
 			model.setValue(newOutput.value);
-		}
-
-		// otherwise append
-		else {
+		} else {
+			// otherwise append
 			const lastLine = model.getLineCount();
 			const lastLineMaxColumn = model.getLineMaxColumn(lastLine);
 
-			model.applyEdits([EditOperation.insert(new Position(lastLine, lastLineMaxColumn), newOutput.value)]);
+			model.applyEdits([
+				EditOperation.insert(
+					new Position(lastLine, lastLineMaxColumn),
+					newOutput.value
+				)
+			]);
 		}
 
 		if (!this.channelIdsWithScrollLock.has(channel)) {
@@ -350,7 +440,11 @@ class OutputContentProvider implements ITextModelContentProvider {
 	private isVisible(channel: string): boolean {
 		const panel = this.panelService.getActivePanel();
 
-		return panel && panel.getId() === OUTPUT_PANEL_ID && this.outputService.getActiveChannel().id === channel;
+		return (
+			panel &&
+			panel.getId() === OUTPUT_PANEL_ID &&
+			this.outputService.getActiveChannel().id === channel
+		);
 	}
 
 	public scrollLock(channelId): boolean {
@@ -371,7 +465,11 @@ class OutputContentProvider implements ITextModelContentProvider {
 
 		let codeEditorModel = this.modelService.getModel(resource);
 		if (!codeEditorModel) {
-			codeEditorModel = this.modelService.createModel(content, this.modeService.getOrCreateMode(OUTPUT_MIME), resource);
+			codeEditorModel = this.modelService.createModel(
+				content,
+				this.modeService.getOrCreateMode(OUTPUT_MIME),
+				resource
+			);
 		}
 
 		return TPromise.as(codeEditorModel);

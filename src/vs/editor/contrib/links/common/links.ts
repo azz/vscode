@@ -3,20 +3,23 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { onUnexpectedExternalError } from 'vs/base/common/errors';
 import URI from 'vs/base/common/uri';
 import { TPromise } from 'vs/base/common/winjs.base';
 import { Range, IRange } from 'vs/editor/common/core/range';
 import { IReadOnlyModel } from 'vs/editor/common/editorCommon';
-import { ILink, LinkProvider, LinkProviderRegistry } from 'vs/editor/common/modes';
+import {
+	ILink,
+	LinkProvider,
+	LinkProviderRegistry
+} from 'vs/editor/common/modes';
 import { asWinJsPromise } from 'vs/base/common/async';
 import { CommandsRegistry } from 'vs/platform/commands/common/commands';
 import { IModelService } from 'vs/editor/common/services/modelService';
 
 export class Link implements ILink {
-
 	private _link: ILink;
 	private _provider: LinkProvider;
 
@@ -43,7 +46,9 @@ export class Link implements ILink {
 		}
 
 		if (typeof this._provider.resolveLink === 'function') {
-			return asWinJsPromise(token => this._provider.resolveLink(this._link, token)).then(value => {
+			return asWinJsPromise(token =>
+				this._provider.resolveLink(this._link, token)
+			).then(value => {
 				this._link = value || this._link;
 				if (this._link.url) {
 					// recurse
@@ -59,18 +64,21 @@ export class Link implements ILink {
 }
 
 export function getLinks(model: IReadOnlyModel): TPromise<Link[]> {
-
 	let links: Link[] = [];
 
 	// ask all providers for links in parallel
-	const promises = LinkProviderRegistry.ordered(model).reverse().map(provider => {
-		return asWinJsPromise(token => provider.provideLinks(model, token)).then(result => {
-			if (Array.isArray(result)) {
-				const newLinks = result.map(link => new Link(link, provider));
-				links = union(links, newLinks);
-			}
-		}, onUnexpectedExternalError);
-	});
+	const promises = LinkProviderRegistry.ordered(model)
+		.reverse()
+		.map(provider => {
+			return asWinJsPromise(token =>
+				provider.provideLinks(model, token)
+			).then(result => {
+				if (Array.isArray(result)) {
+					const newLinks = result.map(link => new Link(link, provider));
+					links = union(links, newLinks);
+				}
+			}, onUnexpectedExternalError);
+		});
 
 	return TPromise.join(promises).then(() => {
 		return links;
@@ -88,7 +96,12 @@ function union(oldLinks: Link[], newLinks: Link[]): Link[] {
 		newLink: Link,
 		comparisonResult: number;
 
-	for (oldIndex = 0, newIndex = 0, oldLen = oldLinks.length, newLen = newLinks.length; oldIndex < oldLen && newIndex < newLen;) {
+	for (
+		oldIndex = 0, newIndex = 0, oldLen = oldLinks.length, newLen =
+			newLinks.length;
+		oldIndex < oldLen && newIndex < newLen;
+
+	) {
 		oldLink = oldLinks[oldIndex];
 		newLink = newLinks[newIndex];
 
@@ -98,7 +111,10 @@ function union(oldLinks: Link[], newLinks: Link[]): Link[] {
 			continue;
 		}
 
-		comparisonResult = Range.compareRangesUsingStarts(oldLink.range, newLink.range);
+		comparisonResult = Range.compareRangesUsingStarts(
+			oldLink.range,
+			newLink.range
+		);
 
 		if (comparisonResult < 0) {
 			// oldLink is before
@@ -121,17 +137,19 @@ function union(oldLinks: Link[], newLinks: Link[]): Link[] {
 	return result;
 }
 
-CommandsRegistry.registerCommand('_executeLinkProvider', (accessor, ...args) => {
+CommandsRegistry.registerCommand(
+	'_executeLinkProvider',
+	(accessor, ...args) => {
+		const [uri] = args;
+		if (!(uri instanceof URI)) {
+			return undefined;
+		}
 
-	const [uri] = args;
-	if (!(uri instanceof URI)) {
-		return undefined;
+		const model = accessor.get(IModelService).getModel(uri);
+		if (!model) {
+			return undefined;
+		}
+
+		return getLinks(model);
 	}
-
-	const model = accessor.get(IModelService).getModel(uri);
-	if (!model) {
-		return undefined;
-	}
-
-	return getLinks(model);
-});
+);

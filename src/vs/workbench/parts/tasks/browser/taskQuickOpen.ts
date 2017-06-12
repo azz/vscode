@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import nls = require('vs/nls');
 import { TPromise } from 'vs/base/common/winjs.base';
@@ -14,11 +14,14 @@ import { Task } from 'vs/workbench/parts/tasks/common/tasks';
 import { ITaskService } from 'vs/workbench/parts/tasks/common/taskService';
 import { IExtensionService } from 'vs/platform/extensions/common/extensions';
 
-
 import * as base from './quickOpen';
 
 class TaskEntry extends base.TaskEntry {
-	constructor(taskService: ITaskService, task: Task, highlights: Model.IHighlight[] = []) {
+	constructor(
+		taskService: ITaskService,
+		task: Task,
+		highlights: Model.IHighlight[] = []
+	) {
 		super(taskService, task, highlights);
 	}
 
@@ -40,11 +43,13 @@ export class QuickOpenHandler extends base.QuickOpenHandler {
 		@IExtensionService extensionService: IExtensionService
 	) {
 		super(quickOpenService, taskService);
-		this.activationPromise = extensionService.activateByEvent('onCommand:workbench.action.tasks.runTask');
+		this.activationPromise = extensionService.activateByEvent(
+			'onCommand:workbench.action.tasks.runTask'
+		);
 	}
 
 	public getAriaLabel(): string {
-		return nls.localize('tasksAriaLabel', "Type the name of a task to run");
+		return nls.localize('tasksAriaLabel', 'Type the name of a task to run');
 	}
 
 	protected getTasks(): TPromise<Task[]> {
@@ -53,14 +58,18 @@ export class QuickOpenHandler extends base.QuickOpenHandler {
 		});
 	}
 
-	protected createEntry(taskService: ITaskService, task: Task, highlights: Model.IHighlight[]): base.TaskEntry {
+	protected createEntry(
+		taskService: ITaskService,
+		task: Task,
+		highlights: Model.IHighlight[]
+	): base.TaskEntry {
 		return new TaskEntry(taskService, task, highlights);
 	}
 
 	public getEmptyLabel(searchString: string): string {
 		if (searchString.length > 0) {
-			return nls.localize('noTasksMatching', "No tasks matching");
+			return nls.localize('noTasksMatching', 'No tasks matching');
 		}
-		return nls.localize('noTasksFound', "No tasks found");
+		return nls.localize('noTasksFound', 'No tasks found');
 	}
 }

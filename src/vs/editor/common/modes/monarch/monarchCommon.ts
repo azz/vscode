@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 /*
  * This module exports common types and functionality shared between
@@ -58,7 +58,12 @@ export interface IAction {
 	group?: IAction[];
 
 	// or a function that returns a fresh action
-	test?: (id: string, matches: string[], state: string, eos: boolean) => IAction;
+	test?: (
+		id: string,
+		matches: string[],
+		state: string,
+		eos: boolean
+	) => IAction;
 
 	// or it is a declarative action with a token value and various other attributes
 	token?: string;
@@ -84,14 +89,14 @@ export interface IBranch {
  * Is a string null, undefined, or empty?
  */
 export function empty(s: string): boolean {
-	return (s ? false : true);
+	return s ? false : true;
 }
 
 /**
  * Puts a string to lower case if 'ignoreCase' is set.
  */
 export function fixCase(lexer: ILexerMin, str: string): string {
-	return (lexer.ignoreCase && str ? str.toLowerCase() : str);
+	return lexer.ignoreCase && str ? str.toLowerCase() : str;
 }
 
 /**
@@ -130,23 +135,40 @@ export function throwError(lexer: ILexerMin, msg: string) {
  *
  * See documentation for more info
  */
-export function substituteMatches(lexer: ILexerMin, str: string, id: string, matches: string[], state: string) {
+export function substituteMatches(
+	lexer: ILexerMin,
+	str: string,
+	id: string,
+	matches: string[],
+	state: string
+) {
 	var re = /\$((\$)|(#)|(\d\d?)|[sS](\d\d?)|@(\w+))/g;
 	var stateMatches: string[] = null;
-	return str.replace(re, function (full, sub?, dollar?, hash?, n?, s?, attr?, ofs?, total?) {
+	return str.replace(re, function(
+		full,
+		sub?,
+		dollar?,
+		hash?,
+		n?,
+		s?,
+		attr?,
+		ofs?,
+		total?
+	) {
 		if (!empty(dollar)) {
 			return '$'; // $$
 		}
 		if (!empty(hash)) {
-			return fixCase(lexer, id);   // default $#
+			return fixCase(lexer, id); // default $#
 		}
 		if (!empty(n) && n < matches.length) {
 			return fixCase(lexer, matches[n]); // $n
 		}
-		if (!empty(attr) && lexer && typeof (lexer[attr]) === 'string') {
+		if (!empty(attr) && lexer && typeof lexer[attr] === 'string') {
 			return lexer[attr]; //@attribute
 		}
-		if (stateMatches === null) { // split state on demand
+		if (stateMatches === null) {
+			// split state on demand
 			stateMatches = state.split('.');
 			stateMatches.unshift(state);
 		}

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as path from 'path';
 import * as nls from 'vs/nls';
@@ -15,10 +15,12 @@ import { ILogService } from 'vs/platform/log/common/log';
 import { getPathLabel } from 'vs/base/common/labels';
 import { IPath } from 'vs/platform/windows/common/windows';
 import CommonEvent, { Emitter } from 'vs/base/common/event';
-import { createDecorator } from "vs/platform/instantiation/common/instantiation";
-import { isWindows, isMacintosh, isLinux } from "vs/base/common/platform";
+import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
+import { isWindows, isMacintosh, isLinux } from 'vs/base/common/platform';
 
-export const IHistoryMainService = createDecorator<IHistoryMainService>('historyMainService');
+export const IHistoryMainService = createDecorator<IHistoryMainService>(
+	'historyMainService'
+);
 
 export interface IRecentPathsList {
 	folders: string[];
@@ -33,8 +35,11 @@ export interface IHistoryMainService {
 
 	// methods
 
-	addToRecentPathsList(paths: { path: string; isFile?: boolean; }[]): void;
-	getRecentPathsList(workspacePath?: string, filesToOpen?: IPath[]): IRecentPathsList;
+	addToRecentPathsList(paths: { path: string; isFile?: boolean }[]): void;
+	getRecentPathsList(
+		workspacePath?: string,
+		filesToOpen?: IPath[]
+	): IRecentPathsList;
 	removeFromRecentPathsList(path: string): void;
 	removeFromRecentPathsList(paths: string[]): void;
 	clearRecentPathsList(): void;
@@ -42,7 +47,6 @@ export interface IHistoryMainService {
 }
 
 export class HistoryMainService implements IHistoryMainService {
-
 	private static MAX_TOTAL_RECENT_ENTRIES = 100;
 
 	private static recentPathsListStorageKey = 'openedPathsList';
@@ -55,10 +59,11 @@ export class HistoryMainService implements IHistoryMainService {
 	constructor(
 		@IStorageService private storageService: IStorageService,
 		@ILogService private logService: ILogService
-	) {
-	}
+	) {}
 
-	public addToRecentPathsList(paths: { path: string; isFile?: boolean; }[]): void {
+	public addToRecentPathsList(
+		paths: { path: string; isFile?: boolean }[]
+	): void {
 		if (!paths || !paths.length) {
 			return;
 		}
@@ -69,15 +74,27 @@ export class HistoryMainService implements IHistoryMainService {
 
 			if (isFile) {
 				mru.files.unshift(path);
-				mru.files = arrays.distinct(mru.files, (f) => isLinux ? f : f.toLowerCase());
+				mru.files = arrays.distinct(
+					mru.files,
+					f => (isLinux ? f : f.toLowerCase())
+				);
 			} else {
 				mru.folders.unshift(path);
-				mru.folders = arrays.distinct(mru.folders, (f) => isLinux ? f : f.toLowerCase());
+				mru.folders = arrays.distinct(
+					mru.folders,
+					f => (isLinux ? f : f.toLowerCase())
+				);
 			}
 
 			// Make sure its bounded
-			mru.folders = mru.folders.slice(0, HistoryMainService.MAX_TOTAL_RECENT_ENTRIES);
-			mru.files = mru.files.slice(0, HistoryMainService.MAX_TOTAL_RECENT_ENTRIES);
+			mru.folders = mru.folders.slice(
+				0,
+				HistoryMainService.MAX_TOTAL_RECENT_ENTRIES
+			);
+			mru.files = mru.files.slice(
+				0,
+				HistoryMainService.MAX_TOTAL_RECENT_ENTRIES
+			);
 
 			// Add to recent documents (Windows/macOS only)
 			if (isMacintosh || isWindows) {
@@ -85,7 +102,10 @@ export class HistoryMainService implements IHistoryMainService {
 			}
 		});
 
-		this.storageService.setItem(HistoryMainService.recentPathsListStorageKey, mru);
+		this.storageService.setItem(
+			HistoryMainService.recentPathsListStorageKey,
+			mru
+		);
 		this._onRecentPathsChange.fire();
 	}
 
@@ -117,25 +137,36 @@ export class HistoryMainService implements IHistoryMainService {
 		});
 
 		if (update) {
-			this.storageService.setItem(HistoryMainService.recentPathsListStorageKey, mru);
+			this.storageService.setItem(
+				HistoryMainService.recentPathsListStorageKey,
+				mru
+			);
 			this._onRecentPathsChange.fire();
 		}
 	}
 
 	public clearRecentPathsList(): void {
-		this.storageService.setItem(HistoryMainService.recentPathsListStorageKey, { folders: [], files: [] });
+		this.storageService.setItem(HistoryMainService.recentPathsListStorageKey, {
+			folders: [],
+			files: []
+		});
 		app.clearRecentDocuments();
 
 		// Event
 		this._onRecentPathsChange.fire();
 	}
 
-	public getRecentPathsList(workspacePath?: string, filesToOpen?: IPath[]): IRecentPathsList {
+	public getRecentPathsList(
+		workspacePath?: string,
+		filesToOpen?: IPath[]
+	): IRecentPathsList {
 		let files: string[];
 		let folders: string[];
 
 		// Get from storage
-		const storedRecents = this.storageService.getItem<IRecentPathsList>(HistoryMainService.recentPathsListStorageKey);
+		const storedRecents = this.storageService.getItem<IRecentPathsList>(
+			HistoryMainService.recentPathsListStorageKey
+		);
 		if (storedRecents) {
 			files = storedRecents.files || [];
 			folders = storedRecents.folders || [];
@@ -174,8 +205,8 @@ export class HistoryMainService implements IHistoryMainService {
 			items: [
 				{
 					type: 'task',
-					title: nls.localize('newWindow', "New Window"),
-					description: nls.localize('newWindowDesc', "Opens a new window"),
+					title: nls.localize('newWindow', 'New Window'),
+					description: nls.localize('newWindowDesc', 'Opens a new window'),
 					program: process.execPath,
 					args: '-n', // force new window
 					iconPath: process.execPath,
@@ -186,28 +217,37 @@ export class HistoryMainService implements IHistoryMainService {
 
 		// Recent Folders
 		if (this.getRecentPathsList().folders.length > 0) {
-
 			// The user might have meanwhile removed items from the jump list and we have to respect that
 			// so we need to update our list of recent paths with the choice of the user to not add them again
 			// Also: Windows will not show our custom category at all if there is any entry which was removed
 			// by the user! See https://github.com/Microsoft/vscode/issues/15052
-			this.removeFromRecentPathsList(app.getJumpListSettings().removedItems.map(r => trim(r.args, '"')));
+			this.removeFromRecentPathsList(
+				app.getJumpListSettings().removedItems.map(r => trim(r.args, '"'))
+			);
 
 			// Add entries
 			jumpList.push({
 				type: 'custom',
-				name: nls.localize('recentFolders', "Recent Folders"),
-				items: this.getRecentPathsList().folders.slice(0, 7 /* limit number of entries here */).map(folder => {
-					return <Electron.JumpListItem>{
-						type: 'task',
-						title: path.basename(folder) || folder, // use the base name to show shorter entries in the list
-						description: nls.localize('folderDesc', "{0} {1}", path.basename(folder), getPathLabel(path.dirname(folder))),
-						program: process.execPath,
-						args: `"${folder}"`, // open folder (use quotes to support paths with whitespaces)
-						iconPath: 'explorer.exe', // simulate folder icon
-						iconIndex: 0
-					};
-				}).filter(i => !!i)
+				name: nls.localize('recentFolders', 'Recent Folders'),
+				items: this.getRecentPathsList()
+					.folders.slice(0, 7 /* limit number of entries here */)
+					.map(folder => {
+						return <Electron.JumpListItem>{
+							type: 'task',
+							title: path.basename(folder) || folder, // use the base name to show shorter entries in the list
+							description: nls.localize(
+								'folderDesc',
+								'{0} {1}',
+								path.basename(folder),
+								getPathLabel(path.dirname(folder))
+							),
+							program: process.execPath,
+							args: `"${folder}"`, // open folder (use quotes to support paths with whitespaces)
+							iconPath: 'explorer.exe', // simulate folder icon
+							iconIndex: 0
+						};
+					})
+					.filter(i => !!i)
 			});
 		}
 

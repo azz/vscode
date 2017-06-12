@@ -3,7 +3,16 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { Position, CompletionItemProvider, CompletionItemKind, TextDocument, CancellationToken, CompletionItem, ProviderResult, Range } from 'vscode';
+import {
+	Position,
+	CompletionItemProvider,
+	CompletionItemKind,
+	TextDocument,
+	CancellationToken,
+	CompletionItem,
+	ProviderResult,
+	Range
+} from 'vscode';
 
 import { ITypescriptServiceClient } from '../typescriptService';
 
@@ -20,26 +29,34 @@ const directives: Directive[] = [
 		value: '@ts-check',
 		description: localize(
 			'ts-check',
-			'Enables semantic checking in a JavaScript file. Must be at the top of a file.')
-	}, {
+			'Enables semantic checking in a JavaScript file. Must be at the top of a file.'
+		)
+	},
+	{
 		value: '@ts-nocheck',
 		description: localize(
 			'ts-nocheck',
-			'Disables semantic checking in a JavaScript file. Must be at the top of a file.')
-	}, {
+			'Disables semantic checking in a JavaScript file. Must be at the top of a file.'
+		)
+	},
+	{
 		value: '@ts-ignore',
 		description: localize(
 			'ts-ignore',
-			'Suppresses @ts-check errors on the next line of a file.')
+			'Suppresses @ts-check errors on the next line of a file.'
+		)
 	}
 ];
 
-export class DirectiveCommentCompletionProvider implements CompletionItemProvider {
-	constructor(
-		private client: ITypescriptServiceClient,
-	) { }
+export class DirectiveCommentCompletionProvider
+	implements CompletionItemProvider {
+	constructor(private client: ITypescriptServiceClient) {}
 
-	public provideCompletionItems(document: TextDocument, position: Position, _token: CancellationToken): ProviderResult<CompletionItem[]> {
+	public provideCompletionItems(
+		document: TextDocument,
+		position: Position,
+		_token: CancellationToken
+	): ProviderResult<CompletionItem[]> {
 		if (!this.client.apiVersion.has230Features()) {
 			return [];
 		}
@@ -54,16 +71,27 @@ export class DirectiveCommentCompletionProvider implements CompletionItemProvide
 		const match = prefix.match(/^\s*\/\/+\s?(@[a-zA-Z\-]*)?$/);
 		if (match) {
 			return directives.map(directive => {
-				const item = new CompletionItem(directive.value, CompletionItemKind.Snippet);
+				const item = new CompletionItem(
+					directive.value,
+					CompletionItemKind.Snippet
+				);
 				item.detail = directive.description;
-				item.range = new Range(position.line, Math.max(0, position.character - match[1].length), position.line, position.character);
+				item.range = new Range(
+					position.line,
+					Math.max(0, position.character - match[1].length),
+					position.line,
+					position.character
+				);
 				return item;
 			});
 		}
 		return [];
 	}
 
-	public resolveCompletionItem(item: CompletionItem, _token: CancellationToken) {
+	public resolveCompletionItem(
+		item: CompletionItem,
+		_token: CancellationToken
+	) {
 		return item;
 	}
 }

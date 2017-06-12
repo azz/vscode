@@ -2,10 +2,17 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
-import { TextAreaInput, ITextAreaInputHost } from 'vs/editor/browser/controller/textAreaInput';
-import { ISimpleModel, TextAreaState, PagedScreenReaderStrategy } from 'vs/editor/browser/controller/textAreaState';
+import {
+	TextAreaInput,
+	ITextAreaInputHost
+} from 'vs/editor/browser/controller/textAreaInput';
+import {
+	ISimpleModel,
+	TextAreaState,
+	PagedScreenReaderStrategy
+} from 'vs/editor/browser/controller/textAreaState';
 import { Range, IRange } from 'vs/editor/common/core/range';
 import * as editorCommon from 'vs/editor/common/editorCommon';
 import { createFastDomNode } from 'vs/base/browser/fastDomNode';
@@ -14,7 +21,6 @@ import * as browser from 'vs/base/browser/browser';
 // To run this test, open imeTester.html
 
 class SingleLineTestModel implements ISimpleModel {
-
 	private _line: string;
 	private _eol: string;
 
@@ -31,7 +37,10 @@ class SingleLineTestModel implements ISimpleModel {
 		return this._line.length + 1;
 	}
 
-	getValueInRange(range: IRange, eol: editorCommon.EndOfLinePreference): string {
+	getValueInRange(
+		range: IRange,
+		eol: editorCommon.EndOfLinePreference
+	): string {
 		return this._line.substring(range.startColumn - 1, range.endColumn - 1);
 	}
 
@@ -45,7 +54,6 @@ class SingleLineTestModel implements ISimpleModel {
 }
 
 class TestView {
-
 	private _model: SingleLineTestModel;
 
 	constructor(model: SingleLineTestModel) {
@@ -62,7 +70,11 @@ class TestView {
 	}
 }
 
-function doCreateTest(description: string, inputStr: string, expectedStr: string): HTMLElement {
+function doCreateTest(
+	description: string,
+	inputStr: string,
+	expectedStr: string
+): HTMLElement {
 	let cursorOffset: number = 0;
 	let cursorLength: number = 0;
 
@@ -79,7 +91,6 @@ function doCreateTest(description: string, inputStr: string, expectedStr: string
 	startBtn.innerHTML = 'Start';
 	container.appendChild(startBtn);
 
-
 	let input = document.createElement('textarea');
 	input.setAttribute('rows', '10');
 	input.setAttribute('cols', '40');
@@ -91,15 +102,23 @@ function doCreateTest(description: string, inputStr: string, expectedStr: string
 		getPlainTextToCopy: (): string => '',
 		getHTMLToCopy: (): string => '',
 		getScreenReaderContent: (currentState: TextAreaState): TextAreaState => {
-
 			if (browser.isIPad) {
 				// Do not place anything in the textarea for the iPad
 				return TextAreaState.EMPTY;
 			}
 
-			const selection = new Range(1, 1 + cursorOffset, 1, 1 + cursorOffset + cursorLength);
+			const selection = new Range(
+				1,
+				1 + cursorOffset,
+				1,
+				1 + cursorOffset + cursorLength
+			);
 
-			return PagedScreenReaderStrategy.fromEditorSelection(currentState, model, selection);
+			return PagedScreenReaderStrategy.fromEditorSelection(
+				currentState,
+				model,
+				selection
+			);
 		}
 	};
 
@@ -142,19 +161,25 @@ function doCreateTest(description: string, inputStr: string, expectedStr: string
 		check.innerHTML += expected;
 	};
 
-	handler.onType((e) => {
-		console.log('type text: ' + e.text + ', replaceCharCnt: ' + e.replaceCharCnt);
+	handler.onType(e => {
+		console.log(
+			'type text: ' + e.text + ', replaceCharCnt: ' + e.replaceCharCnt
+		);
 		let text = model.getModelLineContent(1);
 		let preText = text.substring(0, cursorOffset - e.replaceCharCnt);
 		let postText = text.substring(cursorOffset + cursorLength);
 		let midText = e.text;
 
-		updateModelAndPosition(preText + midText + postText, (preText + midText).length, 0);
+		updateModelAndPosition(
+			preText + midText + postText,
+			(preText + midText).length,
+			0
+		);
 	});
 
 	view.paint(output);
 
-	startBtn.onclick = function () {
+	startBtn.onclick = function() {
 		updateModelAndPosition('some  text', 5, 0);
 		input.focus();
 	};
@@ -174,6 +199,6 @@ const TESTS = [
 	{ description: 'Mac hold key 1', in: 'e long press and 1', out: 'é' }
 ];
 
-TESTS.forEach((t) => {
+TESTS.forEach(t => {
 	document.body.appendChild(doCreateTest(t.description, t.in, t.out));
 });

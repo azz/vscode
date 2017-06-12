@@ -3,16 +3,27 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ReferenceProvider, Location, TextDocument, Position, Range, CancellationToken } from 'vscode';
+import {
+	ReferenceProvider,
+	Location,
+	TextDocument,
+	Position,
+	Range,
+	CancellationToken
+} from 'vscode';
 
 import * as Proto from '../protocol';
 import { ITypescriptServiceClient } from '../typescriptService';
 
 export default class TypeScriptReferenceSupport implements ReferenceProvider {
-	public constructor(
-		private client: ITypescriptServiceClient) { }
+	public constructor(private client: ITypescriptServiceClient) {}
 
-	public provideReferences(document: TextDocument, position: Position, options: { includeDeclaration: boolean }, token: CancellationToken): Promise<Location[]> {
+	public provideReferences(
+		document: TextDocument,
+		position: Position,
+		options: { includeDeclaration: boolean },
+		token: CancellationToken
+	): Promise<Location[]> {
 		const filepath = this.client.normalizePath(document.uri);
 		if (!filepath) {
 			return Promise.resolve<Location[]>([]);
@@ -23,26 +34,39 @@ export default class TypeScriptReferenceSupport implements ReferenceProvider {
 			offset: position.character + 1
 		};
 		const apiVersion = this.client.apiVersion;
-		return this.client.execute('references', args, token).then((msg) => {
-			const result: Location[] = [];
-			if (!msg.body) {
-				return result;
-			}
-			const refs = msg.body.refs;
-			for (let i = 0; i < refs.length; i++) {
-				const ref = refs[i];
-				if (!options.includeDeclaration && apiVersion.has203Features() && ref.isDefinition) {
-					continue;
+		return this.client.execute('references', args, token).then(
+			msg => {
+				const result: Location[] = [];
+				if (!msg.body) {
+					return result;
 				}
-				const url = this.client.asUrl(ref.file);
-				const location = new Location(
-					url,
-					new Range(ref.start.line - 1, ref.start.offset - 1, ref.end.line - 1, ref.end.offset - 1));
-				result.push(location);
+				const refs = msg.body.refs;
+				for (let i = 0; i < refs.length; i++) {
+					const ref = refs[i];
+					if (
+						!options.includeDeclaration &&
+						apiVersion.has203Features() &&
+						ref.isDefinition
+					) {
+						continue;
+					}
+					const url = this.client.asUrl(ref.file);
+					const location = new Location(
+						url,
+						new Range(
+							ref.start.line - 1,
+							ref.start.offset - 1,
+							ref.end.line - 1,
+							ref.end.offset - 1
+						)
+					);
+					result.push(location);
+				}
+				return result;
+			},
+			() => {
+				return [];
 			}
-			return result;
-		}, () => {
-			return [];
-		});
+		);
 	}
 }

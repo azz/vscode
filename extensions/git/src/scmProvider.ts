@@ -3,9 +3,18 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
-import { scm, Uri, Disposable, SourceControl, SourceControlResourceGroup, Event, workspace, commands } from 'vscode';
+import {
+	scm,
+	Uri,
+	Disposable,
+	SourceControl,
+	SourceControlResourceGroup,
+	Event,
+	workspace,
+	commands
+} from 'vscode';
 import { Model, State } from './model';
 import { StatusBarCommands } from './statusbar';
 import { CommandCenter } from './commands';
@@ -16,35 +25,48 @@ import * as nls from 'vscode-nls';
 const localize = nls.loadMessageBundle();
 
 export class GitSCMProvider {
-
 	private disposables: Disposable[] = [];
-	get contextKey(): string { return 'git'; }
+	get contextKey(): string {
+		return 'git';
+	}
 
 	get onDidChange(): Event<this> {
 		return mapEvent(this.model.onDidChange, () => this);
 	}
 
-	get label(): string { return 'Git'; }
+	get label(): string {
+		return 'Git';
+	}
 
 	get stateContextKey(): string {
 		switch (this.model.state) {
-			case State.Uninitialized: return 'uninitialized';
-			case State.Idle: return 'idle';
-			case State.NotAGitRepository: return 'norepo';
-			default: return '';
+			case State.Uninitialized:
+				return 'uninitialized';
+			case State.Idle:
+				return 'idle';
+			case State.NotAGitRepository:
+				return 'norepo';
+			default:
+				return '';
 		}
 	}
 
 	get count(): number {
-		const countBadge = workspace.getConfiguration('git').get<string>('countBadge');
+		const countBadge = workspace
+			.getConfiguration('git')
+			.get<string>('countBadge');
 
 		switch (countBadge) {
-			case 'off': return 0;
-			case 'tracked': return this.model.indexGroup.resources.length;
+			case 'off':
+				return 0;
+			case 'tracked':
+				return this.model.indexGroup.resources.length;
 			default:
-				return this.model.mergeGroup.resources.length
-					+ this.model.indexGroup.resources.length
-					+ this.model.workingTreeGroup.resources.length;
+				return (
+					this.model.mergeGroup.resources.length +
+					this.model.indexGroup.resources.length +
+					this.model.workingTreeGroup.resources.length
+				);
 		}
 	}
 
@@ -66,15 +88,31 @@ export class GitSCMProvider {
 		this._sourceControl = scm.createSourceControl('git', 'Git');
 		this.disposables.push(this._sourceControl);
 
-		this._sourceControl.acceptInputCommand = { command: 'git.commitWithInput', title: localize('commit', "Commit") };
+		this._sourceControl.acceptInputCommand = {
+			command: 'git.commitWithInput',
+			title: localize('commit', 'Commit')
+		};
 		this._sourceControl.quickDiffProvider = this;
 
-		this.statusBarCommands.onDidChange(this.onDidStatusBarCommandsChange, this, this.disposables);
+		this.statusBarCommands.onDidChange(
+			this.onDidStatusBarCommandsChange,
+			this,
+			this.disposables
+		);
 		this.onDidStatusBarCommandsChange();
 
-		this.mergeGroup = this._sourceControl.createResourceGroup(model.mergeGroup.id, model.mergeGroup.label);
-		this.indexGroup = this._sourceControl.createResourceGroup(model.indexGroup.id, model.indexGroup.label);
-		this.workingTreeGroup = this._sourceControl.createResourceGroup(model.workingTreeGroup.id, model.workingTreeGroup.label);
+		this.mergeGroup = this._sourceControl.createResourceGroup(
+			model.mergeGroup.id,
+			model.mergeGroup.label
+		);
+		this.indexGroup = this._sourceControl.createResourceGroup(
+			model.indexGroup.id,
+			model.indexGroup.label
+		);
+		this.workingTreeGroup = this._sourceControl.createResourceGroup(
+			model.workingTreeGroup.id,
+			model.workingTreeGroup.label
+		);
 
 		this.mergeGroup.hideWhenEmpty = true;
 		this.indexGroup.hideWhenEmpty = true;

@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import Json = require('./json');
 
@@ -28,7 +28,11 @@ export interface Edit {
 }
 
 export function applyEdit(text: string, edit: Edit): string {
-	return text.substring(0, edit.offset) + edit.content + text.substring(edit.offset + edit.length);
+	return (
+		text.substring(0, edit.offset) +
+		edit.content +
+		text.substring(edit.offset + edit.length)
+	);
 }
 
 export function applyEdits(text: string, edits: Edit[]): string {
@@ -38,7 +42,11 @@ export function applyEdits(text: string, edits: Edit[]): string {
 	return text;
 }
 
-export function format(documentText: string, range: { offset: number, length: number }, options: FormattingOptions): Edit[] {
+export function format(
+	documentText: string,
+	range: { offset: number; length: number },
+	options: FormattingOptions
+): Edit[] {
 	let initialIndentLevel: number;
 	let value: string;
 	let rangeStart: number;
@@ -81,8 +89,11 @@ export function format(documentText: string, range: { offset: number, length: nu
 	function scanNext(): Json.SyntaxKind {
 		let token = scanner.scan();
 		lineBreak = false;
-		while (token === Json.SyntaxKind.Trivia || token === Json.SyntaxKind.LineBreakTrivia) {
-			lineBreak = lineBreak || (token === Json.SyntaxKind.LineBreakTrivia);
+		while (
+			token === Json.SyntaxKind.Trivia ||
+			token === Json.SyntaxKind.LineBreakTrivia
+		) {
+			lineBreak = lineBreak || token === Json.SyntaxKind.LineBreakTrivia;
 			token = scanner.scan();
 		}
 		return token;
@@ -90,7 +101,11 @@ export function format(documentText: string, range: { offset: number, length: nu
 	let editOperations: Edit[] = [];
 	function addEdit(text: string, startOffset: number, endOffset: number) {
 		if (documentText.substring(startOffset, endOffset) !== text) {
-			editOperations.push({ offset: startOffset, length: endOffset - startOffset, content: text });
+			editOperations.push({
+				offset: startOffset,
+				length: endOffset - startOffset,
+				content: text
+			});
 		}
 	}
 
@@ -102,16 +117,24 @@ export function format(documentText: string, range: { offset: number, length: nu
 	}
 
 	while (firstToken !== Json.SyntaxKind.EOF) {
-		let firstTokenEnd = scanner.getTokenOffset() + scanner.getTokenLength() + rangeStart;
+		let firstTokenEnd =
+			scanner.getTokenOffset() + scanner.getTokenLength() + rangeStart;
 		let secondToken = scanNext();
 
 		let replaceContent = '';
-		while (!lineBreak && (secondToken === Json.SyntaxKind.LineCommentTrivia || secondToken === Json.SyntaxKind.BlockCommentTrivia)) {
+		while (
+			!lineBreak &&
+			(secondToken === Json.SyntaxKind.LineCommentTrivia ||
+				secondToken === Json.SyntaxKind.BlockCommentTrivia)
+		) {
 			// comments on the same line: keep them on the same line, but ignore them otherwise
 			let commentTokenStart = scanner.getTokenOffset() + rangeStart;
 			addEdit(' ', firstTokenEnd, commentTokenStart);
-			firstTokenEnd = scanner.getTokenOffset() + scanner.getTokenLength() + rangeStart;
-			replaceContent = secondToken === Json.SyntaxKind.LineCommentTrivia ? newLineAndIndent() : '';
+			firstTokenEnd =
+				scanner.getTokenOffset() + scanner.getTokenLength() + rangeStart;
+			replaceContent = secondToken === Json.SyntaxKind.LineCommentTrivia
+				? newLineAndIndent()
+				: '';
 			secondToken = scanNext();
 		}
 
@@ -151,15 +174,22 @@ export function format(documentText: string, range: { offset: number, length: nu
 				case Json.SyntaxKind.TrueKeyword:
 				case Json.SyntaxKind.FalseKeyword:
 				case Json.SyntaxKind.NumericLiteral:
-					if (secondToken === Json.SyntaxKind.NullKeyword || secondToken === Json.SyntaxKind.FalseKeyword || secondToken === Json.SyntaxKind.NumericLiteral) {
+					if (
+						secondToken === Json.SyntaxKind.NullKeyword ||
+						secondToken === Json.SyntaxKind.FalseKeyword ||
+						secondToken === Json.SyntaxKind.NumericLiteral
+					) {
 						replaceContent = ' ';
 					}
 					break;
 			}
-			if (lineBreak && (secondToken === Json.SyntaxKind.LineCommentTrivia || secondToken === Json.SyntaxKind.BlockCommentTrivia)) {
+			if (
+				lineBreak &&
+				(secondToken === Json.SyntaxKind.LineCommentTrivia ||
+					secondToken === Json.SyntaxKind.BlockCommentTrivia)
+			) {
 				replaceContent = newLineAndIndent();
 			}
-
 		}
 		let secondTokenStart = scanner.getTokenOffset() + rangeStart;
 		addEdit(replaceContent, firstTokenEnd, secondTokenStart);
@@ -176,7 +206,11 @@ function repeat(s: string, count: number): string {
 	return result;
 }
 
-function computeIndentLevel(content: string, offset: number, options: FormattingOptions): number {
+function computeIndentLevel(
+	content: string,
+	offset: number,
+	options: FormattingOptions
+): number {
 	let i = 0;
 	let nChars = 0;
 	let tabSize = options.tabSize || 4;

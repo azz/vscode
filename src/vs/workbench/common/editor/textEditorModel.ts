@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import { EndOfLinePreference, IModel } from 'vs/editor/common/editorCommon';
@@ -18,7 +18,8 @@ import { IRawTextSource } from 'vs/editor/common/model/textSource';
 /**
  * The base text editor model leverages the code editor model. This class is only intended to be subclassed and not instantiated.
  */
-export abstract class BaseTextEditorModel extends EditorModel implements ITextEditorModel {
+export abstract class BaseTextEditorModel extends EditorModel
+	implements ITextEditorModel {
 	private textEditorModelHandle: URI;
 	protected createdEditorModel: boolean;
 	private modelDisposeListener: IDisposable;
@@ -36,11 +37,12 @@ export abstract class BaseTextEditorModel extends EditorModel implements ITextEd
 	}
 
 	private handleExistingModel(textEditorModelHandle: URI): void {
-
 		// We need the resource to point to an existing model
 		const model = this.modelService.getModel(textEditorModelHandle);
 		if (!model) {
-			throw new Error(`Document with resource ${textEditorModelHandle.toString()} does not exist`);
+			throw new Error(
+				`Document with resource ${textEditorModelHandle.toString()} does not exist`
+			);
 		}
 
 		this.textEditorModelHandle = textEditorModelHandle;
@@ -61,13 +63,19 @@ export abstract class BaseTextEditorModel extends EditorModel implements ITextEd
 	}
 
 	public get textEditorModel(): IModel {
-		return this.textEditorModelHandle ? this.modelService.getModel(this.textEditorModelHandle) : null;
+		return this.textEditorModelHandle
+			? this.modelService.getModel(this.textEditorModelHandle)
+			: null;
 	}
 
 	/**
 	 * Creates the text editor model with the provided value, modeId (can be comma separated for multiple values) and optional resource URL.
 	 */
-	protected createTextEditorModel(value: string | IRawTextSource, resource?: URI, modeId?: string): TPromise<EditorModel> {
+	protected createTextEditorModel(
+		value: string | IRawTextSource,
+		resource?: URI,
+		modeId?: string
+	): TPromise<EditorModel> {
 		const firstLineText = this.getFirstLineText(value);
 		const mode = this.getOrCreateMode(this.modeService, modeId, firstLineText);
 
@@ -77,7 +85,11 @@ export abstract class BaseTextEditorModel extends EditorModel implements ITextEd
 		});
 	}
 
-	private doCreateTextEditorModel(value: string | IRawTextSource, mode: TPromise<IMode>, resource: URI): EditorModel {
+	private doCreateTextEditorModel(
+		value: string | IRawTextSource,
+		mode: TPromise<IMode>,
+		resource: URI
+	): EditorModel {
 		let model = resource && this.modelService.getModel(resource);
 		if (!model) {
 			model = this.modelService.createModel(value, mode, resource);
@@ -120,7 +132,11 @@ export abstract class BaseTextEditorModel extends EditorModel implements ITextEd
 	 *
 	 * @param firstLineText optional first line of the text buffer to set the mode on. This can be used to guess a mode from content.
 	 */
-	protected getOrCreateMode(modeService: IModeService, modeId: string, firstLineText?: string): TPromise<IMode> {
+	protected getOrCreateMode(
+		modeService: IModeService,
+		modeId: string,
+		firstLineText?: string
+	): TPromise<IMode> {
 		return modeService.getOrCreateMode(modeId);
 	}
 
@@ -141,7 +157,10 @@ export abstract class BaseTextEditorModel extends EditorModel implements ITextEd
 	public getValue(): string {
 		const model = this.textEditorModel;
 		if (model) {
-			return model.getValue(EndOfLinePreference.TextDefined, true /* Preserve BOM */);
+			return model.getValue(
+				EndOfLinePreference.TextDefined,
+				true /* Preserve BOM */
+			);
 		}
 
 		return null;

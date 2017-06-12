@@ -3,11 +3,14 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as strings from 'vs/base/common/strings';
 import { TPromise } from 'vs/base/common/winjs.base';
-import { IRemoteCom, createProxyProtocol } from 'vs/platform/extensions/common/ipcRemoteCom';
+import {
+	IRemoteCom,
+	createProxyProtocol
+} from 'vs/platform/extensions/common/ipcRemoteCom';
 import { AbstractThreadService } from 'vs/workbench/services/thread/common/abstractThreadService';
 import { IThreadService } from 'vs/workbench/services/thread/common/threadService';
 import { IEnvironmentService } from 'vs/platform/environment/common/environment';
@@ -16,11 +19,18 @@ import { IMessagePassingProtocol } from 'vs/base/parts/ipc/common/ipc';
 // Enable to see detailed message communication between window and extension host
 const logExtensionHostCommunication = false;
 
-
-function asLoggingProtocol(protocol: IMessagePassingProtocol): IMessagePassingProtocol {
-
+function asLoggingProtocol(
+	protocol: IMessagePassingProtocol
+): IMessagePassingProtocol {
 	protocol.onMessage(msg => {
-		console.log('%c[Extension \u2192 Window]%c[len: ' + strings.pad(msg.length, 5, ' ') + ']', 'color: darkgreen', 'color: grey', msg);
+		console.log(
+			'%c[Extension \u2192 Window]%c[len: ' +
+				strings.pad(msg.length, 5, ' ') +
+				']',
+			'color: darkgreen',
+			'color: grey',
+			msg
+		);
 	});
 
 	return {
@@ -28,22 +38,34 @@ function asLoggingProtocol(protocol: IMessagePassingProtocol): IMessagePassingPr
 
 		send(msg: any) {
 			protocol.send(msg);
-			console.log('%c[Window \u2192 Extension]%c[len: ' + strings.pad(msg.length, 5, ' ') + ']', 'color: darkgreen', 'color: grey', msg);
+			console.log(
+				'%c[Window \u2192 Extension]%c[len: ' +
+					strings.pad(msg.length, 5, ' ') +
+					']',
+				'color: darkgreen',
+				'color: grey',
+				msg
+			);
 		}
 	};
 }
 
-
-export class MainThreadService extends AbstractThreadService implements IThreadService {
-
+export class MainThreadService extends AbstractThreadService
+	implements IThreadService {
 	_serviceBrand: any;
 
 	private _remoteCom: IRemoteCom;
 
-	constructor(protocol: IMessagePassingProtocol, @IEnvironmentService environmentService: IEnvironmentService) {
+	constructor(
+		protocol: IMessagePassingProtocol,
+		@IEnvironmentService environmentService: IEnvironmentService
+	) {
 		super(true);
 
-		if (logExtensionHostCommunication || environmentService.logExtensionHostCommunication) {
+		if (
+			logExtensionHostCommunication ||
+			environmentService.logExtensionHostCommunication
+		) {
 			protocol = asLoggingProtocol(protocol);
 		}
 
@@ -51,7 +73,11 @@ export class MainThreadService extends AbstractThreadService implements IThreadS
 		this._remoteCom.setManyHandler(this);
 	}
 
-	protected _callOnRemote(proxyId: string, path: string, args: any[]): TPromise<any> {
+	protected _callOnRemote(
+		proxyId: string,
+		path: string,
+		args: any[]
+	): TPromise<any> {
 		return this._remoteCom.callOnRemote(proxyId, path, args);
 	}
 }

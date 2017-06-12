@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { Server } from 'vs/base/parts/ipc/node/ipc.cp';
 import { SearchWorkerChannel } from './searchWorkerIpc';

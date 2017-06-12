@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as nls from 'vs/nls';
 import { KeyCode, KeyMod } from 'vs/base/common/keyCodes';
@@ -12,10 +12,18 @@ import { Range } from 'vs/editor/common/core/range';
 import { Position } from 'vs/editor/common/core/position';
 import { RunOnceScheduler } from 'vs/base/common/async';
 import * as editorCommon from 'vs/editor/common/editorCommon';
-import { editorAction, commonEditorContribution, ServicesAccessor, EditorAction } from 'vs/editor/common/editorCommonExtensions';
+import {
+	editorAction,
+	commonEditorContribution,
+	ServicesAccessor,
+	EditorAction
+} from 'vs/editor/common/editorCommonExtensions';
 import { EditorContextKeys } from 'vs/editor/common/editorContextKeys';
 import { registerThemingParticipant } from 'vs/platform/theme/common/themeService';
-import { editorBracketMatchBackground, editorBracketMatchBorder } from 'vs/editor/common/view/editorColorRegistry';
+import {
+	editorBracketMatchBackground,
+	editorBracketMatchBorder
+} from 'vs/editor/common/view/editorColorRegistry';
 import { ModelDecorationOptions } from 'vs/editor/common/model/textModelWithDecorations';
 
 @editorAction
@@ -23,7 +31,7 @@ class SelectBracketAction extends EditorAction {
 	constructor() {
 		super({
 			id: 'editor.action.jumpToBracket',
-			label: nls.localize('smartSelect.jumpBracket', "Go to Bracket"),
+			label: nls.localize('smartSelect.jumpBracket', 'Go to Bracket'),
 			alias: 'Go to Bracket',
 			precondition: null,
 			kbOpts: {
@@ -33,7 +41,10 @@ class SelectBracketAction extends EditorAction {
 		});
 	}
 
-	public run(accessor: ServicesAccessor, editor: editorCommon.ICommonCodeEditor): void {
+	public run(
+		accessor: ServicesAccessor,
+		editor: editorCommon.ICommonCodeEditor
+	): void {
 		let controller = BracketMatchingController.get(editor);
 		if (!controller) {
 			return;
@@ -55,11 +66,16 @@ class BracketsData {
 }
 
 @commonEditorContribution
-export class BracketMatchingController extends Disposable implements editorCommon.IEditorContribution {
+export class BracketMatchingController extends Disposable
+	implements editorCommon.IEditorContribution {
 	private static ID = 'editor.contrib.bracketMatchingController';
 
-	public static get(editor: editorCommon.ICommonCodeEditor): BracketMatchingController {
-		return editor.getContribution<BracketMatchingController>(BracketMatchingController.ID);
+	public static get(
+		editor: editorCommon.ICommonCodeEditor
+	): BracketMatchingController {
+		return editor.getContribution<BracketMatchingController>(
+			BracketMatchingController.ID
+		);
 	}
 
 	private readonly _editor: editorCommon.ICommonCodeEditor;
@@ -70,37 +86,48 @@ export class BracketMatchingController extends Disposable implements editorCommo
 	private _updateBracketsSoon: RunOnceScheduler;
 	private _matchBrackets: boolean;
 
-	constructor(
-		editor: editorCommon.ICommonCodeEditor
-	) {
+	constructor(editor: editorCommon.ICommonCodeEditor) {
 		super();
 		this._editor = editor;
 		this._lastBracketsData = [];
 		this._lastVersionId = 0;
 		this._decorations = [];
-		this._updateBracketsSoon = this._register(new RunOnceScheduler(() => this._updateBrackets(), 50));
+		this._updateBracketsSoon = this._register(
+			new RunOnceScheduler(() => this._updateBrackets(), 50)
+		);
 		this._matchBrackets = this._editor.getConfiguration().contribInfo.matchBrackets;
 
 		this._updateBracketsSoon.schedule();
-		this._register(editor.onDidChangeCursorPosition((e) => {
+		this._register(
+			editor.onDidChangeCursorPosition(e => {
+				if (!this._matchBrackets) {
+					// Early exit if nothing needs to be done!
+					// Leave some form of early exit check here if you wish to continue being a cursor position change listener ;)
+					return;
+				}
 
-			if (!this._matchBrackets) {
-				// Early exit if nothing needs to be done!
-				// Leave some form of early exit check here if you wish to continue being a cursor position change listener ;)
-				return;
-			}
-
-			this._updateBracketsSoon.schedule();
-		}));
-		this._register(editor.onDidChangeModel((e) => { this._decorations = []; this._updateBracketsSoon.schedule(); }));
-		this._register(editor.onDidChangeConfiguration((e) => {
-			this._matchBrackets = this._editor.getConfiguration().contribInfo.matchBrackets;
-			if (!this._matchBrackets && this._decorations.length > 0) {
-				// Remove existing decorations if bracket matching is off
-				this._decorations = this._editor.deltaDecorations(this._decorations, []);
-			}
-			this._updateBracketsSoon.schedule();
-		}));
+				this._updateBracketsSoon.schedule();
+			})
+		);
+		this._register(
+			editor.onDidChangeModel(e => {
+				this._decorations = [];
+				this._updateBracketsSoon.schedule();
+			})
+		);
+		this._register(
+			editor.onDidChangeConfiguration(e => {
+				this._matchBrackets = this._editor.getConfiguration().contribInfo.matchBrackets;
+				if (!this._matchBrackets && this._decorations.length > 0) {
+					// Remove existing decorations if bracket matching is off
+					this._decorations = this._editor.deltaDecorations(
+						this._decorations,
+						[]
+					);
+				}
+				this._updateBracketsSoon.schedule();
+			})
+		);
 	}
 
 	public getId(): string {
@@ -148,16 +175,26 @@ export class BracketMatchingController extends Disposable implements editorCommo
 		}
 		this._recomputeBrackets();
 
-		let newDecorations: editorCommon.IModelDeltaDecoration[] = [], newDecorationsLen = 0;
+		let newDecorations: editorCommon.IModelDeltaDecoration[] = [],
+			newDecorationsLen = 0;
 		for (let i = 0, len = this._lastBracketsData.length; i < len; i++) {
 			let brackets = this._lastBracketsData[i].brackets;
 			if (brackets) {
-				newDecorations[newDecorationsLen++] = { range: brackets[0], options: BracketMatchingController._DECORATION_OPTIONS };
-				newDecorations[newDecorationsLen++] = { range: brackets[1], options: BracketMatchingController._DECORATION_OPTIONS };
+				newDecorations[newDecorationsLen++] = {
+					range: brackets[0],
+					options: BracketMatchingController._DECORATION_OPTIONS
+				};
+				newDecorations[newDecorationsLen++] = {
+					range: brackets[1],
+					options: BracketMatchingController._DECORATION_OPTIONS
+				};
 			}
 		}
 
-		this._decorations = this._editor.deltaDecorations(this._decorations, newDecorations);
+		this._decorations = this._editor.deltaDecorations(
+			this._decorations,
+			newDecorations
+		);
 	}
 
 	private _recomputeBrackets(): void {
@@ -178,7 +215,8 @@ export class BracketMatchingController extends Disposable implements editorCommo
 
 		const selections = this._editor.getSelections();
 
-		let positions: Position[] = [], positionsLen = 0;
+		let positions: Position[] = [],
+			positionsLen = 0;
 		for (let i = 0, len = selections.length; i < len; i++) {
 			let selection = selections[i];
 
@@ -193,16 +231,24 @@ export class BracketMatchingController extends Disposable implements editorCommo
 			positions.sort(Position.compare);
 		}
 
-		let newData: BracketsData[] = [], newDataLen = 0;
-		let previousIndex = 0, previousLen = previousData.length;
+		let newData: BracketsData[] = [],
+			newDataLen = 0;
+		let previousIndex = 0,
+			previousLen = previousData.length;
 		for (let i = 0, len = positions.length; i < len; i++) {
 			let position = positions[i];
 
-			while (previousIndex < previousLen && previousData[previousIndex].position.isBefore(position)) {
+			while (
+				previousIndex < previousLen &&
+				previousData[previousIndex].position.isBefore(position)
+			) {
 				previousIndex++;
 			}
 
-			if (previousIndex < previousLen && previousData[previousIndex].position.equals(position)) {
+			if (
+				previousIndex < previousLen &&
+				previousData[previousIndex].position.equals(position)
+			) {
 				newData[newDataLen++] = previousData[previousIndex];
 			} else {
 				let brackets = model.matchBracket(position);
@@ -218,10 +264,14 @@ export class BracketMatchingController extends Disposable implements editorCommo
 registerThemingParticipant((theme, collector) => {
 	let bracketMatchBackground = theme.getColor(editorBracketMatchBackground);
 	if (bracketMatchBackground) {
-		collector.addRule(`.monaco-editor .bracket-match { background-color: ${bracketMatchBackground}; }`);
+		collector.addRule(
+			`.monaco-editor .bracket-match { background-color: ${bracketMatchBackground}; }`
+		);
 	}
 	let bracketMatchBorder = theme.getColor(editorBracketMatchBorder);
 	if (bracketMatchBorder) {
-		collector.addRule(`.monaco-editor .bracket-match { border: 1px solid ${bracketMatchBorder}; }`);
+		collector.addRule(
+			`.monaco-editor .bracket-match { border: 1px solid ${bracketMatchBorder}; }`
+		);
 	}
 });

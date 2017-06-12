@@ -2,12 +2,15 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import Event from 'vs/base/common/event';
 import { Registry } from 'vs/platform/platform';
-import { createDecorator, IInstantiationService } from 'vs/platform/instantiation/common/instantiation';
+import {
+	createDecorator,
+	IInstantiationService
+} from 'vs/platform/instantiation/common/instantiation';
 import { IEditor } from 'vs/platform/editor/common/editor';
 import { RawContextKey } from 'vs/platform/contextkey/common/contextkey';
 import { ResourceEditorInput } from 'vs/workbench/common/editor/resourceEditorInput';
@@ -40,7 +43,9 @@ export const Extensions = {
 
 export const OUTPUT_SERVICE_ID = 'outputService';
 
-export const MAX_OUTPUT_LENGTH = 10000 /* Max. number of output lines to show in output */ * 100 /* Guestimated chars per line */;
+export const MAX_OUTPUT_LENGTH =
+	10000 /* Max. number of output lines to show in output */ *
+	100 /* Guestimated chars per line */;
 
 export const CONTEXT_IN_OUTPUT = new RawContextKey<boolean>('inOutput', false);
 
@@ -52,7 +57,9 @@ export interface IOutputEvent {
 	isClear: boolean;
 }
 
-export const IOutputService = createDecorator<IOutputService>(OUTPUT_SERVICE_ID);
+export const IOutputService = createDecorator<IOutputService>(
+	OUTPUT_SERVICE_ID
+);
 
 /**
  * The output service to manage output from the various processes running.
@@ -100,7 +107,6 @@ export interface IOutputDelta {
 }
 
 export interface IOutputChannel {
-
 	/**
 	 * Identifier of the output channel.
 	 */
@@ -149,7 +155,6 @@ export interface IOutputChannelIdentifier {
 }
 
 export interface IOutputChannelRegistry {
-
 	/**
 	 * Make an output channel known to the output world.
 	 */
@@ -198,17 +203,26 @@ class OutputChannelRegistry implements IOutputChannelRegistry {
 Registry.add(Extensions.OutputChannels, new OutputChannelRegistry());
 
 export class OutputEditors {
+	private static instances: {
+		[channel: string]: ResourceEditorInput;
+	} = Object.create(null);
 
-	private static instances: { [channel: string]: ResourceEditorInput; } = Object.create(null);
-
-	public static getInstance(instantiationService: IInstantiationService, channel: IOutputChannel): ResourceEditorInput {
+	public static getInstance(
+		instantiationService: IInstantiationService,
+		channel: IOutputChannel
+	): ResourceEditorInput {
 		if (OutputEditors.instances[channel.id]) {
 			return OutputEditors.instances[channel.id];
 		}
 
 		const resource = URI.from({ scheme: OUTPUT_SCHEME, path: channel.id });
 
-		OutputEditors.instances[channel.id] = instantiationService.createInstance(ResourceEditorInput, nls.localize('output', "Output"), channel ? nls.localize('channel', "for '{0}'", channel.label) : '', resource);
+		OutputEditors.instances[channel.id] = instantiationService.createInstance(
+			ResourceEditorInput,
+			nls.localize('output', 'Output'),
+			channel ? nls.localize('channel', "for '{0}'", channel.label) : '',
+			resource
+		);
 
 		return OutputEditors.instances[channel.id];
 	}

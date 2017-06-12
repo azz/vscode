@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { IRange } from 'vs/editor/common/core/range';
 
@@ -17,7 +17,7 @@ export const TextModelEventType = {
 	ModelOptionsChanged: 'modelOptionsChanged',
 	ModelContentChanged: 'contentChanged',
 	ModelRawContentChanged2: 'rawContentChanged2',
-	ModelDecorationsChanged: 'decorationsChanged',
+	ModelDecorationsChanged: 'decorationsChanged'
 };
 
 /**
@@ -215,14 +215,18 @@ export class ModelRawEOLChanged {
 /**
  * @internal
  */
-export type ModelRawChange = ModelRawFlush | ModelRawLineChanged | ModelRawLinesDeleted | ModelRawLinesInserted | ModelRawEOLChanged;
+export type ModelRawChange =
+	| ModelRawFlush
+	| ModelRawLineChanged
+	| ModelRawLinesDeleted
+	| ModelRawLinesInserted
+	| ModelRawEOLChanged;
 
 /**
  * An event describing a change in the text of a model.
  * @internal
  */
 export class ModelRawContentChangedEvent {
-
 	public readonly changes: ModelRawChange[];
 	/**
 	 * The new version id the model has transitioned to.
@@ -237,7 +241,12 @@ export class ModelRawContentChangedEvent {
 	 */
 	public readonly isRedoing: boolean;
 
-	constructor(changes: ModelRawChange[], versionId: number, isUndoing: boolean, isRedoing: boolean) {
+	constructor(
+		changes: ModelRawChange[],
+		versionId: number,
+		isUndoing: boolean,
+		isRedoing: boolean
+	) {
 		this.changes = changes;
 		this.versionId = versionId;
 		this.isUndoing = isUndoing;

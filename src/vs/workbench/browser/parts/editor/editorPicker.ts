@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import 'vs/css!./media/editorpicker';
 import { TPromise } from 'vs/base/common/winjs.base';
@@ -12,8 +12,18 @@ import URI from 'vs/base/common/uri';
 import errors = require('vs/base/common/errors');
 import strings = require('vs/base/common/strings');
 import { IIconLabelOptions } from 'vs/base/browser/ui/iconLabel/iconLabel';
-import { IAutoFocus, Mode, IEntryRunContext, IQuickNavigateConfiguration, IModel } from 'vs/base/parts/quickopen/common/quickOpen';
-import { QuickOpenModel, QuickOpenEntry, QuickOpenEntryGroup } from 'vs/base/parts/quickopen/browser/quickOpenModel';
+import {
+	IAutoFocus,
+	Mode,
+	IEntryRunContext,
+	IQuickNavigateConfiguration,
+	IModel
+} from 'vs/base/parts/quickopen/common/quickOpen';
+import {
+	QuickOpenModel,
+	QuickOpenEntry,
+	QuickOpenEntryGroup
+} from 'vs/base/parts/quickopen/browser/quickOpenModel';
 import scorer = require('vs/base/common/scorer');
 import { IModeService } from 'vs/editor/common/services/modeService';
 import { getIconClasses } from 'vs/workbench/browser/labels';
@@ -24,7 +34,12 @@ import { IEditorGroupService } from 'vs/workbench/services/group/common/groupSer
 import { IWorkbenchEditorService } from 'vs/workbench/services/editor/common/editorService';
 import { IInstantiationService } from 'vs/platform/instantiation/common/instantiation';
 import { IWorkspaceContextService } from 'vs/platform/workspace/common/workspace';
-import { EditorInput, toResource, IEditorGroup, IEditorStacksModel } from 'vs/workbench/common/editor';
+import {
+	EditorInput,
+	toResource,
+	IEditorGroup,
+	IEditorStacksModel
+} from 'vs/workbench/common/editor';
 
 export class EditorPickerEntry extends QuickOpenEntryGroup {
 	private stacks: IEditorStacksModel;
@@ -44,7 +59,11 @@ export class EditorPickerEntry extends QuickOpenEntryGroup {
 
 	public getLabelOptions(): IIconLabelOptions {
 		return {
-			extraClasses: getIconClasses(this.modelService, this.modeService, this.getResource()),
+			extraClasses: getIconClasses(
+				this.modelService,
+				this.modeService,
+				this.getResource()
+			),
 			italic: this._group.isPreview(this.editor)
 		};
 	}
@@ -66,7 +85,11 @@ export class EditorPickerEntry extends QuickOpenEntryGroup {
 	}
 
 	public getAriaLabel(): string {
-		return nls.localize('entryAriaLabel', "{0}, editor group picker", this.getLabel());
+		return nls.localize(
+			'entryAriaLabel',
+			'{0}, editor group picker',
+			this.getLabel()
+		);
 	}
 
 	public getDescription(): string {
@@ -82,7 +105,9 @@ export class EditorPickerEntry extends QuickOpenEntryGroup {
 	}
 
 	private runOpen(context: IEntryRunContext): boolean {
-		this.editorService.openEditor(this.editor, null, this.stacks.positionOfGroup(this.group)).done(null, errors.onUnexpectedError);
+		this.editorService
+			.openEditor(this.editor, null, this.stacks.positionOfGroup(this.group))
+			.done(null, errors.onUnexpectedError);
 
 		return true;
 	}
@@ -92,7 +117,8 @@ export abstract class BaseEditorPicker extends QuickOpenHandler {
 	private scorerCache: { [key: string]: number };
 
 	constructor(
-		@IInstantiationService protected instantiationService: IInstantiationService,
+		@IInstantiationService
+		protected instantiationService: IInstantiationService,
 		@IWorkspaceContextService private contextService: IWorkspaceContextService,
 		@IWorkbenchEditorService protected editorService: IWorkbenchEditorService,
 		@IEditorGroupService protected editorGroupService: IEditorGroupService
@@ -104,7 +130,9 @@ export abstract class BaseEditorPicker extends QuickOpenHandler {
 
 	public getResults(searchValue: string): TPromise<QuickOpenModel> {
 		searchValue = searchValue.trim();
-		const normalizedSearchValueLowercase = strings.stripWildcards(searchValue).toLowerCase();
+		const normalizedSearchValueLowercase = strings
+			.stripWildcards(searchValue)
+			.toLowerCase();
 
 		const editorEntries = this.getEditorEntries();
 		if (!editorEntries.length) {
@@ -119,12 +147,17 @@ export abstract class BaseEditorPicker extends QuickOpenHandler {
 			}
 
 			const resource = e.getResource();
-			const targetToMatch = resource ? labels.getPathLabel(e.getResource(), this.contextService) : e.getLabel();
+			const targetToMatch = resource
+				? labels.getPathLabel(e.getResource(), this.contextService)
+				: e.getLabel();
 			if (!scorer.matches(targetToMatch, normalizedSearchValueLowercase)) {
 				return false;
 			}
 
-			const { labelHighlights, descriptionHighlights } = QuickOpenEntry.highlight(e, searchValue, true /* fuzzy highlight */);
+			const {
+				labelHighlights,
+				descriptionHighlights
+			} = QuickOpenEntry.highlight(e, searchValue, true /* fuzzy highlight */);
 			e.setHighlights(labelHighlights, descriptionHighlights);
 
 			return true;
@@ -134,10 +167,18 @@ export abstract class BaseEditorPicker extends QuickOpenHandler {
 		if (searchValue) {
 			entries.sort((e1, e2) => {
 				if (e1.group !== e2.group) {
-					return stacks.positionOfGroup(e1.group) - stacks.positionOfGroup(e2.group);
+					return (
+						stacks.positionOfGroup(e1.group) - stacks.positionOfGroup(e2.group)
+					);
 				}
 
-				return QuickOpenEntry.compareByScore(e1, e2, searchValue, normalizedSearchValueLowercase, this.scorerCache);
+				return QuickOpenEntry.compareByScore(
+					e1,
+					e2,
+					searchValue,
+					normalizedSearchValueLowercase,
+					this.scorerCache
+				);
 			});
 		}
 
@@ -146,7 +187,9 @@ export abstract class BaseEditorPicker extends QuickOpenHandler {
 			let lastGroup: IEditorGroup;
 			entries.forEach(e => {
 				if (!lastGroup || lastGroup !== e.group) {
-					e.setGroupLabel(nls.localize('groupLabel', "Group: {0}", e.group.label));
+					e.setGroupLabel(
+						nls.localize('groupLabel', 'Group: {0}', e.group.label)
+					);
 					e.setShowBorder(!!lastGroup);
 					lastGroup = e.group;
 				}
@@ -164,7 +207,6 @@ export abstract class BaseEditorPicker extends QuickOpenHandler {
 }
 
 export abstract class EditorGroupPicker extends BaseEditorPicker {
-
 	protected getEditorEntries(): EditorPickerEntry[] {
 		const stacks = this.editorGroupService.getStacksModel();
 		const group = stacks.groupAt(this.getPosition());
@@ -172,20 +214,40 @@ export abstract class EditorGroupPicker extends BaseEditorPicker {
 			return [];
 		}
 
-		return group.getEditors(true).map((editor, index) => this.instantiationService.createInstance(EditorPickerEntry, editor, group));
+		return group
+			.getEditors(true)
+			.map((editor, index) =>
+				this.instantiationService.createInstance(
+					EditorPickerEntry,
+					editor,
+					group
+				)
+			);
 	}
 
 	protected abstract getPosition(): Position;
 
 	public getEmptyLabel(searchString: string): string {
 		if (searchString) {
-			return nls.localize('noResultsFoundInGroup', "No matching opened editor found in group");
+			return nls.localize(
+				'noResultsFoundInGroup',
+				'No matching opened editor found in group'
+			);
 		}
 
-		return nls.localize('noOpenedEditors', "List of opened editors is currently empty in group");
+		return nls.localize(
+			'noOpenedEditors',
+			'List of opened editors is currently empty in group'
+		);
 	}
 
-	public getAutoFocus(searchValue: string, context: { model: IModel<QuickOpenEntry>, quickNavigateConfiguration?: IQuickNavigateConfiguration }): IAutoFocus {
+	public getAutoFocus(
+		searchValue: string,
+		context: {
+			model: IModel<QuickOpenEntry>;
+			quickNavigateConfiguration?: IQuickNavigateConfiguration;
+		}
+	): IAutoFocus {
 		if (searchValue || !context.quickNavigateConfiguration) {
 			return {
 				autoFocusFirstEntry: true
@@ -198,13 +260,15 @@ export abstract class EditorGroupPicker extends BaseEditorPicker {
 			return super.getAutoFocus(searchValue, context);
 		}
 
-		const isShiftNavigate = (context.quickNavigateConfiguration && context.quickNavigateConfiguration.keybindings.some(k => {
-			const [firstPart, chordPart] = k.getParts();
-			if (chordPart) {
-				return false;
-			}
-			return firstPart.shiftKey;
-		}));
+		const isShiftNavigate =
+			context.quickNavigateConfiguration &&
+			context.quickNavigateConfiguration.keybindings.some(k => {
+				const [firstPart, chordPart] = k.getParts();
+				if (chordPart) {
+					return false;
+				}
+				return firstPart.shiftKey;
+			});
 		if (isShiftNavigate) {
 			return {
 				autoFocusLastEntry: true
@@ -219,35 +283,37 @@ export abstract class EditorGroupPicker extends BaseEditorPicker {
 }
 
 export class GroupOnePicker extends EditorGroupPicker {
-
 	protected getPosition(): Position {
 		return Position.ONE;
 	}
 }
 
 export class GroupTwoPicker extends EditorGroupPicker {
-
 	protected getPosition(): Position {
 		return Position.TWO;
 	}
 }
 
 export class GroupThreePicker extends EditorGroupPicker {
-
 	protected getPosition(): Position {
 		return Position.THREE;
 	}
 }
 
 export class AllEditorsPicker extends BaseEditorPicker {
-
 	protected getEditorEntries(): EditorPickerEntry[] {
 		const entries: EditorPickerEntry[] = [];
 
 		const stacks = this.editorGroupService.getStacksModel();
 		stacks.groups.forEach((group, position) => {
 			group.getEditors().forEach((editor, index) => {
-				entries.push(this.instantiationService.createInstance(EditorPickerEntry, editor, group));
+				entries.push(
+					this.instantiationService.createInstance(
+						EditorPickerEntry,
+						editor,
+						group
+					)
+				);
 			});
 		});
 
@@ -256,13 +322,22 @@ export class AllEditorsPicker extends BaseEditorPicker {
 
 	public getEmptyLabel(searchString: string): string {
 		if (searchString) {
-			return nls.localize('noResultsFound', "No matching opened editor found");
+			return nls.localize('noResultsFound', 'No matching opened editor found');
 		}
 
-		return nls.localize('noOpenedEditorsAllGroups', "List of opened editors is currently empty");
+		return nls.localize(
+			'noOpenedEditorsAllGroups',
+			'List of opened editors is currently empty'
+		);
 	}
 
-	public getAutoFocus(searchValue: string, context: { model: IModel<QuickOpenEntry>, quickNavigateConfiguration?: IQuickNavigateConfiguration }): IAutoFocus {
+	public getAutoFocus(
+		searchValue: string,
+		context: {
+			model: IModel<QuickOpenEntry>;
+			quickNavigateConfiguration?: IQuickNavigateConfiguration;
+		}
+	): IAutoFocus {
 		if (searchValue) {
 			return {
 				autoFocusFirstEntry: true

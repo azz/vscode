@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 // Based on material from:
 /*!
@@ -35,7 +35,11 @@ BEGIN THIRD PARTY
  * Start of string bonus: 8
  */
 const wordPathBoundary = ['-', '_', ' ', '/', '\\', '.'];
-export function score(target: string, query: string, cache?: { [id: string]: number }): number {
+export function score(
+	target: string,
+	query: string,
+	cache?: { [id: string]: number }
+): number {
 	if (!target || !query) {
 		return 0; // return early if target or query are undefined
 	}
@@ -76,15 +80,11 @@ export function score(target: string, query: string, cache?: { [id: string]: num
 		// Start of word bonus
 		if (indexOf === 0) {
 			score += 8;
-		}
-
-		// After separator bonus
-		else if (wordPathBoundary.some(w => w === target[indexOf - 1])) {
+		} else if (wordPathBoundary.some(w => w === target[indexOf - 1])) {
+			// After separator bonus
 			score += 7;
-		}
-
-		// Inside word upper case bonus
-		else if (isUpper(target.charCodeAt(indexOf))) {
+		} else if (isUpper(target.charCodeAt(indexOf))) {
+			// Inside word upper case bonus
 			score += 1;
 		}
 

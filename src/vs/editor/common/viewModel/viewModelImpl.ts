@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { EmitterEvent } from 'vs/base/common/eventEmitter';
 import * as strings from 'vs/base/common/strings';
@@ -10,10 +10,21 @@ import { Position, IPosition } from 'vs/editor/common/core/position';
 import { Range } from 'vs/editor/common/core/range';
 import { Selection } from 'vs/editor/common/core/selection';
 import * as editorCommon from 'vs/editor/common/editorCommon';
-import { TokenizationRegistry, ColorId, LanguageId } from 'vs/editor/common/modes';
+import {
+	TokenizationRegistry,
+	ColorId,
+	LanguageId
+} from 'vs/editor/common/modes';
 import { tokenizeLineToHTML } from 'vs/editor/common/modes/textToHtmlTokenizer';
 import { ViewModelDecorations } from 'vs/editor/common/viewModel/viewModelDecorations';
-import { MinimapLinesRenderingData, ViewLineRenderingData, ViewModelDecoration, IViewModel, ICoordinatesConverter, ViewEventsCollector } from 'vs/editor/common/viewModel/viewModel';
+import {
+	MinimapLinesRenderingData,
+	ViewLineRenderingData,
+	ViewModelDecoration,
+	IViewModel,
+	ICoordinatesConverter,
+	ViewEventsCollector
+} from 'vs/editor/common/viewModel/viewModel';
 import { SplitLinesCollection } from 'vs/editor/common/viewModel/splitLinesCollection';
 import * as viewEvents from 'vs/editor/common/view/viewEvents';
 import { MinimapTokensColorTracker } from 'vs/editor/common/view/minimapCharRenderer';
@@ -23,7 +34,6 @@ import { CharacterHardWrappingLineMapperFactory } from 'vs/editor/common/viewMod
 import { ViewLayout } from 'vs/editor/common/viewLayout/viewLayout';
 
 export class CoordinatesConverter implements ICoordinatesConverter {
-
 	private readonly _lines: SplitLinesCollection;
 
 	constructor(lines: SplitLinesCollection) {
@@ -33,57 +43,133 @@ export class CoordinatesConverter implements ICoordinatesConverter {
 	// View -> Model conversion and related methods
 
 	public convertViewPositionToModelPosition(viewPosition: Position): Position {
-		return this._lines.convertViewPositionToModelPosition(viewPosition.lineNumber, viewPosition.column);
+		return this._lines.convertViewPositionToModelPosition(
+			viewPosition.lineNumber,
+			viewPosition.column
+		);
 	}
 
 	public convertViewRangeToModelRange(viewRange: Range): Range {
-		let start = this._lines.convertViewPositionToModelPosition(viewRange.startLineNumber, viewRange.startColumn);
-		let end = this._lines.convertViewPositionToModelPosition(viewRange.endLineNumber, viewRange.endColumn);
-		return new Range(start.lineNumber, start.column, end.lineNumber, end.column);
+		let start = this._lines.convertViewPositionToModelPosition(
+			viewRange.startLineNumber,
+			viewRange.startColumn
+		);
+		let end = this._lines.convertViewPositionToModelPosition(
+			viewRange.endLineNumber,
+			viewRange.endColumn
+		);
+		return new Range(
+			start.lineNumber,
+			start.column,
+			end.lineNumber,
+			end.column
+		);
 	}
 
-	public convertViewSelectionToModelSelection(viewSelection: Selection): Selection {
-		let selectionStart = this._lines.convertViewPositionToModelPosition(viewSelection.selectionStartLineNumber, viewSelection.selectionStartColumn);
-		let position = this._lines.convertViewPositionToModelPosition(viewSelection.positionLineNumber, viewSelection.positionColumn);
-		return new Selection(selectionStart.lineNumber, selectionStart.column, position.lineNumber, position.column);
+	public convertViewSelectionToModelSelection(
+		viewSelection: Selection
+	): Selection {
+		let selectionStart = this._lines.convertViewPositionToModelPosition(
+			viewSelection.selectionStartLineNumber,
+			viewSelection.selectionStartColumn
+		);
+		let position = this._lines.convertViewPositionToModelPosition(
+			viewSelection.positionLineNumber,
+			viewSelection.positionColumn
+		);
+		return new Selection(
+			selectionStart.lineNumber,
+			selectionStart.column,
+			position.lineNumber,
+			position.column
+		);
 	}
 
-	public validateViewPosition(viewPosition: Position, expectedModelPosition: Position): Position {
-		return this._lines.validateViewPosition(viewPosition.lineNumber, viewPosition.column, expectedModelPosition);
+	public validateViewPosition(
+		viewPosition: Position,
+		expectedModelPosition: Position
+	): Position {
+		return this._lines.validateViewPosition(
+			viewPosition.lineNumber,
+			viewPosition.column,
+			expectedModelPosition
+		);
 	}
 
 	public validateViewRange(viewRange: Range, expectedModelRange: Range): Range {
-		var validViewStart = this._lines.validateViewPosition(viewRange.startLineNumber, viewRange.startColumn, expectedModelRange.getStartPosition());
-		var validViewEnd = this._lines.validateViewPosition(viewRange.endLineNumber, viewRange.endColumn, expectedModelRange.getEndPosition());
-		return new Range(validViewStart.lineNumber, validViewStart.column, validViewEnd.lineNumber, validViewEnd.column);
+		var validViewStart = this._lines.validateViewPosition(
+			viewRange.startLineNumber,
+			viewRange.startColumn,
+			expectedModelRange.getStartPosition()
+		);
+		var validViewEnd = this._lines.validateViewPosition(
+			viewRange.endLineNumber,
+			viewRange.endColumn,
+			expectedModelRange.getEndPosition()
+		);
+		return new Range(
+			validViewStart.lineNumber,
+			validViewStart.column,
+			validViewEnd.lineNumber,
+			validViewEnd.column
+		);
 	}
 
 	// Model -> View conversion and related methods
 
 	public convertModelPositionToViewPosition(modelPosition: Position): Position {
-		return this._lines.convertModelPositionToViewPosition(modelPosition.lineNumber, modelPosition.column);
+		return this._lines.convertModelPositionToViewPosition(
+			modelPosition.lineNumber,
+			modelPosition.column
+		);
 	}
 
 	public convertModelRangeToViewRange(modelRange: Range): Range {
-		let start = this._lines.convertModelPositionToViewPosition(modelRange.startLineNumber, modelRange.startColumn);
-		let end = this._lines.convertModelPositionToViewPosition(modelRange.endLineNumber, modelRange.endColumn);
-		return new Range(start.lineNumber, start.column, end.lineNumber, end.column);
+		let start = this._lines.convertModelPositionToViewPosition(
+			modelRange.startLineNumber,
+			modelRange.startColumn
+		);
+		let end = this._lines.convertModelPositionToViewPosition(
+			modelRange.endLineNumber,
+			modelRange.endColumn
+		);
+		return new Range(
+			start.lineNumber,
+			start.column,
+			end.lineNumber,
+			end.column
+		);
 	}
 
-	public convertModelSelectionToViewSelection(modelSelection: Selection): Selection {
-		let selectionStart = this._lines.convertModelPositionToViewPosition(modelSelection.selectionStartLineNumber, modelSelection.selectionStartColumn);
-		let position = this._lines.convertModelPositionToViewPosition(modelSelection.positionLineNumber, modelSelection.positionColumn);
-		return new Selection(selectionStart.lineNumber, selectionStart.column, position.lineNumber, position.column);
+	public convertModelSelectionToViewSelection(
+		modelSelection: Selection
+	): Selection {
+		let selectionStart = this._lines.convertModelPositionToViewPosition(
+			modelSelection.selectionStartLineNumber,
+			modelSelection.selectionStartColumn
+		);
+		let position = this._lines.convertModelPositionToViewPosition(
+			modelSelection.positionLineNumber,
+			modelSelection.positionColumn
+		);
+		return new Selection(
+			selectionStart.lineNumber,
+			selectionStart.column,
+			position.lineNumber,
+			position.column
+		);
 	}
 
 	public modelPositionIsVisible(modelPosition: Position): boolean {
-		return this._lines.modelPositionIsVisible(modelPosition.lineNumber, modelPosition.column);
+		return this._lines.modelPositionIsVisible(
+			modelPosition.lineNumber,
+			modelPosition.column
+		);
 	}
-
 }
 
-export class ViewModel extends viewEvents.ViewEventEmitter implements IViewModel {
-
+export class ViewModel extends viewEvents.ViewEventEmitter
+	implements IViewModel {
 	private readonly editorId: number;
 	private readonly configuration: editorCommon.IConfiguration;
 	private readonly model: editorCommon.IModel;
@@ -96,7 +182,11 @@ export class ViewModel extends viewEvents.ViewEventEmitter implements IViewModel
 	private _isDisposing: boolean;
 	private _centeredViewLine: number;
 
-	constructor(editorId: number, configuration: editorCommon.IConfiguration, model: editorCommon.IModel) {
+	constructor(
+		editorId: number,
+		configuration: editorCommon.IConfiguration,
+		model: editorCommon.IModel
+	) {
 		super();
 
 		this.editorId = editorId;
@@ -116,7 +206,8 @@ export class ViewModel extends viewEvents.ViewEventEmitter implements IViewModel
 			hardWrappingLineMapperFactory,
 			this.model.getOptions().tabSize,
 			conf.wrappingInfo.wrappingColumn,
-			conf.fontInfo.typicalFullwidthCharacterWidth / conf.fontInfo.typicalHalfwidthCharacterWidth,
+			conf.fontInfo.typicalFullwidthCharacterWidth /
+				conf.fontInfo.typicalHalfwidthCharacterWidth,
 			conf.wrappingInfo.wrappingIndent
 		);
 
@@ -124,37 +215,52 @@ export class ViewModel extends viewEvents.ViewEventEmitter implements IViewModel
 
 		this.coordinatesConverter = new CoordinatesConverter(this.lines);
 
-		this.viewLayout = this._register(new ViewLayout(this.configuration, this.getLineCount()));
+		this.viewLayout = this._register(
+			new ViewLayout(this.configuration, this.getLineCount())
+		);
 
-		this._register(this.viewLayout.onDidScroll((e) => {
-			this._emit([new viewEvents.ViewScrollChangedEvent(e)]);
-		}));
+		this._register(
+			this.viewLayout.onDidScroll(e => {
+				this._emit([new viewEvents.ViewScrollChangedEvent(e)]);
+			})
+		);
 
 		this._isDisposing = false;
 		this._centeredViewLine = -1;
 
-		this.decorations = new ViewModelDecorations(this.editorId, this.model, this.configuration, this.coordinatesConverter);
+		this.decorations = new ViewModelDecorations(
+			this.editorId,
+			this.model,
+			this.configuration,
+			this.coordinatesConverter
+		);
 
-		this._register(this.model.addBulkListener((events: EmitterEvent[]) => {
-			if (this._isDisposing) {
-				// Disposing the lines might end up sending model decoration changed events
-				// ...we no longer care about them...
-				return;
-			}
-			let eventsCollector = new ViewEventsCollector();
-			this._onModelEvents(eventsCollector, events);
-			this._emit(eventsCollector.finalize());
-		}));
+		this._register(
+			this.model.addBulkListener((events: EmitterEvent[]) => {
+				if (this._isDisposing) {
+					// Disposing the lines might end up sending model decoration changed events
+					// ...we no longer care about them...
+					return;
+				}
+				let eventsCollector = new ViewEventsCollector();
+				this._onModelEvents(eventsCollector, events);
+				this._emit(eventsCollector.finalize());
+			})
+		);
 
-		this._register(this.configuration.onDidChange((e) => {
-			const eventsCollector = new ViewEventsCollector();
-			this._onConfigurationChanged(eventsCollector, e);
-			this._emit(eventsCollector.finalize());
-		}));
+		this._register(
+			this.configuration.onDidChange(e => {
+				const eventsCollector = new ViewEventsCollector();
+				this._onConfigurationChanged(eventsCollector, e);
+				this._emit(eventsCollector.finalize());
+			})
+		);
 
-		this._register(MinimapTokensColorTracker.getInstance().onDidChange(() => {
-			this._emit([new viewEvents.ViewTokensColorsChangedEvent()]);
-		}));
+		this._register(
+			MinimapTokensColorTracker.getInstance().onDidChange(() => {
+				this._emit([new viewEvents.ViewTokensColorsChangedEvent()]);
+			})
+		);
 	}
 
 	public dispose(): void {
@@ -164,15 +270,24 @@ export class ViewModel extends viewEvents.ViewEventEmitter implements IViewModel
 		super.dispose();
 	}
 
-	private _onConfigurationChanged(eventsCollector: ViewEventsCollector, e: IConfigurationChangedEvent): void {
-
+	private _onConfigurationChanged(
+		eventsCollector: ViewEventsCollector,
+		e: IConfigurationChangedEvent
+	): void {
 		// We might need to restore the current centered view range, so save it (if available)
 		const previousCenteredModelRange = this.getCenteredRangeInViewport();
 		let revealPreviousCenteredModelRange = false;
 
 		const conf = this.configuration.editor;
 
-		if (this.lines.setWrappingSettings(conf.wrappingInfo.wrappingIndent, conf.wrappingInfo.wrappingColumn, conf.fontInfo.typicalFullwidthCharacterWidth / conf.fontInfo.typicalHalfwidthCharacterWidth)) {
+		if (
+			this.lines.setWrappingSettings(
+				conf.wrappingInfo.wrappingIndent,
+				conf.wrappingInfo.wrappingColumn,
+				conf.fontInfo.typicalFullwidthCharacterWidth /
+					conf.fontInfo.typicalHalfwidthCharacterWidth
+			)
+		) {
 			eventsCollector.emit(new viewEvents.ViewFlushedEvent());
 			eventsCollector.emit(new viewEvents.ViewLineMappingChangedEvent());
 			eventsCollector.emit(new viewEvents.ViewDecorationsChangedEvent());
@@ -196,24 +311,32 @@ export class ViewModel extends viewEvents.ViewEventEmitter implements IViewModel
 
 		if (revealPreviousCenteredModelRange && previousCenteredModelRange) {
 			// modelLine -> viewLine
-			const newCenteredViewRange = this.coordinatesConverter.convertModelRangeToViewRange(previousCenteredModelRange);
+			const newCenteredViewRange = this.coordinatesConverter.convertModelRangeToViewRange(
+				previousCenteredModelRange
+			);
 
 			// Send a reveal event to restore the centered content
-			eventsCollector.emit(new viewEvents.ViewRevealRangeRequestEvent(
-				newCenteredViewRange,
-				viewEvents.VerticalRevealType.Center,
-				false
-			));
+			eventsCollector.emit(
+				new viewEvents.ViewRevealRangeRequestEvent(
+					newCenteredViewRange,
+					viewEvents.VerticalRevealType.Center,
+					false
+				)
+			);
 		}
 	}
 
-	private _onModelEvents(eventsCollector: ViewEventsCollector, events: EmitterEvent[]): void {
-
+	private _onModelEvents(
+		eventsCollector: ViewEventsCollector,
+		events: EmitterEvent[]
+	): void {
 		// A quick check if there are model content change events incoming
 		// in order to update the configuration and reset the centered view line
 		for (let i = 0, len = events.length; i < len; i++) {
 			const eventType = events[i].type;
-			if (eventType === textModelEvents.TextModelEventType.ModelRawContentChanged2) {
+			if (
+				eventType === textModelEvents.TextModelEventType.ModelRawContentChanged2
+			) {
 				// There is a content change event
 				this._centeredViewLine = -1;
 				this.configuration.setMaxLineNumber(this.model.getLineCount());
@@ -231,7 +354,6 @@ export class ViewModel extends viewEvents.ViewEventEmitter implements IViewModel
 			const data = _e.data;
 
 			switch (type) {
-
 				case textModelEvents.TextModelEventType.ModelRawContentChanged2: {
 					const e = <textModelEvents.ModelRawContentChangedEvent>data;
 					const changes = e.changes;
@@ -250,36 +372,66 @@ export class ViewModel extends viewEvents.ViewEventEmitter implements IViewModel
 								break;
 							}
 							case textModelEvents.RawContentChangedType.LinesDeleted: {
-								const linesDeletedEvent = this.lines.onModelLinesDeleted(versionId, change.fromLineNumber, change.toLineNumber);
+								const linesDeletedEvent = this.lines.onModelLinesDeleted(
+									versionId,
+									change.fromLineNumber,
+									change.toLineNumber
+								);
 								if (linesDeletedEvent !== null) {
 									eventsCollector.emit(linesDeletedEvent);
-									this.viewLayout.onLinesDeleted(linesDeletedEvent.fromLineNumber, linesDeletedEvent.toLineNumber);
+									this.viewLayout.onLinesDeleted(
+										linesDeletedEvent.fromLineNumber,
+										linesDeletedEvent.toLineNumber
+									);
 								}
 								hadOtherModelChange = true;
 								break;
 							}
 							case textModelEvents.RawContentChangedType.LinesInserted: {
-								const linesInsertedEvent = this.lines.onModelLinesInserted(versionId, change.fromLineNumber, change.toLineNumber, change.detail.split('\n'));
+								const linesInsertedEvent = this.lines.onModelLinesInserted(
+									versionId,
+									change.fromLineNumber,
+									change.toLineNumber,
+									change.detail.split('\n')
+								);
 								if (linesInsertedEvent !== null) {
 									eventsCollector.emit(linesInsertedEvent);
-									this.viewLayout.onLinesInserted(linesInsertedEvent.fromLineNumber, linesInsertedEvent.toLineNumber);
+									this.viewLayout.onLinesInserted(
+										linesInsertedEvent.fromLineNumber,
+										linesInsertedEvent.toLineNumber
+									);
 								}
 								hadOtherModelChange = true;
 								break;
 							}
 							case textModelEvents.RawContentChangedType.LineChanged: {
-								const [lineMappingChanged, linesChangedEvent, linesInsertedEvent, linesDeletedEvent] = this.lines.onModelLineChanged(versionId, change.lineNumber, change.detail);
+								const [
+									lineMappingChanged,
+									linesChangedEvent,
+									linesInsertedEvent,
+									linesDeletedEvent
+								] = this.lines.onModelLineChanged(
+									versionId,
+									change.lineNumber,
+									change.detail
+								);
 								hadModelLineChangeThatChangedLineMapping = lineMappingChanged;
 								if (linesChangedEvent) {
 									eventsCollector.emit(linesChangedEvent);
 								}
 								if (linesInsertedEvent) {
 									eventsCollector.emit(linesInsertedEvent);
-									this.viewLayout.onLinesInserted(linesInsertedEvent.fromLineNumber, linesInsertedEvent.toLineNumber);
+									this.viewLayout.onLinesInserted(
+										linesInsertedEvent.fromLineNumber,
+										linesInsertedEvent.toLineNumber
+									);
 								}
 								if (linesDeletedEvent) {
 									eventsCollector.emit(linesDeletedEvent);
-									this.viewLayout.onLinesDeleted(linesDeletedEvent.fromLineNumber, linesDeletedEvent.toLineNumber);
+									this.viewLayout.onLinesDeleted(
+										linesDeletedEvent.fromLineNumber,
+										linesDeletedEvent.toLineNumber
+									);
 								}
 								break;
 							}
@@ -296,17 +448,29 @@ export class ViewModel extends viewEvents.ViewEventEmitter implements IViewModel
 				case textModelEvents.TextModelEventType.ModelTokensChanged: {
 					const e = <textModelEvents.IModelTokensChangedEvent>data;
 
-					let viewRanges: { fromLineNumber: number; toLineNumber: number; }[] = [];
+					let viewRanges: {
+						fromLineNumber: number;
+						toLineNumber: number;
+					}[] = [];
 					for (let j = 0, lenJ = e.ranges.length; j < lenJ; j++) {
 						const modelRange = e.ranges[j];
-						const viewStartLineNumber = this.coordinatesConverter.convertModelPositionToViewPosition(new Position(modelRange.fromLineNumber, 1)).lineNumber;
-						const viewEndLineNumber = this.coordinatesConverter.convertModelPositionToViewPosition(new Position(modelRange.toLineNumber, this.model.getLineMaxColumn(modelRange.toLineNumber))).lineNumber;
+						const viewStartLineNumber = this.coordinatesConverter.convertModelPositionToViewPosition(
+							new Position(modelRange.fromLineNumber, 1)
+						).lineNumber;
+						const viewEndLineNumber = this.coordinatesConverter.convertModelPositionToViewPosition(
+							new Position(
+								modelRange.toLineNumber,
+								this.model.getLineMaxColumn(modelRange.toLineNumber)
+							)
+						).lineNumber;
 						viewRanges[j] = {
 							fromLineNumber: viewStartLineNumber,
 							toLineNumber: viewEndLineNumber
 						};
 					}
-					eventsCollector.emit(new viewEvents.ViewTokensChangedEvent(viewRanges));
+					eventsCollector.emit(
+						new viewEvents.ViewTokensChangedEvent(viewRanges)
+					);
 					break;
 				}
 				case textModelEvents.TextModelEventType.ModelLanguageChanged: {
@@ -371,8 +535,15 @@ export class ViewModel extends viewEvents.ViewEventEmitter implements IViewModel
 			return null;
 		}
 		let viewLineNumber = this._centeredViewLine;
-		let currentCenteredViewRange = new Range(viewLineNumber, this.getLineMinColumn(viewLineNumber), viewLineNumber, this.getLineMaxColumn(viewLineNumber));
-		return this.coordinatesConverter.convertViewRangeToModelRange(currentCenteredViewRange);
+		let currentCenteredViewRange = new Range(
+			viewLineNumber,
+			this.getLineMinColumn(viewLineNumber),
+			viewLineNumber,
+			this.getLineMaxColumn(viewLineNumber)
+		);
+		return this.coordinatesConverter.convertViewRangeToModelRange(
+			currentCenteredViewRange
+		);
 	}
 
 	public getCompletelyVisibleViewRange(): Range {
@@ -381,19 +552,25 @@ export class ViewModel extends viewEvents.ViewEventEmitter implements IViewModel
 		const endViewLineNumber = partialData.completelyVisibleEndLineNumber;
 
 		return new Range(
-			startViewLineNumber, this.getLineMinColumn(startViewLineNumber),
-			endViewLineNumber, this.getLineMaxColumn(endViewLineNumber)
+			startViewLineNumber,
+			this.getLineMinColumn(startViewLineNumber),
+			endViewLineNumber,
+			this.getLineMaxColumn(endViewLineNumber)
 		);
 	}
 
 	public getCompletelyVisibleViewRangeAtScrollTop(scrollTop: number): Range {
-		const partialData = this.viewLayout.getLinesViewportDataAtScrollTop(scrollTop);
+		const partialData = this.viewLayout.getLinesViewportDataAtScrollTop(
+			scrollTop
+		);
 		const startViewLineNumber = partialData.completelyVisibleStartLineNumber;
 		const endViewLineNumber = partialData.completelyVisibleEndLineNumber;
 
 		return new Range(
-			startViewLineNumber, this.getLineMinColumn(startViewLineNumber),
-			endViewLineNumber, this.getLineMaxColumn(endViewLineNumber)
+			startViewLineNumber,
+			this.getLineMinColumn(startViewLineNumber),
+			endViewLineNumber,
+			this.getLineMaxColumn(endViewLineNumber)
 		);
 	}
 
@@ -408,7 +585,11 @@ export class ViewModel extends viewEvents.ViewEventEmitter implements IViewModel
 	/**
 	 * Gives a hint that a lot of requests are about to come in for these line numbers.
 	 */
-	public setViewport(startLineNumber: number, endLineNumber: number, centeredLineNumber: number): void {
+	public setViewport(
+		startLineNumber: number,
+		endLineNumber: number,
+		centeredLineNumber: number
+	): void {
 		this._centeredViewLine = centeredLineNumber;
 		this.lines.warmUpLookupCache(startLineNumber, endLineNumber);
 	}
@@ -430,7 +611,9 @@ export class ViewModel extends viewEvents.ViewEventEmitter implements IViewModel
 	}
 
 	public getLineFirstNonWhitespaceColumn(lineNumber: number): number {
-		var result = strings.firstNonWhitespaceIndex(this.getLineContent(lineNumber));
+		var result = strings.firstNonWhitespaceIndex(
+			this.getLineContent(lineNumber)
+		);
 		if (result === -1) {
 			return 0;
 		}
@@ -438,7 +621,9 @@ export class ViewModel extends viewEvents.ViewEventEmitter implements IViewModel
 	}
 
 	public getLineLastNonWhitespaceColumn(lineNumber: number): number {
-		var result = strings.lastNonWhitespaceIndex(this.getLineContent(lineNumber));
+		var result = strings.lastNonWhitespaceIndex(
+			this.getLineContent(lineNumber)
+		);
 		if (result === -1) {
 			return 0;
 		}
@@ -446,16 +631,23 @@ export class ViewModel extends viewEvents.ViewEventEmitter implements IViewModel
 	}
 
 	public getDecorationsInViewport(visibleRange: Range): ViewModelDecoration[] {
-		return this.decorations.getDecorationsViewportData(visibleRange).decorations;
+		return this.decorations.getDecorationsViewportData(visibleRange)
+			.decorations;
 	}
 
-	public getViewLineRenderingData(visibleRange: Range, lineNumber: number): ViewLineRenderingData {
+	public getViewLineRenderingData(
+		visibleRange: Range,
+		lineNumber: number
+	): ViewLineRenderingData {
 		let mightContainRTL = this.model.mightContainRTL();
 		let mightContainNonBasicASCII = this.model.mightContainNonBasicASCII();
 		let tabSize = this.getTabSize();
 		let lineData = this.lines.getViewLineData(lineNumber);
-		let allInlineDecorations = this.decorations.getDecorationsViewportData(visibleRange).inlineDecorations;
-		let inlineDecorations = allInlineDecorations[lineNumber - visibleRange.startLineNumber];
+		let allInlineDecorations = this.decorations.getDecorationsViewportData(
+			visibleRange
+		).inlineDecorations;
+		let inlineDecorations =
+			allInlineDecorations[lineNumber - visibleRange.startLineNumber];
 
 		return new ViewLineRenderingData(
 			lineData.minColumn,
@@ -469,20 +661,30 @@ export class ViewModel extends viewEvents.ViewEventEmitter implements IViewModel
 		);
 	}
 
-	public getMinimapLinesRenderingData(startLineNumber: number, endLineNumber: number, needed: boolean[]): MinimapLinesRenderingData {
-		let result = this.lines.getViewLinesData(startLineNumber, endLineNumber, needed);
-		return new MinimapLinesRenderingData(
-			this.getTabSize(),
-			result
+	public getMinimapLinesRenderingData(
+		startLineNumber: number,
+		endLineNumber: number,
+		needed: boolean[]
+	): MinimapLinesRenderingData {
+		let result = this.lines.getViewLinesData(
+			startLineNumber,
+			endLineNumber,
+			needed
 		);
+		return new MinimapLinesRenderingData(this.getTabSize(), result);
 	}
 
 	public getAllOverviewRulerDecorations(): ViewModelDecoration[] {
 		return this.decorations.getAllOverviewRulerDecorations();
 	}
 
-	public getValueInRange(range: Range, eol: editorCommon.EndOfLinePreference): string {
-		var modelRange = this.coordinatesConverter.convertViewRangeToModelRange(range);
+	public getValueInRange(
+		range: Range,
+		eol: editorCommon.EndOfLinePreference
+	): string {
+		var modelRange = this.coordinatesConverter.convertViewRangeToModelRange(
+			range
+		);
 		return this.model.getValueInRange(modelRange, eol);
 	}
 
@@ -494,33 +696,49 @@ export class ViewModel extends viewEvents.ViewEventEmitter implements IViewModel
 		return this.model.validatePosition(position);
 	}
 
-	public getPlainTextToCopy(ranges: Range[], emptySelectionClipboard: boolean): string {
+	public getPlainTextToCopy(
+		ranges: Range[],
+		emptySelectionClipboard: boolean
+	): string {
 		let newLineCharacter = this.model.getEOL();
 
 		if (ranges.length === 1) {
 			let range: Range = ranges[0];
 			if (range.isEmpty()) {
 				if (emptySelectionClipboard) {
-					let modelLineNumber = this.coordinatesConverter.convertViewPositionToModelPosition(new Position(range.startLineNumber, 1)).lineNumber;
+					let modelLineNumber = this.coordinatesConverter.convertViewPositionToModelPosition(
+						new Position(range.startLineNumber, 1)
+					).lineNumber;
 					return this.model.getLineContent(modelLineNumber) + newLineCharacter;
 				} else {
 					return '';
 				}
 			}
 
-			return this.getValueInRange(range, editorCommon.EndOfLinePreference.TextDefined);
+			return this.getValueInRange(
+				range,
+				editorCommon.EndOfLinePreference.TextDefined
+			);
 		} else {
 			ranges = ranges.slice(0).sort(Range.compareRangesUsingStarts);
 			let result: string[] = [];
 			for (let i = 0; i < ranges.length; i++) {
-				result.push(this.getValueInRange(ranges[i], editorCommon.EndOfLinePreference.TextDefined));
+				result.push(
+					this.getValueInRange(
+						ranges[i],
+						editorCommon.EndOfLinePreference.TextDefined
+					)
+				);
 			}
 
 			return result.join(newLineCharacter);
 		}
 	}
 
-	public getHTMLToCopy(viewRanges: Range[], emptySelectionClipboard: boolean): string {
+	public getHTMLToCopy(
+		viewRanges: Range[],
+		emptySelectionClipboard: boolean
+	): string {
 		if (this.model.getLanguageIdentifier().id === LanguageId.PlainText) {
 			return null;
 		}
@@ -530,31 +748,38 @@ export class ViewModel extends viewEvents.ViewEventEmitter implements IViewModel
 			return null;
 		}
 
-		let range = this.coordinatesConverter.convertViewRangeToModelRange(viewRanges[0]);
+		let range = this.coordinatesConverter.convertViewRangeToModelRange(
+			viewRanges[0]
+		);
 		if (range.isEmpty()) {
 			if (!emptySelectionClipboard) {
 				// nothing to copy
 				return null;
 			}
 			let lineNumber = range.startLineNumber;
-			range = new Range(lineNumber, this.model.getLineMinColumn(lineNumber), lineNumber, this.model.getLineMaxColumn(lineNumber));
+			range = new Range(
+				lineNumber,
+				this.model.getLineMinColumn(lineNumber),
+				lineNumber,
+				this.model.getLineMaxColumn(lineNumber)
+			);
 		}
 
 		const fontInfo = this.configuration.editor.fontInfo;
 		const colorMap = this._getColorMap();
 
 		return (
-			`<div style="`
-			+ `color: ${colorMap[ColorId.DefaultForeground]};`
-			+ `background-color: ${colorMap[ColorId.DefaultBackground]};`
-			+ `font-family: ${fontInfo.fontFamily};`
-			+ `font-weight: ${fontInfo.fontWeight};`
-			+ `font-size: ${fontInfo.fontSize}px;`
-			+ `line-height: ${fontInfo.lineHeight}px;`
-			+ `white-space: pre;`
-			+ `">`
-			+ this._getHTMLToCopy(range, colorMap)
-			+ '</div>'
+			`<div style="` +
+			`color: ${colorMap[ColorId.DefaultForeground]};` +
+			`background-color: ${colorMap[ColorId.DefaultBackground]};` +
+			`font-family: ${fontInfo.fontFamily};` +
+			`font-weight: ${fontInfo.fontWeight};` +
+			`font-size: ${fontInfo.fontSize}px;` +
+			`line-height: ${fontInfo.lineHeight}px;` +
+			`white-space: pre;` +
+			`">` +
+			this._getHTMLToCopy(range, colorMap) +
+			'</div>'
 		);
 	}
 
@@ -568,16 +793,29 @@ export class ViewModel extends viewEvents.ViewEventEmitter implements IViewModel
 
 		let result = '';
 
-		for (let lineNumber = startLineNumber; lineNumber <= endLineNumber; lineNumber++) {
+		for (
+			let lineNumber = startLineNumber;
+			lineNumber <= endLineNumber;
+			lineNumber++
+		) {
 			const lineTokens = this.model.getLineTokens(lineNumber);
 			const lineContent = lineTokens.getLineContent();
-			const startOffset = (lineNumber === startLineNumber ? startColumn - 1 : 0);
-			const endOffset = (lineNumber === endLineNumber ? endColumn - 1 : lineContent.length);
+			const startOffset = lineNumber === startLineNumber ? startColumn - 1 : 0;
+			const endOffset = lineNumber === endLineNumber
+				? endColumn - 1
+				: lineContent.length;
 
 			if (lineContent === '') {
 				result += '<br>';
 			} else {
-				result += tokenizeLineToHTML(lineContent, lineTokens.inflate(), colorMap, startOffset, endOffset, tabSize);
+				result += tokenizeLineToHTML(
+					lineContent,
+					lineTokens.inflate(),
+					colorMap,
+					startOffset,
+					endOffset,
+					tabSize
+				);
 			}
 		}
 

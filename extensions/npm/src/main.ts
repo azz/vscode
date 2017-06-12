@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as path from 'path';
 import * as fs from 'fs';
@@ -18,7 +18,9 @@ export function activate(_context: vscode.ExtensionContext): void {
 	}
 
 	function onConfigurationChanged() {
-		let autoDetect = vscode.workspace.getConfiguration('npm').get<AutoDetect>('autoDetect');
+		let autoDetect = vscode.workspace
+			.getConfiguration('npm')
+			.get<AutoDetect>('autoDetect');
 		if (taskProvider && autoDetect === 'off') {
 			taskProvider.dispose();
 			taskProvider = undefined;
@@ -42,7 +44,7 @@ export function deactivate(): void {
 
 async function exists(file: string): Promise<boolean> {
 	return new Promise<boolean>((resolve, _reject) => {
-		fs.exists(file, (value) => {
+		fs.exists(file, value => {
 			resolve(value);
 		});
 	});

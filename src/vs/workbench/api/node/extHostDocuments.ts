@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { onUnexpectedError } from 'vs/base/common/errors';
 import * as editorCommon from 'vs/editor/common/editorCommon';
@@ -16,13 +16,19 @@ import { TPromise } from 'vs/base/common/winjs.base';
 import * as vscode from 'vscode';
 import { asWinJsPromise } from 'vs/base/common/async';
 import { TextSource } from 'vs/editor/common/model/textSource';
-import { MainContext, MainThreadDocumentsShape, ExtHostDocumentsShape } from './extHost.protocol';
-import { ExtHostDocumentData, setWordDefinitionFor } from './extHostDocumentData';
+import {
+	MainContext,
+	MainThreadDocumentsShape,
+	ExtHostDocumentsShape
+} from './extHost.protocol';
+import {
+	ExtHostDocumentData,
+	setWordDefinitionFor
+} from './extHostDocumentData';
 import { ExtHostDocumentsAndEditors } from './extHostDocumentsAndEditors';
 import { IModelChangedEvent } from 'vs/editor/common/model/mirrorModel';
 
 export class ExtHostDocuments extends ExtHostDocumentsShape {
-
 	private static _handlePool: number = 0;
 
 	private _onDidAddDocument = new Emitter<vscode.TextDocument>();
@@ -30,19 +36,28 @@ export class ExtHostDocuments extends ExtHostDocumentsShape {
 	private _onDidChangeDocument = new Emitter<vscode.TextDocumentChangeEvent>();
 	private _onDidSaveDocument = new Emitter<vscode.TextDocument>();
 
-	readonly onDidAddDocument: Event<vscode.TextDocument> = this._onDidAddDocument.event;
-	readonly onDidRemoveDocument: Event<vscode.TextDocument> = this._onDidRemoveDocument.event;
-	readonly onDidChangeDocument: Event<vscode.TextDocumentChangeEvent> = this._onDidChangeDocument.event;
-	readonly onDidSaveDocument: Event<vscode.TextDocument> = this._onDidSaveDocument.event;
+	readonly onDidAddDocument: Event<vscode.TextDocument> = this._onDidAddDocument
+		.event;
+	readonly onDidRemoveDocument: Event<vscode.TextDocument> = this
+		._onDidRemoveDocument.event;
+	readonly onDidChangeDocument: Event<vscode.TextDocumentChangeEvent> = this
+		._onDidChangeDocument.event;
+	readonly onDidSaveDocument: Event<vscode.TextDocument> = this
+		._onDidSaveDocument.event;
 
 	private _toDispose: IDisposable[];
 	private _proxy: MainThreadDocumentsShape;
 	private _documentsAndEditors: ExtHostDocumentsAndEditors;
 	private _documentLoader = new Map<string, TPromise<ExtHostDocumentData>>();
-	private _documentContentProviders = new Map<number, vscode.TextDocumentContentProvider>();
+	private _documentContentProviders = new Map<
+		number,
+		vscode.TextDocumentContentProvider
+	>();
 
-
-	constructor(threadService: IThreadService, documentsAndEditors: ExtHostDocumentsAndEditors) {
+	constructor(
+		threadService: IThreadService,
+		documentsAndEditors: ExtHostDocumentsAndEditors
+	) {
 		super();
 		this._proxy = threadService.get(MainContext.MainThreadDocuments);
 		this._documentsAndEditors = documentsAndEditors;
@@ -81,7 +96,6 @@ export class ExtHostDocuments extends ExtHostDocumentsShape {
 	}
 
 	public ensureDocumentData(uri: URI): TPromise<ExtHostDocumentData> {
-
 		let cached = this._documentsAndEditors.getDocument(uri.toString());
 		if (cached) {
 			return TPromise.as(cached);
@@ -89,24 +103,33 @@ export class ExtHostDocuments extends ExtHostDocumentsShape {
 
 		let promise = this._documentLoader.get(uri.toString());
 		if (!promise) {
-			promise = this._proxy.$tryOpenDocument(uri).then(() => {
-				this._documentLoader.delete(uri.toString());
-				return this._documentsAndEditors.getDocument(uri.toString());
-			}, err => {
-				this._documentLoader.delete(uri.toString());
-				return TPromise.wrapError<ExtHostDocumentData>(err);
-			});
+			promise = this._proxy.$tryOpenDocument(uri).then(
+				() => {
+					this._documentLoader.delete(uri.toString());
+					return this._documentsAndEditors.getDocument(uri.toString());
+				},
+				err => {
+					this._documentLoader.delete(uri.toString());
+					return TPromise.wrapError<ExtHostDocumentData>(err);
+				}
+			);
 			this._documentLoader.set(uri.toString(), promise);
 		}
 
 		return promise;
 	}
 
-	public createDocumentData(options?: { language?: string; content?: string }): TPromise<URI> {
+	public createDocumentData(options?: {
+		language?: string;
+		content?: string;
+	}): TPromise<URI> {
 		return this._proxy.$tryCreateDocument(options);
 	}
 
-	public registerTextDocumentContentProvider(scheme: string, provider: vscode.TextDocumentContentProvider): vscode.Disposable {
+	public registerTextDocumentContentProvider(
+		scheme: string,
+		provider: vscode.TextDocumentContentProvider
+	): vscode.Disposable {
 		if (scheme === 'file' || scheme === 'untitled') {
 			throw new Error(`scheme '${scheme}' already registered`);
 		}
@@ -121,21 +144,24 @@ export class ExtHostDocuments extends ExtHostDocumentsShape {
 			subscription = provider.onDidChange(uri => {
 				if (this._documentsAndEditors.getDocument(uri.toString())) {
 					this.$provideTextDocumentContent(handle, <URI>uri).then(value => {
-
-						const document = this._documentsAndEditors.getDocument(uri.toString());
+						const document = this._documentsAndEditors.getDocument(
+							uri.toString()
+						);
 						if (!document) {
 							// disposed in the meantime
 							return;
 						}
 
 						// create lines and compare
-						const textSource = TextSource.fromString(value, editorCommon.DefaultEndOfLine.CRLF);
+						const textSource = TextSource.fromString(
+							value,
+							editorCommon.DefaultEndOfLine.CRLF
+						);
 
 						// broadcast event when content changed
 						if (!document.equalLines(textSource)) {
 							return this._proxy.$onVirtualDocumentChange(<URI>uri, textSource);
 						}
-
 					}, onUnexpectedError);
 				}
 			});
@@ -151,15 +177,26 @@ export class ExtHostDocuments extends ExtHostDocumentsShape {
 		});
 	}
 
-	public $provideTextDocumentContent(handle: number, uri: URI): TPromise<string> {
+	public $provideTextDocumentContent(
+		handle: number,
+		uri: URI
+	): TPromise<string> {
 		const provider = this._documentContentProviders.get(handle);
 		if (!provider) {
-			return TPromise.wrapError<string>(`unsupported uri-scheme: ${uri.scheme}`);
+			return TPromise.wrapError<string>(
+				`unsupported uri-scheme: ${uri.scheme}`
+			);
 		}
-		return asWinJsPromise(token => provider.provideTextDocumentContent(uri, token));
+		return asWinJsPromise(token =>
+			provider.provideTextDocumentContent(uri, token)
+		);
 	}
 
-	public $acceptModelModeChanged(strURL: string, oldModeId: string, newModeId: string): void {
+	public $acceptModelModeChanged(
+		strURL: string,
+		oldModeId: string,
+		newModeId: string
+	): void {
 		let data = this._documentsAndEditors.getDocument(strURL);
 
 		// Treat a mode change as a remove + add
@@ -184,13 +221,17 @@ export class ExtHostDocuments extends ExtHostDocumentsShape {
 		});
 	}
 
-	public $acceptModelChanged(strURL: string, events: IModelChangedEvent, isDirty: boolean): void {
+	public $acceptModelChanged(
+		strURL: string,
+		events: IModelChangedEvent,
+		isDirty: boolean
+	): void {
 		let data = this._documentsAndEditors.getDocument(strURL);
 		data._acceptIsDirty(isDirty);
 		data.onEvents(events);
 		this._onDidChangeDocument.fire({
 			document: data.document,
-			contentChanges: events.changes.map((change) => {
+			contentChanges: events.changes.map(change => {
 				return {
 					range: TypeConverters.toRange(change.range),
 					rangeLength: change.rangeLength,

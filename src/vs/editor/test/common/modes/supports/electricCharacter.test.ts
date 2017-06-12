@@ -2,56 +2,114 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
-import { BracketElectricCharacterSupport, IElectricAction } from 'vs/editor/common/modes/supports/electricCharacter';
-import { createFakeScopedLineTokens, TokenText } from 'vs/editor/test/common/modesTestUtils';
+import {
+	BracketElectricCharacterSupport,
+	IElectricAction
+} from 'vs/editor/common/modes/supports/electricCharacter';
+import {
+	createFakeScopedLineTokens,
+	TokenText
+} from 'vs/editor/test/common/modesTestUtils';
 import { RichEditBrackets } from 'vs/editor/common/modes/supports/richEditBrackets';
 import { LanguageIdentifier, StandardTokenType } from 'vs/editor/common/modes';
 
 const fakeLanguageIdentifier = new LanguageIdentifier('test', 3);
 
 suite('Editor Modes - Auto Indentation', () => {
-	function _testOnElectricCharacter(electricCharacterSupport: BracketElectricCharacterSupport, line: TokenText[], character: string, offset: number): IElectricAction {
-		return electricCharacterSupport.onElectricCharacter(character, createFakeScopedLineTokens(line), offset);
+	function _testOnElectricCharacter(
+		electricCharacterSupport: BracketElectricCharacterSupport,
+		line: TokenText[],
+		character: string,
+		offset: number
+	): IElectricAction {
+		return electricCharacterSupport.onElectricCharacter(
+			character,
+			createFakeScopedLineTokens(line),
+			offset
+		);
 	}
 
-	function testDoesNothing(electricCharacterSupport: BracketElectricCharacterSupport, line: TokenText[], character: string, offset: number): void {
-		let actual = _testOnElectricCharacter(electricCharacterSupport, line, character, offset);
+	function testDoesNothing(
+		electricCharacterSupport: BracketElectricCharacterSupport,
+		line: TokenText[],
+		character: string,
+		offset: number
+	): void {
+		let actual = _testOnElectricCharacter(
+			electricCharacterSupport,
+			line,
+			character,
+			offset
+		);
 		assert.deepEqual(actual, null);
 	}
 
-	function testAppends(electricCharacterSupport: BracketElectricCharacterSupport, line: TokenText[], character: string, offset: number, appendText: string): void {
-		let actual = _testOnElectricCharacter(electricCharacterSupport, line, character, offset);
+	function testAppends(
+		electricCharacterSupport: BracketElectricCharacterSupport,
+		line: TokenText[],
+		character: string,
+		offset: number,
+		appendText: string
+	): void {
+		let actual = _testOnElectricCharacter(
+			electricCharacterSupport,
+			line,
+			character,
+			offset
+		);
 		assert.deepEqual(actual, { appendText: appendText });
 	}
 
-	function testMatchBracket(electricCharacterSupport: BracketElectricCharacterSupport, line: TokenText[], character: string, offset: number, matchOpenBracket: string): void {
-		let actual = _testOnElectricCharacter(electricCharacterSupport, line, character, offset);
+	function testMatchBracket(
+		electricCharacterSupport: BracketElectricCharacterSupport,
+		line: TokenText[],
+		character: string,
+		offset: number,
+		matchOpenBracket: string
+	): void {
+		let actual = _testOnElectricCharacter(
+			electricCharacterSupport,
+			line,
+			character,
+			offset
+		);
 		assert.deepEqual(actual, { matchOpenBracket: matchOpenBracket });
 	}
 
 	test('Doc comments', () => {
-		var brackets = new BracketElectricCharacterSupport(null, [{ open: '/**', close: ' */' }], null);
+		var brackets = new BracketElectricCharacterSupport(
+			null,
+			[{ open: '/**', close: ' */' }],
+			null
+		);
 
-		testAppends(brackets, [
-			{ text: '/*', type: StandardTokenType.Other },
-		], '*', 3, ' */');
+		testAppends(
+			brackets,
+			[{ text: '/*', type: StandardTokenType.Other }],
+			'*',
+			3,
+			' */'
+		);
 
-		testDoesNothing(brackets, [
-			{ text: '/*', type: StandardTokenType.Other },
-			{ text: ' ', type: StandardTokenType.Other },
-			{ text: '*/', type: StandardTokenType.Other },
-		], '*', 3);
+		testDoesNothing(
+			brackets,
+			[
+				{ text: '/*', type: StandardTokenType.Other },
+				{ text: ' ', type: StandardTokenType.Other },
+				{ text: '*/', type: StandardTokenType.Other }
+			],
+			'*',
+			3
+		);
 	});
 
 	test('getElectricCharacters uses all sources and dedups', () => {
 		var sup = new BracketElectricCharacterSupport(
-			new RichEditBrackets(fakeLanguageIdentifier, [
-				['{', '}'],
-				['(', ')']
-			]), [
+			new RichEditBrackets(fakeLanguageIdentifier, [['{', '}'], ['(', ')']]),
+			[
 				{ open: '{', close: '}', notIn: ['string', 'comment'] },
 				{ open: '"', close: '"', notIn: ['string', 'comment'] },
 				{ open: 'begin', close: 'end', notIn: ['string'] }
@@ -64,10 +122,8 @@ suite('Editor Modes - Auto Indentation', () => {
 
 	test('auto-close', () => {
 		var sup = new BracketElectricCharacterSupport(
-			new RichEditBrackets(fakeLanguageIdentifier, [
-				['{', '}'],
-				['(', ')']
-			]), [
+			new RichEditBrackets(fakeLanguageIdentifier, [['{', '}'], ['(', ')']]),
+			[
 				{ open: '{', close: '}', notIn: ['string', 'comment'] },
 				{ open: '"', close: '"', notIn: ['string', 'comment'] },
 				{ open: 'begin', close: 'end', notIn: ['string'] }
@@ -77,39 +133,144 @@ suite('Editor Modes - Auto Indentation', () => {
 
 		testDoesNothing(sup, [], 'a', 0);
 
-		testDoesNothing(sup, [{ text: 'egi', type: StandardTokenType.Other }], 'b', 1);
-		testDoesNothing(sup, [{ text: 'bgi', type: StandardTokenType.Other }], 'e', 2);
-		testDoesNothing(sup, [{ text: 'bei', type: StandardTokenType.Other }], 'g', 3);
-		testDoesNothing(sup, [{ text: 'beg', type: StandardTokenType.Other }], 'i', 4);
+		testDoesNothing(
+			sup,
+			[{ text: 'egi', type: StandardTokenType.Other }],
+			'b',
+			1
+		);
+		testDoesNothing(
+			sup,
+			[{ text: 'bgi', type: StandardTokenType.Other }],
+			'e',
+			2
+		);
+		testDoesNothing(
+			sup,
+			[{ text: 'bei', type: StandardTokenType.Other }],
+			'g',
+			3
+		);
+		testDoesNothing(
+			sup,
+			[{ text: 'beg', type: StandardTokenType.Other }],
+			'i',
+			4
+		);
 
-		testDoesNothing(sup, [{ text: 'egin', type: StandardTokenType.Other }], 'b', 1);
-		testDoesNothing(sup, [{ text: 'bgin', type: StandardTokenType.Other }], 'e', 2);
-		testDoesNothing(sup, [{ text: 'bein', type: StandardTokenType.Other }], 'g', 3);
-		testDoesNothing(sup, [{ text: 'begn', type: StandardTokenType.Other }], 'i', 4);
-		testAppends(sup, [{ text: 'begi', type: StandardTokenType.Other }], 'n', 5, 'end');
+		testDoesNothing(
+			sup,
+			[{ text: 'egin', type: StandardTokenType.Other }],
+			'b',
+			1
+		);
+		testDoesNothing(
+			sup,
+			[{ text: 'bgin', type: StandardTokenType.Other }],
+			'e',
+			2
+		);
+		testDoesNothing(
+			sup,
+			[{ text: 'bein', type: StandardTokenType.Other }],
+			'g',
+			3
+		);
+		testDoesNothing(
+			sup,
+			[{ text: 'begn', type: StandardTokenType.Other }],
+			'i',
+			4
+		);
+		testAppends(
+			sup,
+			[{ text: 'begi', type: StandardTokenType.Other }],
+			'n',
+			5,
+			'end'
+		);
 
-		testDoesNothing(sup, [{ text: '3gin', type: StandardTokenType.Other }], 'b', 1);
-		testDoesNothing(sup, [{ text: 'bgin', type: StandardTokenType.Other }], '3', 2);
-		testDoesNothing(sup, [{ text: 'b3in', type: StandardTokenType.Other }], 'g', 3);
-		testDoesNothing(sup, [{ text: 'b3gn', type: StandardTokenType.Other }], 'i', 4);
-		testDoesNothing(sup, [{ text: 'b3gi', type: StandardTokenType.Other }], 'n', 5);
+		testDoesNothing(
+			sup,
+			[{ text: '3gin', type: StandardTokenType.Other }],
+			'b',
+			1
+		);
+		testDoesNothing(
+			sup,
+			[{ text: 'bgin', type: StandardTokenType.Other }],
+			'3',
+			2
+		);
+		testDoesNothing(
+			sup,
+			[{ text: 'b3in', type: StandardTokenType.Other }],
+			'g',
+			3
+		);
+		testDoesNothing(
+			sup,
+			[{ text: 'b3gn', type: StandardTokenType.Other }],
+			'i',
+			4
+		);
+		testDoesNothing(
+			sup,
+			[{ text: 'b3gi', type: StandardTokenType.Other }],
+			'n',
+			5
+		);
 
-		testDoesNothing(sup, [{ text: 'begi', type: StandardTokenType.String }], 'n', 5);
+		testDoesNothing(
+			sup,
+			[{ text: 'begi', type: StandardTokenType.String }],
+			'n',
+			5
+		);
 
-		testAppends(sup, [{ text: '"', type: StandardTokenType.String }, { text: 'begi', type: StandardTokenType.Other }], 'n', 6, 'end');
-		testDoesNothing(sup, [{ text: '"', type: StandardTokenType.String }, { text: 'begi', type: StandardTokenType.String }], 'n', 6);
+		testAppends(
+			sup,
+			[
+				{ text: '"', type: StandardTokenType.String },
+				{ text: 'begi', type: StandardTokenType.Other }
+			],
+			'n',
+			6,
+			'end'
+		);
+		testDoesNothing(
+			sup,
+			[
+				{ text: '"', type: StandardTokenType.String },
+				{ text: 'begi', type: StandardTokenType.String }
+			],
+			'n',
+			6
+		);
 
-		testAppends(sup, [{ text: '/*', type: StandardTokenType.String }], '*', 3, ' */');
+		testAppends(
+			sup,
+			[{ text: '/*', type: StandardTokenType.String }],
+			'*',
+			3,
+			' */'
+		);
 
-		testDoesNothing(sup, [{ text: 'begi', type: StandardTokenType.Other }, { text: 'end', type: StandardTokenType.Other }], 'n', 5);
+		testDoesNothing(
+			sup,
+			[
+				{ text: 'begi', type: StandardTokenType.Other },
+				{ text: 'end', type: StandardTokenType.Other }
+			],
+			'n',
+			5
+		);
 	});
 
 	test('matchOpenBracket', () => {
 		var sup = new BracketElectricCharacterSupport(
-			new RichEditBrackets(fakeLanguageIdentifier, [
-				['{', '}'],
-				['(', ')']
-			]), [
+			new RichEditBrackets(fakeLanguageIdentifier, [['{', '}'], ['(', ')']]),
+			[
 				{ open: '{', close: '}', notIn: ['string', 'comment'] },
 				{ open: '"', close: '"', notIn: ['string', 'comment'] },
 				{ open: 'begin', close: 'end', notIn: ['string'] }
@@ -117,12 +278,43 @@ suite('Editor Modes - Auto Indentation', () => {
 			{ docComment: { open: '/**', close: ' */' } }
 		);
 
-		testDoesNothing(sup, [{ text: '\t{', type: StandardTokenType.Other }], '\t', 1);
-		testDoesNothing(sup, [{ text: '\t{', type: StandardTokenType.Other }], '\t', 2);
-		testDoesNothing(sup, [{ text: '\t\t', type: StandardTokenType.Other }], '{', 3);
+		testDoesNothing(
+			sup,
+			[{ text: '\t{', type: StandardTokenType.Other }],
+			'\t',
+			1
+		);
+		testDoesNothing(
+			sup,
+			[{ text: '\t{', type: StandardTokenType.Other }],
+			'\t',
+			2
+		);
+		testDoesNothing(
+			sup,
+			[{ text: '\t\t', type: StandardTokenType.Other }],
+			'{',
+			3
+		);
 
-		testDoesNothing(sup, [{ text: '\t}', type: StandardTokenType.Other }], '\t', 1);
-		testDoesNothing(sup, [{ text: '\t}', type: StandardTokenType.Other }], '\t', 2);
-		testMatchBracket(sup, [{ text: '\t\t', type: StandardTokenType.Other }], '}', 3, '}');
+		testDoesNothing(
+			sup,
+			[{ text: '\t}', type: StandardTokenType.Other }],
+			'\t',
+			1
+		);
+		testDoesNothing(
+			sup,
+			[{ text: '\t}', type: StandardTokenType.Other }],
+			'\t',
+			2
+		);
+		testMatchBracket(
+			sup,
+			[{ text: '\t\t', type: StandardTokenType.Other }],
+			'}',
+			3,
+			'}'
+		);
 	});
 });

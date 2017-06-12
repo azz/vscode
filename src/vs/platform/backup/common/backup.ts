@@ -11,7 +11,9 @@ export interface IBackupWorkspacesFormat {
 	emptyWorkspaces: string[];
 }
 
-export const IBackupMainService = createDecorator<IBackupMainService>('backupMainService');
+export const IBackupMainService = createDecorator<IBackupMainService>(
+	'backupMainService'
+);
 export const IBackupService = createDecorator<IBackupService>('backupService');
 
 export interface IBackupMainService extends IBackupService {
@@ -20,7 +22,12 @@ export interface IBackupMainService extends IBackupService {
 	getWorkspaceBackupPaths(): string[];
 	getEmptyWorkspaceBackupPaths(): string[];
 
-	registerWindowForBackupsSync(windowId: number, isEmptyWorkspace: boolean, backupFolder?: string, workspacePath?: string): void;
+	registerWindowForBackupsSync(
+		windowId: number,
+		isEmptyWorkspace: boolean,
+		backupFolder?: string,
+		workspacePath?: string
+	): void;
 }
 
 export interface IBackupService {

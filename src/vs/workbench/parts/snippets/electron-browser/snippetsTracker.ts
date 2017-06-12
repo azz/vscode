@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { IWorkbenchContribution } from 'vs/workbench/common/contributions';
 import { join } from 'path';
@@ -18,7 +18,6 @@ import { watch } from 'fs';
 import { IModeService } from 'vs/editor/common/services/modeService';
 
 export class SnippetsTracker implements IWorkbenchContribution {
-
 	private readonly _snippetFolder: string;
 	private readonly _toDispose: IDisposable[];
 
@@ -33,12 +32,22 @@ export class SnippetsTracker implements IWorkbenchContribution {
 
 		// Whenever a mode is being created check if a snippet file exists
 		// and iff so read all snippets from it.
-		this._toDispose.push(modeService.onDidCreateMode(mode => {
-			const snippetPath = join(this._snippetFolder, `${mode.getId()}.json`);
-			fileExists(snippetPath)
-				.then(exists => exists && readAndRegisterSnippets(snippetService, mode.getLanguageIdentifier(), snippetPath))
-				.done(undefined, onUnexpectedError);
-		}));
+		this._toDispose.push(
+			modeService.onDidCreateMode(mode => {
+				const snippetPath = join(this._snippetFolder, `${mode.getId()}.json`);
+				fileExists(snippetPath)
+					.then(
+						exists =>
+							exists &&
+							readAndRegisterSnippets(
+								snippetService,
+								mode.getLanguageIdentifier(),
+								snippetPath
+							)
+					)
+					.done(undefined, onUnexpectedError);
+			})
+		);
 
 		// Install a FS watcher on the snippet directory and when an
 		// event occurs update the snippets for that one snippet.
@@ -52,7 +61,14 @@ export class SnippetsTracker implements IWorkbenchContribution {
 				extensionService.onReady().then(() => {
 					const langName = filename.replace(/\.json$/, '').toLowerCase();
 					const langId = modeService.getLanguageIdentifier(langName);
-					return langId && readAndRegisterSnippets(snippetService, langId, join(this._snippetFolder, filename));
+					return (
+						langId &&
+						readAndRegisterSnippets(
+							snippetService,
+							langId,
+							join(this._snippetFolder, filename)
+						)
+					);
 				}, onUnexpectedError);
 			});
 		});

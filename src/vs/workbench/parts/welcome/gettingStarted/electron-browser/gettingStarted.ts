@@ -2,11 +2,14 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { IWorkbenchContribution } from 'vs/workbench/common/contributions';
 import { IStorageService } from 'vs/platform/storage/common/storage';
-import { ITelemetryService, ITelemetryInfo } from 'vs/platform/telemetry/common/telemetry';
+import {
+	ITelemetryService,
+	ITelemetryInfo
+} from 'vs/platform/telemetry/common/telemetry';
 import { IEnvironmentService } from 'vs/platform/environment/common/environment';
 import * as platform from 'vs/base/common/platform';
 import product from 'vs/platform/node/product';
@@ -24,26 +27,35 @@ abstract class AbstractGettingStarted implements IWorkbenchContribution {
 	) {
 		this.appName = product.nameLong;
 
-		if (product.welcomePage && !environmentService.isExtensionDevelopment /* do not open a browser when we run an extension */) {
+		if (
+			product.welcomePage &&
+			!environmentService.isExtensionDevelopment /* do not open a browser when we run an extension */
+		) {
 			this.welcomePageURL = product.welcomePage;
 			this.handleWelcome();
 		}
 	}
 
 	protected handleWelcome(): void {
-		let firstStartup = !this.storageService.get(AbstractGettingStarted.hideWelcomeSettingskey);
+		let firstStartup = !this.storageService.get(
+			AbstractGettingStarted.hideWelcomeSettingskey
+		);
 
 		if (firstStartup && this.welcomePageURL) {
 			this.telemetryService.getTelemetryInfo().then(info => {
 				let url = this.getUrl(info);
 				this.openExternal(url);
-				this.storageService.store(AbstractGettingStarted.hideWelcomeSettingskey, true);
+				this.storageService.store(
+					AbstractGettingStarted.hideWelcomeSettingskey,
+					true
+				);
 			});
 		}
 	}
 
 	private getUrl(telemetryInfo: ITelemetryInfo): string {
-		return `${this.welcomePageURL}&&from=${this.appName}&&id=${telemetryInfo.machineId}`;
+		return `${this.welcomePageURL}&&from=${this
+			.appName}&&id=${telemetryInfo.machineId}`;
 	}
 
 	protected openExternal(url: string) {
@@ -56,7 +68,6 @@ abstract class AbstractGettingStarted implements IWorkbenchContribution {
 }
 
 export class GettingStarted implements IWorkbenchContribution {
-
 	private static hideWelcomeSettingskey = 'workbench.hide.welcome';
 
 	private welcomePageURL: string;
@@ -70,7 +81,11 @@ export class GettingStarted implements IWorkbenchContribution {
 		this.appName = product.nameLong;
 
 		/* do not open a browser when we run an extension or --skip-getting-started is provided */
-		if (product.welcomePage && !environmentService.isExtensionDevelopment && !environmentService.skipGettingStarted) {
+		if (
+			product.welcomePage &&
+			!environmentService.isExtensionDevelopment &&
+			!environmentService.skipGettingStarted
+		) {
 			this.welcomePageURL = product.welcomePage;
 			this.handleWelcome();
 		}
@@ -81,7 +96,8 @@ export class GettingStarted implements IWorkbenchContribution {
 	}
 
 	private getUrl(telemetryInfo: ITelemetryInfo): string {
-		return `${this.welcomePageURL}&&from=${this.appName}&&id=${telemetryInfo.machineId}`;
+		return `${this.welcomePageURL}&&from=${this
+			.appName}&&id=${telemetryInfo.machineId}`;
 	}
 
 	private openExternal(url: string) {
@@ -99,7 +115,9 @@ export class GettingStarted implements IWorkbenchContribution {
 			return;
 		}
 
-		let firstStartup = !this.storageService.get(GettingStarted.hideWelcomeSettingskey);
+		let firstStartup = !this.storageService.get(
+			GettingStarted.hideWelcomeSettingskey
+		);
 
 		if (firstStartup && this.welcomePageURL) {
 			this.telemetryService.getTelemetryInfo().then(info => {

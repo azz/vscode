@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import nls = require('vs/nls');
 import { BasicEmmetEditorAction } from 'vs/workbench/parts/emmet/electron-browser/emmetActions';
@@ -15,7 +15,7 @@ class GoToMatchingPairAction extends BasicEmmetEditorAction {
 	constructor() {
 		super(
 			'editor.emmet.action.matchingPair',
-			nls.localize('matchingPair', "Emmet: Go to Matching Pair"),
+			nls.localize('matchingPair', 'Emmet: Go to Matching Pair'),
 			'Emmet: Go to Matching Pair',
 			'matching_pair'
 		);

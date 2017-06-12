@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { Promise, TPromise } from 'vs/base/common/winjs.base';
@@ -11,15 +11,26 @@ import paths = require('vs/base/common/paths');
 import { Position, Direction, IEditor } from 'vs/platform/editor/common/editor';
 import URI from 'vs/base/common/uri';
 import { BaseEditor } from 'vs/workbench/browser/parts/editor/baseEditor';
-import { EditorInput, EditorOptions, TextEditorOptions } from 'vs/workbench/common/editor';
+import {
+	EditorInput,
+	EditorOptions,
+	TextEditorOptions
+} from 'vs/workbench/common/editor';
 import { FileEditorInput } from 'vs/workbench/parts/files/common/editors/fileEditorInput';
-import { workbenchInstantiationService, TestThemeService } from 'vs/workbench/test/workbenchTestServices';
-import { DelegatingWorkbenchEditorService, WorkbenchEditorService, IEditorPart } from 'vs/workbench/services/editor/browser/editorService';
+import {
+	workbenchInstantiationService,
+	TestThemeService
+} from 'vs/workbench/test/workbenchTestServices';
+import {
+	DelegatingWorkbenchEditorService,
+	WorkbenchEditorService,
+	IEditorPart
+} from 'vs/workbench/services/editor/browser/editorService';
 import { UntitledEditorInput } from 'vs/workbench/common/editor/untitledEditorInput';
 import { ResourceEditorInput } from 'vs/workbench/common/editor/resourceEditorInput';
 
 let activeEditor: BaseEditor = <any>{
-	getSelection: function () {
+	getSelection: function() {
 		return 'test.selection';
 	}
 };
@@ -33,7 +44,13 @@ function toResource(path) {
 }
 
 function toFileResource(path) {
-	return URI.file(paths.join('C:\\', new Buffer(this.test.fullTitle()).toString('base64'), path));
+	return URI.file(
+		paths.join(
+			'C:\\',
+			new Buffer(this.test.fullTitle()).toString('base64'),
+			path
+		)
+	);
 }
 
 class TestEditorPart implements IEditorPart {
@@ -47,11 +64,21 @@ class TestEditorPart implements IEditorPart {
 		return TPromise.as([]);
 	}
 
-	public replaceEditors(editors: { toReplace: EditorInput, replaceWith: EditorInput, options?: any }[]): TPromise<BaseEditor[]> {
+	public replaceEditors(
+		editors: {
+			toReplace: EditorInput;
+			replaceWith: EditorInput;
+			options?: any;
+		}[]
+	): TPromise<BaseEditor[]> {
 		return TPromise.as([]);
 	}
 
-	public closeEditors(position: Position, except?: EditorInput, direction?: Direction): TPromise<void> {
+	public closeEditors(
+		position: Position,
+		except?: EditorInput,
+		direction?: Direction
+	): TPromise<void> {
 		return TPromise.as(null);
 	}
 
@@ -63,9 +90,21 @@ class TestEditorPart implements IEditorPart {
 		return TPromise.as(null);
 	}
 
-	public openEditor(input?: EditorInput, options?: EditorOptions, sideBySide?: boolean): TPromise<BaseEditor>;
-	public openEditor(input?: EditorInput, options?: EditorOptions, position?: Position): TPromise<BaseEditor>;
-	public openEditor(input?: EditorInput, options?: EditorOptions, arg?: any): TPromise<BaseEditor> {
+	public openEditor(
+		input?: EditorInput,
+		options?: EditorOptions,
+		sideBySide?: boolean
+	): TPromise<BaseEditor>;
+	public openEditor(
+		input?: EditorInput,
+		options?: EditorOptions,
+		position?: Position
+	): TPromise<BaseEditor>;
+	public openEditor(
+		input?: EditorInput,
+		options?: EditorOptions,
+		arg?: any
+	): TPromise<BaseEditor> {
 		openedEditorInput = input;
 		openedEditorOptions = options;
 		openedEditorPosition = arg;
@@ -91,21 +130,27 @@ class TestEditorPart implements IEditorPart {
 }
 
 suite('WorkbenchEditorService', () => {
-
-	test('basics', function () {
+	test('basics', function() {
 		let instantiationService = workbenchInstantiationService();
 
-		let activeInput: EditorInput = instantiationService.createInstance(FileEditorInput, toFileResource.call(this, '/something.js'), void 0);
+		let activeInput: EditorInput = instantiationService.createInstance(
+			FileEditorInput,
+			toFileResource.call(this, '/something.js'),
+			void 0
+		);
 
 		let testEditorPart = new TestEditorPart();
 		testEditorPart.setActiveEditorInput(activeInput);
-		let service: WorkbenchEditorService = <any>instantiationService.createInstance(<any>WorkbenchEditorService, testEditorPart);
+		let service: WorkbenchEditorService = <any>instantiationService.createInstance(
+			<any>WorkbenchEditorService,
+			testEditorPart
+		);
 
 		assert.strictEqual(service.getActiveEditor(), activeEditor);
 		assert.strictEqual(service.getActiveEditorInput(), activeInput);
 
 		// Open EditorInput
-		service.openEditor(activeInput, null).then((editor) => {
+		service.openEditor(activeInput, null).then(editor => {
 			assert.strictEqual(openedEditorInput, activeInput);
 			assert.strictEqual(openedEditorOptions, null);
 			assert.strictEqual(editor, activeEditor);
@@ -113,7 +158,7 @@ suite('WorkbenchEditorService', () => {
 			assert(service.getVisibleEditors()[0] === editor);
 		});
 
-		service.openEditor(activeInput, null, Position.ONE).then((editor) => {
+		service.openEditor(activeInput, null, Position.ONE).then(editor => {
 			assert.strictEqual(openedEditorInput, activeInput);
 			assert.strictEqual(openedEditorOptions, null);
 			assert.strictEqual(editor, activeEditor);
@@ -122,69 +167,104 @@ suite('WorkbenchEditorService', () => {
 		});
 
 		// Open Untyped Input (file)
-		service.openEditor({ resource: toFileResource.call(this, '/index.html'), options: { selection: { startLineNumber: 1, startColumn: 1 } } }).then((editor) => {
-			assert.strictEqual(editor, activeEditor);
+		service
+			.openEditor({
+				resource: toFileResource.call(this, '/index.html'),
+				options: { selection: { startLineNumber: 1, startColumn: 1 } }
+			})
+			.then(editor => {
+				assert.strictEqual(editor, activeEditor);
 
-			assert(openedEditorInput instanceof FileEditorInput);
-			let contentInput = <FileEditorInput>openedEditorInput;
-			assert.strictEqual(contentInput.getResource().fsPath, toFileResource.call(this, '/index.html').fsPath);
+				assert(openedEditorInput instanceof FileEditorInput);
+				let contentInput = <FileEditorInput>openedEditorInput;
+				assert.strictEqual(
+					contentInput.getResource().fsPath,
+					toFileResource.call(this, '/index.html').fsPath
+				);
 
-			assert(openedEditorOptions instanceof TextEditorOptions);
-			let textEditorOptions = <TextEditorOptions>openedEditorOptions;
-			assert(textEditorOptions.hasOptionsDefined());
-		});
+				assert(openedEditorOptions instanceof TextEditorOptions);
+				let textEditorOptions = <TextEditorOptions>openedEditorOptions;
+				assert(textEditorOptions.hasOptionsDefined());
+			});
 
 		// Open Untyped Input (file, encoding)
-		service.openEditor({ resource: toFileResource.call(this, '/index.html'), encoding: 'utf16le', options: { selection: { startLineNumber: 1, startColumn: 1 } } }).then((editor) => {
-			assert.strictEqual(editor, activeEditor);
+		service
+			.openEditor({
+				resource: toFileResource.call(this, '/index.html'),
+				encoding: 'utf16le',
+				options: { selection: { startLineNumber: 1, startColumn: 1 } }
+			})
+			.then(editor => {
+				assert.strictEqual(editor, activeEditor);
 
-			assert(openedEditorInput instanceof FileEditorInput);
-			let contentInput = <FileEditorInput>openedEditorInput;
-			assert.equal(contentInput.getPreferredEncoding(), 'utf16le');
-		});
+				assert(openedEditorInput instanceof FileEditorInput);
+				let contentInput = <FileEditorInput>openedEditorInput;
+				assert.equal(contentInput.getPreferredEncoding(), 'utf16le');
+			});
 
 		// Open Untyped Input (untitled)
-		service.openEditor({ options: { selection: { startLineNumber: 1, startColumn: 1 } } }).then((editor) => {
-			assert.strictEqual(editor, activeEditor);
+		service
+			.openEditor({
+				options: { selection: { startLineNumber: 1, startColumn: 1 } }
+			})
+			.then(editor => {
+				assert.strictEqual(editor, activeEditor);
 
-			assert(openedEditorInput instanceof UntitledEditorInput);
+				assert(openedEditorInput instanceof UntitledEditorInput);
 
-			assert(openedEditorOptions instanceof TextEditorOptions);
-			let textEditorOptions = <TextEditorOptions>openedEditorOptions;
-			assert(textEditorOptions.hasOptionsDefined());
-		});
+				assert(openedEditorOptions instanceof TextEditorOptions);
+				let textEditorOptions = <TextEditorOptions>openedEditorOptions;
+				assert(textEditorOptions.hasOptionsDefined());
+			});
 
 		// Open Untyped Input (untitled with contents)
-		service.openEditor({ contents: 'Hello Untitled', options: { selection: { startLineNumber: 1, startColumn: 1 } } }).then((editor) => {
-			assert.strictEqual(editor, activeEditor);
+		service
+			.openEditor({
+				contents: 'Hello Untitled',
+				options: { selection: { startLineNumber: 1, startColumn: 1 } }
+			})
+			.then(editor => {
+				assert.strictEqual(editor, activeEditor);
 
-			assert(openedEditorInput instanceof UntitledEditorInput);
+				assert(openedEditorInput instanceof UntitledEditorInput);
 
-			const untitledInput = openedEditorInput as UntitledEditorInput;
-			untitledInput.resolve().then(model => {
-				assert.equal(model.getValue(), 'Hello Untitled');
+				const untitledInput = openedEditorInput as UntitledEditorInput;
+				untitledInput.resolve().then(model => {
+					assert.equal(model.getValue(), 'Hello Untitled');
+				});
 			});
-		});
 
 		// Open Untyped Input (untitled with file path)
-		service.openEditor({ filePath: '/some/path.txt', options: { selection: { startLineNumber: 1, startColumn: 1 } } }).then((editor) => {
-			assert.strictEqual(editor, activeEditor);
+		service
+			.openEditor({
+				filePath: '/some/path.txt',
+				options: { selection: { startLineNumber: 1, startColumn: 1 } }
+			})
+			.then(editor => {
+				assert.strictEqual(editor, activeEditor);
 
-			assert(openedEditorInput instanceof UntitledEditorInput);
+				assert(openedEditorInput instanceof UntitledEditorInput);
 
-			const untitledInput = openedEditorInput as UntitledEditorInput;
-			assert.ok(untitledInput.hasAssociatedFilePath);
-		});
+				const untitledInput = openedEditorInput as UntitledEditorInput;
+				assert.ok(untitledInput.hasAssociatedFilePath);
+			});
 	});
 
-	test('caching', function () {
+	test('caching', function() {
 		let instantiationService = workbenchInstantiationService();
 
-		let activeInput: EditorInput = instantiationService.createInstance(FileEditorInput, toFileResource.call(this, '/something.js'), void 0);
+		let activeInput: EditorInput = instantiationService.createInstance(
+			FileEditorInput,
+			toFileResource.call(this, '/something.js'),
+			void 0
+		);
 
 		let testEditorPart = new TestEditorPart();
 		testEditorPart.setActiveEditorInput(activeInput);
-		let service: WorkbenchEditorService = <any>instantiationService.createInstance(<any>WorkbenchEditorService, testEditorPart);
+		let service: WorkbenchEditorService = <any>instantiationService.createInstance(
+			<any>WorkbenchEditorService,
+			testEditorPart
+		);
 
 		// Cached Input (Files)
 		const fileResource1 = toFileResource.call(this, '/foo/bar/cache1.js');
@@ -204,7 +284,9 @@ suite('WorkbenchEditorService', () => {
 
 		assert.ok(fileInput1.isDisposed());
 
-		const fileInput1AgainAndAgain = service.createInput({ resource: fileResource1 });
+		const fileInput1AgainAndAgain = service.createInput({
+			resource: fileResource1
+		});
 		assert.notEqual(fileInput1AgainAndAgain, fileInput1);
 		assert.ok(!fileInput1AgainAndAgain.isDisposed());
 
@@ -231,16 +313,22 @@ suite('WorkbenchEditorService', () => {
 		assert.ok(!input1AgainAndAgain.isDisposed());
 	});
 
-	test('delegate', function (done) {
+	test('delegate', function(done) {
 		let instantiationService = workbenchInstantiationService();
-		let activeInput: EditorInput = instantiationService.createInstance(FileEditorInput, toFileResource.call(this, '/something.js'), void 0);
+		let activeInput: EditorInput = instantiationService.createInstance(
+			FileEditorInput,
+			toFileResource.call(this, '/something.js'),
+			void 0
+		);
 
 		let testEditorPart = new TestEditorPart();
 		testEditorPart.setActiveEditorInput(activeInput);
 
-		instantiationService.createInstance(<any>WorkbenchEditorService, testEditorPart);
+		instantiationService.createInstance(
+			<any>WorkbenchEditorService,
+			testEditorPart
+		);
 		class MyEditor extends BaseEditor {
-
 			constructor(id: string) {
 				super(id, null, new TestThemeService());
 			}
@@ -249,18 +337,21 @@ suite('WorkbenchEditorService', () => {
 				return 'myEditor';
 			}
 
-			public layout(): void {
+			public layout(): void {}
 
-			}
-
-			public createEditor(): any {
-
-			}
+			public createEditor(): any {}
 		}
 		let ed = instantiationService.createInstance(MyEditor, 'my.editor');
 
-		let inp = instantiationService.createInstance(ResourceEditorInput, 'name', 'description', URI.from('my://resource'));
-		let delegate = instantiationService.createInstance(DelegatingWorkbenchEditorService);
+		let inp = instantiationService.createInstance(
+			ResourceEditorInput,
+			'name',
+			'description',
+			URI.from('my://resource')
+		);
+		let delegate = instantiationService.createInstance(
+			DelegatingWorkbenchEditorService
+		);
 		delegate.setEditorOpenHandler((input, options?) => {
 			assert.strictEqual(input, inp);
 

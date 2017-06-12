@@ -3,13 +3,23 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
-import { Socket, Server as NetServer, createConnection, createServer } from 'net';
+import {
+	Socket,
+	Server as NetServer,
+	createConnection,
+	createServer
+} from 'net';
 import { TPromise } from 'vs/base/common/winjs.base';
 import Event, { Emitter, once, mapEvent } from 'vs/base/common/event';
 import { fromEventEmitter } from 'vs/base/node/event';
-import { IMessagePassingProtocol, ClientConnectionEvent, IPCServer, IPCClient } from 'vs/base/parts/ipc/common/ipc';
+import {
+	IMessagePassingProtocol,
+	ClientConnectionEvent,
+	IPCServer,
+	IPCClient
+} from 'vs/base/parts/ipc/common/ipc';
 import { join } from 'path';
 import { tmpdir } from 'os';
 import { generateUuid } from 'vs/base/common/uuid';
@@ -25,7 +35,6 @@ export function generateRandomPipeName(): string {
 }
 
 export class Protocol implements IMessagePassingProtocol {
-
 	private static _headerLen = 17;
 
 	private _onMessage = new Emitter<any>();
@@ -33,23 +42,20 @@ export class Protocol implements IMessagePassingProtocol {
 	readonly onMessage: Event<any> = this._onMessage.event;
 
 	constructor(private _socket: Socket) {
-
 		let chunks = [];
 		let totalLength = 0;
 
 		const state = {
 			readHead: true,
 			bodyIsJson: false,
-			bodyLen: -1,
+			bodyLen: -1
 		};
 
 		_socket.on('data', (data: Buffer) => {
-
 			chunks.push(data);
 			totalLength += data.length;
 
 			while (totalLength > 0) {
-
 				if (state.readHead) {
 					// expecting header -> read 17bytes for header
 					// information: `bodyIsJson` and `bodyLen`
@@ -63,7 +69,6 @@ export class Protocol implements IMessagePassingProtocol {
 						const rest = all.slice(Protocol._headerLen);
 						totalLength = rest.length;
 						chunks = [rest];
-
 					} else {
 						break;
 					}
@@ -73,7 +78,6 @@ export class Protocol implements IMessagePassingProtocol {
 					// expecting body -> read bodyLen-bytes for
 					// the actual message or wait for more data
 					if (totalLength >= state.bodyLen) {
-
 						const all = Buffer.concat(chunks);
 						let message = all.toString('utf8', 0, state.bodyLen);
 						if (state.bodyIsJson) {
@@ -88,7 +92,6 @@ export class Protocol implements IMessagePassingProtocol {
 						state.bodyIsJson = false;
 						state.bodyLen = -1;
 						state.readHead = true;
-
 					} else {
 						break;
 					}
@@ -98,7 +101,6 @@ export class Protocol implements IMessagePassingProtocol {
 	}
 
 	public send(message: any): void {
-
 		// [bodyIsJson|bodyLen|message]
 		// |^header^^^^^^^^^^^|^data^^]
 
@@ -116,7 +118,6 @@ export class Protocol implements IMessagePassingProtocol {
 	}
 
 	private _writeBuffer = new class {
-
 		private _data: Buffer[] = [];
 		private _totalLength = 0;
 
@@ -133,7 +134,7 @@ export class Protocol implements IMessagePassingProtocol {
 			this._totalLength = 0;
 			return ret;
 		}
-	};
+	}();
 
 	private _writeSoon(header: Buffer, data: Buffer): void {
 		if (this._writeBuffer.add(header, data)) {
@@ -154,8 +155,9 @@ export class Protocol implements IMessagePassingProtocol {
 }
 
 export class Server extends IPCServer {
-
-	private static toClientConnectionEvent(server: NetServer): Event<ClientConnectionEvent> {
+	private static toClientConnectionEvent(
+		server: NetServer
+	): Event<ClientConnectionEvent> {
 		const onConnection = fromEventEmitter<Socket>(server, 'connection');
 
 		return mapEvent(onConnection, socket => ({
@@ -176,9 +178,10 @@ export class Server extends IPCServer {
 }
 
 export class Client extends IPCClient {
-
 	private _onClose = new Emitter<void>();
-	get onClose(): Event<void> { return this._onClose.event; }
+	get onClose(): Event<void> {
+		return this._onClose.event;
+	}
 
 	constructor(private socket: Socket, id: string) {
 		super(new Protocol(socket), id);

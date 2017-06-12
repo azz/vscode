@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { IDisposable } from 'vs/base/common/lifecycle';
 import { Scope, Memento } from 'vs/workbench/common/memento';
@@ -16,7 +16,6 @@ import { Themable } from 'vs/workbench/common/theme';
  * loading and saving settings through memento.
  */
 export interface IWorkbenchComponent extends IDisposable {
-
 	/**
 	* The unique identifier of this component.
 	*/
@@ -35,10 +34,7 @@ export class Component extends Themable implements IWorkbenchComponent {
 	private id: string;
 	private componentMemento: Memento;
 
-	constructor(
-		id: string,
-		themeService: IThemeService
-	) {
+	constructor(id: string, themeService: IThemeService) {
 		super(themeService);
 
 		this.id = id;
@@ -58,7 +54,10 @@ export class Component extends Themable implements IWorkbenchComponent {
 	* Mementos are shared across components with the same id. This means that multiple components
 	* with the same id will store data into the same data structure.
 	*/
-	protected getMemento(storageService: IStorageService, scope: Scope = Scope.GLOBAL): any {
+	protected getMemento(
+		storageService: IStorageService,
+		scope: Scope = Scope.GLOBAL
+	): any {
 		return this.componentMemento.getMemento(storageService, scope);
 	}
 
@@ -74,7 +73,6 @@ export class Component extends Themable implements IWorkbenchComponent {
 	}
 
 	public shutdown(): void {
-
 		// Save Memento
 		this.saveMemento();
 	}

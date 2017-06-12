@@ -3,21 +3,26 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 /**
  * MarkedString can be used to render human readable text. It is either a markdown string
  * or a code-block that provides a language and a code snippet. Note that
  * markdown strings will be sanitized - that means html will be escaped.
  */
-export type MarkedString = string | { readonly language: string; readonly value: string };
+export type MarkedString =
+	| string
+	| { readonly language: string; readonly value: string };
 
 export interface IHTMLContentElementCode {
 	language: string;
 	value: string;
 }
 
-export function markedStringsEquals(a: MarkedString | MarkedString[], b: MarkedString | MarkedString[]): boolean {
+export function markedStringsEquals(
+	a: MarkedString | MarkedString[],
+	b: MarkedString | MarkedString[]
+): boolean {
 	if (!a && !b) {
 		return true;
 	}
@@ -33,7 +38,6 @@ export function markedStringsEquals(a: MarkedString | MarkedString[], b: MarkedS
 	}
 	return markedStringEqual(<MarkedString>a, <MarkedString>b);
 }
-
 
 function markedStringArrEquals(a: MarkedString[], b: MarkedString[]): boolean {
 	let aLen = a.length,
@@ -61,10 +65,7 @@ function markedStringEqual(a: MarkedString, b: MarkedString): boolean {
 	if (typeof a === 'string' || typeof b === 'string') {
 		return typeof a === 'string' && typeof b === 'string' && a === b;
 	}
-	return (
-		a.language === b.language
-		&& a.value === b.value
-	);
+	return a.language === b.language && a.value === b.value;
 }
 
 export function textToMarkedString(text: string): MarkedString {
@@ -95,36 +96,42 @@ export interface IHTMLContentElement {
 	code?: IHTMLContentElementCode;
 }
 
-function htmlContentElementCodeEqual(a: IHTMLContentElementCode, b: IHTMLContentElementCode): boolean {
+function htmlContentElementCodeEqual(
+	a: IHTMLContentElementCode,
+	b: IHTMLContentElementCode
+): boolean {
 	if (!a && !b) {
 		return true;
 	}
 	if (!a || !b) {
 		return false;
 	}
+	return a.language === b.language && a.value === b.value;
+}
+
+function htmlContentElementEqual(
+	a: IHTMLContentElement,
+	b: IHTMLContentElement
+): boolean {
 	return (
-		a.language === b.language
-		&& a.value === b.value
+		a.formattedText === b.formattedText &&
+		a.text === b.text &&
+		a.className === b.className &&
+		a.style === b.style &&
+		a.customStyle === b.customStyle &&
+		a.tagName === b.tagName &&
+		a.isText === b.isText &&
+		a.role === b.role &&
+		a.markdown === b.markdown &&
+		htmlContentElementCodeEqual(a.code, b.code) &&
+		htmlContentElementArrEquals(a.children, b.children)
 	);
 }
 
-function htmlContentElementEqual(a: IHTMLContentElement, b: IHTMLContentElement): boolean {
-	return (
-		a.formattedText === b.formattedText
-		&& a.text === b.text
-		&& a.className === b.className
-		&& a.style === b.style
-		&& a.customStyle === b.customStyle
-		&& a.tagName === b.tagName
-		&& a.isText === b.isText
-		&& a.role === b.role
-		&& a.markdown === b.markdown
-		&& htmlContentElementCodeEqual(a.code, b.code)
-		&& htmlContentElementArrEquals(a.children, b.children)
-	);
-}
-
-export function htmlContentElementArrEquals(a: IHTMLContentElement[], b: IHTMLContentElement[]): boolean {
+export function htmlContentElementArrEquals(
+	a: IHTMLContentElement[],
+	b: IHTMLContentElement[]
+): boolean {
 	if (!a && !b) {
 		return true;
 	}

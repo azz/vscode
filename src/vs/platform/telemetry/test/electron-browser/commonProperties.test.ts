@@ -2,33 +2,51 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { TPromise } from 'vs/base/common/winjs.base';
 import { TestInstantiationService } from 'vs/platform/instantiation/test/common/instantiationServiceMock';
 import { resolveWorkbenchCommonProperties } from 'vs/platform/telemetry/node/workbenchCommonProperties';
-import { IWorkspaceContextService, WorkspaceContextService } from 'vs/platform/workspace/common/workspace';
-import { StorageService, InMemoryLocalStorage } from 'vs/platform/storage/common/storageService';
+import {
+	IWorkspaceContextService,
+	WorkspaceContextService
+} from 'vs/platform/workspace/common/workspace';
+import {
+	StorageService,
+	InMemoryLocalStorage
+} from 'vs/platform/storage/common/storageService';
 import { TestWorkspace } from 'vs/platform/workspace/test/common/testWorkspace';
 
-suite('Telemetry - common properties', function () {
-
+suite('Telemetry - common properties', function() {
 	const commit = void 0;
 	const version = void 0;
 	let storageService;
 
 	setup(() => {
 		let instantiationService = new TestInstantiationService();
-		let contextService = instantiationService.stub(IWorkspaceContextService, WorkspaceContextService);
-		instantiationService.stub(IWorkspaceContextService, 'getWorkspace', TestWorkspace);
-		storageService = new StorageService(new InMemoryLocalStorage(), null, contextService);
+		let contextService = instantiationService.stub(
+			IWorkspaceContextService,
+			WorkspaceContextService
+		);
+		instantiationService.stub(
+			IWorkspaceContextService,
+			'getWorkspace',
+			TestWorkspace
+		);
+		storageService = new StorageService(
+			new InMemoryLocalStorage(),
+			null,
+			contextService
+		);
 	});
 
-	test('default', function () {
-
-		return resolveWorkbenchCommonProperties(storageService, commit, version).then(props => {
-
+	test('default', function() {
+		return resolveWorkbenchCommonProperties(
+			storageService,
+			commit,
+			version
+		).then(props => {
 			assert.ok('commitHash' in props);
 			assert.ok('sessionID' in props);
 			assert.ok('timestamp' in props);
@@ -50,28 +68,34 @@ suite('Telemetry - common properties', function () {
 			// machine id et al
 			assert.ok('common.instanceId' in props, 'instanceId');
 			assert.ok('common.machineId' in props, 'machineId');
-			if (process.platform === 'win32') { // SQM only on windows
+			if (process.platform === 'win32') {
+				// SQM only on windows
 				assert.ok('common.sqm.userid' in props, 'userid');
 				assert.ok('common.sqm.machineid' in props, 'machineid');
 			}
-
 		});
 	});
 
-	test('lastSessionDate when aviablale', function () {
-
+	test('lastSessionDate when aviablale', function() {
 		storageService.store('telemetry.lastSessionDate', new Date().toUTCString());
 
-		return resolveWorkbenchCommonProperties(storageService, commit, version).then(props => {
-
+		return resolveWorkbenchCommonProperties(
+			storageService,
+			commit,
+			version
+		).then(props => {
 			assert.ok('common.lastSessionDate' in props); // conditional, see below
 			assert.ok('common.isNewSession' in props);
 			assert.equal(props['common.isNewSession'], 0);
 		});
 	});
 
-	test('values chance on ask', function () {
-		return resolveWorkbenchCommonProperties(storageService, commit, version).then(props => {
+	test('values chance on ask', function() {
+		return resolveWorkbenchCommonProperties(
+			storageService,
+			commit,
+			version
+		).then(props => {
 			let value1 = props['common.sequence'];
 			let value2 = props['common.sequence'];
 			assert.ok(value1 !== value2, 'seq');

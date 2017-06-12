@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./parameterHints';
 import nls = require('vs/nls');
@@ -11,21 +11,39 @@ import { IDisposable, dispose, Disposable } from 'vs/base/common/lifecycle';
 import { TPromise } from 'vs/base/common/winjs.base';
 import * as dom from 'vs/base/browser/dom';
 import aria = require('vs/base/browser/ui/aria/aria');
-import { SignatureHelp, SignatureInformation, SignatureHelpProviderRegistry } from 'vs/editor/common/modes';
-import { ContentWidgetPositionPreference, ICodeEditor, IContentWidget, IContentWidgetPosition } from 'vs/editor/browser/editorBrowser';
+import {
+	SignatureHelp,
+	SignatureInformation,
+	SignatureHelpProviderRegistry
+} from 'vs/editor/common/modes';
+import {
+	ContentWidgetPositionPreference,
+	ICodeEditor,
+	IContentWidget,
+	IContentWidgetPosition
+} from 'vs/editor/browser/editorBrowser';
 import { RunOnceScheduler } from 'vs/base/common/async';
 import { onUnexpectedError } from 'vs/base/common/errors';
 import Event, { Emitter, chain } from 'vs/base/common/event';
 import { domEvent, stop } from 'vs/base/browser/event';
 import { ICommonCodeEditor } from 'vs/editor/common/editorCommon';
-import { IContextKey, IContextKeyService } from 'vs/platform/contextkey/common/contextkey';
+import {
+	IContextKey,
+	IContextKeyService
+} from 'vs/platform/contextkey/common/contextkey';
 import { Context, provideSignatureHelp } from '../common/parameterHints';
 import { DomScrollableElement } from 'vs/base/browser/ui/scrollbar/scrollableElement';
 import { CharacterSet } from 'vs/editor/common/core/characterClassifier';
 import { IConfigurationChangedEvent } from 'vs/editor/common/config/editorOptions';
 import { ICursorSelectionChangedEvent } from 'vs/editor/common/controller/cursorEvents';
-import { registerThemingParticipant, HIGH_CONTRAST } from 'vs/platform/theme/common/themeService';
-import { editorHoverBackground, editorHoverBorder } from 'vs/platform/theme/common/colorRegistry';
+import {
+	registerThemingParticipant,
+	HIGH_CONTRAST
+} from 'vs/platform/theme/common/themeService';
+import {
+	editorHoverBackground,
+	editorHoverBorder
+} from 'vs/platform/theme/common/colorRegistry';
 
 const $ = dom.$;
 
@@ -34,7 +52,6 @@ export interface IHintEvent {
 }
 
 export class ParameterHintsModel extends Disposable {
-
 	static DELAY = 120; // ms
 
 	private _onHint = this._register(new Emitter<IHintEvent>());
@@ -56,15 +73,28 @@ export class ParameterHintsModel extends Disposable {
 		this.enabled = false;
 		this.triggerCharactersListeners = [];
 
-		this.throttledDelayer = new RunOnceScheduler(() => this.doTrigger(), ParameterHintsModel.DELAY);
+		this.throttledDelayer = new RunOnceScheduler(
+			() => this.doTrigger(),
+			ParameterHintsModel.DELAY
+		);
 
 		this.active = false;
 
-		this._register(this.editor.onDidChangeConfiguration(() => this.onEditorConfigurationChange()));
+		this._register(
+			this.editor.onDidChangeConfiguration(() =>
+				this.onEditorConfigurationChange()
+			)
+		);
 		this._register(this.editor.onDidChangeModel(e => this.onModelChanged()));
-		this._register(this.editor.onDidChangeModelLanguage(_ => this.onModelChanged()));
-		this._register(this.editor.onDidChangeCursorSelection(e => this.onCursorChange(e)));
-		this._register(SignatureHelpProviderRegistry.onDidChange(this.onModelChanged, this));
+		this._register(
+			this.editor.onDidChangeModelLanguage(_ => this.onModelChanged())
+		);
+		this._register(
+			this.editor.onDidChangeCursorSelection(e => this.onCursorChange(e))
+		);
+		this._register(
+			SignatureHelpProviderRegistry.onDidChange(this.onModelChanged, this)
+		);
 
 		this.onEditorConfigurationChange();
 		this.onModelChanged();
@@ -81,7 +111,10 @@ export class ParameterHintsModel extends Disposable {
 	}
 
 	trigger(delay = ParameterHintsModel.DELAY): void {
-		if (!this.enabled || !SignatureHelpProviderRegistry.has(this.editor.getModel())) {
+		if (
+			!this.enabled ||
+			!SignatureHelpProviderRegistry.has(this.editor.getModel())
+		) {
 			return;
 		}
 
@@ -131,12 +164,14 @@ export class ParameterHintsModel extends Disposable {
 			}
 		}
 
-		this.triggerCharactersListeners.push(this.editor.onDidType((text: string) => {
-			let lastCharCode = text.charCodeAt(text.length - 1);
-			if (triggerChars.has(lastCharCode)) {
-				this.trigger();
-			}
-		}));
+		this.triggerCharactersListeners.push(
+			this.editor.onDidType((text: string) => {
+				let lastCharCode = text.charCodeAt(text.length - 1);
+				if (triggerChars.has(lastCharCode)) {
+					this.trigger();
+				}
+			})
+		);
 	}
 
 	private onCursorChange(e: ICursorSelectionChangedEvent): void {
@@ -164,7 +199,6 @@ export class ParameterHintsModel extends Disposable {
 }
 
 export class ParameterHintsWidget implements IContentWidget, IDisposable {
-
 	private static ID = 'editor.widget.parameterHintsWidget';
 
 	private model: ParameterHintsModel;
@@ -184,23 +218,32 @@ export class ParameterHintsWidget implements IContentWidget, IDisposable {
 	// Editor.IContentWidget.allowEditorOverflow
 	allowEditorOverflow = true;
 
-	constructor(private editor: ICodeEditor, @IContextKeyService contextKeyService: IContextKeyService) {
+	constructor(
+		private editor: ICodeEditor,
+		@IContextKeyService contextKeyService: IContextKeyService
+	) {
 		this.model = new ParameterHintsModel(editor);
 		this.keyVisible = Context.Visible.bindTo(contextKeyService);
-		this.keyMultipleSignatures = Context.MultipleSignatures.bindTo(contextKeyService);
+		this.keyMultipleSignatures = Context.MultipleSignatures.bindTo(
+			contextKeyService
+		);
 		this.visible = false;
 		this.disposables = [];
 
-		this.disposables.push(this.model.onHint(e => {
-			this.show();
-			this.hints = e.hints;
-			this.currentSignature = e.hints.activeSignature;
-			this.render();
-		}));
+		this.disposables.push(
+			this.model.onHint(e => {
+				this.show();
+				this.hints = e.hints;
+				this.currentSignature = e.hints.activeSignature;
+				this.render();
+			})
+		);
 
-		this.disposables.push(this.model.onCancel(() => {
-			this.hide();
-		}));
+		this.disposables.push(
+			this.model.onCancel(() => {
+				this.hide();
+			})
+		);
 
 		this.element = $('.editor-widget.parameter-hints-widget');
 		const wrapper = dom.append(this.element, $('.wrapper'));
@@ -221,7 +264,9 @@ export class ParameterHintsWidget implements IContentWidget, IDisposable {
 		this.overloads = dom.append(wrapper, $('.overloads'));
 
 		const body = $('.body');
-		this.scrollbar = new DomScrollableElement(body, { canUseTranslate3d: false });
+		this.scrollbar = new DomScrollableElement(body, {
+			canUseTranslate3d: false
+		});
 		this.disposables.push(this.scrollbar);
 		wrapper.appendChild(this.scrollbar.getDomNode());
 
@@ -234,11 +279,13 @@ export class ParameterHintsWidget implements IContentWidget, IDisposable {
 		this.editor.addContentWidget(this);
 		this.hide();
 
-		this.disposables.push(this.editor.onDidChangeCursorSelection(e => {
-			if (this.visible) {
-				this.editor.layoutContentWidget(this);
-			}
-		}));
+		this.disposables.push(
+			this.editor.onDidChangeCursorSelection(e => {
+				if (this.visible) {
+					this.editor.layoutContentWidget(this);
+				}
+			})
+		);
 
 		const updateFont = () => {
 			const fontInfo = this.editor.getConfiguration().fontInfo;
@@ -247,11 +294,15 @@ export class ParameterHintsWidget implements IContentWidget, IDisposable {
 
 		updateFont();
 
-		chain<IConfigurationChangedEvent>(this.editor.onDidChangeConfiguration.bind(this.editor))
+		chain<IConfigurationChangedEvent>(
+			this.editor.onDidChangeConfiguration.bind(this.editor)
+		)
 			.filter(e => e.fontInfo)
 			.on(updateFont, null, this.disposables);
 
-		this.disposables.push(this.editor.onDidLayoutChange(e => this.updateMaxHeight()));
+		this.disposables.push(
+			this.editor.onDidLayoutChange(e => this.updateMaxHeight())
+		);
 		this.updateMaxHeight();
 	}
 
@@ -283,7 +334,10 @@ export class ParameterHintsWidget implements IContentWidget, IDisposable {
 		if (this.visible) {
 			return {
 				position: this.editor.getPosition(),
-				preference: [ContentWidgetPositionPreference.ABOVE, ContentWidgetPositionPreference.BELOW]
+				preference: [
+					ContentWidgetPositionPreference.ABOVE,
+					ContentWidgetPositionPreference.BELOW
+				]
 			};
 		}
 		return null;
@@ -313,7 +367,6 @@ export class ParameterHintsWidget implements IContentWidget, IDisposable {
 		if (!hasParameters) {
 			const label = dom.append(code, $('span'));
 			label.textContent = signature.label;
-
 		} else {
 			this.renderParameters(code, signature, this.hints.activeParameter);
 		}
@@ -346,7 +399,7 @@ export class ParameterHintsWidget implements IContentWidget, IDisposable {
 			// We do not want to spam the user with same announcements, so we only announce if the current parameter changed.
 
 			if (this.announcedLabel !== labelToAnnounce) {
-				aria.alert(nls.localize('hint', "{0}, hint", labelToAnnounce));
+				aria.alert(nls.localize('hint', '{0}, hint', labelToAnnounce));
 				this.announcedLabel = labelToAnnounce;
 			}
 		}
@@ -355,7 +408,11 @@ export class ParameterHintsWidget implements IContentWidget, IDisposable {
 		this.scrollbar.scanDomNode();
 	}
 
-	private renderParameters(parent: HTMLElement, signature: SignatureInformation, currentParameter: number): void {
+	private renderParameters(
+		parent: HTMLElement,
+		signature: SignatureInformation,
+		currentParameter: number
+	): void {
 		let end = signature.label.length;
 		let idx = 0;
 		let element: HTMLSpanElement;
@@ -380,7 +437,10 @@ export class ParameterHintsWidget implements IContentWidget, IDisposable {
 			// parameter part
 			element = document.createElement('span');
 			element.className = `parameter ${i === currentParameter ? 'active' : ''}`;
-			element.textContent = signature.label.substring(signatureLabelOffset, signatureLabelEnd);
+			element.textContent = signature.label.substring(
+				signatureLabelOffset,
+				signatureLabelEnd
+			);
 			dom.prepend(parent, element);
 
 			end = signatureLabelOffset;
@@ -479,13 +539,24 @@ registerThemingParticipant((theme, collector) => {
 	let border = theme.getColor(editorHoverBorder);
 	if (border) {
 		let borderWidth = theme.type === HIGH_CONTRAST ? 2 : 1;
-		collector.addRule(`.monaco-editor .parameter-hints-widget { border: ${borderWidth}px solid ${border}; }`);
-		collector.addRule(`.monaco-editor .parameter-hints-widget.multiple .body { border-left: 1px solid ${border.transparent(0.5)}; }`);
-		collector.addRule(`.monaco-editor .parameter-hints-widget .signature.has-docs { border-bottom: 1px solid ${border.transparent(0.5)}; }`);
-
+		collector.addRule(
+			`.monaco-editor .parameter-hints-widget { border: ${borderWidth}px solid ${border}; }`
+		);
+		collector.addRule(
+			`.monaco-editor .parameter-hints-widget.multiple .body { border-left: 1px solid ${border.transparent(
+				0.5
+			)}; }`
+		);
+		collector.addRule(
+			`.monaco-editor .parameter-hints-widget .signature.has-docs { border-bottom: 1px solid ${border.transparent(
+				0.5
+			)}; }`
+		);
 	}
 	let background = theme.getColor(editorHoverBackground);
 	if (background) {
-		collector.addRule(`.monaco-editor .parameter-hints-widget { background-color: ${background}; }`);
+		collector.addRule(
+			`.monaco-editor .parameter-hints-widget { background-color: ${background}; }`
+		);
 	}
 });

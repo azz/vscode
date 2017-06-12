@@ -3,9 +3,12 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
-function* filter<T>(it: IterableIterator<T>, condition: (t: T, i: number) => boolean): IterableIterator<T> {
+function* filter<T>(
+	it: IterableIterator<T>,
+	condition: (t: T, i: number) => boolean
+): IterableIterator<T> {
 	let i = 0;
 	for (let t of it) {
 		if (condition(t, i++)) {
@@ -14,7 +17,10 @@ function* filter<T>(it: IterableIterator<T>, condition: (t: T, i: number) => boo
 	}
 }
 
-function* map<T, R>(it: IterableIterator<T>, fn: (t: T, i: number) => R): IterableIterator<R> {
+function* map<T, R>(
+	it: IterableIterator<T>,
+	fn: (t: T, i: number) => R
+): IterableIterator<R> {
 	let i = 0;
 	for (let t of it) {
 		yield fn(t, i++);
@@ -28,8 +34,7 @@ export interface FunctionalIterator<T> extends Iterable<T> {
 }
 
 class FunctionalIteratorImpl<T> implements FunctionalIterator<T> {
-
-	constructor(private iterator: IterableIterator<T>) { }
+	constructor(private iterator: IterableIterator<T>) {}
 
 	filter(condition: (t: T, i: number) => boolean): FunctionalIterator<T> {
 		return new FunctionalIteratorImpl(filter(this.iterator, condition));
@@ -48,7 +53,9 @@ class FunctionalIteratorImpl<T> implements FunctionalIterator<T> {
 	}
 }
 
-export function iterate<T>(obj: T[] | IterableIterator<T>): FunctionalIterator<T> {
+export function iterate<T>(
+	obj: T[] | IterableIterator<T>
+): FunctionalIterator<T> {
 	if (Array.isArray(obj)) {
 		return new FunctionalIteratorImpl(obj[Symbol.iterator]());
 	}

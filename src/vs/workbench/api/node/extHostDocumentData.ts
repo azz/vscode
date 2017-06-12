@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { ok } from 'vs/base/common/assert';
 import { regExpLeadsToEndlessLoop } from 'vs/base/common/strings';
@@ -10,13 +10,19 @@ import { MirrorModel } from 'vs/editor/common/model/mirrorModel';
 import URI from 'vs/base/common/uri';
 import { Range, Position, EndOfLine } from 'vs/workbench/api/node/extHostTypes';
 import * as vscode from 'vscode';
-import { getWordAtText, ensureValidWordDefinition } from 'vs/editor/common/model/wordHelper';
+import {
+	getWordAtText,
+	ensureValidWordDefinition
+} from 'vs/editor/common/model/wordHelper';
 import { MainThreadDocumentsShape } from './extHost.protocol';
 import { ITextSource } from 'vs/editor/common/model/textSource';
 import { TPromise } from 'vs/base/common/winjs.base';
 
 const _modeId2WordDefinition = new Map<string, RegExp>();
-export function setWordDefinitionFor(modeId: string, wordDefinition: RegExp): void {
+export function setWordDefinitionFor(
+	modeId: string,
+	wordDefinition: RegExp
+): void {
 	_modeId2WordDefinition.set(modeId, wordDefinition);
 }
 export function getWordDefinitionFor(modeId: string): RegExp {
@@ -24,7 +30,6 @@ export function getWordDefinitionFor(modeId: string): RegExp {
 }
 
 export class ExtHostDocumentData extends MirrorModel {
-
 	private _proxy: MainThreadDocumentsShape;
 	private _languageId: string;
 	private _isDirty: boolean;
@@ -32,8 +37,14 @@ export class ExtHostDocumentData extends MirrorModel {
 	private _textLines: vscode.TextLine[] = [];
 	private _isDisposed: boolean = false;
 
-	constructor(proxy: MainThreadDocumentsShape, uri: URI, lines: string[], eol: string,
-		languageId: string, versionId: number, isDirty: boolean
+	constructor(
+		proxy: MainThreadDocumentsShape,
+		uri: URI,
+		lines: string[],
+		eol: string,
+		languageId: string,
+		versionId: number,
+		isDirty: boolean
 	) {
 		super(uri, lines, eol, versionId);
 		this._proxy = proxy;
@@ -67,23 +78,57 @@ export class ExtHostDocumentData extends MirrorModel {
 		if (!this._document) {
 			const data = this;
 			this._document = {
-				get uri() { return data._uri; },
-				get fileName() { return data._uri.fsPath; },
-				get isUntitled() { return data._uri.scheme !== 'file'; },
-				get languageId() { return data._languageId; },
-				get version() { return data._versionId; },
-				get isClosed() { return data._isDisposed; },
-				get isDirty() { return data._isDirty; },
-				save() { return data._save(); },
-				getText(range?) { return range ? data._getTextInRange(range) : data.getText(); },
-				get eol() { return data._eol === '\n' ? EndOfLine.LF : EndOfLine.CRLF; },
-				get lineCount() { return data._lines.length; },
-				lineAt(lineOrPos) { return data._lineAt(lineOrPos); },
-				offsetAt(pos) { return data._offsetAt(pos); },
-				positionAt(offset) { return data._positionAt(offset); },
-				validateRange(ran) { return data._validateRange(ran); },
-				validatePosition(pos) { return data._validatePosition(pos); },
-				getWordRangeAtPosition(pos, regexp?) { return data._getWordRangeAtPosition(pos, regexp); }
+				get uri() {
+					return data._uri;
+				},
+				get fileName() {
+					return data._uri.fsPath;
+				},
+				get isUntitled() {
+					return data._uri.scheme !== 'file';
+				},
+				get languageId() {
+					return data._languageId;
+				},
+				get version() {
+					return data._versionId;
+				},
+				get isClosed() {
+					return data._isDisposed;
+				},
+				get isDirty() {
+					return data._isDirty;
+				},
+				save() {
+					return data._save();
+				},
+				getText(range?) {
+					return range ? data._getTextInRange(range) : data.getText();
+				},
+				get eol() {
+					return data._eol === '\n' ? EndOfLine.LF : EndOfLine.CRLF;
+				},
+				get lineCount() {
+					return data._lines.length;
+				},
+				lineAt(lineOrPos) {
+					return data._lineAt(lineOrPos);
+				},
+				offsetAt(pos) {
+					return data._offsetAt(pos);
+				},
+				positionAt(offset) {
+					return data._positionAt(offset);
+				},
+				validateRange(ran) {
+					return data._validateRange(ran);
+				},
+				validatePosition(pos) {
+					return data._validatePosition(pos);
+				},
+				getWordRangeAtPosition(pos, regexp?) {
+					return data._getWordRangeAtPosition(pos, regexp);
+				}
 			};
 		}
 		return Object.freeze(this._document);
@@ -114,7 +159,10 @@ export class ExtHostDocumentData extends MirrorModel {
 		}
 
 		if (range.isSingleLine) {
-			return this._lines[range.start.line].substring(range.start.character, range.end.character);
+			return this._lines[range.start.line].substring(
+				range.start.character,
+				range.end.character
+			);
 		}
 
 		let lineEnding = this._eol,
@@ -122,17 +170,20 @@ export class ExtHostDocumentData extends MirrorModel {
 			endLineIndex = range.end.line,
 			resultLines: string[] = [];
 
-		resultLines.push(this._lines[startLineIndex].substring(range.start.character));
+		resultLines.push(
+			this._lines[startLineIndex].substring(range.start.character)
+		);
 		for (let i = startLineIndex + 1; i < endLineIndex; i++) {
 			resultLines.push(this._lines[i]);
 		}
-		resultLines.push(this._lines[endLineIndex].substring(0, range.end.character));
+		resultLines.push(
+			this._lines[endLineIndex].substring(0, range.end.character)
+		);
 
 		return resultLines.join(lineEnding);
 	}
 
 	private _lineAt(lineOrPosition: number | vscode.Position): vscode.TextLine {
-
 		let line: number;
 		if (lineOrPosition instanceof Position) {
 			line = lineOrPosition.line;
@@ -145,8 +196,11 @@ export class ExtHostDocumentData extends MirrorModel {
 		}
 
 		let result = this._textLines[line];
-		if (!result || result.lineNumber !== line || result.text !== this._lines[line]) {
-
+		if (
+			!result ||
+			result.lineNumber !== line ||
+			result.text !== this._lines[line]
+		) {
 			const text = this._lines[line];
 			const firstNonWhitespaceCharacterIndex = /^(\s*)/.exec(text)[1].length;
 			const range = new Range(line, 0, line, text.length);
@@ -172,7 +226,10 @@ export class ExtHostDocumentData extends MirrorModel {
 	private _offsetAt(position: vscode.Position): number {
 		position = this._validatePosition(position);
 		this._ensureLineStarts();
-		return this._lineStarts.getAccumulatedValue(position.line - 1) + position.character;
+		return (
+			this._lineStarts.getAccumulatedValue(position.line - 1) +
+			position.character
+		);
 	}
 
 	private _positionAt(offset: number): vscode.Position {
@@ -216,19 +273,16 @@ export class ExtHostDocumentData extends MirrorModel {
 			line = 0;
 			character = 0;
 			hasChanged = true;
-		}
-		else if (line >= this._lines.length) {
+		} else if (line >= this._lines.length) {
 			line = this._lines.length - 1;
 			character = this._lines[line].length;
 			hasChanged = true;
-		}
-		else {
+		} else {
 			let maxCharacter = this._lines[line].length;
 			if (character < 0) {
 				character = 0;
 				hasChanged = true;
-			}
-			else if (character > maxCharacter) {
+			} else if (character > maxCharacter) {
 				character = maxCharacter;
 				hasChanged = true;
 			}
@@ -240,16 +294,20 @@ export class ExtHostDocumentData extends MirrorModel {
 		return new Position(line, character);
 	}
 
-	private _getWordRangeAtPosition(_position: vscode.Position, regexp?: RegExp): vscode.Range {
+	private _getWordRangeAtPosition(
+		_position: vscode.Position,
+		regexp?: RegExp
+	): vscode.Range {
 		let position = this._validatePosition(_position);
 
 		if (!regexp) {
 			// use default when custom-regexp isn't provided
 			regexp = getWordDefinitionFor(this._languageId);
-
 		} else if (regExpLeadsToEndlessLoop(regexp)) {
 			// use default when custom-regexp is bad
-			console.warn(`[getWordRangeAtPosition]: ignoring custom regexp '${regexp.source}' because it matches the empty string.`);
+			console.warn(
+				`[getWordRangeAtPosition]: ignoring custom regexp '${regexp.source}' because it matches the empty string.`
+			);
 			regexp = getWordDefinitionFor(this._languageId);
 		}
 
@@ -261,7 +319,12 @@ export class ExtHostDocumentData extends MirrorModel {
 		);
 
 		if (wordAtText) {
-			return new Range(position.line, wordAtText.startColumn - 1, position.line, wordAtText.endColumn - 1);
+			return new Range(
+				position.line,
+				wordAtText.startColumn - 1,
+				position.line,
+				wordAtText.endColumn - 1
+			);
 		}
 		return undefined;
 	}

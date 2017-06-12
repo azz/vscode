@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { FastDomNode, createFastDomNode } from 'vs/base/browser/fastDomNode';
 import { Position } from 'vs/editor/common/core/position';
@@ -10,7 +10,10 @@ import { Range } from 'vs/editor/common/core/range';
 import { TextEditorCursorStyle } from 'vs/editor/common/config/editorOptions';
 import { Configuration } from 'vs/editor/browser/config/configuration';
 import { ViewContext } from 'vs/editor/common/view/viewContext';
-import { RenderingContext, RestrictedRenderingContext } from 'vs/editor/common/view/renderingContext';
+import {
+	RenderingContext,
+	RestrictedRenderingContext
+} from 'vs/editor/common/view/renderingContext';
 import * as viewEvents from 'vs/editor/common/view/viewEvents';
 
 export interface IViewCursorRenderData {
@@ -72,7 +75,10 @@ export class ViewCursor {
 		this._domNode.setHeight(this._lineHeight);
 		this._domNode.setTop(0);
 		this._domNode.setLeft(0);
-		Configuration.applyFontInfo(this._domNode, this._context.configuration.editor.fontInfo);
+		Configuration.applyFontInfo(
+			this._domNode,
+			this._context.configuration.editor.fontInfo
+		);
 		this._domNode.setDisplay('none');
 
 		this.updatePosition(new Position(1, 1));
@@ -108,7 +114,9 @@ export class ViewCursor {
 		}
 	}
 
-	public onConfigurationChanged(e: viewEvents.ViewConfigurationChangedEvent): boolean {
+	public onConfigurationChanged(
+		e: viewEvents.ViewConfigurationChangedEvent
+	): boolean {
 		if (e.lineHeight) {
 			this._lineHeight = this._context.configuration.editor.lineHeight;
 		}
@@ -116,20 +124,29 @@ export class ViewCursor {
 			this._cursorStyle = this._context.configuration.editor.viewInfo.cursorStyle;
 		}
 		if (e.fontInfo) {
-			Configuration.applyFontInfo(this._domNode, this._context.configuration.editor.fontInfo);
+			Configuration.applyFontInfo(
+				this._domNode,
+				this._context.configuration.editor.fontInfo
+			);
 			this._typicalHalfwidthCharacterWidth = this._context.configuration.editor.fontInfo.typicalHalfwidthCharacterWidth;
 		}
 		return true;
 	}
 
-	public onCursorPositionChanged(position: Position, isInEditableRange: boolean): boolean {
+	public onCursorPositionChanged(
+		position: Position,
+		isInEditableRange: boolean
+	): boolean {
 		this.updatePosition(position);
 		this._isInEditableRange = isInEditableRange;
 		return true;
 	}
 
 	private _prepareRender(ctx: RenderingContext): ViewCursorRenderData {
-		if (this._cursorStyle === TextEditorCursorStyle.Line || this._cursorStyle === TextEditorCursorStyle.LineThin) {
+		if (
+			this._cursorStyle === TextEditorCursorStyle.Line ||
+			this._cursorStyle === TextEditorCursorStyle.LineThin
+		) {
 			const visibleRange = ctx.visibleRangeForPosition(this._position);
 			if (!visibleRange) {
 				// Outside viewport
@@ -141,27 +158,47 @@ export class ViewCursor {
 			} else {
 				width = 1;
 			}
-			const top = ctx.getVerticalOffsetForLineNumber(this._position.lineNumber) - ctx.bigNumbersDelta;
+			const top =
+				ctx.getVerticalOffsetForLineNumber(this._position.lineNumber) -
+				ctx.bigNumbersDelta;
 			return new ViewCursorRenderData(top, visibleRange.left, width, '');
 		}
 
-		const visibleRangeForCharacter = ctx.linesVisibleRangesForRange(new Range(this._position.lineNumber, this._position.column, this._position.lineNumber, this._position.column + 1), false);
+		const visibleRangeForCharacter = ctx.linesVisibleRangesForRange(
+			new Range(
+				this._position.lineNumber,
+				this._position.column,
+				this._position.lineNumber,
+				this._position.column + 1
+			),
+			false
+		);
 
-		if (!visibleRangeForCharacter || visibleRangeForCharacter.length === 0 || visibleRangeForCharacter[0].ranges.length === 0) {
+		if (
+			!visibleRangeForCharacter ||
+			visibleRangeForCharacter.length === 0 ||
+			visibleRangeForCharacter[0].ranges.length === 0
+		) {
 			// Outside viewport
 			return null;
 		}
 
 		const range = visibleRangeForCharacter[0].ranges[0];
-		const width = range.width < 1 ? this._typicalHalfwidthCharacterWidth : range.width;
+		const width = range.width < 1
+			? this._typicalHalfwidthCharacterWidth
+			: range.width;
 
 		let textContent = '';
 		if (this._cursorStyle === TextEditorCursorStyle.Block) {
-			const lineContent = this._context.model.getLineContent(this._position.lineNumber);
+			const lineContent = this._context.model.getLineContent(
+				this._position.lineNumber
+			);
 			textContent = lineContent.charAt(this._position.column - 1);
 		}
 
-		const top = ctx.getVerticalOffsetForLineNumber(this._position.lineNumber) - ctx.bigNumbersDelta;
+		const top =
+			ctx.getVerticalOffsetForLineNumber(this._position.lineNumber) -
+			ctx.bigNumbersDelta;
 		return new ViewCursorRenderData(top, range.left, width, textContent);
 	}
 

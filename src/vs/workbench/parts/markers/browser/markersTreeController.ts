@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import * as mouse from 'vs/base/browser/mouseEvent';
@@ -11,13 +11,16 @@ import treedefaults = require('vs/base/parts/tree/browser/treeDefaults');
 import { MarkersModel } from 'vs/workbench/parts/markers/common/markersModel';
 import { IContextMenuService } from 'vs/platform/contextview/browser/contextView';
 import { IContextKeyService } from 'vs/platform/contextkey/common/contextkey';
-import { IMenuService, IMenu, MenuId } from 'vs/platform/actions/common/actions';
+import {
+	IMenuService,
+	IMenu,
+	MenuId
+} from 'vs/platform/actions/common/actions';
 import { IAction } from 'vs/base/common/actions';
 import { ActionItem, Separator } from 'vs/base/browser/ui/actionbar/actionbar';
 import { IKeybindingService } from 'vs/platform/keybinding/common/keybinding';
 
 export class Controller extends treedefaults.DefaultController {
-
 	private contextMenu: IMenu;
 
 	constructor(
@@ -26,11 +29,21 @@ export class Controller extends treedefaults.DefaultController {
 		@IContextKeyService contextKeyService: IContextKeyService,
 		@IKeybindingService private _keybindingService: IKeybindingService
 	) {
-		super({ clickBehavior: treedefaults.ClickBehavior.ON_MOUSE_DOWN, keyboardSupport: false });
-		this.contextMenu = menuService.createMenu(MenuId.ProblemsPanelContext, contextKeyService);
+		super({
+			clickBehavior: treedefaults.ClickBehavior.ON_MOUSE_DOWN,
+			keyboardSupport: false
+		});
+		this.contextMenu = menuService.createMenu(
+			MenuId.ProblemsPanelContext,
+			contextKeyService
+		);
 	}
 
-	protected onLeftClick(tree: tree.ITree, element: any, event: mouse.IMouseEvent): boolean {
+	protected onLeftClick(
+		tree: tree.ITree,
+		element: any,
+		event: mouse.IMouseEvent
+	): boolean {
 		let currentFoucssed = tree.getFocus();
 		if (super.onLeftClick(tree, element, event)) {
 			if (element instanceof MarkersModel) {
@@ -45,7 +58,11 @@ export class Controller extends treedefaults.DefaultController {
 		return false;
 	}
 
-	public onContextMenu(tree: tree.ITree, element: any, event: tree.ContextMenuEvent): boolean {
+	public onContextMenu(
+		tree: tree.ITree,
+		element: any,
+		event: tree.ContextMenuEvent
+	): boolean {
 		tree.setFocus(element);
 		const actions = this._getMenuActions();
 		if (!actions.length) {
@@ -59,10 +76,13 @@ export class Controller extends treedefaults.DefaultController {
 				return TPromise.as(actions);
 			},
 
-			getActionItem: (action) => {
+			getActionItem: action => {
 				const keybinding = this._keybindingService.lookupKeybinding(action.id);
 				if (keybinding) {
-					return new ActionItem(action, action, { label: true, keybinding: keybinding.getLabel() });
+					return new ActionItem(action, action, {
+						label: true,
+						keybinding: keybinding.getLabel()
+					});
 				}
 				return null;
 			},

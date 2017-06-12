@@ -2,24 +2,26 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import URI from 'vs/base/common/uri';
 import * as assert from 'assert';
 import { TPromise } from 'vs/base/common/winjs.base';
 import { join } from 'vs/base/common/paths';
 import { IInstantiationService } from 'vs/platform/instantiation/common/instantiation';
-import { IUntitledEditorService, UntitledEditorService } from 'vs/workbench/services/untitled/common/untitledEditorService';
+import {
+	IUntitledEditorService,
+	UntitledEditorService
+} from 'vs/workbench/services/untitled/common/untitledEditorService';
 import { IConfigurationService } from 'vs/platform/configuration/common/configuration';
 import { TestConfigurationService } from 'vs/platform/configuration/test/common/testConfigurationService';
 import { workbenchInstantiationService } from 'vs/workbench/test/workbenchTestServices';
 import { UntitledEditorModel } from 'vs/workbench/common/editor/untitledEditorModel';
 import { IModeService } from 'vs/editor/common/services/modeService';
 import { ModeServiceImpl } from 'vs/editor/common/services/modeServiceImpl';
-import { UntitledEditorInput } from "vs/workbench/common/editor/untitledEditorInput";
+import { UntitledEditorInput } from 'vs/workbench/common/editor/untitledEditorInput';
 
 export class TestUntitledEditorService extends UntitledEditorService {
-
 	public get(resource: URI): UntitledEditorInput {
 		return super.get(resource);
 	}
@@ -31,14 +33,15 @@ export class TestUntitledEditorService extends UntitledEditorService {
 
 class ServiceAccessor {
 	constructor(
-		@IUntitledEditorService public untitledEditorService: TestUntitledEditorService,
+		@IUntitledEditorService
+		public untitledEditorService: TestUntitledEditorService,
 		@IModeService public modeService: ModeServiceImpl,
-		@IConfigurationService public testConfigurationService: TestConfigurationService) {
-	}
+		@IConfigurationService
+		public testConfigurationService: TestConfigurationService
+	) {}
 }
 
 suite('Workbench - Untitled Editor', () => {
-
 	let instantiationService: IInstantiationService;
 	let accessor: ServiceAccessor;
 
@@ -52,7 +55,7 @@ suite('Workbench - Untitled Editor', () => {
 		accessor.untitledEditorService.dispose();
 	});
 
-	test('Untitled Editor Service', function (done) {
+	test('Untitled Editor Service', function(done) {
 		const service = accessor.untitledEditorService;
 		assert.equal(service.getAll().length, 0);
 
@@ -67,7 +70,10 @@ suite('Workbench - Untitled Editor', () => {
 		// get() / getAll()
 		assert.equal(service.get(input1.getResource()), input1);
 		assert.equal(service.getAll().length, 2);
-		assert.equal(service.getAll([input1.getResource(), input2.getResource()]).length, 2);
+		assert.equal(
+			service.getAll([input1.getResource(), input2.getResource()]).length,
+			2
+		);
 
 		// revertAll()
 		service.revertAll([input1.getResource()]);
@@ -84,8 +90,14 @@ suite('Workbench - Untitled Editor', () => {
 				assert.equal(resource.toString(), input2.getResource().toString());
 
 				assert.ok(service.isDirty(input2.getResource()));
-				assert.equal(service.getDirty()[0].toString(), input2.getResource().toString());
-				assert.equal(service.getDirty([input2.getResource()])[0].toString(), input2.getResource().toString());
+				assert.equal(
+					service.getDirty()[0].toString(),
+					input2.getResource().toString()
+				);
+				assert.equal(
+					service.getDirty([input2.getResource()])[0].toString(),
+					input2.getResource().toString()
+				);
 				assert.equal(service.getDirty([input1.getResource()]).length, 0);
 
 				service.revertAll();
@@ -104,7 +116,7 @@ suite('Workbench - Untitled Editor', () => {
 		});
 	});
 
-	test('Untitled with associated resource', function () {
+	test('Untitled with associated resource', function() {
 		const service = accessor.untitledEditorService;
 		const file = URI.file(join('C:\\', '/foo/file.txt'));
 		const untitled = service.createOrGet(file);
@@ -114,7 +126,7 @@ suite('Workbench - Untitled Editor', () => {
 		untitled.dispose();
 	});
 
-	test('Untitled no longer dirty when content gets empty', function (done) {
+	test('Untitled no longer dirty when content gets empty', function(done) {
 		const service = accessor.untitledEditorService;
 		const input = service.createOrGet();
 
@@ -132,7 +144,7 @@ suite('Workbench - Untitled Editor', () => {
 		});
 	});
 
-	test('Untitled via loadOrCreate', function (done) {
+	test('Untitled via loadOrCreate', function(done) {
 		const service = accessor.untitledEditorService;
 		service.loadOrCreate().then(model1 => {
 			model1.textEditorModel.setValue('foo bar');
@@ -141,40 +153,49 @@ suite('Workbench - Untitled Editor', () => {
 			model1.textEditorModel.setValue('');
 			assert.ok(!model1.isDirty());
 
-			return service.loadOrCreate({ initialValue: 'Hello World' }).then(model2 => {
-				assert.equal(model2.getValue(), 'Hello World');
+			return service
+				.loadOrCreate({ initialValue: 'Hello World' })
+				.then(model2 => {
+					assert.equal(model2.getValue(), 'Hello World');
 
-				const input = service.createOrGet();
+					const input = service.createOrGet();
 
-				return service.loadOrCreate({ resource: input.getResource() }).then(model3 => {
-					assert.equal(model3.getResource().toString(), input.getResource().toString());
+					return service
+						.loadOrCreate({ resource: input.getResource() })
+						.then(model3 => {
+							assert.equal(
+								model3.getResource().toString(),
+								input.getResource().toString()
+							);
 
-					const file = URI.file(join('C:\\', '/foo/file44.txt'));
-					return service.loadOrCreate({ resource: file }).then(model4 => {
-						assert.ok(service.hasAssociatedFilePath(model4.getResource()));
-						assert.ok(model4.isDirty());
+							const file = URI.file(join('C:\\', '/foo/file44.txt'));
+							return service.loadOrCreate({ resource: file }).then(model4 => {
+								assert.ok(service.hasAssociatedFilePath(model4.getResource()));
+								assert.ok(model4.isDirty());
 
-						model1.dispose();
-						model2.dispose();
-						model3.dispose();
-						model4.dispose();
-						input.dispose();
+								model1.dispose();
+								model2.dispose();
+								model3.dispose();
+								model4.dispose();
+								input.dispose();
 
-						done();
-					});
+								done();
+							});
+						});
 				});
-			});
 		});
 	});
 
-	test('Untitled suggest name', function () {
+	test('Untitled suggest name', function() {
 		const service = accessor.untitledEditorService;
 		const input = service.createOrGet();
 
 		assert.ok(service.suggestFileName(input.getResource()));
 	});
 
-	test('Untitled with associated path remains dirty when content gets empty', function (done) {
+	test('Untitled with associated path remains dirty when content gets empty', function(
+		done
+	) {
 		const service = accessor.untitledEditorService;
 		const file = URI.file(join('C:\\', '/foo/file.txt'));
 		const input = service.createOrGet(file);
@@ -193,38 +214,38 @@ suite('Workbench - Untitled Editor', () => {
 		});
 	});
 
-	test('Untitled created with files.defaultLanguage setting', function () {
+	test('Untitled created with files.defaultLanguage setting', function() {
 		const defaultLanguage = 'javascript';
 		const config = accessor.testConfigurationService;
-		config.setUserConfiguration('files', { 'defaultLanguage': defaultLanguage });
+		config.setUserConfiguration('files', { defaultLanguage: defaultLanguage });
 
 		const service = accessor.untitledEditorService;
 		const input = service.createOrGet();
 
 		assert.equal(input.getModeId(), defaultLanguage);
 
-		config.setUserConfiguration('files', { 'defaultLanguage': undefined });
+		config.setUserConfiguration('files', { defaultLanguage: undefined });
 
 		input.dispose();
 	});
 
-	test('Untitled created with modeId overrides files.defaultLanguage setting', function () {
+	test('Untitled created with modeId overrides files.defaultLanguage setting', function() {
 		const modeId = 'typescript';
 		const defaultLanguage = 'javascript';
 		const config = accessor.testConfigurationService;
-		config.setUserConfiguration('files', { 'defaultLanguage': defaultLanguage });
+		config.setUserConfiguration('files', { defaultLanguage: defaultLanguage });
 
 		const service = accessor.untitledEditorService;
 		const input = service.createOrGet(null, modeId);
 
 		assert.equal(input.getModeId(), modeId);
 
-		config.setUserConfiguration('files', { 'defaultLanguage': undefined });
+		config.setUserConfiguration('files', { defaultLanguage: undefined });
 
 		input.dispose();
 	});
 
-	test('encoding change event', function (done) {
+	test('encoding change event', function(done) {
 		const service = accessor.untitledEditorService;
 		const input = service.createOrGet();
 
@@ -262,14 +283,22 @@ suite('Workbench - Untitled Editor', () => {
 
 		input.resolve().then((model: UntitledEditorModel) => {
 			model.textEditorModel.setValue('foo');
-			assert.equal(counter, 0, 'Dirty model should not trigger event immediately');
+			assert.equal(
+				counter,
+				0,
+				'Dirty model should not trigger event immediately'
+			);
 
 			TPromise.timeout(3).then(() => {
 				assert.equal(counter, 1, 'Dirty model should trigger event');
 
 				model.textEditorModel.setValue('bar');
 				TPromise.timeout(3).then(() => {
-					assert.equal(counter, 2, 'Content change when dirty should trigger event');
+					assert.equal(
+						counter,
+						2,
+						'Content change when dirty should trigger event'
+					);
 
 					model.textEditorModel.setValue('');
 					TPromise.timeout(3).then(() => {

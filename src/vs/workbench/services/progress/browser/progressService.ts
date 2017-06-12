@@ -9,7 +9,10 @@ import types = require('vs/base/common/types');
 import { ProgressBar } from 'vs/base/browser/ui/progressbar/progressbar';
 import { IViewletService } from 'vs/workbench/services/viewlet/browser/viewlet';
 import { IPanelService } from 'vs/workbench/services/panel/common/panelService';
-import { IProgressService, IProgressRunner } from 'vs/platform/progress/common/progress';
+import {
+	IProgressService,
+	IProgressRunner
+} from 'vs/platform/progress/common/progress';
 
 interface ProgressState {
 	infinite?: boolean;
@@ -20,20 +23,39 @@ interface ProgressState {
 }
 
 export abstract class ScopedService {
-
 	protected toDispose: lifecycle.IDisposable[];
 
-	constructor(private viewletService: IViewletService, private panelService: IPanelService, private scopeId: string) {
+	constructor(
+		private viewletService: IViewletService,
+		private panelService: IPanelService,
+		private scopeId: string
+	) {
 		this.toDispose = [];
 		this.registerListeners();
 	}
 
 	public registerListeners(): void {
-		this.toDispose.push(this.viewletService.onDidViewletOpen(viewlet => this.onScopeOpened(viewlet.getId())));
-		this.toDispose.push(this.panelService.onDidPanelOpen(panel => this.onScopeOpened(panel.getId())));
+		this.toDispose.push(
+			this.viewletService.onDidViewletOpen(viewlet =>
+				this.onScopeOpened(viewlet.getId())
+			)
+		);
+		this.toDispose.push(
+			this.panelService.onDidPanelOpen(panel =>
+				this.onScopeOpened(panel.getId())
+			)
+		);
 
-		this.toDispose.push(this.viewletService.onDidViewletClose(viewlet => this.onScopeClosed(viewlet.getId())));
-		this.toDispose.push(this.panelService.onDidPanelClose(panel => this.onScopeClosed(panel.getId())));
+		this.toDispose.push(
+			this.viewletService.onDidViewletClose(viewlet =>
+				this.onScopeClosed(viewlet.getId())
+			)
+		);
+		this.toDispose.push(
+			this.panelService.onDidPanelClose(panel =>
+				this.onScopeClosed(panel.getId())
+			)
+		);
 	}
 
 	private onScopeClosed(scopeId: string) {
@@ -53,7 +75,8 @@ export abstract class ScopedService {
 	public abstract onScopeDeactivated(): void;
 }
 
-export class WorkbenchProgressService extends ScopedService implements IProgressService {
+export class WorkbenchProgressService extends ScopedService
+	implements IProgressService {
 	public _serviceBrand: any;
 	private isActive: boolean;
 	private progressbar: ProgressBar;
@@ -88,21 +111,20 @@ export class WorkbenchProgressService extends ScopedService implements IProgress
 		// Replay Infinite Progress from Promise
 		if (this.progressState.whilePromise) {
 			this.doShowWhile();
-		}
-
-		// Replay Infinite Progress
-		else if (this.progressState.infinite) {
+		} else if (this.progressState.infinite) {
+			// Replay Infinite Progress
 			this.progressbar.infinite().getContainer().show();
-		}
-
-		// Replay Finite Progress (Total & Worked)
-		else {
+		} else {
+			// Replay Finite Progress (Total & Worked)
 			if (this.progressState.total) {
 				this.progressbar.total(this.progressState.total).getContainer().show();
 			}
 
 			if (this.progressState.worked) {
-				this.progressbar.worked(this.progressState.worked).getContainer().show();
+				this.progressbar
+					.worked(this.progressState.worked)
+					.getContainer()
+					.show();
 			}
 		}
 	}
@@ -137,7 +159,6 @@ export class WorkbenchProgressService extends ScopedService implements IProgress
 
 		// Active: Show Progress
 		if (this.isActive) {
-
 			// Infinite: Start Progressbar and Show after Delay
 			if (!types.isUndefinedOrNull(infinite)) {
 				if (types.isUndefinedOrNull(delay)) {
@@ -145,10 +166,8 @@ export class WorkbenchProgressService extends ScopedService implements IProgress
 				} else {
 					this.progressbar.infinite().getContainer().showDelayed(delay);
 				}
-			}
-
-			// Finite: Start Progressbar and Show after Delay
-			else if (!types.isUndefinedOrNull(total)) {
+			} else if (!types.isUndefinedOrNull(total)) {
+				// Finite: Start Progressbar and Show after Delay
 				if (types.isUndefinedOrNull(delay)) {
 					this.progressbar.total(total).getContainer().show();
 				} else {
@@ -168,7 +187,6 @@ export class WorkbenchProgressService extends ScopedService implements IProgress
 			},
 
 			worked: (worked: number) => {
-
 				// Verify first that we are either not active or the progressbar has a total set
 				if (!this.isActive || this.progressbar.hasTotal()) {
 					this.progressState.infinite = false;
@@ -181,10 +199,8 @@ export class WorkbenchProgressService extends ScopedService implements IProgress
 					if (this.isActive) {
 						this.progressbar.worked(worked);
 					}
-				}
-
-				// Otherwise the progress bar does not support worked(), we fallback to infinite() progress
-				else {
+				} else {
+					// Otherwise the progress bar does not support worked(), we fallback to infinite() progress
 					this.progressState.infinite = true;
 					this.progressState.worked = void 0;
 					this.progressState.total = void 0;
@@ -209,10 +225,8 @@ export class WorkbenchProgressService extends ScopedService implements IProgress
 		// Reset State
 		if (!stack) {
 			this.clearProgressState();
-		}
-
-		// Otherwise join with existing running promise to ensure progress is accurate
-		else {
+		} else {
+			// Otherwise join with existing running promise to ensure progress is accurate
 			promise = TPromise.join([promise, this.progressState.whilePromise]);
 		}
 
@@ -220,9 +234,11 @@ export class WorkbenchProgressService extends ScopedService implements IProgress
 		this.progressState.whilePromise = promise;
 
 		let stop = () => {
-
 			// If this is not the last promise in the list of joined promises, return early
-			if (!!this.progressState.whilePromise && this.progressState.whilePromise !== promise) {
+			if (
+				!!this.progressState.whilePromise &&
+				this.progressState.whilePromise !== promise
+			) {
 				return;
 			}
 
@@ -240,7 +256,6 @@ export class WorkbenchProgressService extends ScopedService implements IProgress
 	}
 
 	private doShowWhile(delay?: number): void {
-
 		// Show Progress when active
 		if (this.isActive) {
 			if (types.isUndefinedOrNull(delay)) {

@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { isPromiseCanceledError } from 'vs/base/common/errors';
 import URI from 'vs/base/common/uri';
@@ -10,7 +10,10 @@ import { ISearchService, QueryType } from 'vs/platform/search/common/search';
 import { IWorkspaceContextService } from 'vs/platform/workspace/common/workspace';
 import { IWorkbenchEditorService } from 'vs/workbench/services/editor/common/editorService';
 import { ITextFileService } from 'vs/workbench/services/textfile/common/textfiles';
-import { ICommonCodeEditor, isCommonCodeEditor } from 'vs/editor/common/editorCommon';
+import {
+	ICommonCodeEditor,
+	isCommonCodeEditor
+} from 'vs/editor/common/editorCommon';
 import { bulkEdit, IResourceEdit } from 'vs/editor/common/services/bulkEdit';
 import { TPromise } from 'vs/base/common/winjs.base';
 import { Uri } from 'vscode';
@@ -19,8 +22,9 @@ import { ITextModelResolverService } from 'vs/editor/common/services/resolverSer
 import { IFileService } from 'vs/platform/files/common/files';
 
 export class MainThreadWorkspace extends MainThreadWorkspaceShape {
-
-	private _activeSearches: { [id: number]: TPromise<Uri[]> } = Object.create(null);
+	private _activeSearches: { [id: number]: TPromise<Uri[]> } = Object.create(
+		null
+	);
 	private _searchService: ISearchService;
 	private _contextService: IWorkspaceContextService;
 	private _textFileService: ITextFileService;
@@ -33,7 +37,8 @@ export class MainThreadWorkspace extends MainThreadWorkspaceShape {
 		@IWorkspaceContextService contextService: IWorkspaceContextService,
 		@ITextFileService textFileService: ITextFileService,
 		@IWorkbenchEditorService editorService: IWorkbenchEditorService,
-		@ITextModelResolverService textModelResolverService: ITextModelResolverService,
+		@ITextModelResolverService
+		textModelResolverService: ITextModelResolverService,
 		@IFileService fileService: IFileService
 	) {
 		super();
@@ -46,26 +51,36 @@ export class MainThreadWorkspace extends MainThreadWorkspaceShape {
 		this._textModelResolverService = textModelResolverService;
 	}
 
-	$startSearch(include: string, exclude: string, maxResults: number, requestId: number): Thenable<URI[]> {
+	$startSearch(
+		include: string,
+		exclude: string,
+		maxResults: number,
+		requestId: number
+	): Thenable<URI[]> {
 		const workspace = this._contextService.getWorkspace();
 		if (!workspace) {
 			return undefined;
 		}
 
-		const search = this._searchService.search({
-			folderResources: [workspace.resource],
-			type: QueryType.File,
-			maxResults,
-			includePattern: { [include]: true },
-			excludePattern: { [exclude]: true },
-		}).then(result => {
-			return result.results.map(m => m.resource);
-		}, err => {
-			if (!isPromiseCanceledError(err)) {
-				return TPromise.wrapError(err);
-			}
-			return undefined;
-		});
+		const search = this._searchService
+			.search({
+				folderResources: [workspace.resource],
+				type: QueryType.File,
+				maxResults,
+				includePattern: { [include]: true },
+				excludePattern: { [exclude]: true }
+			})
+			.then(
+				result => {
+					return result.results.map(m => m.resource);
+				},
+				err => {
+					if (!isPromiseCanceledError(err)) {
+						return TPromise.wrapError(err);
+					}
+					return undefined;
+				}
+			);
 
 		this._activeSearches[requestId] = search;
 		const onDone = () => delete this._activeSearches[requestId];
@@ -91,7 +106,6 @@ export class MainThreadWorkspace extends MainThreadWorkspaceShape {
 	}
 
 	$applyWorkspaceEdit(edits: IResourceEdit[]): TPromise<boolean> {
-
 		let codeEditor: ICommonCodeEditor;
 		let editor = this._editorService.getActiveEditor();
 		if (editor) {
@@ -101,7 +115,11 @@ export class MainThreadWorkspace extends MainThreadWorkspaceShape {
 			}
 		}
 
-		return bulkEdit(this._textModelResolverService, codeEditor, edits, this._fileService)
-			.then(() => true);
+		return bulkEdit(
+			this._textModelResolverService,
+			codeEditor,
+			edits,
+			this._fileService
+		).then(() => true);
 	}
 }

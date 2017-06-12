@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as es from 'event-stream';
 import * as _ from 'underscore';
@@ -32,7 +32,11 @@ function onEnd(): void {
 	log();
 }
 
-const buildLogPath = path.join(path.dirname(path.dirname(__dirname)), '.build', 'log');
+const buildLogPath = path.join(
+	path.dirname(path.dirname(__dirname)),
+	'.build',
+	'log'
+);
 
 try {
 	fs.mkdirSync(path.dirname(buildLogPath));
@@ -48,16 +52,26 @@ function log(): void {
 	const messages = errors
 		.map(err => regex.exec(err))
 		.filter(match => !!match)
-		.map(([, path, line, column, message]) => ({ path, line: parseInt(line), column: parseInt(column), message }));
+		.map(([, path, line, column, message]) => ({
+			path,
+			line: parseInt(line),
+			column: parseInt(column),
+			message
+		}));
 
 	try {
-
 		fs.writeFileSync(buildLogPath, JSON.stringify(messages));
 	} catch (err) {
 		//noop
 	}
 
-	util.log(`Finished ${util.colors.green('compilation')} with ${errors.length} errors after ${util.colors.magenta((new Date().getTime() - startTime) + ' ms')}`);
+	util.log(
+		`Finished ${util.colors.green(
+			'compilation'
+		)} with ${errors.length} errors after ${util.colors.magenta(
+			new Date().getTime() - startTime + ' ms'
+		)}`
+	);
 }
 
 export interface IReporter {
@@ -83,7 +97,7 @@ export function createReporter(): IReporter {
 			errors.length = 0;
 			onStart();
 
-			return es.through(null, function () {
+			return es.through(null, function() {
 				onEnd();
 
 				if (emitError && errors.length > 0) {
@@ -96,5 +110,5 @@ export function createReporter(): IReporter {
 		}
 	}
 
-	return <IReporter><any>ReportFunc;
-};
+	return <IReporter>(<any>ReportFunc);
+}

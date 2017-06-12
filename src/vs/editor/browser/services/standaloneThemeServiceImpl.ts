@@ -2,16 +2,34 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
-import { TokenTheme, ITokenThemeRule, generateTokensCSSForColorMap } from 'vs/editor/common/modes/supports/tokenization';
-import { IStandaloneThemeService, BuiltinTheme, IStandaloneThemeData, IStandaloneTheme, IColors } from 'vs/editor/common/services/standaloneThemeService';
+import {
+	TokenTheme,
+	ITokenThemeRule,
+	generateTokensCSSForColorMap
+} from 'vs/editor/common/modes/supports/tokenization';
+import {
+	IStandaloneThemeService,
+	BuiltinTheme,
+	IStandaloneThemeData,
+	IStandaloneTheme,
+	IColors
+} from 'vs/editor/common/services/standaloneThemeService';
 import { vs, vs_dark, hc_black } from 'vs/editor/common/standalone/themes';
 import * as dom from 'vs/base/browser/dom';
 import { TokenizationRegistry } from 'vs/editor/common/modes';
 import { Color } from 'vs/base/common/color';
-import { Extensions, IColorRegistry, ColorIdentifier } from 'vs/platform/theme/common/colorRegistry';
-import { Extensions as ThemingExtensions, IThemingRegistry, ICssStyleCollector } from 'vs/platform/theme/common/themeService';
+import {
+	Extensions,
+	IColorRegistry,
+	ColorIdentifier
+} from 'vs/platform/theme/common/colorRegistry';
+import {
+	Extensions as ThemingExtensions,
+	IThemingRegistry,
+	ICssStyleCollector
+} from 'vs/platform/theme/common/themeService';
 import { Registry } from 'vs/platform/platform';
 import Event, { Emitter } from 'vs/base/common/event';
 
@@ -20,7 +38,9 @@ const VS_DARK_THEME_NAME = 'vs-dark';
 const HC_BLACK_THEME_NAME = 'hc-black';
 
 const colorRegistry = <IColorRegistry>Registry.as(Extensions.ColorContribution);
-const themingRegistry = Registry.as<IThemingRegistry>(ThemingExtensions.ThemingContribution);
+const themingRegistry = Registry.as<IThemingRegistry>(
+	ThemingExtensions.ThemingContribution
+);
 
 class StandaloneTheme implements IStandaloneTheme {
 	id: string;
@@ -30,7 +50,12 @@ class StandaloneTheme implements IStandaloneTheme {
 	private defaultColors: { [colorId: string]: Color };
 	private _tokenTheme: TokenTheme;
 
-	constructor(base: string, name: string, colors: IColors, rules: ITokenThemeRule[]) {
+	constructor(
+		base: string,
+		name: string,
+		colors: IColors,
+		rules: ITokenThemeRule[]
+	) {
 		if (name.length > 0) {
 			this.id = base + ' ' + name;
 		} else {
@@ -70,9 +95,12 @@ class StandaloneTheme implements IStandaloneTheme {
 
 	public get type() {
 		switch (this.base) {
-			case VS_THEME_NAME: return 'light';
-			case HC_BLACK_THEME_NAME: return 'hc';
-			default: return 'dark';
+			case VS_THEME_NAME:
+				return 'light';
+			case HC_BLACK_THEME_NAME:
+				return 'hc';
+			default:
+				return 'dark';
 		}
 	}
 
@@ -86,9 +114,9 @@ class StandaloneTheme implements IStandaloneTheme {
 
 function isBuiltinTheme(themeName: string): themeName is BuiltinTheme {
 	return (
-		themeName === VS_THEME_NAME
-		|| themeName === VS_DARK_THEME_NAME
-		|| themeName === HC_BLACK_THEME_NAME
+		themeName === VS_THEME_NAME ||
+		themeName === VS_DARK_THEME_NAME ||
+		themeName === HC_BLACK_THEME_NAME
 	);
 }
 
@@ -105,11 +133,15 @@ function getBuiltinRules(builtinTheme: BuiltinTheme): IStandaloneThemeData {
 
 function newBuiltInTheme(builtinTheme: BuiltinTheme): StandaloneTheme {
 	let themeData = getBuiltinRules(builtinTheme);
-	return new StandaloneTheme(builtinTheme, '', themeData.colors, themeData.rules);
+	return new StandaloneTheme(
+		builtinTheme,
+		'',
+		themeData.colors,
+		themeData.rules
+	);
 }
 
 export class StandaloneThemeServiceImpl implements IStandaloneThemeService {
-
 	_serviceBrand: any;
 
 	private _knownThemes: Map<string, StandaloneTheme>;
@@ -117,14 +149,19 @@ export class StandaloneThemeServiceImpl implements IStandaloneThemeService {
 	private _theme: IStandaloneTheme;
 	private _onThemeChange: Emitter<IStandaloneTheme>;
 
-
 	constructor() {
 		this._onThemeChange = new Emitter<IStandaloneTheme>();
 
 		this._knownThemes = new Map<string, StandaloneTheme>();
 		this._knownThemes.set(VS_THEME_NAME, newBuiltInTheme(VS_THEME_NAME));
-		this._knownThemes.set(VS_DARK_THEME_NAME, newBuiltInTheme(VS_DARK_THEME_NAME));
-		this._knownThemes.set(HC_BLACK_THEME_NAME, newBuiltInTheme(HC_BLACK_THEME_NAME));
+		this._knownThemes.set(
+			VS_DARK_THEME_NAME,
+			newBuiltInTheme(VS_DARK_THEME_NAME)
+		);
+		this._knownThemes.set(
+			HC_BLACK_THEME_NAME,
+			newBuiltInTheme(HC_BLACK_THEME_NAME)
+		);
 		this._styleElement = dom.createStyleSheet();
 		this._styleElement.className = 'monaco-colors';
 		this.setTheme(VS_THEME_NAME);
@@ -156,7 +193,10 @@ export class StandaloneThemeServiceImpl implements IStandaloneThemeService {
 			colors[id] = themeData.colors[id];
 		}
 
-		this._knownThemes.set(themeName, new StandaloneTheme(themeData.base, themeName, colors, rules));
+		this._knownThemes.set(
+			themeName,
+			new StandaloneTheme(themeData.base, themeName, colors, rules)
+		);
 	}
 
 	public getTheme(): IStandaloneTheme {
@@ -173,7 +213,7 @@ export class StandaloneThemeServiceImpl implements IStandaloneThemeService {
 		this._theme = theme;
 
 		let cssRules: string[] = [];
-		let hasRule: { [rule: string]: boolean; } = {};
+		let hasRule: { [rule: string]: boolean } = {};
 		let ruleCollector: ICssStyleCollector = {
 			addRule: (rule: string) => {
 				if (!hasRule[rule]) {
@@ -182,7 +222,9 @@ export class StandaloneThemeServiceImpl implements IStandaloneThemeService {
 				}
 			}
 		};
-		themingRegistry.getThemingParticipants().forEach(p => p(theme, ruleCollector));
+		themingRegistry
+			.getThemingParticipants()
+			.forEach(p => p(theme, ruleCollector));
 
 		let tokenTheme = theme.tokenTheme;
 		let colorMap = tokenTheme.getColorMap();

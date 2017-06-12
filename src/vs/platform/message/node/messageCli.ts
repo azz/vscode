@@ -8,10 +8,14 @@ import { TPromise } from 'vs/base/common/winjs.base';
 import { IChoiceService, Severity } from 'vs/platform/message/common/message';
 
 export class ChoiceCliService implements IChoiceService {
-
 	_serviceBrand: any;
 
-	choose(severity: Severity, message: string, options: string[], cancelId: number): TPromise<number> {
+	choose(
+		severity: Severity,
+		message: string,
+		options: string[],
+		cancelId: number
+	): TPromise<number> {
 		const promise = new TPromise<number>((c, e) => {
 			const rl = readline.createInterface({
 				input: process.stdin,
@@ -23,7 +27,7 @@ export class ChoiceCliService implements IChoiceService {
 
 			rl.prompt();
 
-			rl.once('line', (answer) => {
+			rl.once('line', answer => {
 				rl.close();
 				c(this.toOption(answer, options));
 			});
@@ -36,9 +40,19 @@ export class ChoiceCliService implements IChoiceService {
 	}
 
 	private toQuestion(message: string, options: string[]): string {
-		return options.reduce((previousValue: string, currentValue: string, currentIndex: number) => {
-			return previousValue + currentValue + '(' + currentIndex + ')' + (currentIndex < options.length - 1 ? ' | ' : '\n');
-		}, message + ' ');
+		return options.reduce(
+			(previousValue: string, currentValue: string, currentIndex: number) => {
+				return (
+					previousValue +
+					currentValue +
+					'(' +
+					currentIndex +
+					')' +
+					(currentIndex < options.length - 1 ? ' | ' : '\n')
+				);
+			},
+			message + ' '
+		);
 	}
 
 	private toOption(answer: string, options: string[]): number {

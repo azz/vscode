@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { Promise, TPromise } from 'vs/base/common/winjs.base';
 import { IDisposable, toDisposable } from 'vs/base/common/lifecycle';
@@ -105,9 +105,8 @@ export interface IRoutingChannelClient {
 }
 
 export class ChannelServer implements IChannelServer, IDisposable {
-
 	private channels: { [name: string]: IChannel } = Object.create(null);
-	private activeRequests: { [id: number]: IDisposable; } = Object.create(null);
+	private activeRequests: { [id: number]: IDisposable } = Object.create(null);
 	private protocolListener: IDisposable;
 
 	constructor(private protocol: IMessagePassingProtocol) {
@@ -143,28 +142,44 @@ export class ChannelServer implements IChannelServer, IDisposable {
 
 		const id = request.id;
 
-		const requestPromise = promise.then(data => {
-			this.protocol.send(<IRawResponse>{ id, data, type: MessageType.ResponseSuccess });
-			delete this.activeRequests[request.id];
-		}, data => {
-			if (data instanceof Error) {
-				this.protocol.send(<IRawResponse>{
-					id, data: {
-						message: data.message,
-						name: data.name,
-						stack: data.stack ? data.stack.split('\n') : void 0
-					}, type: MessageType.ResponseError
-				});
-			} else {
-				this.protocol.send(<IRawResponse>{ id, data, type: MessageType.ResponseErrorObj });
+		const requestPromise = promise.then(
+			data => {
+				this.protocol.send(
+					<IRawResponse>{ id, data, type: MessageType.ResponseSuccess }
+				);
+				delete this.activeRequests[request.id];
+			},
+			data => {
+				if (data instanceof Error) {
+					this.protocol.send(
+						<IRawResponse>{
+							id,
+							data: {
+								message: data.message,
+								name: data.name,
+								stack: data.stack ? data.stack.split('\n') : void 0
+							},
+							type: MessageType.ResponseError
+						}
+					);
+				} else {
+					this.protocol.send(
+						<IRawResponse>{ id, data, type: MessageType.ResponseErrorObj }
+					);
+				}
+
+				delete this.activeRequests[request.id];
+			},
+			data => {
+				this.protocol.send(
+					<IRawResponse>{ id, data, type: MessageType.ResponseProgress }
+				);
 			}
+		);
 
-			delete this.activeRequests[request.id];
-		}, data => {
-			this.protocol.send(<IRawResponse>{ id, data, type: MessageType.ResponseProgress });
-		});
-
-		this.activeRequests[request.id] = toDisposable(() => requestPromise.cancel());
+		this.activeRequests[request.id] = toDisposable(() =>
+			requestPromise.cancel()
+		);
 	}
 
 	private onCancelRequest(request: IRawRequest): void {
@@ -189,11 +204,10 @@ export class ChannelServer implements IChannelServer, IDisposable {
 }
 
 export class ChannelClient implements IChannelClient, IDisposable {
-
 	private state: State;
 	private activeRequests: Promise[];
 	private bufferedRequests: IRequest[];
-	private handlers: { [id: number]: IHandler; };
+	private handlers: { [id: number]: IHandler };
 	private lastRequestId: number;
 	private protocolListener: IDisposable;
 
@@ -230,7 +244,12 @@ export class ChannelClient implements IChannelClient, IDisposable {
 
 		activeRequest
 			.then(null, _ => null)
-			.done(() => this.activeRequests = this.activeRequests.filter(i => i !== activeRequest));
+			.done(
+				() =>
+					(this.activeRequests = this.activeRequests.filter(
+						i => i !== activeRequest
+					))
+			);
 
 		return activeRequest;
 	}
@@ -238,68 +257,73 @@ export class ChannelClient implements IChannelClient, IDisposable {
 	private doRequest(request: IRequest): Promise {
 		const id = request.raw.id;
 
-		return new Promise((c, e, p) => {
-			this.handlers[id] = response => {
-				switch (response.type) {
-					case MessageType.ResponseSuccess:
-						delete this.handlers[id];
-						c(response.data);
-						break;
+		return new Promise(
+			(c, e, p) => {
+				this.handlers[id] = response => {
+					switch (response.type) {
+						case MessageType.ResponseSuccess:
+							delete this.handlers[id];
+							c(response.data);
+							break;
 
-					case MessageType.ResponseError:
-						delete this.handlers[id];
-						const error = new Error(response.data.message);
-						(<any>error).stack = response.data.stack;
-						error.name = response.data.name;
-						e(error);
-						break;
+						case MessageType.ResponseError:
+							delete this.handlers[id];
+							const error = new Error(response.data.message);
+							(<any>error).stack = response.data.stack;
+							error.name = response.data.name;
+							e(error);
+							break;
 
-					case MessageType.ResponseErrorObj:
-						delete this.handlers[id];
-						e(response.data);
-						break;
+						case MessageType.ResponseErrorObj:
+							delete this.handlers[id];
+							e(response.data);
+							break;
 
-					case MessageType.ResponseProgress:
-						p(response.data);
-						break;
-				}
-			};
+						case MessageType.ResponseProgress:
+							p(response.data);
+							break;
+					}
+				};
 
-			this.send(request.raw);
-		},
-			() => this.send({ id, type: MessageType.RequestCancel }));
+				this.send(request.raw);
+			},
+			() => this.send({ id, type: MessageType.RequestCancel })
+		);
 	}
 
 	private bufferRequest(request: IRequest): Promise {
 		let flushedRequest: Promise = null;
 
-		return new Promise((c, e, p) => {
-			this.bufferedRequests.push(request);
+		return new Promise(
+			(c, e, p) => {
+				this.bufferedRequests.push(request);
 
-			request.flush = () => {
+				request.flush = () => {
+					request.flush = null;
+					flushedRequest = this.doRequest(request).then(c, e, p);
+				};
+			},
+			() => {
 				request.flush = null;
-				flushedRequest = this.doRequest(request).then(c, e, p);
-			};
-		}, () => {
-			request.flush = null;
 
-			if (this.state !== State.Uninitialized) {
-				if (flushedRequest) {
-					flushedRequest.cancel();
-					flushedRequest = null;
+				if (this.state !== State.Uninitialized) {
+					if (flushedRequest) {
+						flushedRequest.cancel();
+						flushedRequest = null;
+					}
+
+					return;
 				}
 
-				return;
+				const idx = this.bufferedRequests.indexOf(request);
+
+				if (idx === -1) {
+					return;
+				}
+
+				this.bufferedRequests.splice(idx, 1);
 			}
-
-			const idx = this.bufferedRequests.indexOf(request);
-
-			if (idx === -1) {
-				return;
-			}
-
-			this.bufferedRequests.splice(idx, 1);
-		});
+		);
 	}
 
 	private onMessage(response: IRawResponse): void {
@@ -307,7 +331,10 @@ export class ChannelClient implements IChannelClient, IDisposable {
 			return;
 		}
 
-		if (this.state === State.Uninitialized && response.type === MessageType.ResponseInitialize) {
+		if (
+			this.state === State.Uninitialized &&
+			response.type === MessageType.ResponseInitialize
+		) {
 			this.state = State.Idle;
 			this.bufferedRequests.forEach(r => r.flush && r.flush());
 			this.bufferedRequests = null;
@@ -350,10 +377,10 @@ export interface ClientConnectionEvent {
  * and the `IPCClient` classes to get IPC implementations
  * for your protocol.
  */
-export class IPCServer implements IChannelServer, IRoutingChannelClient, IDisposable {
-
+export class IPCServer
+	implements IChannelServer, IRoutingChannelClient, IDisposable {
 	private channels: { [name: string]: IChannel } = Object.create(null);
-	private channelClients: { [id: string]: ChannelClient; } = Object.create(null);
+	private channelClients: { [id: string]: ChannelClient } = Object.create(null);
 	private onClientAdded = new Emitter<string>();
 
 	constructor(onDidClientConnect: Event<ClientConnectionEvent>) {
@@ -364,8 +391,9 @@ export class IPCServer implements IChannelServer, IRoutingChannelClient, IDispos
 				const channelServer = new ChannelServer(protocol);
 				const channelClient = new ChannelClient(protocol);
 
-				Object.keys(this.channels)
-					.forEach(name => channelServer.registerChannel(name, this.channels[name]));
+				Object.keys(this.channels).forEach(name =>
+					channelServer.registerChannel(name, this.channels[name])
+				);
 
 				this.channelClients[id] = channelClient;
 				this.onClientAdded.fire(id);
@@ -379,7 +407,10 @@ export class IPCServer implements IChannelServer, IRoutingChannelClient, IDispos
 		});
 	}
 
-	getChannel<T extends IChannel>(channelName: string, router: IClientRouter): T {
+	getChannel<T extends IChannel>(
+		channelName: string,
+		router: IClientRouter
+	): T {
 		const call = (command: string, arg: any) => {
 			const id = router.route(command, arg);
 
@@ -387,7 +418,9 @@ export class IPCServer implements IChannelServer, IRoutingChannelClient, IDispos
 				return TPromise.wrapError('Client id should be provided');
 			}
 
-			return this.getClient(id).then(client => client.getChannel(channelName).call(command, arg));
+			return this.getClient(id).then(client =>
+				client.getChannel(channelName).call(command, arg)
+			);
 		};
 
 		return { call } as T;
@@ -405,7 +438,9 @@ export class IPCServer implements IChannelServer, IRoutingChannelClient, IDispos
 		}
 
 		return new TPromise<IChannelClient>(c => {
-			const onClient = once(filterEvent(this.onClientAdded.event, id => id === clientId));
+			const onClient = once(
+				filterEvent(this.onClientAdded.event, id => id === clientId)
+			);
 			onClient(() => c(this.channelClients[clientId]));
 		});
 	}
@@ -425,7 +460,6 @@ export class IPCServer implements IChannelServer, IRoutingChannelClient, IDispos
  * for your protocol.
  */
 export class IPCClient implements IChannelClient, IChannelServer, IDisposable {
-
 	private channelClient: ChannelClient;
 	private channelServer: ChannelServer;
 
@@ -465,7 +499,7 @@ export function getNextTickChannel<T extends IChannel>(channel: T): T {
 		}
 
 		return TPromise.timeout(0)
-			.then(() => didTick = true)
+			.then(() => (didTick = true))
 			.then(() => channel.call(command, arg));
 	};
 
@@ -475,21 +509,30 @@ export function getNextTickChannel<T extends IChannel>(channel: T): T {
 export type Serializer<T, R> = (obj: T) => R;
 export type Deserializer<T, R> = (raw: R) => T;
 
-export function eventToCall<T>(event: Event<T>, serializer: Serializer<T, any> = t => t): TPromise<void> {
+export function eventToCall<T>(
+	event: Event<T>,
+	serializer: Serializer<T, any> = t => t
+): TPromise<void> {
 	let disposable: IDisposable;
 
 	return new Promise(
-		(c, e, p) => disposable = event(t => p(serializer(t))),
+		(c, e, p) => (disposable = event(t => p(serializer(t)))),
 		() => disposable.dispose()
 	);
 }
 
-export function eventFromCall<T>(channel: IChannel, name: string, arg: any = null, deserializer: Deserializer<T, any> = t => t): Event<T> {
+export function eventFromCall<T>(
+	channel: IChannel,
+	name: string,
+	arg: any = null,
+	deserializer: Deserializer<T, any> = t => t
+): Event<T> {
 	let promise: Promise;
 
 	const emitter = new Emitter<any>({
 		onFirstListenerAdd: () => {
-			promise = channel.call(name, arg)
+			promise = channel
+				.call(name, arg)
 				.then(null, err => null, e => emitter.fire(deserializer(e)));
 		},
 		onLastListenerRemove: () => {

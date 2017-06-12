@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import { IThreadService } from 'vs/workbench/services/thread/common/threadService';
@@ -30,16 +30,14 @@ export interface IHeapService {
 	trackRecursive<T>(obj: T): T;
 }
 
-
 export class MainThreadHeapService implements IHeapService {
-
 	_serviceBrand: any;
 
 	private _activeSignals = new WeakMap<any, GCSignal>();
 	private _activeIds = new Set<number>();
 	private _consumeHandle: number;
 
-	constructor( @IThreadService threadService: IThreadService) {
+	constructor(@IThreadService threadService: IThreadService) {
 		const proxy = threadService.get(ExtHostContext.ExtHostHeapService);
 
 		this._consumeHandle = setInterval(() => {
@@ -54,7 +52,6 @@ export class MainThreadHeapService implements IHeapService {
 				// send to ext host
 				proxy.$onGarbageCollection(ids);
 			}
-
 		}, 15 * 1000);
 	}
 
@@ -73,10 +70,8 @@ export class MainThreadHeapService implements IHeapService {
 	}
 
 	private _doTrackRecursive(obj: any): any {
-
 		const stack = [obj];
 		while (stack.length > 0) {
-
 			// remove first element
 			let obj = stack.shift();
 
@@ -93,7 +88,6 @@ export class MainThreadHeapService implements IHeapService {
 				// recurse -> object/array
 				if (typeof value === 'object') {
 					stack.push(value);
-
 				} else if (key === ObjectIdentifier.name) {
 					// track new $ident-objects
 

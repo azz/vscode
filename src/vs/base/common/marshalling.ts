@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import URI from 'vs/base/common/uri';
 
@@ -24,7 +24,10 @@ function replacer(key: string, value: any): any {
 		return {
 			$mid: 2,
 			source: (<RegExp>value).source,
-			flags: ((<RegExp>value).global ? 'g' : '') + ((<RegExp>value).ignoreCase ? 'i' : '') + ((<RegExp>value).multiline ? 'm' : ''),
+			flags:
+				((<RegExp>value).global ? 'g' : '') +
+					((<RegExp>value).ignoreCase ? 'i' : '') +
+					((<RegExp>value).multiline ? 'm' : '')
 		};
 	}
 	return value;
@@ -37,8 +40,11 @@ function reviver(key: string, value: any): any {
 	}
 
 	switch (marshallingConst) {
-		case 1: return URI.revive(value);
-		case 2: return new RegExp(value.source, value.flags);
-		default: return value;
+		case 1:
+			return URI.revive(value);
+		case 2:
+			return new RegExp(value.source, value.flags);
+		default:
+			return value;
 	}
 }

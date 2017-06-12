@@ -3,19 +3,29 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import product from 'vs/platform/node/product';
 import { IEnvironmentService } from 'vs/platform/environment/common/environment';
 import { IExtensionService } from 'vs/platform/extensions/common/extensions';
 import { IInstantiationService } from 'vs/platform/instantiation/common/instantiation';
 import { IMessageService } from 'vs/platform/message/common/message';
-import { ILifecycleService, LifecyclePhase } from 'vs/platform/lifecycle/common/lifecycle';
-import { IStorageService, StorageScope } from 'vs/platform/storage/common/storage';
+import {
+	ILifecycleService,
+	LifecyclePhase
+} from 'vs/platform/lifecycle/common/lifecycle';
+import {
+	IStorageService,
+	StorageScope
+} from 'vs/platform/storage/common/storage';
 import { ITimerService } from 'vs/workbench/services/timer/common/timerService';
 import { IWindowsService } from 'vs/platform/windows/common/windows';
 import { ITelemetryService } from 'vs/platform/telemetry/common/telemetry';
-import { IWorkbenchContributionsRegistry, IWorkbenchContribution, Extensions } from 'vs/workbench/common/contributions';
+import {
+	IWorkbenchContributionsRegistry,
+	IWorkbenchContribution,
+	Extensions
+} from 'vs/workbench/common/contributions';
 import { Registry } from 'vs/platform/platform';
 import { ReportPerformanceIssueAction } from 'vs/workbench/electron-browser/actions';
 import { TPromise } from 'vs/base/common/winjs.base';
@@ -31,7 +41,6 @@ import { forEach } from 'vs/base/common/collections';
 import URI from 'vs/base/common/uri';
 
 class ProfilingHint implements IWorkbenchContribution {
-
 	// p95 to p95 by os&release
 	static readonly _percentiles: { [key: string]: [number, number] } = {
 		['Windows_6.3.9600']: [35782, 35782],
@@ -64,10 +73,12 @@ class ProfilingHint implements IWorkbenchContribution {
 		['Linux_4.10.11-100.fc24.x86_64']: [1845, 1845],
 		['Linux_4.10.0-21-generic']: [14805, 16050],
 		['Linux_3.19.0-84-generic']: [4840, 4840],
-		['Linux_3.11.10-29-desktop']: [1637, 2891],
+		['Linux_3.11.10-29-desktop']: [1637, 2891]
 	};
 
-	private static readonly _myPercentiles = ProfilingHint._percentiles[`${Platform[platform]}_${release()}`];
+	private static readonly _myPercentiles = ProfilingHint._percentiles[
+		`${Platform[platform]}_${release()}`
+	];
 
 	constructor(
 		@IWindowsService private readonly _windowsService: IWindowsService,
@@ -75,9 +86,8 @@ class ProfilingHint implements IWorkbenchContribution {
 		@IMessageService private readonly _messageService: IMessageService,
 		@IEnvironmentService private readonly _envService: IEnvironmentService,
 		@IStorageService private readonly _storageService: IStorageService,
-		@ITelemetryService private readonly _telemetryService: ITelemetryService,
+		@ITelemetryService private readonly _telemetryService: ITelemetryService
 	) {
-
 		setTimeout(() => this._checkTimersAndSuggestToProfile(), 5000);
 	}
 
@@ -86,9 +96,11 @@ class ProfilingHint implements IWorkbenchContribution {
 	}
 
 	private _checkTimersAndSuggestToProfile() {
-
 		// Only initial startups, not when already profiling
-		if (!this._timerService.isInitialStartup || this._envService.args['prof-startup']) {
+		if (
+			!this._timerService.isInitialStartup ||
+			this._envService.args['prof-startup']
+		) {
 			return;
 		}
 
@@ -107,7 +119,10 @@ class ProfilingHint implements IWorkbenchContribution {
 
 		// Ignore virtual machines and only ask users
 		// to profile with a certain propability
-		if (virtualMachineHint.value() >= .5 || Math.ceil(Math.random() * 1000) !== 1) {
+		if (
+			virtualMachineHint.value() >= 0.5 ||
+			Math.ceil(Math.random() * 1000) !== 1
+		) {
 			return;
 		}
 
@@ -118,7 +133,11 @@ class ProfilingHint implements IWorkbenchContribution {
 			return;
 		}
 		const mementoKey = `performance.didPromptToProfile.${product.commit}`;
-		const value = this._storageService.get(mementoKey, StorageScope.GLOBAL, undefined);
+		const value = this._storageService.get(
+			mementoKey,
+			StorageScope.GLOBAL,
+			undefined
+		);
 		if (value !== undefined) {
 			// only ask once per version
 			return;
@@ -126,8 +145,12 @@ class ProfilingHint implements IWorkbenchContribution {
 
 		const profile = this._messageService.confirm({
 			type: 'info',
-			message: localize('slow', "Slow startup detected"),
-			detail: localize('slow.detail', "Sorry that you just had a slow startup. Please restart '{0}' with profiling enabled, share the profiles with us, and we will work hard to make startup great again.", this._envService.appNameLong),
+			message: localize('slow', 'Slow startup detected'),
+			detail: localize(
+				'slow.detail',
+				"Sorry that you just had a slow startup. Please restart '{0}' with profiling enabled, share the profiles with us, and we will work hard to make startup great again.",
+				this._envService.appNameLong
+			),
 			primaryButton: 'Restart and profile'
 		});
 
@@ -145,19 +168,25 @@ class ProfilingHint implements IWorkbenchContribution {
 }
 
 class StartupProfiler implements IWorkbenchContribution {
-
 	constructor(
 		@IWindowsService private readonly _windowsService: IWindowsService,
 		@IMessageService private readonly _messageService: IMessageService,
-		@IEnvironmentService private readonly _environmentService: IEnvironmentService,
-		@IInstantiationService private readonly _instantiationService: IInstantiationService,
+		@IEnvironmentService
+		private readonly _environmentService: IEnvironmentService,
+		@IInstantiationService
+		private readonly _instantiationService: IInstantiationService,
 		@ILifecycleService lifecycleService: ILifecycleService,
-		@IExtensionService extensionService: IExtensionService,
+		@IExtensionService extensionService: IExtensionService
 	) {
 		// wait for everything to be ready
 		TPromise.join<any>([
 			extensionService.onReady(),
-			toPromise(filterEvent(lifecycleService.onDidChangePhase, phase => phase === LifecyclePhase.Running)),
+			toPromise(
+				filterEvent(
+					lifecycleService.onDidChangePhase,
+					phase => phase === LifecyclePhase.Running
+				)
+			)
 		]).then(() => {
 			this._stopProfiling();
 		});
@@ -168,59 +197,84 @@ class StartupProfiler implements IWorkbenchContribution {
 	}
 
 	private _stopProfiling(): void {
-
 		const { profileStartup } = this._environmentService;
 		if (!profileStartup) {
 			return;
 		}
 
 		stopProfiling(profileStartup.dir, profileStartup.prefix).then(() => {
-			readdir(profileStartup.dir).then(files => {
-				return files.filter(value => value.indexOf(profileStartup.prefix) === 0);
-			}).then(files => {
-				const profileFiles = files.reduce((prev, cur) => `${prev}${join(profileStartup.dir, cur)}\n`, '\n');
+			readdir(profileStartup.dir)
+				.then(files => {
+					return files.filter(
+						value => value.indexOf(profileStartup.prefix) === 0
+					);
+				})
+				.then(files => {
+					const profileFiles = files.reduce(
+						(prev, cur) => `${prev}${join(profileStartup.dir, cur)}\n`,
+						'\n'
+					);
 
-				const primaryButton = this._messageService.confirm({
-					type: 'info',
-					message: localize('prof.message', "Successfully created profiles."),
-					detail: localize('prof.detail', "Please create an issue and manually attach the following files:\n{0}", profileFiles),
-					primaryButton: localize('prof.restartAndFileIssue', "Create Issue and Restart"),
-					secondaryButton: localize('prof.restart', "Restart")
-				});
-
-				if (primaryButton) {
-					const action = this._instantiationService.createInstance(ReportPerformanceIssueAction, ReportPerformanceIssueAction.ID, ReportPerformanceIssueAction.LABEL);
-					TPromise.join<any>([
-						this._windowsService.showItemInFolder(join(profileStartup.dir, files[0])),
-						action.run(`:warning: Make sure to **attach** these files from your *home*-directory: :warning:\n${files.map(file => `-\`${file}\``).join('\n')}`)
-					]).then(() => {
-						// keep window stable until restart is selected
-						this._messageService.confirm({
-							type: 'info',
-							message: localize('prof.thanks', "Thanks for helping us."),
-							detail: localize('prof.detail.restart', "A final restart is required to continue to use '{0}'. Again, thank you for your contribution.", this._environmentService.appNameLong),
-							primaryButton: localize('prof.restart', "Restart"),
-							secondaryButton: null
-						});
-						// now we are ready to restart
-						this._windowsService.relaunch({ removeArgs: ['--prof-startup'] });
+					const primaryButton = this._messageService.confirm({
+						type: 'info',
+						message: localize('prof.message', 'Successfully created profiles.'),
+						detail: localize(
+							'prof.detail',
+							'Please create an issue and manually attach the following files:\n{0}',
+							profileFiles
+						),
+						primaryButton: localize(
+							'prof.restartAndFileIssue',
+							'Create Issue and Restart'
+						),
+						secondaryButton: localize('prof.restart', 'Restart')
 					});
 
-				} else {
-					// simply restart
-					this._windowsService.relaunch({ removeArgs: ['--prof-startup'] });
-				}
-			});
+					if (primaryButton) {
+						const action = this._instantiationService.createInstance(
+							ReportPerformanceIssueAction,
+							ReportPerformanceIssueAction.ID,
+							ReportPerformanceIssueAction.LABEL
+						);
+						TPromise.join<any>([
+							this._windowsService.showItemInFolder(
+								join(profileStartup.dir, files[0])
+							),
+							action.run(
+								`:warning: Make sure to **attach** these files from your *home*-directory: :warning:\n${files
+									.map(file => `-\`${file}\``)
+									.join('\n')}`
+							)
+						]).then(() => {
+							// keep window stable until restart is selected
+							this._messageService.confirm({
+								type: 'info',
+								message: localize('prof.thanks', 'Thanks for helping us.'),
+								detail: localize(
+									'prof.detail.restart',
+									"A final restart is required to continue to use '{0}'. Again, thank you for your contribution.",
+									this._environmentService.appNameLong
+								),
+								primaryButton: localize('prof.restart', 'Restart'),
+								secondaryButton: null
+							});
+							// now we are ready to restart
+							this._windowsService.relaunch({ removeArgs: ['--prof-startup'] });
+						});
+					} else {
+						// simply restart
+						this._windowsService.relaunch({ removeArgs: ['--prof-startup'] });
+					}
+				});
 		});
 	}
 }
 
 class PerformanceTelemetry implements IWorkbenchContribution {
-
 	constructor(
 		@ITimerService private readonly _timerService: ITimerService,
 		@ITelemetryService private readonly _telemetryService: ITelemetryService,
-		@IExtensionService extensionService: IExtensionService,
+		@IExtensionService extensionService: IExtensionService
 	) {
 		TPromise.join<any>([
 			TPromise.timeout(7 * 1000),
@@ -238,7 +292,7 @@ class PerformanceTelemetry implements IWorkbenchContribution {
 	private _validateTimers(): void {
 		const { startupMetrics } = this._timerService;
 		const invalidTimers: string[] = [];
-		forEach(startupMetrics.timers, (entry) => {
+		forEach(startupMetrics.timers, entry => {
 			if (entry.value < 0) {
 				invalidTimers.push(entry.key);
 			}
@@ -247,14 +301,20 @@ class PerformanceTelemetry implements IWorkbenchContribution {
 	}
 
 	private _sendWorkbenchMainSizeTelemetry(): void {
-		const { fsPath } = URI.parse(require.toUrl('vs/workbench/electron-browser/workbench.main.js'));
+		const { fsPath } = URI.parse(
+			require.toUrl('vs/workbench/electron-browser/workbench.main.js')
+		);
 		stat(fsPath).then(stats => {
-			this._telemetryService.publicLog('perf:jsFileSize', { workbenchMain: stats.size });
+			this._telemetryService.publicLog('perf:jsFileSize', {
+				workbenchMain: stats.size
+			});
 		});
 	}
 }
 
-const registry = Registry.as<IWorkbenchContributionsRegistry>(Extensions.Workbench);
+const registry = Registry.as<IWorkbenchContributionsRegistry>(
+	Extensions.Workbench
+);
 registry.registerWorkbenchContribution(ProfilingHint);
 registry.registerWorkbenchContribution(StartupProfiler);
 registry.registerWorkbenchContribution(PerformanceTelemetry);

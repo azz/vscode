@@ -2,13 +2,16 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import collections = require('vs/base/common/collections');
 import { Registry } from 'vs/platform/platform';
 import { IAction } from 'vs/base/common/actions';
-import { KeybindingsRegistry, ICommandAndKeybindingRule } from 'vs/platform/keybinding/common/keybindingsRegistry';
+import {
+	KeybindingsRegistry,
+	ICommandAndKeybindingRule
+} from 'vs/platform/keybinding/common/keybindingsRegistry';
 import { IPartService } from 'vs/workbench/services/part/common/partService';
 import { ICommandHandler } from 'vs/platform/commands/common/commands';
 import { SyncActionDescriptor } from 'vs/platform/actions/common/actions';
@@ -26,12 +29,15 @@ export interface IActionProvider {
 }
 
 export interface IWorkbenchActionRegistry {
-
 	/**
 	 * Registers a workbench action to the platform. Workbench actions are not
 	 * visible by default and can only be invoked through a keybinding if provided.
 	 */
-	registerWorkbenchAction(descriptor: SyncActionDescriptor, alias: string, category?: string): void;
+	registerWorkbenchAction(
+		descriptor: SyncActionDescriptor,
+		alias: string,
+		category?: string
+	): void;
 
 	/**
 	 * Unregisters a workbench action from the platform.
@@ -66,14 +72,18 @@ interface IActionMeta {
 
 class WorkbenchActionRegistry implements IWorkbenchActionRegistry {
 	private workbenchActions: collections.IStringDictionary<SyncActionDescriptor>;
-	private mapActionIdToMeta: { [id: string]: IActionMeta; };
+	private mapActionIdToMeta: { [id: string]: IActionMeta };
 
 	constructor() {
 		this.workbenchActions = Object.create(null);
 		this.mapActionIdToMeta = Object.create(null);
 	}
 
-	public registerWorkbenchAction(descriptor: SyncActionDescriptor, alias: string, category?: string): void {
+	public registerWorkbenchAction(
+		descriptor: SyncActionDescriptor,
+		alias: string,
+		category?: string
+	): void {
 		if (!this.workbenchActions[descriptor.id]) {
 			this.workbenchActions[descriptor.id] = descriptor;
 			registerWorkbenchCommandFromAction(descriptor);
@@ -103,11 +113,16 @@ class WorkbenchActionRegistry implements IWorkbenchActionRegistry {
 	}
 
 	public getCategory(id: string): string {
-		return (this.mapActionIdToMeta[id] && this.mapActionIdToMeta[id].category) || null;
+		return (
+			(this.mapActionIdToMeta[id] && this.mapActionIdToMeta[id].category) ||
+			null
+		);
 	}
 
 	public getAlias(id: string): string {
-		return (this.mapActionIdToMeta[id] && this.mapActionIdToMeta[id].alias) || null;
+		return (
+			(this.mapActionIdToMeta[id] && this.mapActionIdToMeta[id].alias) || null
+		);
 	}
 
 	public getWorkbenchActions(): SyncActionDescriptor[] {
@@ -124,9 +139,13 @@ class WorkbenchActionRegistry implements IWorkbenchActionRegistry {
 
 Registry.add(Extensions.WorkbenchActions, new WorkbenchActionRegistry());
 
-function registerWorkbenchCommandFromAction(descriptor: SyncActionDescriptor): void {
+function registerWorkbenchCommandFromAction(
+	descriptor: SyncActionDescriptor
+): void {
 	let when = descriptor.keybindingContext;
-	let weight = (typeof descriptor.keybindingWeight === 'undefined' ? KeybindingsRegistry.WEIGHT.workbenchContrib() : descriptor.keybindingWeight);
+	let weight = typeof descriptor.keybindingWeight === 'undefined'
+		? KeybindingsRegistry.WEIGHT.workbenchContrib()
+		: descriptor.keybindingWeight;
 	let keybindings = descriptor.keybindings;
 
 	let desc: ICommandAndKeybindingRule = {
@@ -144,22 +163,39 @@ function registerWorkbenchCommandFromAction(descriptor: SyncActionDescriptor): v
 	KeybindingsRegistry.registerCommandAndKeybindingRule(desc);
 }
 
-export function createCommandHandler(descriptor: SyncActionDescriptor): ICommandHandler {
+export function createCommandHandler(
+	descriptor: SyncActionDescriptor
+): ICommandHandler {
 	return (accessor, args) => {
-
 		let messageService = accessor.get(IMessageService);
 		let instantiationService = accessor.get(IInstantiationService);
 		let telemetryService = accessor.get(ITelemetryService);
 		let partService = accessor.get(IPartService);
 
-		TPromise.as(triggerAndDisposeAction(instantiationService, telemetryService, partService, descriptor, args)).done(null, (err) => {
+		TPromise.as(
+			triggerAndDisposeAction(
+				instantiationService,
+				telemetryService,
+				partService,
+				descriptor,
+				args
+			)
+		).done(null, err => {
 			messageService.show(Severity.Error, err);
 		});
 	};
 }
 
-export function triggerAndDisposeAction(instantitationService: IInstantiationService, telemetryService: ITelemetryService, partService: IPartService, descriptor: SyncActionDescriptor, args: any): TPromise<any> {
-	let actionInstance = instantitationService.createInstance(descriptor.syncDescriptor);
+export function triggerAndDisposeAction(
+	instantitationService: IInstantiationService,
+	telemetryService: ITelemetryService,
+	partService: IPartService,
+	descriptor: SyncActionDescriptor,
+	args: any
+): TPromise<any> {
+	let actionInstance = instantitationService.createInstance(
+		descriptor.syncDescriptor
+	);
 	actionInstance.label = descriptor.label || actionInstance.label;
 
 	// don't run the action when not enabled
@@ -168,20 +204,26 @@ export function triggerAndDisposeAction(instantitationService: IInstantiationSer
 		return undefined;
 	}
 
-	const from = args && args.from || 'keybinding';
+	const from = (args && args.from) || 'keybinding';
 	if (telemetryService) {
-		telemetryService.publicLog('workbenchActionExecuted', { id: actionInstance.id, from });
+		telemetryService.publicLog('workbenchActionExecuted', {
+			id: actionInstance.id,
+			from
+		});
 	}
 
 	// run action when workbench is created
 	return partService.joinCreation().then(() => {
 		try {
-			return TPromise.as(actionInstance.run(undefined, { from })).then(() => {
-				actionInstance.dispose();
-			}, (err) => {
-				actionInstance.dispose();
-				return TPromise.wrapError(err);
-			});
+			return TPromise.as(actionInstance.run(undefined, { from })).then(
+				() => {
+					actionInstance.dispose();
+				},
+				err => {
+					actionInstance.dispose();
+					return TPromise.wrapError(err);
+				}
+			);
 		} catch (err) {
 			actionInstance.dispose();
 			return TPromise.wrapError(err);

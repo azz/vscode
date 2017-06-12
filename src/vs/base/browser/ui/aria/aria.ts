@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./aria';
 import nls = require('vs/nls');
@@ -16,8 +16,12 @@ let statusContainer: Builder;
 export function setARIAContainer(parent: HTMLElement) {
 	ariaContainer = $('.monaco-aria-container').appendTo(parent);
 
-	alertContainer = $('.monaco-alert').appendTo(ariaContainer).attr({ 'role': 'alert', 'aria-atomic': 'true' });
-	statusContainer = $('.monaco-status').appendTo(ariaContainer).attr({ 'role': 'status', 'aria-atomic': 'true' });
+	alertContainer = $('.monaco-alert')
+		.appendTo(ariaContainer)
+		.attr({ role: 'alert', 'aria-atomic': 'true' });
+	statusContainer = $('.monaco-status')
+		.appendTo(ariaContainer)
+		.attr({ role: 'status', 'aria-atomic': 'true' });
 }
 
 /**
@@ -45,7 +49,7 @@ function insertMessage(target: Builder, msg: string): void {
 	}
 
 	if (target.getHTMLElement().textContent === msg) {
-		msg = nls.localize('repeated', "{0} (occurred again)", msg);
+		msg = nls.localize('repeated', '{0} (occurred again)', msg);
 	}
 
 	$(target).empty();

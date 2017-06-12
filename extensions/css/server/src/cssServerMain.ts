@@ -2,18 +2,33 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import {
-	createConnection, IConnection, Range,
-	TextDocuments, TextDocument, InitializeParams, InitializeResult, RequestType
+	createConnection,
+	IConnection,
+	Range,
+	TextDocuments,
+	TextDocument,
+	InitializeParams,
+	InitializeResult,
+	RequestType
 } from 'vscode-languageserver';
 
-import { getCSSLanguageService, getSCSSLanguageService, getLESSLanguageService, LanguageSettings, LanguageService, Stylesheet } from 'vscode-css-languageservice';
+import {
+	getCSSLanguageService,
+	getSCSSLanguageService,
+	getLESSLanguageService,
+	LanguageSettings,
+	LanguageService,
+	Stylesheet
+} from 'vscode-css-languageservice';
 import { getLanguageModelCache } from './languageModelCache';
 
 namespace ColorSymbolRequest {
-	export const type: RequestType<string, Range[], any, any> = new RequestType('css/colorSymbols');
+	export const type: RequestType<string, Range[], any, any> = new RequestType(
+		'css/colorSymbols'
+	);
 }
 
 export interface Settings {
@@ -35,7 +50,9 @@ let documents: TextDocuments = new TextDocuments();
 // for open, change and close text document events
 documents.listen(connection);
 
-let stylesheets = getLanguageModelCache<Stylesheet>(10, 60, document => getLanguageService(document).parseStylesheet(document));
+let stylesheets = getLanguageModelCache<Stylesheet>(10, 60, document =>
+	getLanguageService(document).parseStylesheet(document)
+);
 documents.onDidClose(e => {
 	stylesheets.onDocumentRemoved(e.document);
 });
@@ -46,7 +63,12 @@ connection.onShutdown(() => {
 // After the server has started the client sends an initilize request. The server receives
 // in the passed params the rootPath of the workspace plus the client capabilities.
 connection.onInitialize((params: InitializeParams): InitializeResult => {
-	let snippetSupport = params.capabilities && params.capabilities.textDocument && params.capabilities.textDocument.completion && params.capabilities.textDocument.completion.completionItem && params.capabilities.textDocument.completion.completionItem.snippetSupport;
+	let snippetSupport =
+		params.capabilities &&
+		params.capabilities.textDocument &&
+		params.capabilities.textDocument.completion &&
+		params.capabilities.textDocument.completion.completionItem &&
+		params.capabilities.textDocument.completion.completionItem.snippetSupport;
 	return {
 		capabilities: {
 			// Tell the client that the server works in FULL text document sync mode
@@ -72,7 +94,9 @@ let languageServices: { [id: string]: LanguageService } = {
 function getLanguageService(document: TextDocument) {
 	let service = languageServices[document.languageId];
 	if (!service) {
-		connection.console.log('Document type is ' + document.languageId + ', using css instead.');
+		connection.console.log(
+			'Document type is ' + document.languageId + ', using css instead.'
+		);
 		service = languageServices['css'];
 	}
 	return service;
@@ -124,7 +148,10 @@ function triggerValidation(textDocument: TextDocument): void {
 
 function validateTextDocument(textDocument: TextDocument): void {
 	let stylesheet = stylesheets.get(textDocument);
-	let diagnostics = getLanguageService(textDocument).doValidation(textDocument, stylesheet);
+	let diagnostics = getLanguageService(textDocument).doValidation(
+		textDocument,
+		stylesheet
+	);
 	// Send the computed diagnostics to VSCode.
 	connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 }
@@ -132,13 +159,21 @@ function validateTextDocument(textDocument: TextDocument): void {
 connection.onCompletion(textDocumentPosition => {
 	let document = documents.get(textDocumentPosition.textDocument.uri);
 	let stylesheet = stylesheets.get(document);
-	return getLanguageService(document).doComplete(document, textDocumentPosition.position, stylesheet);
+	return getLanguageService(document).doComplete(
+		document,
+		textDocumentPosition.position,
+		stylesheet
+	);
 });
 
 connection.onHover(textDocumentPosition => {
 	let document = documents.get(textDocumentPosition.textDocument.uri);
 	let styleSheet = stylesheets.get(document);
-	return getLanguageService(document).doHover(document, textDocumentPosition.position, styleSheet);
+	return getLanguageService(document).doHover(
+		document,
+		textDocumentPosition.position,
+		styleSheet
+	);
 });
 
 connection.onDocumentSymbol(documentSymbolParams => {
@@ -150,25 +185,42 @@ connection.onDocumentSymbol(documentSymbolParams => {
 connection.onDefinition(documentSymbolParams => {
 	let document = documents.get(documentSymbolParams.textDocument.uri);
 	let stylesheet = stylesheets.get(document);
-	return getLanguageService(document).findDefinition(document, documentSymbolParams.position, stylesheet);
+	return getLanguageService(document).findDefinition(
+		document,
+		documentSymbolParams.position,
+		stylesheet
+	);
 });
 
 connection.onDocumentHighlight(documentSymbolParams => {
 	let document = documents.get(documentSymbolParams.textDocument.uri);
 	let stylesheet = stylesheets.get(document);
-	return getLanguageService(document).findDocumentHighlights(document, documentSymbolParams.position, stylesheet);
+	return getLanguageService(document).findDocumentHighlights(
+		document,
+		documentSymbolParams.position,
+		stylesheet
+	);
 });
 
 connection.onReferences(referenceParams => {
 	let document = documents.get(referenceParams.textDocument.uri);
 	let stylesheet = stylesheets.get(document);
-	return getLanguageService(document).findReferences(document, referenceParams.position, stylesheet);
+	return getLanguageService(document).findReferences(
+		document,
+		referenceParams.position,
+		stylesheet
+	);
 });
 
 connection.onCodeAction(codeActionParams => {
 	let document = documents.get(codeActionParams.textDocument.uri);
 	let stylesheet = stylesheets.get(document);
-	return getLanguageService(document).doCodeActions(document, codeActionParams.range, codeActionParams.context, stylesheet);
+	return getLanguageService(document).doCodeActions(
+		document,
+		codeActionParams.range,
+		codeActionParams.context,
+		stylesheet
+	);
 });
 
 connection.onRequest(ColorSymbolRequest.type, uri => {
@@ -183,7 +235,12 @@ connection.onRequest(ColorSymbolRequest.type, uri => {
 connection.onRenameRequest(renameParameters => {
 	let document = documents.get(renameParameters.textDocument.uri);
 	let stylesheet = stylesheets.get(document);
-	return getLanguageService(document).doRename(document, renameParameters.position, renameParameters.newName, stylesheet);
+	return getLanguageService(document).doRename(
+		document,
+		renameParameters.position,
+		renameParameters.newName,
+		stylesheet
+	);
 });
 
 // Listen on the connection

@@ -2,13 +2,15 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import Event from 'vs/base/common/event';
 import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
 
-export const ILifecycleService = createDecorator<ILifecycleService>('lifecycleService');
+export const ILifecycleService = createDecorator<ILifecycleService>(
+	'lifecycleService'
+);
 
 /**
  * An event that is send out when the window is about to close. Clients have a chance to veto the closing by either calling veto
@@ -24,7 +26,6 @@ export interface ShutdownEvent {
 }
 
 export enum ShutdownReason {
-
 	/** Window is closed */
 	CLOSE = 1,
 
@@ -41,7 +42,7 @@ export enum ShutdownReason {
 export enum StartupKind {
 	NewWindow = 1,
 	ReloadedWindow = 3,
-	ReopenedWindow = 4,
+	ReopenedWindow = 4
 }
 
 export enum LifecyclePhase {
@@ -55,7 +56,6 @@ export enum LifecyclePhase {
  * application, such as shutdown.
  */
 export interface ILifecycleService {
-
 	_serviceBrand: any;
 
 	/**

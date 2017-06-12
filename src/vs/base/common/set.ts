@@ -4,7 +4,6 @@
  *--------------------------------------------------------------------------------------------*/
 
 export class ArraySet<T> {
-
 	private _elements: T[];
 
 	constructor(elements: T[] = []) {

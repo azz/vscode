@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { Disposable } from 'vs/base/common/lifecycle';
 import Event, { Emitter } from 'vs/base/common/event';
@@ -86,23 +86,23 @@ export class ScrollState {
 
 	public equals(other: ScrollState): boolean {
 		return (
-			this.width === other.width
-			&& this.scrollWidth === other.scrollWidth
-			&& this.scrollLeft === other.scrollLeft
-			&& this.height === other.height
-			&& this.scrollHeight === other.scrollHeight
-			&& this.scrollTop === other.scrollTop
+			this.width === other.width &&
+			this.scrollWidth === other.scrollWidth &&
+			this.scrollLeft === other.scrollLeft &&
+			this.height === other.height &&
+			this.scrollHeight === other.scrollHeight &&
+			this.scrollTop === other.scrollTop
 		);
 	}
 
 	public createScrollEvent(previous: ScrollState): ScrollEvent {
-		let widthChanged = (this.width !== previous.width);
-		let scrollWidthChanged = (this.scrollWidth !== previous.scrollWidth);
-		let scrollLeftChanged = (this.scrollLeft !== previous.scrollLeft);
+		let widthChanged = this.width !== previous.width;
+		let scrollWidthChanged = this.scrollWidth !== previous.scrollWidth;
+		let scrollLeftChanged = this.scrollLeft !== previous.scrollLeft;
 
-		let heightChanged = (this.height !== previous.height);
-		let scrollHeightChanged = (this.scrollHeight !== previous.scrollHeight);
-		let scrollTopChanged = (this.scrollTop !== previous.scrollTop);
+		let heightChanged = this.height !== previous.height;
+		let scrollHeightChanged = this.scrollHeight !== previous.scrollHeight;
+		let scrollTopChanged = this.scrollTop !== previous.scrollTop;
 
 		return {
 			width: this.width,
@@ -119,10 +119,9 @@ export class ScrollState {
 
 			heightChanged: heightChanged,
 			scrollHeightChanged: scrollHeightChanged,
-			scrollTopChanged: scrollTopChanged,
+			scrollTopChanged: scrollTopChanged
 		};
 	}
-
 }
 
 export interface INewScrollState {
@@ -136,7 +135,6 @@ export interface INewScrollState {
 }
 
 export class Scrollable extends Disposable {
-
 	_scrollableBrand: void;
 
 	private _state: ScrollState;
@@ -157,26 +155,40 @@ export class Scrollable extends Disposable {
 	public validateScrollTop(desiredScrollTop: number): number {
 		desiredScrollTop = Math.round(desiredScrollTop);
 		desiredScrollTop = Math.max(desiredScrollTop, 0);
-		desiredScrollTop = Math.min(desiredScrollTop, this._state.scrollHeight - this._state.height);
+		desiredScrollTop = Math.min(
+			desiredScrollTop,
+			this._state.scrollHeight - this._state.height
+		);
 		return desiredScrollTop;
 	}
 
 	public validateScrollLeft(desiredScrollLeft: number): number {
 		desiredScrollLeft = Math.round(desiredScrollLeft);
 		desiredScrollLeft = Math.max(desiredScrollLeft, 0);
-		desiredScrollLeft = Math.min(desiredScrollLeft, this._state.scrollWidth - this._state.width);
+		desiredScrollLeft = Math.min(
+			desiredScrollLeft,
+			this._state.scrollWidth - this._state.width
+		);
 		return desiredScrollLeft;
 	}
 
 	public updateState(update: INewScrollState): void {
 		const oldState = this._state;
 		const newState = new ScrollState(
-			(typeof update.width !== 'undefined' ? update.width : oldState.width),
-			(typeof update.scrollWidth !== 'undefined' ? update.scrollWidth : oldState.scrollWidth),
-			(typeof update.scrollLeft !== 'undefined' ? update.scrollLeft : oldState.scrollLeft),
-			(typeof update.height !== 'undefined' ? update.height : oldState.height),
-			(typeof update.scrollHeight !== 'undefined' ? update.scrollHeight : oldState.scrollHeight),
-			(typeof update.scrollTop !== 'undefined' ? update.scrollTop : oldState.scrollTop)
+			typeof update.width !== 'undefined' ? update.width : oldState.width,
+			typeof update.scrollWidth !== 'undefined'
+				? update.scrollWidth
+				: oldState.scrollWidth,
+			typeof update.scrollLeft !== 'undefined'
+				? update.scrollLeft
+				: oldState.scrollLeft,
+			typeof update.height !== 'undefined' ? update.height : oldState.height,
+			typeof update.scrollHeight !== 'undefined'
+				? update.scrollHeight
+				: oldState.scrollHeight,
+			typeof update.scrollTop !== 'undefined'
+				? update.scrollTop
+				: oldState.scrollTop
 		);
 
 		if (oldState.equals(newState)) {

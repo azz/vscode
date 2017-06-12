@@ -18,7 +18,6 @@ export enum StatusBarElement {
 }
 
 export class StatusBar {
-
 	private selectorsMap: Map<StatusBarElement, string>;
 	private readonly mainSelector = 'div[id="workbench.parts.statusbar"]';
 
@@ -45,11 +44,13 @@ export class StatusBar {
 	}
 
 	public async getProblemsView(): Promise<any> {
-		let el = await this.spectron.client.element('div[id="workbench.panel.markers"]');
+		let el = await this.spectron.client.element(
+			'div[id="workbench.panel.markers"]'
+		);
 		if (el.status === 0) {
 			return el;
 		}
-		
+
 		return undefined;
 	}
 
@@ -58,7 +59,7 @@ export class StatusBar {
 		if (el.status === 0) {
 			return el;
 		}
-		
+
 		return undefined;
 	}
 
@@ -67,11 +68,13 @@ export class StatusBar {
 	}
 
 	public async getEditorHighlightedLine(lineNumber: number): Promise<any> {
-		let el = await this.spectron.client.element(`.monaco-editor .view-overlays>:nth-child(${lineNumber}) .current-line`);
+		let el = await this.spectron.client.element(
+			`.monaco-editor .view-overlays>:nth-child(${lineNumber}) .current-line`
+		);
 		if (el.status === 0) {
 			return el;
 		}
-		
+
 		return undefined;
 	}
 
@@ -86,14 +89,41 @@ export class StatusBar {
 
 	private populateSelectorsMap(): void {
 		this.selectorsMap = new Map<StatusBarElement, string>();
-		this.selectorsMap.set(StatusBarElement.BRANCH_STATUS, `${this.mainSelector} .octicon.octicon-git-branch`);
-		this.selectorsMap.set(StatusBarElement.SYNC_STATUS, `${this.mainSelector} .octicon.octicon-sync`);
-		this.selectorsMap.set(StatusBarElement.PROBLEMS_STATUS, `${this.mainSelector} .task-statusbar-item[title="Problems"]`);
-		this.selectorsMap.set(StatusBarElement.SELECTION_STATUS, `${this.mainSelector} .editor-status-selection`);
-		this.selectorsMap.set(StatusBarElement.INDENTATION_STATUS, `${this.mainSelector} .editor-status-indentation`);
-		this.selectorsMap.set(StatusBarElement.ENCODING_STATUS, `${this.mainSelector} .editor-status-encoding`);
-		this.selectorsMap.set(StatusBarElement.EOL_STATUS, `${this.mainSelector} .editor-status-eol`);
-		this.selectorsMap.set(StatusBarElement.LANGUAGE_STATUS, `${this.mainSelector} .editor-status-mode`);
-		this.selectorsMap.set(StatusBarElement.FEEDBACK_ICON, `${this.mainSelector} .dropdown.send-feedback`);
+		this.selectorsMap.set(
+			StatusBarElement.BRANCH_STATUS,
+			`${this.mainSelector} .octicon.octicon-git-branch`
+		);
+		this.selectorsMap.set(
+			StatusBarElement.SYNC_STATUS,
+			`${this.mainSelector} .octicon.octicon-sync`
+		);
+		this.selectorsMap.set(
+			StatusBarElement.PROBLEMS_STATUS,
+			`${this.mainSelector} .task-statusbar-item[title="Problems"]`
+		);
+		this.selectorsMap.set(
+			StatusBarElement.SELECTION_STATUS,
+			`${this.mainSelector} .editor-status-selection`
+		);
+		this.selectorsMap.set(
+			StatusBarElement.INDENTATION_STATUS,
+			`${this.mainSelector} .editor-status-indentation`
+		);
+		this.selectorsMap.set(
+			StatusBarElement.ENCODING_STATUS,
+			`${this.mainSelector} .editor-status-encoding`
+		);
+		this.selectorsMap.set(
+			StatusBarElement.EOL_STATUS,
+			`${this.mainSelector} .editor-status-eol`
+		);
+		this.selectorsMap.set(
+			StatusBarElement.LANGUAGE_STATUS,
+			`${this.mainSelector} .editor-status-mode`
+		);
+		this.selectorsMap.set(
+			StatusBarElement.FEEDBACK_ICON,
+			`${this.mainSelector} .dropdown.send-feedback`
+		);
 	}
 }

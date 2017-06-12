@@ -2,14 +2,17 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { ICodeEditor } from 'vs/editor/browser/editorBrowser';
 import { HoverOperation, IHoverComputer } from './hoverOperation';
 import { GlyphHoverWidget } from './hoverWidgets';
 import { $ } from 'vs/base/browser/dom';
 import { renderMarkedString } from 'vs/base/browser/htmlContentRenderer';
-import { IOpenerService, NullOpenerService } from 'vs/platform/opener/common/opener';
+import {
+	IOpenerService,
+	NullOpenerService
+} from 'vs/platform/opener/common/opener';
 import URI from 'vs/base/common/uri';
 import { onUnexpectedError } from 'vs/base/common/errors';
 import { TPromise } from 'vs/base/common/winjs.base';
@@ -22,7 +25,6 @@ export interface IHoverMessage {
 }
 
 class MarginComputer implements IHoverComputer<IHoverMessage[]> {
-
 	private _editor: ICodeEditor;
 	private _lineNumber: number;
 	private _result: IHoverMessage[];
@@ -43,7 +45,10 @@ class MarginComputer implements IHoverComputer<IHoverMessage[]> {
 
 	public computeSync(): IHoverMessage[] {
 		const hasHoverContent = (contents: MarkedString | MarkedString[]) => {
-			return contents && (!Array.isArray(contents) || (<MarkedString[]>contents).length > 0);
+			return (
+				contents &&
+				(!Array.isArray(contents) || (<MarkedString[]>contents).length > 0)
+			);
 		};
 		const toHoverMessage = (contents: MarkedString): IHoverMessage => {
 			return {
@@ -77,7 +82,10 @@ class MarginComputer implements IHoverComputer<IHoverMessage[]> {
 		return result;
 	}
 
-	public onResult(result: IHoverMessage[], isFromSynchronousComputation: boolean): void {
+	public onResult(
+		result: IHoverMessage[],
+		isFromSynchronousComputation: boolean
+	): void {
 		this._result = this._result.concat(result);
 	}
 
@@ -91,7 +99,6 @@ class MarginComputer implements IHoverComputer<IHoverMessage[]> {
 }
 
 export class ModesGlyphHoverWidget extends GlyphHoverWidget {
-
 	public static ID = 'editor.contrib.modesGlyphHoverWidget';
 	private _messages: IHoverMessage[];
 	private _lastLineNumber: number;
@@ -99,7 +106,11 @@ export class ModesGlyphHoverWidget extends GlyphHoverWidget {
 	private _computer: MarginComputer;
 	private _hoverOperation: HoverOperation<IHoverMessage[]>;
 
-	constructor(editor: ICodeEditor, private openerService: IOpenerService, private modeService: IModeService) {
+	constructor(
+		editor: ICodeEditor,
+		private openerService: IOpenerService,
+		private modeService: IModeService
+	) {
 		super(ModesGlyphHoverWidget.ID, editor);
 
 		this.openerService = openerService || NullOpenerService;
@@ -114,7 +125,6 @@ export class ModesGlyphHoverWidget extends GlyphHoverWidget {
 			null,
 			(result: any) => this._withResult(result)
 		);
-
 	}
 
 	public dispose(): void {
@@ -164,15 +174,22 @@ export class ModesGlyphHoverWidget extends GlyphHoverWidget {
 	}
 
 	private _renderMessages(lineNumber: number, messages: IHoverMessage[]): void {
-
 		const fragment = document.createDocumentFragment();
 
-		messages.forEach((msg) => {
+		messages.forEach(msg => {
 			const renderedContents = renderMarkedString(msg.value, {
-				actionCallback: content => this.openerService.open(URI.parse(content)).then(undefined, onUnexpectedError),
-				codeBlockRenderer: (languageAlias, value): string | TPromise<string> => {
+				actionCallback: content =>
+					this.openerService
+						.open(URI.parse(content))
+						.then(undefined, onUnexpectedError),
+				codeBlockRenderer: (
+					languageAlias,
+					value
+				): string | TPromise<string> => {
 					// In markdown, it is possible that we stumble upon language aliases (e.g. js instead of javascript)
-					const modeId = this.modeService.getModeIdForLanguageName(languageAlias);
+					const modeId = this.modeService.getModeIdForLanguageName(
+						languageAlias
+					);
 					return this.modeService.getOrCreateMode(modeId).then(_ => {
 						return `<div class="code">${tokenizeToString(value, modeId)}</div>`;
 					});

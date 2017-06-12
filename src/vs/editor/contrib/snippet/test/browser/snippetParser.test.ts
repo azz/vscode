@@ -2,16 +2,22 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
-import { Scanner, TokenType, SnippetParser, Text, Placeholder, Variable, Marker, walk } from 'vs/editor/contrib/snippet/browser/snippetParser';
-
+import {
+	Scanner,
+	TokenType,
+	SnippetParser,
+	Text,
+	Placeholder,
+	Variable,
+	Marker,
+	walk
+} from 'vs/editor/contrib/snippet/browser/snippetParser';
 
 suite('SnippetParser', () => {
-
 	test('Scanner', () => {
-
 		const scanner = new Scanner();
 		assert.equal(scanner.next().type, TokenType.EOF);
 
@@ -84,7 +90,10 @@ suite('SnippetParser', () => {
 		assert.equal(actual, expected);
 	}
 
-	function assertMarker(valueOrMarker: Marker[] | string, ...ctors: Function[]) {
+	function assertMarker(
+		valueOrMarker: Marker[] | string,
+		...ctors: Function[]
+	) {
 		let marker: Marker[];
 		if (typeof valueOrMarker === 'string') {
 			const p = new SnippetParser();
@@ -101,7 +110,11 @@ suite('SnippetParser', () => {
 		assert.equal(marker.length, 0);
 	}
 
-	function assertTextAndMarker(value: string, escaped: string, ...ctors: Function[]) {
+	function assertTextAndMarker(
+		value: string,
+		escaped: string,
+		...ctors: Function[]
+	) {
 		assertText(value, escaped);
 		assertMarker(value, ...ctors);
 	}
@@ -111,7 +124,7 @@ suite('SnippetParser', () => {
 		assert.equal(actual, expected);
 	}
 
-	test('Parser, escaped', function () {
+	test('Parser, escaped', function() {
 		assertEscaped('foo$0', 'foo\\$0');
 		assertEscaped('foo\\$0', 'foo\\\\\\$0');
 		assertEscaped('f$1oo$0', 'f\\$1oo\\$0');
@@ -141,19 +154,36 @@ suite('SnippetParser', () => {
 		assertText('far\\{{123}}boo', 'far\\{{123}}boo');
 		assertText('far{{id:bern}}boo', 'far{{id:bern}}boo');
 		assertText('far{{id:bern {{basel}}}}boo', 'far{{id:bern {{basel}}}}boo');
-		assertText('far{{id:bern {{id:basel}}}}boo', 'far{{id:bern {{id:basel}}}}boo');
-		assertText('far{{id:bern {{id2:basel}}}}boo', 'far{{id:bern {{id2:basel}}}}boo');
+		assertText(
+			'far{{id:bern {{id:basel}}}}boo',
+			'far{{id:bern {{id:basel}}}}boo'
+		);
+		assertText(
+			'far{{id:bern {{id2:basel}}}}boo',
+			'far{{id:bern {{id2:basel}}}}boo'
+		);
 	});
-
 
 	test('Parser, TM text', () => {
 		assertTextAndMarker('foo${1:bar}}', 'foobar}', Text, Placeholder, Text);
-		assertTextAndMarker('foo${1:bar}${2:foo}}', 'foobarfoo}', Text, Placeholder, Placeholder, Text);
+		assertTextAndMarker(
+			'foo${1:bar}${2:foo}}',
+			'foobarfoo}',
+			Text,
+			Placeholder,
+			Placeholder,
+			Text
+		);
 
-		assertTextAndMarker('foo${1:bar\\}${2:foo}}', 'foobar}foo', Text, Placeholder);
+		assertTextAndMarker(
+			'foo${1:bar\\}${2:foo}}',
+			'foobar}foo',
+			Text,
+			Placeholder
+		);
 
 		let [, placeholder] = new SnippetParser().parse('foo${1:bar\\}${2:foo}}');
-		let { children } = (<Placeholder>placeholder);
+		let { children } = <Placeholder>placeholder;
 
 		assert.equal((<Placeholder>placeholder).index, '1');
 		assert.ok(children[0] instanceof Text);
@@ -190,7 +220,12 @@ suite('SnippetParser', () => {
 		assertTextAndMarker('${1:bar${2:foo}bar}', 'barfoobar', Placeholder);
 
 		assertTextAndMarker('${name:value', '${name:value', Text);
-		assertTextAndMarker('${1:bar${2:foobar}', '${1:barfoobar', Text, Placeholder);
+		assertTextAndMarker(
+			'${1:bar${2:foobar}',
+			'${1:barfoobar',
+			Text,
+			Placeholder
+		);
 	});
 
 	test('Parser, only textmate', () => {
@@ -205,7 +240,9 @@ suite('SnippetParser', () => {
 	});
 
 	test('Parser, real world', () => {
-		let marker = new SnippetParser().parse('console.warn(${1: $TM_SELECTED_TEXT })');
+		let marker = new SnippetParser().parse(
+			'console.warn(${1: $TM_SELECTED_TEXT })'
+		);
 
 		assert.equal(marker[0].toString(), 'console.warn(');
 		assert.ok(marker[1] instanceof Placeholder);
@@ -232,19 +269,25 @@ suite('SnippetParser', () => {
 	});
 
 	test('Parser, default placeholder values', () => {
+		assertMarker(
+			'errorContext: `${1:err}`, error: $1',
+			Text,
+			Placeholder,
+			Text,
+			Placeholder
+		);
 
-		assertMarker('errorContext: `${1:err}`, error: $1', Text, Placeholder, Text, Placeholder);
-
-		const [, p1, , p2] = new SnippetParser().parse('errorContext: `${1:err}`, error:$1');
+		const [, p1, , p2] = new SnippetParser().parse(
+			'errorContext: `${1:err}`, error:$1'
+		);
 
 		assert.equal((<Placeholder>p1).index, '1');
 		assert.equal((<Placeholder>p1).children.length, '1');
-		assert.equal((<Text>(<Placeholder>p1).children[0]), 'err');
+		assert.equal(<Text>(<Placeholder>p1).children[0], 'err');
 
 		assert.equal((<Placeholder>p2).index, '1');
 		assert.equal((<Placeholder>p2).children.length, '1');
-		assert.equal((<Text>(<Placeholder>p2).children[0]), 'err');
-
+		assert.equal(<Text>(<Placeholder>p2).children[0], 'err');
 	});
 
 	test('backspace esapce in TM only, #16212', () => {
@@ -261,7 +304,6 @@ suite('SnippetParser', () => {
 	});
 
 	test('marker#len', () => {
-
 		function assertLen(template: string, ...lengths: number[]): void {
 			const { children } = SnippetParser.parse(template);
 			walk(children, m => {
@@ -281,7 +323,7 @@ suite('SnippetParser', () => {
 		assertLen('${TM_SELECTED_TEXT:def}$0', 0, 3, 0);
 	});
 
-	test('parser, parent node', function () {
+	test('parser, parent node', function() {
 		let snippet = SnippetParser.parse('This ${1:is ${2:nested}}$0');
 
 		assert.equal(snippet.placeholders.length, 3);
@@ -300,7 +342,7 @@ suite('SnippetParser', () => {
 		assert.ok(first.parent === snippet.children[0]);
 	});
 
-	test('TextmateSnippet#enclosingPlaceholders', function () {
+	test('TextmateSnippet#enclosingPlaceholders', function() {
 		let snippet = SnippetParser.parse('This ${1:is ${2:nested}}$0');
 		let [first, second] = snippet.placeholders;
 
@@ -316,7 +358,10 @@ suite('SnippetParser', () => {
 
 		snippet = SnippetParser.parse('${TM_SELECTED_TEXT:def}');
 		assert.equal(snippet.offset(snippet.children[0]), 0);
-		assert.equal(snippet.offset((<Variable>snippet.children[0]).children[0]), 0);
+		assert.equal(
+			snippet.offset((<Variable>snippet.children[0]).children[0]),
+			0
+		);
 
 		// forgein marker
 		assert.equal(snippet.offset(new Text('foo')), -1);
@@ -331,7 +376,6 @@ suite('SnippetParser', () => {
 		placeholders = snippet.placeholders;
 		assert.equal(placeholders.length, 3);
 
-
 		snippet = SnippetParser.parse('te$1xt$2$0');
 		placeholders = snippet.placeholders;
 		assert.equal(placeholders.length, 3);
@@ -341,7 +385,7 @@ suite('SnippetParser', () => {
 		assert.equal(placeholders.length, 3);
 	});
 
-	test('TextmateSnippet#replace 1/2', function () {
+	test('TextmateSnippet#replace 1/2', function() {
 		let snippet = SnippetParser.parse('aaa${1:bbb${2:ccc}}$0');
 
 		assert.equal(snippet.placeholders.length, 3);
@@ -368,7 +412,7 @@ suite('SnippetParser', () => {
 		assert.equal(newEnclosing[0].index, '1');
 	});
 
-	test('TextmateSnippet#replace 2/2', function () {
+	test('TextmateSnippet#replace 2/2', function() {
 		let snippet = SnippetParser.parse('aaa${1:bbb${2:ccc}}$0');
 
 		assert.equal(snippet.placeholders.length, 3);
@@ -382,8 +426,7 @@ suite('SnippetParser', () => {
 		assert.equal(snippet.placeholders.length, 3);
 	});
 
-	test('Snippet order for placeholders, #28185', function () {
-
+	test('Snippet order for placeholders, #28185', function() {
 		const _10 = new Placeholder(10, []);
 		const _2 = new Placeholder(2, []);
 

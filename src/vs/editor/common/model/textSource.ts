@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as strings from 'vs/base/common/strings';
 import { DefaultEndOfLine } from 'vs/editor/common/editorCommon';
@@ -38,17 +38,21 @@ export interface IRawTextSource {
 }
 
 export class RawTextSource {
-
 	public static fromString(rawText: string): IRawTextSource {
 		// Count the number of lines that end with \r\n
 		let carriageReturnCnt = 0;
 		let lastCarriageReturnIndex = -1;
-		while ((lastCarriageReturnIndex = rawText.indexOf('\r', lastCarriageReturnIndex + 1)) !== -1) {
+		while (
+			(lastCarriageReturnIndex = rawText.indexOf(
+				'\r',
+				lastCarriageReturnIndex + 1
+			)) !== -1
+		) {
 			carriageReturnCnt++;
 		}
 
 		const containsRTL = strings.containsRTL(rawText);
-		const isBasicASCII = (containsRTL ? false : strings.isBasicASCII(rawText));
+		const isBasicASCII = containsRTL ? false : strings.isBasicASCII(rawText);
 
 		// Split the text into lines
 		const lines = rawText.split(/\r\n|\r|\n/);
@@ -69,7 +73,6 @@ export class RawTextSource {
 			totalCRCount: carriageReturnCnt
 		};
 	}
-
 }
 
 /**
@@ -103,17 +106,19 @@ export interface ITextSource {
 }
 
 export class TextSource {
-
 	/**
 	 * if text source is empty or with precisely one line, returns null. No end of line is detected.
 	 * if text source contains more lines ending with '\r\n', returns '\r\n'.
 	 * Otherwise returns '\n'. More lines end with '\n'.
 	 */
-	private static _getEOL(rawTextSource: IRawTextSource, defaultEOL: DefaultEndOfLine): '\r\n' | '\n' {
+	private static _getEOL(
+		rawTextSource: IRawTextSource,
+		defaultEOL: DefaultEndOfLine
+	): '\r\n' | '\n' {
 		const lineFeedCnt = rawTextSource.lines.length - 1;
 		if (lineFeedCnt === 0) {
 			// This is an empty file or a file with precisely one line
-			return (defaultEOL === DefaultEndOfLine.LF ? '\n' : '\r\n');
+			return defaultEOL === DefaultEndOfLine.LF ? '\n' : '\r\n';
 		}
 		if (rawTextSource.totalCRCount > lineFeedCnt / 2) {
 			// More than half of the file contains \r\n ending lines
@@ -123,27 +128,35 @@ export class TextSource {
 		return '\n';
 	}
 
-	public static fromRawTextSource(rawTextSource: IRawTextSource, defaultEOL: DefaultEndOfLine): ITextSource {
+	public static fromRawTextSource(
+		rawTextSource: IRawTextSource,
+		defaultEOL: DefaultEndOfLine
+	): ITextSource {
 		return {
 			length: rawTextSource.length,
 			lines: rawTextSource.lines,
 			BOM: rawTextSource.BOM,
 			EOL: this._getEOL(rawTextSource, defaultEOL),
 			containsRTL: rawTextSource.containsRTL,
-			isBasicASCII: rawTextSource.isBasicASCII,
+			isBasicASCII: rawTextSource.isBasicASCII
 		};
 	}
 
-	public static fromString(text: string, defaultEOL: DefaultEndOfLine): ITextSource {
+	public static fromString(
+		text: string,
+		defaultEOL: DefaultEndOfLine
+	): ITextSource {
 		return this.fromRawTextSource(RawTextSource.fromString(text), defaultEOL);
 	}
 
-	public static create(source: string | IRawTextSource, defaultEOL: DefaultEndOfLine): ITextSource {
+	public static create(
+		source: string | IRawTextSource,
+		defaultEOL: DefaultEndOfLine
+	): ITextSource {
 		if (typeof source === 'string') {
 			return this.fromString(source, defaultEOL);
 		}
 
 		return this.fromRawTextSource(source, defaultEOL);
 	}
-
 }

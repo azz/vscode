@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import URI from 'vs/base/common/uri';
@@ -11,7 +11,9 @@ import { IModel } from 'vs/editor/common/editorCommon';
 import { IEditorModel } from 'vs/platform/editor/common/editor';
 import { IDisposable, IReference } from 'vs/base/common/lifecycle';
 
-export const ITextModelResolverService = createDecorator<ITextModelResolverService>('textModelResolverService');
+export const ITextModelResolverService = createDecorator<
+	ITextModelResolverService
+>('textModelResolverService');
 
 export interface ITextModelResolverService {
 	_serviceBrand: any;
@@ -25,11 +27,13 @@ export interface ITextModelResolverService {
 	/**
 	 * Registers a specific `scheme` content provider.
 	 */
-	registerTextModelContentProvider(scheme: string, provider: ITextModelContentProvider): IDisposable;
+	registerTextModelContentProvider(
+		scheme: string,
+		provider: ITextModelContentProvider
+	): IDisposable;
 }
 
 export interface ITextModelContentProvider {
-
 	/**
 	 * Given a resource, return the content of the resource as IModel.
 	 */
@@ -37,7 +41,6 @@ export interface ITextModelContentProvider {
 }
 
 export interface ITextEditorModel extends IEditorModel {
-
 	/**
 	 * Provides access to the underlying IModel.
 	 */

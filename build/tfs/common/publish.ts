@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as fs from 'fs';
 import { execSync } from 'child_process';
@@ -15,7 +15,9 @@ import * as minimist from 'minimist';
 import { DocumentClient, NewDocument } from 'documentdb';
 
 if (process.argv.length < 6) {
-	console.error('Usage: node publish.js <product> <platform> <type> <name> <version> <commit> <is_update> <file>');
+	console.error(
+		'Usage: node publish.js <product> <platform> <type> <name> <version> <commit> <is_update> <file>'
+	);
 	process.exit(-1);
 }
 
@@ -43,20 +45,26 @@ function createDefaultConfig(quality: string): Config {
 }
 
 function getConfig(quality: string): Promise<Config> {
-	const client = new DocumentClient(process.env['AZURE_DOCUMENTDB_ENDPOINT'], { masterKey: process.env['AZURE_DOCUMENTDB_MASTERKEY'] });
+	const client = new DocumentClient(process.env['AZURE_DOCUMENTDB_ENDPOINT'], {
+		masterKey: process.env['AZURE_DOCUMENTDB_MASTERKEY']
+	});
 	const collection = 'dbs/builds/colls/config';
 	const query = {
 		query: `SELECT TOP 1 * FROM c WHERE c.id = @quality`,
-		parameters: [
-			{ name: '@quality', value: quality }
-		]
+		parameters: [{ name: '@quality', value: quality }]
 	};
 
 	return new Promise<Config>((c, e) => {
 		client.queryDocuments(collection, query).toArray((err, results) => {
-			if (err && err.code !== 409) { return e(err); }
+			if (err && err.code !== 409) {
+				return e(err);
+			}
 
-			c(!results || results.length === 0 ? createDefaultConfig(quality) : results[0] as any as Config);
+			c(
+				!results || results.length === 0
+					? createDefaultConfig(quality)
+					: (results[0] as any) as Config
+			);
 		});
 	});
 }
@@ -70,8 +78,18 @@ interface Asset {
 	sha256hash: string;
 }
 
-function createOrUpdate(commit: string, quality: string, platform: string, type: string, release: NewDocument, asset: Asset, isUpdate: boolean): Promise<void> {
-	const client = new DocumentClient(process.env['AZURE_DOCUMENTDB_ENDPOINT'], { masterKey: process.env['AZURE_DOCUMENTDB_MASTERKEY'] });
+function createOrUpdate(
+	commit: string,
+	quality: string,
+	platform: string,
+	type: string,
+	release: NewDocument,
+	asset: Asset,
+	isUpdate: boolean
+): Promise<void> {
+	const client = new DocumentClient(process.env['AZURE_DOCUMENTDB_ENDPOINT'], {
+		masterKey: process.env['AZURE_DOCUMENTDB_MASTERKEY']
+	});
 	const collection = 'dbs/builds/colls/' + quality;
 	const updateQuery = {
 		query: 'SELECT TOP 1 * FROM c WHERE c.id = @id',
@@ -85,13 +103,19 @@ function createOrUpdate(commit: string, quality: string, platform: string, type:
 
 		return new Promise<void>((c, e) => {
 			client.queryDocuments(collection, updateQuery).toArray((err, results) => {
-				if (err) { return e(err); }
-				if (results.length !== 1) { return e(new Error('No documents')); }
+				if (err) {
+					return e(err);
+				}
+				if (results.length !== 1) {
+					return e(new Error('No documents'));
+				}
 
 				const release = results[0];
 
 				release.assets = [
-					...release.assets.filter((a: any) => !(a.platform === platform && a.type === type)),
+					...release.assets.filter(
+						(a: any) => !(a.platform === platform && a.type === type)
+					),
 					asset
 				];
 
@@ -100,8 +124,12 @@ function createOrUpdate(commit: string, quality: string, platform: string, type:
 				}
 
 				client.replaceDocument(release._self, release, err => {
-					if (err && err.code === 409 && updateTries < 5) { return c(update()); }
-					if (err) { return e(err); }
+					if (err && err.code === 409 && updateTries < 5) {
+						return c(update());
+					}
+					if (err) {
+						return e(err);
+					}
 
 					console.log('Build successfully updated.');
 					c();
@@ -112,8 +140,12 @@ function createOrUpdate(commit: string, quality: string, platform: string, type:
 
 	return new Promise<void>((c, e) => {
 		client.createDocument(collection, release, err => {
-			if (err && err.code === 409) { return c(update()); }
-			if (err) { return e(err); }
+			if (err && err.code === 409) {
+				return c(update());
+			}
+			if (err) {
+				return e(err);
+			}
 
 			console.log('Build successfully published.');
 			c();
@@ -121,36 +153,81 @@ function createOrUpdate(commit: string, quality: string, platform: string, type:
 	});
 }
 
-async function assertContainer(blobService: azure.BlobService, quality: string): Promise<void> {
-	await new Promise((c, e) => blobService.createContainerIfNotExists(quality, { publicAccessLevel: 'blob' }, err => err ? e(err) : c()));
+async function assertContainer(
+	blobService: azure.BlobService,
+	quality: string
+): Promise<void> {
+	await new Promise((c, e) =>
+		blobService.createContainerIfNotExists(
+			quality,
+			{ publicAccessLevel: 'blob' },
+			err => (err ? e(err) : c())
+		)
+	);
 }
 
-async function doesAssetExist(blobService: azure.BlobService, quality: string, blobName: string): Promise<boolean> {
-	const existsResult = await new Promise<azure.BlobService.BlobResult>((c, e) => blobService.doesBlobExist(quality, blobName, (err, r) => err ? e(err) : c(r)));
+async function doesAssetExist(
+	blobService: azure.BlobService,
+	quality: string,
+	blobName: string
+): Promise<boolean> {
+	const existsResult = await new Promise<azure.BlobService.BlobResult>((c, e) =>
+		blobService.doesBlobExist(
+			quality,
+			blobName,
+			(err, r) => (err ? e(err) : c(r))
+		)
+	);
 	return existsResult.exists;
 }
 
-async function uploadBlob(blobService: azure.BlobService, quality: string, blobName: string, file: string): Promise<void> {
+async function uploadBlob(
+	blobService: azure.BlobService,
+	quality: string,
+	blobName: string,
+	file: string
+): Promise<void> {
 	const blobOptions = {
 		contentType: mime.lookup(file),
 		cacheControl: 'max-age=31536000, public'
 	};
 
-	await new Promise((c, e) => blobService.createBlockBlobFromLocalFile(quality, blobName, file, blobOptions, err => err ? e(err) : c()));
+	await new Promise((c, e) =>
+		blobService.createBlockBlobFromLocalFile(
+			quality,
+			blobName,
+			file,
+			blobOptions,
+			err => (err ? e(err) : c())
+		)
+	);
 }
 
 interface PublishOptions {
 	'upload-only': boolean;
 }
 
-async function publish(commit: string, quality: string, platform: string, type: string, name: string, version: string, _isUpdate: string, file: string, opts: PublishOptions): Promise<void> {
+async function publish(
+	commit: string,
+	quality: string,
+	platform: string,
+	type: string,
+	name: string,
+	version: string,
+	_isUpdate: string,
+	file: string,
+	opts: PublishOptions
+): Promise<void> {
 	const isUpdate = _isUpdate === 'true';
 
 	const queuedBy = process.env['BUILD_QUEUEDBY'];
 	const sourceBranch = process.env['BUILD_SOURCEBRANCH'];
-	const isReleased = quality === 'insider'
-		&& /^master$|^refs\/heads\/master$/.test(sourceBranch)
-		&& /Project Collection Service Accounts|Microsoft.VisualStudio.Services.TFS/.test(queuedBy);
+	const isReleased =
+		quality === 'insider' &&
+		/^master$|^refs\/heads\/master$/.test(sourceBranch) &&
+		/Project Collection Service Accounts|Microsoft.VisualStudio.Services.TFS/.test(
+			queuedBy
+		);
 
 	console.log('Publishing...');
 	console.log('Quality:', quality);
@@ -164,7 +241,10 @@ async function publish(commit: string, quality: string, platform: string, type: 
 	console.log('File:', file);
 
 	const stream = fs.createReadStream(file);
-	const [sha1hash, sha256hash] = await Promise.all([hashStream('sha1', stream), hashStream('sha256', stream)]);
+	const [sha1hash, sha256hash] = await Promise.all([
+		hashStream('sha1', stream),
+		hashStream('sha256', stream)
+	]);
 
 	console.log('SHA1:', sha1hash);
 	console.log('SHA256:', sha256hash);
@@ -172,10 +252,19 @@ async function publish(commit: string, quality: string, platform: string, type: 
 	const blobName = commit + '/' + name;
 	const storageAccount = process.env['AZURE_STORAGE_ACCOUNT_2'];
 
-	const blobService = azure.createBlobService(storageAccount, process.env['AZURE_STORAGE_ACCESS_KEY_2'])
+	const blobService = azure
+		.createBlobService(
+			storageAccount,
+			process.env['AZURE_STORAGE_ACCESS_KEY_2']
+		)
 		.withFilter(new azure.ExponentialRetryPolicyFilter());
 
-	const mooncakeBlobService = azure.createBlobService(storageAccount, process.env['MOONCAKE_STORAGE_ACCESS_KEY'], `${storageAccount}.blob.core.chinacloudapi.cn`)
+	const mooncakeBlobService = azure
+		.createBlobService(
+			storageAccount,
+			process.env['MOONCAKE_STORAGE_ACCESS_KEY'],
+			`${storageAccount}.blob.core.chinacloudapi.cn`
+		)
 		.withFilter(new azure.ExponentialRetryPolicyFilter());
 
 	await Promise.all([
@@ -189,7 +278,9 @@ async function publish(commit: string, quality: string, platform: string, type: 
 	]);
 
 	if (blobExists || moooncakeBlobExists) {
-		console.log(`Blob ${quality}, ${blobName} already exists, not publishing again.`);
+		console.log(
+			`Blob ${quality}, ${blobName} already exists, not publishing again.`
+		);
 		return;
 	}
 
@@ -217,7 +308,7 @@ async function publish(commit: string, quality: string, platform: string, type: 
 
 	const release = {
 		id: commit,
-		timestamp: (new Date()).getTime(),
+		timestamp: new Date().getTime(),
 		version,
 		isReleased: config.frozen ? false : isReleased,
 		sourceBranch,
@@ -234,7 +325,15 @@ async function publish(commit: string, quality: string, platform: string, type: 
 		}
 	}
 
-	await createOrUpdate(commit, quality, platform, type, release, asset, isUpdate);
+	await createOrUpdate(
+		commit,
+		quality,
+		platform,
+		type,
+		release,
+		asset,
+		isUpdate
+	);
 }
 
 function main(): void {
@@ -245,7 +344,17 @@ function main(): void {
 	const [quality, platform, type, name, version, _isUpdate, file] = opts._;
 	const commit = execSync('git rev-parse HEAD', { encoding: 'utf8' }).trim();
 
-	publish(commit, quality, platform, type, name, version, _isUpdate, file, opts).catch(err => {
+	publish(
+		commit,
+		quality,
+		platform,
+		type,
+		name,
+		version,
+		_isUpdate,
+		file,
+		opts
+	).catch(err => {
 		console.error(err);
 		process.exit(1);
 	});

@@ -3,14 +3,17 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import path = require('path');
 import assert = require('assert');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import { FileWalker } from 'vs/workbench/services/search/node/fileSearch';
-import { ISerializedFileMatch, IRawSearch } from 'vs/workbench/services/search/node/search';
+import {
+	ISerializedFileMatch,
+	IRawSearch
+} from 'vs/workbench/services/search/node/search';
 import { Engine as TextSearchEngine } from 'vs/workbench/services/search/node/textSearch';
 import { RipgrepEngine } from 'vs/workbench/services/search/node/ripgrepTextSearch';
 import { TextSearchWorkerProvider } from 'vs/workbench/services/search/node/textSearchWorkerProvider';
@@ -25,55 +28,73 @@ function rootfolders() {
 
 const textSearchWorkerProvider = new TextSearchWorkerProvider();
 
-function doLegacySearchTest(config: IRawSearch, expectedResultCount: number | Function): TPromise<void> {
+function doLegacySearchTest(
+	config: IRawSearch,
+	expectedResultCount: number | Function
+): TPromise<void> {
 	return new TPromise<void>((resolve, reject) => {
-		let engine = new TextSearchEngine(config, new FileWalker(config), textSearchWorkerProvider);
+		let engine = new TextSearchEngine(
+			config,
+			new FileWalker(config),
+			textSearchWorkerProvider
+		);
 
 		let c = 0;
-		engine.search((result) => {
-			if (result) {
-				c += countAll(result);
-			}
-		}, () => { }, (error) => {
-			try {
-				assert.ok(!error);
-				if (typeof expectedResultCount === 'function') {
-					assert(expectedResultCount(c));
-				} else {
-					assert.equal(c, expectedResultCount);
+		engine.search(
+			result => {
+				if (result) {
+					c += countAll(result);
 				}
-			} catch (e) {
-				reject(e);
-			}
+			},
+			() => {},
+			error => {
+				try {
+					assert.ok(!error);
+					if (typeof expectedResultCount === 'function') {
+						assert(expectedResultCount(c));
+					} else {
+						assert.equal(c, expectedResultCount);
+					}
+				} catch (e) {
+					reject(e);
+				}
 
-			resolve(undefined);
-		});
+				resolve(undefined);
+			}
+		);
 	});
 }
 
-function doRipgrepSearchTest(config: IRawSearch, expectedResultCount: number): TPromise<void> {
+function doRipgrepSearchTest(
+	config: IRawSearch,
+	expectedResultCount: number
+): TPromise<void> {
 	return new TPromise<void>((resolve, reject) => {
 		let engine = new RipgrepEngine(config);
 
 		let c = 0;
-		engine.search((result) => {
-			if (result) {
-				c += result.numMatches;
-			}
-		}, () => { }, (error) => {
-			try {
-				assert.ok(!error);
-				if (typeof expectedResultCount === 'function') {
-					assert(expectedResultCount(c));
-				} else {
-					assert.equal(c, expectedResultCount);
+		engine.search(
+			result => {
+				if (result) {
+					c += result.numMatches;
 				}
-			} catch (e) {
-				reject(e);
-			}
+			},
+			() => {},
+			error => {
+				try {
+					assert.ok(!error);
+					if (typeof expectedResultCount === 'function') {
+						assert(expectedResultCount(c));
+					} else {
+						assert.equal(c, expectedResultCount);
+					}
+				} catch (e) {
+					reject(e);
+				}
 
-			resolve(undefined);
-		});
+				resolve(undefined);
+			}
+		);
 	});
 }
 
@@ -84,17 +105,17 @@ function doSearchTest(config: IRawSearch, expectedResultCount: number, done) {
 }
 
 suite('Search-integration', () => {
-	test('Text: GameOfLife', function (done: () => void) {
+	test('Text: GameOfLife', function(done: () => void) {
 		let config = {
 			rootFolders: rootfolders(),
 			filePattern: '*.js',
-			contentPattern: { pattern: 'GameOfLife', modifiers: 'i' },
+			contentPattern: { pattern: 'GameOfLife', modifiers: 'i' }
 		};
 
 		doSearchTest(config, 4, done);
 	});
 
-	test('Text: GameOfLife (RegExp)', function (done: () => void) {
+	test('Text: GameOfLife (RegExp)', function(done: () => void) {
 		let config = {
 			rootFolders: rootfolders(),
 			filePattern: '*.js',
@@ -104,7 +125,7 @@ suite('Search-integration', () => {
 		doSearchTest(config, 4, done);
 	});
 
-	test('Text: GameOfLife (RegExp to EOL)', function (done: () => void) {
+	test('Text: GameOfLife (RegExp to EOL)', function(done: () => void) {
 		let config = {
 			rootFolders: rootfolders(),
 			filePattern: '*.js',
@@ -114,17 +135,23 @@ suite('Search-integration', () => {
 		doSearchTest(config, 4, done);
 	});
 
-	test('Text: GameOfLife (Word Match, Case Sensitive)', function (done: () => void) {
+	test('Text: GameOfLife (Word Match, Case Sensitive)', function(
+		done: () => void
+	) {
 		let config = {
 			rootFolders: rootfolders(),
 			filePattern: '*.js',
-			contentPattern: { pattern: 'GameOfLife', isWordMatch: true, isCaseSensitive: true }
+			contentPattern: {
+				pattern: 'GameOfLife',
+				isWordMatch: true,
+				isCaseSensitive: true
+			}
 		};
 
 		doSearchTest(config, 4, done);
 	});
 
-	test('Text: GameOfLife (Word Match, Spaces)', function (done: () => void) {
+	test('Text: GameOfLife (Word Match, Spaces)', function(done: () => void) {
 		let config = {
 			rootFolders: rootfolders(),
 			filePattern: '*.js',
@@ -134,7 +161,9 @@ suite('Search-integration', () => {
 		doSearchTest(config, 1, done);
 	});
 
-	test('Text: GameOfLife (Word Match, Punctuation and Spaces)', function (done: () => void) {
+	test('Text: GameOfLife (Word Match, Punctuation and Spaces)', function(
+		done: () => void
+	) {
 		let config = {
 			rootFolders: rootfolders(),
 			filePattern: '*.js',
@@ -144,7 +173,7 @@ suite('Search-integration', () => {
 		doSearchTest(config, 1, done);
 	});
 
-	test('Text: Helvetica (UTF 16)', function (done: () => void) {
+	test('Text: Helvetica (UTF 16)', function(done: () => void) {
 		let config = {
 			rootFolders: rootfolders(),
 			filePattern: '*.css',
@@ -154,7 +183,7 @@ suite('Search-integration', () => {
 		doSearchTest(config, 3, done);
 	});
 
-	test('Text: e', function (done: () => void) {
+	test('Text: e', function(done: () => void) {
 		let config = {
 			rootFolders: rootfolders(),
 			filePattern: '*.*',
@@ -164,7 +193,7 @@ suite('Search-integration', () => {
 		doSearchTest(config, 776, done);
 	});
 
-	test('Text: e (with excludes)', function (done: () => void) {
+	test('Text: e (with excludes)', function(done: () => void) {
 		let config: any = {
 			rootFolders: rootfolders(),
 			filePattern: '*.*',
@@ -175,7 +204,7 @@ suite('Search-integration', () => {
 		doSearchTest(config, 394, done);
 	});
 
-	test('Text: e (with includes)', function (done: () => void) {
+	test('Text: e (with includes)', function(done: () => void) {
 		let config: any = {
 			rootFolders: rootfolders(),
 			filePattern: '*.*',
@@ -186,7 +215,7 @@ suite('Search-integration', () => {
 		doSearchTest(config, 382, done);
 	});
 
-	test('Text: e (with includes and exclude)', function (done: () => void) {
+	test('Text: e (with includes and exclude)', function(done: () => void) {
 		let config: any = {
 			rootFolders: rootfolders(),
 			filePattern: '*.*',
@@ -198,7 +227,7 @@ suite('Search-integration', () => {
 		doSearchTest(config, 361, done);
 	});
 
-	test('Text: a (capped)', function (done: () => void) {
+	test('Text: a (capped)', function(done: () => void) {
 		const maxResults = 520;
 		let config = {
 			rootFolders: rootfolders(),
@@ -214,7 +243,7 @@ suite('Search-integration', () => {
 			.then(done, done);
 	});
 
-	test('Text: a (no results)', function (done: () => void) {
+	test('Text: a (no results)', function(done: () => void) {
 		let config = {
 			rootFolders: rootfolders(),
 			filePattern: '*.*',
@@ -224,7 +253,7 @@ suite('Search-integration', () => {
 		doSearchTest(config, 0, done);
 	});
 
-	test('Text: -size', function (done: () => void) {
+	test('Text: -size', function(done: () => void) {
 		let config = {
 			rootFolders: rootfolders(),
 			filePattern: '*.css',

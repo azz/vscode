@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as vscode from 'vscode';
 
@@ -22,7 +22,7 @@ export class TableOfContentsProvider {
 	public constructor(
 		private engine: MarkdownEngine,
 		private document: vscode.TextDocument
-	) { }
+	) {}
 
 	public getToc(): TocEntry[] {
 		if (!this.toc) {
@@ -47,9 +47,14 @@ export class TableOfContentsProvider {
 
 	private buildToc(document: vscode.TextDocument): TocEntry[] {
 		const toc: TocEntry[] = [];
-		const tokens: IToken[] = this.engine.parse(document.uri, document.getText());
+		const tokens: IToken[] = this.engine.parse(
+			document.uri,
+			document.getText()
+		);
 
-		for (const heading of tokens.filter(token => token.type === 'heading_open')) {
+		for (const heading of tokens.filter(
+			token => token.type === 'heading_open'
+		)) {
 			const lineNumber = heading.map[0];
 			const line = document.lineAt(lineNumber);
 			const href = TableOfContentsProvider.slugify(line.text);
@@ -66,16 +71,24 @@ export class TableOfContentsProvider {
 	}
 
 	private static getHeaderText(header: string): string {
-		return header.replace(/^\s*(#+)\s*(.*?)\s*\1*$/, (_, level, word) => `${level} ${word.trim()}`);
+		return header.replace(
+			/^\s*(#+)\s*(.*?)\s*\1*$/,
+			(_, level, word) => `${level} ${word.trim()}`
+		);
 	}
 
 	public static slugify(header: string): string {
-		return encodeURI(header.trim()
-			.toLowerCase()
-			.replace(/[\]\[\!\"\#\$\%\&\'\(\)\*\+\,\.\/\:\;\<\=\>\?\@\\\^\_\{\|\}\~]/g, '')
-			.replace(/\s+/g, '-')
-			.replace(/^\-+/, '')
-			.replace(/\-+$/, ''));
+		return encodeURI(
+			header
+				.trim()
+				.toLowerCase()
+				.replace(
+					/[\]\[\!\"\#\$\%\&\'\(\)\*\+\,\.\/\:\;\<\=\>\?\@\\\^\_\{\|\}\~]/g,
+					''
+				)
+				.replace(/\s+/g, '-')
+				.replace(/^\-+/, '')
+				.replace(/\-+$/, '')
+		);
 	}
 }
-

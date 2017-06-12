@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { MainThreadDocumentsAndEditors } from 'vs/workbench/api/electron-browser/mainThreadDocumentsAndEditors';
@@ -13,42 +13,57 @@ import { ModelServiceImpl } from 'vs/editor/common/services/modelServiceImpl';
 import { MockCodeEditorService } from 'vs/editor/test/common/mocks/mockCodeEditorService';
 import { ITextFileService } from 'vs/workbench/services/textfile/common/textfiles';
 import { IWorkbenchEditorService } from 'vs/workbench/services/editor/common/editorService';
-import { ExtHostDocumentsAndEditorsShape, IDocumentsAndEditorsDelta } from 'vs/workbench/api/node/extHost.protocol';
+import {
+	ExtHostDocumentsAndEditorsShape,
+	IDocumentsAndEditorsDelta
+} from 'vs/workbench/api/node/extHost.protocol';
 import { mockCodeEditor } from 'vs/editor/test/common/mocks/mockCodeEditor';
 
 suite('MainThreadDocumentsAndEditors', () => {
-
 	let modelService: ModelServiceImpl;
 	let codeEditorService: MockCodeEditorService;
 	let textFileService: ITextFileService;
 	let workbenchEditorService: IWorkbenchEditorService;
 	let documentAndEditor: MainThreadDocumentsAndEditors;
 	let deltas: IDocumentsAndEditorsDelta[] = [];
-	const hugeModelString = new Array(2 + (5 * 1024 * 1024)).join('-');
+	const hugeModelString = new Array(2 + 5 * 1024 * 1024).join('-');
 
 	setup(() => {
 		deltas.length = 0;
 		const configService = new TestConfigurationService();
-		configService.setUserConfiguration('editor', { 'detectIndentation': false });
+		configService.setUserConfiguration('editor', { detectIndentation: false });
 		modelService = new ModelServiceImpl(null, configService);
 		codeEditorService = new MockCodeEditorService();
-		textFileService = <ITextFileService>{ isDirty() { return false; } };
+		textFileService = <ITextFileService>{
+			isDirty() {
+				return false;
+			}
+		};
 		workbenchEditorService = <IWorkbenchEditorService>{
-			getVisibleEditors() { return []; },
-			getActiveEditor() { return undefined; }
+			getVisibleEditors() {
+				return [];
+			},
+			getActiveEditor() {
+				return undefined;
+			}
 		};
 
 		documentAndEditor = new MainThreadDocumentsAndEditors(
-			modelService, textFileService, workbenchEditorService,
-			OneGetThreadService(new class extends ExtHostDocumentsAndEditorsShape {
-				$acceptDocumentsAndEditorsDelta(delta) { deltas.push(delta); }
-			}), codeEditorService
+			modelService,
+			textFileService,
+			workbenchEditorService,
+			OneGetThreadService(
+				new class extends ExtHostDocumentsAndEditorsShape {
+					$acceptDocumentsAndEditorsDelta(delta) {
+						deltas.push(delta);
+					}
+				}()
+			),
+			codeEditorService
 		);
 	});
 
-
 	test('Model#add', () => {
-
 		modelService.createModel('farboo', null, null);
 
 		assert.equal(deltas.length, 1);
@@ -61,7 +76,7 @@ suite('MainThreadDocumentsAndEditors', () => {
 		assert.equal(delta.newActiveEditor, null);
 	});
 
-	test('ignore huge model', function () {
+	test('ignore huge model', function() {
 		this.timeout(1000 * 60); // increase timeout for this one test
 
 		const model = modelService.createModel(hugeModelString, null, null);
@@ -76,11 +91,15 @@ suite('MainThreadDocumentsAndEditors', () => {
 		assert.equal(delta.removedEditors, undefined);
 	});
 
-	test('ignore huge model from editor', function () {
+	test('ignore huge model from editor', function() {
 		this.timeout(1000 * 60); // increase timeout for this one test
 
 		const model = modelService.createModel(hugeModelString, null, null);
-		const editor = mockCodeEditor(null, { model, wordWrap: 'off', wordWrapMinified: false });
+		const editor = mockCodeEditor(null, {
+			model,
+			wordWrap: 'off',
+			wordWrapMinified: false
+		});
 
 		assert.equal(deltas.length, 1);
 		deltas.length = 0;

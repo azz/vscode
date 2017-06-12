@@ -3,18 +3,32 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./media/explorerviewlet';
 import { IActionRunner } from 'vs/base/common/actions';
 import { TPromise } from 'vs/base/common/winjs.base';
 import * as DOM from 'vs/base/browser/dom';
 import { Builder } from 'vs/base/browser/builder';
-import { VIEWLET_ID, ExplorerViewletVisibleContext, IFilesConfiguration } from 'vs/workbench/parts/files/common/files';
-import { ComposedViewsViewlet, IView, IViewletViewOptions } from 'vs/workbench/parts/views/browser/views';
+import {
+	VIEWLET_ID,
+	ExplorerViewletVisibleContext,
+	IFilesConfiguration
+} from 'vs/workbench/parts/files/common/files';
+import {
+	ComposedViewsViewlet,
+	IView,
+	IViewletViewOptions
+} from 'vs/workbench/parts/views/browser/views';
 import { IConfigurationService } from 'vs/platform/configuration/common/configuration';
-import { ActionRunner, FileViewletState } from 'vs/workbench/parts/files/browser/views/explorerViewer';
-import { ExplorerView, IExplorerViewOptions } from 'vs/workbench/parts/files/browser/views/explorerView';
+import {
+	ActionRunner,
+	FileViewletState
+} from 'vs/workbench/parts/files/browser/views/explorerViewer';
+import {
+	ExplorerView,
+	IExplorerViewOptions
+} from 'vs/workbench/parts/files/browser/views/explorerView';
 import { EmptyView } from 'vs/workbench/parts/files/browser/views/emptyView';
 import { OpenEditorsView } from 'vs/workbench/parts/files/browser/views/openEditorsView';
 import { IStorageService } from 'vs/platform/storage/common/storage';
@@ -27,12 +41,18 @@ import { EditorInput, EditorOptions } from 'vs/workbench/common/editor';
 import { BaseEditor } from 'vs/workbench/browser/parts/editor/baseEditor';
 import { IWorkbenchEditorService } from 'vs/workbench/services/editor/common/editorService';
 import { IEditorGroupService } from 'vs/workbench/services/group/common/groupService';
-import { IContextKeyService, IContextKey } from 'vs/platform/contextkey/common/contextkey';
+import {
+	IContextKeyService,
+	IContextKey
+} from 'vs/platform/contextkey/common/contextkey';
 import { IThemeService } from 'vs/platform/theme/common/themeService';
-import { ViewsRegistry, ViewLocation, IViewDescriptor } from 'vs/workbench/parts/views/browser/viewsRegistry';
+import {
+	ViewsRegistry,
+	ViewLocation,
+	IViewDescriptor
+} from 'vs/workbench/parts/views/browser/viewsRegistry';
 
 export class ExplorerViewlet extends ComposedViewsViewlet {
-
 	private static EXPLORER_VIEWS_STATE = 'workbench.explorer.views.state';
 
 	private viewletState: FileViewletState;
@@ -40,26 +60,46 @@ export class ExplorerViewlet extends ComposedViewsViewlet {
 
 	constructor(
 		@ITelemetryService telemetryService: ITelemetryService,
-		@IWorkspaceContextService protected contextService: IWorkspaceContextService,
+		@IWorkspaceContextService
+		protected contextService: IWorkspaceContextService,
 		@IStorageService protected storageService: IStorageService,
 		@IEditorGroupService private editorGroupService: IEditorGroupService,
 		@IWorkbenchEditorService private editorService: IWorkbenchEditorService,
 		@IConfigurationService private configurationService: IConfigurationService,
-		@IInstantiationService protected instantiationService: IInstantiationService,
+		@IInstantiationService
+		protected instantiationService: IInstantiationService,
 		@IContextKeyService contextKeyService: IContextKeyService,
 		@IThemeService themeService: IThemeService
 	) {
-		super(VIEWLET_ID, ViewLocation.Explorer, ExplorerViewlet.EXPLORER_VIEWS_STATE, telemetryService, storageService, instantiationService, themeService, contextService, contextKeyService);
+		super(
+			VIEWLET_ID,
+			ViewLocation.Explorer,
+			ExplorerViewlet.EXPLORER_VIEWS_STATE,
+			telemetryService,
+			storageService,
+			instantiationService,
+			themeService,
+			contextService,
+			contextKeyService
+		);
 
 		this.viewletState = new FileViewletState();
-		this.viewletVisibleContextKey = ExplorerViewletVisibleContext.bindTo(contextKeyService);
+		this.viewletVisibleContextKey = ExplorerViewletVisibleContext.bindTo(
+			contextKeyService
+		);
 
 		this.registerViews();
-		this._register(this.configurationService.onDidUpdateConfiguration(e => this.onConfigurationUpdated()));
+		this._register(
+			this.configurationService.onDidUpdateConfiguration(e =>
+				this.onConfigurationUpdated()
+			)
+		);
 	}
 
 	public create(parent: Builder): TPromise<void> {
-		return super.create(parent).then(() => DOM.addClass(this.viewletContainer, 'explorer-viewlet'));
+		return super
+			.create(parent)
+			.then(() => DOM.addClass(this.viewletContainer, 'explorer-viewlet'));
 	}
 
 	private registerViews(): void {
@@ -107,7 +147,9 @@ export class ExplorerViewlet extends ComposedViewsViewlet {
 	}
 
 	private onConfigurationUpdated(): void {
-		let openEditorsViewDescriptor = ViewsRegistry.getViews(ViewLocation.Explorer).filter(viewDescriptor => viewDescriptor.id === OpenEditorsView.ID)[0];
+		let openEditorsViewDescriptor = ViewsRegistry.getViews(
+			ViewLocation.Explorer
+		).filter(viewDescriptor => viewDescriptor.id === OpenEditorsView.ID)[0];
 		let isOpenEditorsVisible = this.isOpenEditorsVisible();
 		if (isOpenEditorsVisible) {
 			if (!openEditorsViewDescriptor) {
@@ -115,56 +157,88 @@ export class ExplorerViewlet extends ComposedViewsViewlet {
 			}
 		} else {
 			if (openEditorsViewDescriptor) {
-				ViewsRegistry.deregisterViews([OpenEditorsView.ID], ViewLocation.Explorer);
+				ViewsRegistry.deregisterViews(
+					[OpenEditorsView.ID],
+					ViewLocation.Explorer
+				);
 			}
 		}
 	}
 
 	private isOpenEditorsVisible(): boolean {
-		return !this.contextService.hasWorkspace() || (<IFilesConfiguration>this.configurationService.getConfiguration()).explorer.openEditors.visible !== 0;
+		return (
+			!this.contextService.hasWorkspace() ||
+			(<IFilesConfiguration>this.configurationService.getConfiguration())
+				.explorer.openEditors.visible !== 0
+		);
 	}
 
-	protected createView(viewDescriptor: IViewDescriptor, options: IViewletViewOptions): IView {
+	protected createView(
+		viewDescriptor: IViewDescriptor,
+		options: IViewletViewOptions
+	): IView {
 		if (viewDescriptor.id === ExplorerView.ID) {
 			// Create a delegating editor service for the explorer to be able to delay the refresh in the opened
 			// editors view above. This is a workaround for being able to double click on a file to make it pinned
 			// without causing the animation in the opened editors view to kick in and change scroll position.
 			// We try to be smart and only use the delay if we recognize that the user action is likely to cause
 			// a new entry in the opened editors view.
-			const delegatingEditorService = this.instantiationService.createInstance(DelegatingWorkbenchEditorService);
-			delegatingEditorService.setEditorOpenHandler((input: EditorInput, options?: EditorOptions, arg3?: any) => {
-				let openEditorsView = this.getOpenEditorsView();
-				if (openEditorsView) {
-					let delay = 0;
-
-					const config = this.configurationService.getConfiguration<IFilesConfiguration>();
-					// No need to delay if preview is disabled
-					const delayEditorOpeningInOpenedEditors = !!config.workbench.editor.enablePreview;
-
-					if (delayEditorOpeningInOpenedEditors && (arg3 === false /* not side by side */ || typeof arg3 !== 'number' /* no explicit position */)) {
-						const activeGroup = this.editorGroupService.getStacksModel().activeGroup;
-						if (!activeGroup || !activeGroup.previewEditor) {
-							delay = 250; // a new editor entry is likely because there is either no group or no preview in group
-						}
-					}
-
-					openEditorsView.setStructuralRefreshDelay(delay);
-				}
-
-				const onSuccessOrError = (editor?: BaseEditor) => {
+			const delegatingEditorService = this.instantiationService.createInstance(
+				DelegatingWorkbenchEditorService
+			);
+			delegatingEditorService.setEditorOpenHandler(
+				(input: EditorInput, options?: EditorOptions, arg3?: any) => {
 					let openEditorsView = this.getOpenEditorsView();
 					if (openEditorsView) {
-						openEditorsView.setStructuralRefreshDelay(0);
+						let delay = 0;
+
+						const config = this.configurationService.getConfiguration<
+							IFilesConfiguration
+						>();
+						// No need to delay if preview is disabled
+						const delayEditorOpeningInOpenedEditors = !!config.workbench.editor
+							.enablePreview;
+
+						if (
+							delayEditorOpeningInOpenedEditors &&
+							(arg3 === false /* not side by side */ ||
+								typeof arg3 !== 'number') /* no explicit position */
+						) {
+							const activeGroup = this.editorGroupService.getStacksModel()
+								.activeGroup;
+							if (!activeGroup || !activeGroup.previewEditor) {
+								delay = 250; // a new editor entry is likely because there is either no group or no preview in group
+							}
+						}
+
+						openEditorsView.setStructuralRefreshDelay(delay);
 					}
 
-					return editor;
-				};
+					const onSuccessOrError = (editor?: BaseEditor) => {
+						let openEditorsView = this.getOpenEditorsView();
+						if (openEditorsView) {
+							openEditorsView.setStructuralRefreshDelay(0);
+						}
 
-				return this.editorService.openEditor(input, options, arg3).then(onSuccessOrError, onSuccessOrError);
-			});
+						return editor;
+					};
 
-			const explorerInstantiator = this.instantiationService.createChild(new ServiceCollection([IWorkbenchEditorService, delegatingEditorService]));
-			return explorerInstantiator.createInstance(ExplorerView, <IExplorerViewOptions>{ ...options, viewletState: this.viewletState });
+					return this.editorService
+						.openEditor(input, options, arg3)
+						.then(onSuccessOrError, onSuccessOrError);
+				}
+			);
+
+			const explorerInstantiator = this.instantiationService.createChild(
+				new ServiceCollection([
+					IWorkbenchEditorService,
+					delegatingEditorService
+				])
+			);
+			return explorerInstantiator.createInstance(
+				ExplorerView,
+				<IExplorerViewOptions>{ ...options, viewletState: this.viewletState }
+			);
 		}
 		return super.createView(viewDescriptor, options);
 	}
@@ -187,10 +261,15 @@ export class ExplorerViewlet extends ComposedViewsViewlet {
 	}
 
 	public focus(): void {
-		const hasOpenedEditors = !!this.editorGroupService.getStacksModel().activeGroup;
+		const hasOpenedEditors = !!this.editorGroupService.getStacksModel()
+			.activeGroup;
 
 		let openEditorsView = this.getOpenEditorsView();
-		if (this.lastFocusedView && this.lastFocusedView.isExpanded() && this.hasSelectionOrFocus(this.lastFocusedView)) {
+		if (
+			this.lastFocusedView &&
+			this.lastFocusedView.isExpanded() &&
+			this.hasSelectionOrFocus(this.lastFocusedView)
+		) {
 			if (this.lastFocusedView !== openEditorsView || hasOpenedEditors) {
 				this.lastFocusedView.focusBody();
 				return;
@@ -237,8 +316,10 @@ export class ExplorerViewlet extends ComposedViewsViewlet {
 				return false;
 			}
 
-			return !!viewer.getFocus() || (viewer.getSelection() && viewer.getSelection().length > 0);
-
+			return (
+				!!viewer.getFocus() ||
+				(viewer.getSelection() && viewer.getSelection().length > 0)
+			);
 		}
 
 		return false;

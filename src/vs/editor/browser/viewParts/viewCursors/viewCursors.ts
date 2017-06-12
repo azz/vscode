@@ -3,23 +3,31 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./viewCursors';
 import { ViewPart } from 'vs/editor/browser/view/viewPart';
 import { Position } from 'vs/editor/common/core/position';
-import { IViewCursorRenderData, ViewCursor } from 'vs/editor/browser/viewParts/viewCursors/viewCursor';
+import {
+	IViewCursorRenderData,
+	ViewCursor
+} from 'vs/editor/browser/viewParts/viewCursors/viewCursor';
 import { ViewContext } from 'vs/editor/common/view/viewContext';
-import { RenderingContext, RestrictedRenderingContext } from 'vs/editor/common/view/renderingContext';
+import {
+	RenderingContext,
+	RestrictedRenderingContext
+} from 'vs/editor/common/view/renderingContext';
 import { FastDomNode, createFastDomNode } from 'vs/base/browser/fastDomNode';
 import { TimeoutTimer, IntervalTimer } from 'vs/base/common/async';
 import * as viewEvents from 'vs/editor/common/view/viewEvents';
 import { registerThemingParticipant } from 'vs/platform/theme/common/themeService';
 import { editorCursor } from 'vs/editor/common/view/editorColorRegistry';
-import { TextEditorCursorBlinkingStyle, TextEditorCursorStyle } from 'vs/editor/common/config/editorOptions';
+import {
+	TextEditorCursorBlinkingStyle,
+	TextEditorCursorStyle
+} from 'vs/editor/common/config/editorOptions';
 
 export class ViewCursors extends ViewPart {
-
 	static BLINK_INTERVAL = 500;
 
 	private _readOnly: boolean;
@@ -81,8 +89,9 @@ export class ViewCursors extends ViewPart {
 
 	// --- begin event handlers
 
-	public onConfigurationChanged(e: viewEvents.ViewConfigurationChangedEvent): boolean {
-
+	public onConfigurationChanged(
+		e: viewEvents.ViewConfigurationChangedEvent
+	): boolean {
 		if (e.readOnly) {
 			this._readOnly = this._context.configuration.editor.readOnly;
 		}
@@ -101,7 +110,11 @@ export class ViewCursors extends ViewPart {
 		}
 		return true;
 	}
-	private _onCursorPositionChanged(position: Position, secondaryPositions: Position[], isInEditableRange: boolean): void {
+	private _onCursorPositionChanged(
+		position: Position,
+		secondaryPositions: Position[],
+		isInEditableRange: boolean
+	): void {
 		this._primaryCursor.onCursorPositionChanged(position, isInEditableRange);
 		this._updateBlinking();
 
@@ -110,7 +123,10 @@ export class ViewCursors extends ViewPart {
 			let addCnt = secondaryPositions.length - this._secondaryCursors.length;
 			for (let i = 0; i < addCnt; i++) {
 				let newCursor = new ViewCursor(this._context, true);
-				this._domNode.domNode.insertBefore(newCursor.getDomNode().domNode, this._primaryCursor.getDomNode().domNode.nextSibling);
+				this._domNode.domNode.insertBefore(
+					newCursor.getDomNode().domNode,
+					this._primaryCursor.getDomNode().domNode.nextSibling
+				);
 				this._secondaryCursors.push(newCursor);
 			}
 		} else if (this._secondaryCursors.length > secondaryPositions.length) {
@@ -123,16 +139,24 @@ export class ViewCursors extends ViewPart {
 		}
 
 		for (let i = 0; i < secondaryPositions.length; i++) {
-			this._secondaryCursors[i].onCursorPositionChanged(secondaryPositions[i], isInEditableRange);
+			this._secondaryCursors[i].onCursorPositionChanged(
+				secondaryPositions[i],
+				isInEditableRange
+			);
 		}
-
 	}
-	public onCursorStateChanged(e: viewEvents.ViewCursorStateChangedEvent): boolean {
+	public onCursorStateChanged(
+		e: viewEvents.ViewCursorStateChangedEvent
+	): boolean {
 		let positions: Position[] = [];
 		for (let i = 0, len = e.selections.length; i < len; i++) {
 			positions[i] = e.selections[i].getPosition();
 		}
-		this._onCursorPositionChanged(positions[0], positions.slice(1), e.isInEditableRange);
+		this._onCursorPositionChanged(
+			positions[0],
+			positions.slice(1),
+			e.isInEditableRange
+		);
 
 		const selectionIsEmpty = e.selections[0].isEmpty();
 		if (this._selectionIsEmpty !== selectionIsEmpty) {
@@ -143,7 +167,9 @@ export class ViewCursors extends ViewPart {
 		return true;
 	}
 
-	public onDecorationsChanged(e: viewEvents.ViewDecorationsChangedEvent): boolean {
+	public onDecorationsChanged(
+		e: viewEvents.ViewDecorationsChangedEvent
+	): boolean {
 		// true for inline decorations that can end up relayouting text
 		return true;
 	}
@@ -170,7 +196,10 @@ export class ViewCursors extends ViewPart {
 	public onTokensChanged(e: viewEvents.ViewTokensChangedEvent): boolean {
 		let shouldRender = (position: Position) => {
 			for (let i = 0, len = e.ranges.length; i < len; i++) {
-				if (e.ranges[i].fromLineNumber <= position.lineNumber && position.lineNumber <= e.ranges[i].toLineNumber) {
+				if (
+					e.ranges[i].fromLineNumber <= position.lineNumber &&
+					position.lineNumber <= e.ranges[i].toLineNumber
+				) {
 					return true;
 				}
 			}
@@ -215,8 +244,8 @@ export class ViewCursors extends ViewPart {
 		let blinkingStyle = this._getCursorBlinking();
 
 		// hidden and solid are special as they involve no animations
-		let isHidden = (blinkingStyle === TextEditorCursorBlinkingStyle.Hidden);
-		let isSolid = (blinkingStyle === TextEditorCursorBlinkingStyle.Solid);
+		let isHidden = blinkingStyle === TextEditorCursorBlinkingStyle.Hidden;
+		let isSolid = blinkingStyle === TextEditorCursorBlinkingStyle.Solid;
 
 		if (isHidden) {
 			this._hide();
@@ -349,10 +378,13 @@ registerThemingParticipant((theme, collector) => {
 	let caret = theme.getColor(editorCursor);
 	if (caret) {
 		let oppositeCaret = caret.opposite();
-		collector.addRule(`.monaco-editor .cursor { background-color: ${caret}; border-color: ${caret}; color: ${oppositeCaret}; }`);
+		collector.addRule(
+			`.monaco-editor .cursor { background-color: ${caret}; border-color: ${caret}; color: ${oppositeCaret}; }`
+		);
 		if (theme.type === 'hc') {
-			collector.addRule(`.monaco-editor .cursors-layer.has-selection .cursor { border-left: 1px solid ${oppositeCaret}; border-right: 1px solid ${oppositeCaret}; }`);
+			collector.addRule(
+				`.monaco-editor .cursors-layer.has-selection .cursor { border-left: 1px solid ${oppositeCaret}; border-right: 1px solid ${oppositeCaret}; }`
+			);
 		}
 	}
-
 });

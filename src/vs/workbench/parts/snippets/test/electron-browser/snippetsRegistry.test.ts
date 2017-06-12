@@ -3,15 +3,18 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { getNonWhitespacePrefix } from 'vs/workbench/parts/snippets/electron-browser/snippetsService';
 import { Position } from 'vs/editor/common/core/position';
 
 suite('getNonWhitespacePrefix', () => {
-
-	function assertGetNonWhitespacePrefix(line: string, column: number, expected: string): void {
+	function assertGetNonWhitespacePrefix(
+		line: string,
+		column: number,
+		expected: string
+	): void {
 		let model = {
 			getLineContent: (lineNumber: number) => line
 		};
@@ -70,11 +73,30 @@ suite('getNonWhitespacePrefix', () => {
 		assertGetNonWhitespacePrefix('something\tinteresting', 22, 'interesting');
 		assertGetNonWhitespacePrefix('something\finteresting', 22, 'interesting');
 		assertGetNonWhitespacePrefix('something\vinteresting', 22, 'interesting');
-		assertGetNonWhitespacePrefix('something\u00a0interesting', 22, 'interesting');
-		assertGetNonWhitespacePrefix('something\u2000interesting', 22, 'interesting');
-		assertGetNonWhitespacePrefix('something\u2028interesting', 22, 'interesting');
-		assertGetNonWhitespacePrefix('something\u3000interesting', 22, 'interesting');
-		assertGetNonWhitespacePrefix('something\ufeffinteresting', 22, 'interesting');
-
+		assertGetNonWhitespacePrefix(
+			'something\u00a0interesting',
+			22,
+			'interesting'
+		);
+		assertGetNonWhitespacePrefix(
+			'something\u2000interesting',
+			22,
+			'interesting'
+		);
+		assertGetNonWhitespacePrefix(
+			'something\u2028interesting',
+			22,
+			'interesting'
+		);
+		assertGetNonWhitespacePrefix(
+			'something\u3000interesting',
+			22,
+			'interesting'
+		);
+		assertGetNonWhitespacePrefix(
+			'something\ufeffinteresting',
+			22,
+			'interesting'
+		);
 	});
 });

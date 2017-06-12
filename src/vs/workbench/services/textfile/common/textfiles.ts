@@ -2,14 +2,17 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import URI from 'vs/base/common/uri';
 import Event from 'vs/base/common/event';
 import { IDisposable } from 'vs/base/common/lifecycle';
 import { IEncodingSupport, ConfirmResult } from 'vs/workbench/common/editor';
-import { IBaseStat, IResolveContentOptions } from 'vs/platform/files/common/files';
+import {
+	IBaseStat,
+	IResolveContentOptions
+} from 'vs/platform/files/common/files';
 import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
 import { ITextEditorModel } from 'vs/editor/common/services/resolverService';
 import { IRawTextSource } from 'vs/editor/common/model/textSource';
@@ -18,7 +21,6 @@ import { IRawTextSource } from 'vs/editor/common/model/textSource';
  * The save error handler can be installed on the text text file editor model to install code that executes when save errors occur.
  */
 export interface ISaveErrorHandler {
-
 	/**
 	 * Called whenever a save fails.
 	 */
@@ -26,11 +28,13 @@ export interface ISaveErrorHandler {
 }
 
 export interface ISaveParticipant {
-
 	/**
 	 * Participate in a save of a model. Allows to change the model before it is being saved to disk.
 	 */
-	participate(model: ITextFileEditorModel, env: { reason: SaveReason }): TPromise<any>;
+	participate(
+		model: ITextFileEditorModel,
+		env: { reason: SaveReason }
+	): TPromise<any>;
 }
 
 /**
@@ -121,10 +125,11 @@ export enum SaveReason {
 	WINDOW_CHANGE = 4
 }
 
-export const ITextFileService = createDecorator<ITextFileService>(TEXT_FILE_SERVICE_ID);
+export const ITextFileService = createDecorator<ITextFileService>(
+	TEXT_FILE_SERVICE_ID
+);
 
 export interface IRawTextContent extends IBaseStat {
-
 	/**
 	 * The line grouped content of a text file.
 	 */
@@ -147,7 +152,6 @@ export interface IModelLoadOrCreateOptions {
 }
 
 export interface ITextFileEditorModelManager {
-
 	onModelDisposed: Event<URI>;
 	onModelContentChanged: Event<TextFileModelChangeEvent>;
 	onModelEncodingChanged: Event<TextFileModelChangeEvent>;
@@ -167,7 +171,10 @@ export interface ITextFileEditorModelManager {
 
 	getAll(resource?: URI): ITextFileEditorModel[];
 
-	loadOrCreate(resource: URI, options?: IModelLoadOrCreateOptions): TPromise<ITextEditorModel>;
+	loadOrCreate(
+		resource: URI,
+		options?: IModelLoadOrCreateOptions
+	): TPromise<ITextEditorModel>;
 
 	disposeModel(model: ITextFileEditorModel): void;
 }
@@ -179,8 +186,9 @@ export interface IModelSaveOptions {
 	overwriteEncoding?: boolean;
 }
 
-export interface ITextFileEditorModel extends ITextEditorModel, IEncodingSupport {
-
+export interface ITextFileEditorModel
+	extends ITextEditorModel,
+		IEncodingSupport {
 	onDidContentChange: Event<StateChange>;
 	onDidStateChange: Event<StateChange>;
 
@@ -210,7 +218,6 @@ export interface ITextFileEditorModel extends ITextEditorModel, IEncodingSupport
 }
 
 export interface ISaveOptions {
-
 	/**
 	 * Save the file on disk even if not dirty. If the file is not dirty, it will be touched
 	 * so that mtime and atime are updated. This helps to trigger external file watchers.
@@ -219,7 +226,6 @@ export interface ISaveOptions {
 }
 
 export interface IRevertOptions {
-
 	/**
 	 *  Forces to load the contents from disk again even if the file is not dirty.
 	 */
@@ -244,7 +250,10 @@ export interface ITextFileService extends IDisposable {
 	/**
 	 * Resolve the contents of a file identified by the resource.
 	 */
-	resolveTextContent(resource: URI, options?: IResolveContentOptions): TPromise<IRawTextContent>;
+	resolveTextContent(
+		resource: URI,
+		options?: IResolveContentOptions
+	): TPromise<IRawTextContent>;
 
 	/**
 	 * A resource is dirty if it has unsaved changes or is an untitled file not yet saved.
@@ -284,8 +293,14 @@ export interface ITextFileService extends IDisposable {
 	 * @param resources can be null to save all.
 	 * @param includeUntitled to save all resources and optionally exclude untitled ones.
 	 */
-	saveAll(includeUntitled?: boolean, reason?: SaveReason): TPromise<ITextFileOperationResult>;
-	saveAll(resources: URI[], reason?: SaveReason): TPromise<ITextFileOperationResult>;
+	saveAll(
+		includeUntitled?: boolean,
+		reason?: SaveReason
+	): TPromise<ITextFileOperationResult>;
+	saveAll(
+		resources: URI[],
+		reason?: SaveReason
+	): TPromise<ITextFileOperationResult>;
 
 	/**
 	 * Reverts the provided resource.
@@ -298,7 +313,10 @@ export interface ITextFileService extends IDisposable {
 	/**
 	 * Reverts all the provided resources and returns a promise with the operation result.
 	 */
-	revertAll(resources?: URI[], options?: IRevertOptions): TPromise<ITextFileOperationResult>;
+	revertAll(
+		resources?: URI[],
+		options?: IRevertOptions
+	): TPromise<ITextFileOperationResult>;
 
 	/**
 	 * Brings up the confirm dialog to either save, don't save or cancel.

@@ -2,35 +2,53 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import URI from 'vs/base/common/uri';
 import { IDisposable, dispose } from 'vs/base/common/lifecycle';
 import { TPromise } from 'vs/base/common/winjs.base';
 import { IThreadService } from 'vs/workbench/services/thread/common/threadService';
-import { ISingleEditOperation, IDecorationRenderOptions, IDecorationOptions, ILineChange } from 'vs/editor/common/editorCommon';
+import {
+	ISingleEditOperation,
+	IDecorationRenderOptions,
+	IDecorationOptions,
+	ILineChange
+} from 'vs/editor/common/editorCommon';
 import { ICodeEditorService } from 'vs/editor/common/services/codeEditorService';
 import { IWorkbenchEditorService } from 'vs/workbench/services/editor/common/editorService';
 import { IEditorGroupService } from 'vs/workbench/services/group/common/groupService';
-import { IEditorOptions, Position as EditorPosition } from 'vs/platform/editor/common/editor';
+import {
+	IEditorOptions,
+	Position as EditorPosition
+} from 'vs/platform/editor/common/editor';
 import { MainThreadTextEditor } from './mainThreadEditor';
-import { ITextEditorConfigurationUpdate, TextEditorRevealType, IApplyEditsOptions, IUndoStopOptions } from 'vs/workbench/api/node/extHost.protocol';
+import {
+	ITextEditorConfigurationUpdate,
+	TextEditorRevealType,
+	IApplyEditsOptions,
+	IUndoStopOptions
+} from 'vs/workbench/api/node/extHost.protocol';
 
 import { MainThreadDocumentsAndEditors } from './mainThreadDocumentsAndEditors';
 import { ITelemetryService } from 'vs/platform/telemetry/common/telemetry';
 import { equals as objectEquals } from 'vs/base/common/objects';
-import { ExtHostContext, MainThreadEditorsShape, ExtHostEditorsShape, ITextDocumentShowOptions, ITextEditorPositionData } from '../node/extHost.protocol';
+import {
+	ExtHostContext,
+	MainThreadEditorsShape,
+	ExtHostEditorsShape,
+	ITextDocumentShowOptions,
+	ITextEditorPositionData
+} from '../node/extHost.protocol';
 import { IRange } from 'vs/editor/common/core/range';
 import { ISelection } from 'vs/editor/common/core/selection';
 
 export class MainThreadEditors extends MainThreadEditorsShape {
-
 	private _proxy: ExtHostEditorsShape;
 	private _documentsAndEditors: MainThreadDocumentsAndEditors;
 	private _workbenchEditorService: IWorkbenchEditorService;
 	private _telemetryService: ITelemetryService;
 	private _toDispose: IDisposable[];
-	private _textEditorsListenersMap: { [editorId: string]: IDisposable[]; };
+	private _textEditorsListenersMap: { [editorId: string]: IDisposable[] };
 	private _editorPositionData: ITextEditorPositionData;
 
 	constructor(
@@ -50,15 +68,31 @@ export class MainThreadEditors extends MainThreadEditorsShape {
 		this._textEditorsListenersMap = Object.create(null);
 		this._editorPositionData = null;
 
-		this._toDispose.push(documentsAndEditors.onTextEditorAdd(editors => editors.forEach(this._onTextEditorAdd, this)));
-		this._toDispose.push(documentsAndEditors.onTextEditorRemove(editors => editors.forEach(this._onTextEditorRemove, this)));
+		this._toDispose.push(
+			documentsAndEditors.onTextEditorAdd(editors =>
+				editors.forEach(this._onTextEditorAdd, this)
+			)
+		);
+		this._toDispose.push(
+			documentsAndEditors.onTextEditorRemove(editors =>
+				editors.forEach(this._onTextEditorRemove, this)
+			)
+		);
 
-		this._toDispose.push(editorGroupService.onEditorsChanged(() => this._updateActiveAndVisibleTextEditors()));
-		this._toDispose.push(editorGroupService.onEditorsMoved(() => this._updateActiveAndVisibleTextEditors()));
+		this._toDispose.push(
+			editorGroupService.onEditorsChanged(() =>
+				this._updateActiveAndVisibleTextEditors()
+			)
+		);
+		this._toDispose.push(
+			editorGroupService.onEditorsMoved(() =>
+				this._updateActiveAndVisibleTextEditors()
+			)
+		);
 	}
 
 	public dispose(): void {
-		Object.keys(this._textEditorsListenersMap).forEach((editorId) => {
+		Object.keys(this._textEditorsListenersMap).forEach(editorId => {
 			dispose(this._textEditorsListenersMap[editorId]);
 		});
 		this._textEditorsListenersMap = Object.create(null);
@@ -68,12 +102,16 @@ export class MainThreadEditors extends MainThreadEditorsShape {
 	private _onTextEditorAdd(textEditor: MainThreadTextEditor): void {
 		let id = textEditor.getId();
 		let toDispose: IDisposable[] = [];
-		toDispose.push(textEditor.onConfigurationChanged((opts) => {
-			this._proxy.$acceptOptionsChanged(id, opts);
-		}));
-		toDispose.push(textEditor.onSelectionChanged((event) => {
-			this._proxy.$acceptSelectionsChanged(id, event);
-		}));
+		toDispose.push(
+			textEditor.onConfigurationChanged(opts => {
+				this._proxy.$acceptOptionsChanged(id, opts);
+			})
+		);
+		toDispose.push(
+			textEditor.onSelectionChanged(event => {
+				this._proxy.$acceptSelectionsChanged(id, event);
+			})
+		);
 
 		this._textEditorsListenersMap[id] = toDispose;
 	}
@@ -84,7 +122,6 @@ export class MainThreadEditors extends MainThreadEditorsShape {
 	}
 
 	private _updateActiveAndVisibleTextEditors(): void {
-
 		// editor columns
 		let editorPositionData = this._getTextEditorPositionData();
 		if (!objectEquals(this._editorPositionData, editorPositionData)) {
@@ -106,7 +143,10 @@ export class MainThreadEditors extends MainThreadEditorsShape {
 
 	// --- from extension host process
 
-	$tryShowTextDocument(resource: URI, options: ITextDocumentShowOptions): TPromise<string> {
+	$tryShowTextDocument(
+		resource: URI,
+		options: ITextDocumentShowOptions
+	): TPromise<string> {
 		const editorOptions: IEditorOptions = {
 			preserveFocus: options.preserveFocus,
 			pinned: options.pinned
@@ -117,39 +157,56 @@ export class MainThreadEditors extends MainThreadEditorsShape {
 			options: editorOptions
 		};
 
-		return this._workbenchEditorService.openEditor(input, options.position).then(editor => {
-			if (!editor) {
-				return undefined;
-			}
-			return this._documentsAndEditors.findTextEditorIdFor(editor);
-		});
+		return this._workbenchEditorService
+			.openEditor(input, options.position)
+			.then(editor => {
+				if (!editor) {
+					return undefined;
+				}
+				return this._documentsAndEditors.findTextEditorIdFor(editor);
+			});
 	}
 
 	$tryShowEditor(id: string, position: EditorPosition): TPromise<void> {
 		// check how often this is used
-		this._telemetryService.publicLog('api.deprecated', { function: 'TextEditor.show' });
+		this._telemetryService.publicLog('api.deprecated', {
+			function: 'TextEditor.show'
+		});
 
 		let mainThreadEditor = this._documentsAndEditors.getEditor(id);
 		if (mainThreadEditor) {
 			let model = mainThreadEditor.getModel();
-			return this._workbenchEditorService.openEditor({
-				resource: model.uri,
-				options: { preserveFocus: false }
-			}, position).then(() => { return; });
+			return this._workbenchEditorService
+				.openEditor(
+					{
+						resource: model.uri,
+						options: { preserveFocus: false }
+					},
+					position
+				)
+				.then(() => {
+					return;
+				});
 		}
 		return undefined;
 	}
 
 	$tryHideEditor(id: string): TPromise<void> {
 		// check how often this is used
-		this._telemetryService.publicLog('api.deprecated', { function: 'TextEditor.hide' });
+		this._telemetryService.publicLog('api.deprecated', {
+			function: 'TextEditor.hide'
+		});
 
 		let mainThreadEditor = this._documentsAndEditors.getEditor(id);
 		if (mainThreadEditor) {
 			let editors = this._workbenchEditorService.getVisibleEditors();
 			for (let editor of editors) {
 				if (mainThreadEditor.matches(editor)) {
-					return this._workbenchEditorService.closeEditor(editor.position, editor.input).then(() => { return; });
+					return this._workbenchEditorService
+						.closeEditor(editor.position, editor.input)
+						.then(() => {
+							return;
+						});
 				}
 			}
 		}
@@ -164,7 +221,11 @@ export class MainThreadEditors extends MainThreadEditorsShape {
 		return TPromise.as(null);
 	}
 
-	$trySetDecorations(id: string, key: string, ranges: IDecorationOptions[]): TPromise<any> {
+	$trySetDecorations(
+		id: string,
+		key: string,
+		ranges: IDecorationOptions[]
+	): TPromise<any> {
 		if (!this._documentsAndEditors.getEditor(id)) {
 			return TPromise.wrapError('TextEditor disposed');
 		}
@@ -172,7 +233,11 @@ export class MainThreadEditors extends MainThreadEditorsShape {
 		return TPromise.as(null);
 	}
 
-	$tryRevealRange(id: string, range: IRange, revealType: TextEditorRevealType): TPromise<any> {
+	$tryRevealRange(
+		id: string,
+		range: IRange,
+		revealType: TextEditorRevealType
+	): TPromise<any> {
 		if (!this._documentsAndEditors.getEditor(id)) {
 			return TPromise.wrapError('TextEditor disposed');
 		}
@@ -180,7 +245,10 @@ export class MainThreadEditors extends MainThreadEditorsShape {
 		return undefined;
 	}
 
-	$trySetOptions(id: string, options: ITextEditorConfigurationUpdate): TPromise<any> {
+	$trySetOptions(
+		id: string,
+		options: ITextEditorConfigurationUpdate
+	): TPromise<any> {
 		if (!this._documentsAndEditors.getEditor(id)) {
 			return TPromise.wrapError('TextEditor disposed');
 		}
@@ -188,21 +256,42 @@ export class MainThreadEditors extends MainThreadEditorsShape {
 		return TPromise.as(null);
 	}
 
-	$tryApplyEdits(id: string, modelVersionId: number, edits: ISingleEditOperation[], opts: IApplyEditsOptions): TPromise<boolean> {
+	$tryApplyEdits(
+		id: string,
+		modelVersionId: number,
+		edits: ISingleEditOperation[],
+		opts: IApplyEditsOptions
+	): TPromise<boolean> {
 		if (!this._documentsAndEditors.getEditor(id)) {
 			return TPromise.wrapError<boolean>('TextEditor disposed');
 		}
-		return TPromise.as(this._documentsAndEditors.getEditor(id).applyEdits(modelVersionId, edits, opts));
+		return TPromise.as(
+			this._documentsAndEditors
+				.getEditor(id)
+				.applyEdits(modelVersionId, edits, opts)
+		);
 	}
 
-	$tryInsertSnippet(id: string, template: string, ranges: IRange[], opts: IUndoStopOptions): TPromise<boolean> {
+	$tryInsertSnippet(
+		id: string,
+		template: string,
+		ranges: IRange[],
+		opts: IUndoStopOptions
+	): TPromise<boolean> {
 		if (!this._documentsAndEditors.getEditor(id)) {
 			return TPromise.wrapError<boolean>('TextEditor disposed');
 		}
-		return TPromise.as(this._documentsAndEditors.getEditor(id).insertSnippet(template, ranges, opts));
+		return TPromise.as(
+			this._documentsAndEditors
+				.getEditor(id)
+				.insertSnippet(template, ranges, opts)
+		);
 	}
 
-	$registerTextEditorDecorationType(key: string, options: IDecorationRenderOptions): void {
+	$registerTextEditorDecorationType(
+		key: string,
+		options: IDecorationRenderOptions
+	): void {
 		this._codeEditorService.registerDecorationType(key, options);
 	}
 
@@ -220,7 +309,11 @@ export class MainThreadEditors extends MainThreadEditorsShape {
 		const codeEditor = editor.getCodeEditor();
 		const codeEditorId = codeEditor.getId();
 		const diffEditors = this._codeEditorService.listDiffEditors();
-		const [diffEditor] = diffEditors.filter(d => d.getOriginalEditor().getId() === codeEditorId || d.getModifiedEditor().getId() === codeEditorId);
+		const [diffEditor] = diffEditors.filter(
+			d =>
+				d.getOriginalEditor().getId() === codeEditorId ||
+				d.getModifiedEditor().getId() === codeEditorId
+		);
 
 		if (!diffEditor) {
 			return TPromise.as([]);

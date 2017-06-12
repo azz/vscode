@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import { IChannel } from 'vs/base/parts/ipc/common/ipc';
@@ -14,7 +14,10 @@ import { ParsedArgs } from 'vs/platform/environment/common/environment';
 import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
 import { once } from 'vs/base/common/event';
 import { OpenContext } from 'vs/platform/windows/common/windows';
-import { IWindowsMainService, ICodeWindow } from "vs/platform/windows/electron-main/windows";
+import {
+	IWindowsMainService,
+	ICodeWindow
+} from 'vs/platform/windows/electron-main/windows';
 
 export const ID = 'launchService';
 export const ILaunchService = createDecorator<ILaunchService>(ID);
@@ -37,8 +40,7 @@ export interface ILaunchChannel extends IChannel {
 }
 
 export class LaunchChannel implements ILaunchChannel {
-
-	constructor(private service: ILaunchService) { }
+	constructor(private service: ILaunchService) {}
 
 	public call(command: string, arg: any): TPromise<any> {
 		switch (command) {
@@ -55,10 +57,9 @@ export class LaunchChannel implements ILaunchChannel {
 }
 
 export class LaunchChannelClient implements ILaunchService {
-
 	_serviceBrand: any;
 
-	constructor(private channel: ILaunchChannel) { }
+	constructor(private channel: ILaunchChannel) {}
 
 	public start(args: ParsedArgs, userEnv: IProcessEnvironment): TPromise<void> {
 		return this.channel.call('start', { args, userEnv });
@@ -70,14 +71,13 @@ export class LaunchChannelClient implements ILaunchService {
 }
 
 export class LaunchService implements ILaunchService {
-
 	_serviceBrand: any;
 
 	constructor(
 		@ILogService private logService: ILogService,
 		@IWindowsMainService private windowsService: IWindowsMainService,
 		@IURLService private urlService: IURLService
-	) { }
+	) {}
 
 	public start(args: ParsedArgs, userEnv: IProcessEnvironment): TPromise<void> {
 		this.logService.log('Received data from other instance: ', args, userEnv);
@@ -92,12 +92,27 @@ export class LaunchService implements ILaunchService {
 		}
 
 		// Otherwise handle in windows service
-		const context = !!userEnv['VSCODE_CLI'] ? OpenContext.CLI : OpenContext.DESKTOP;
+		const context = !!userEnv['VSCODE_CLI']
+			? OpenContext.CLI
+			: OpenContext.DESKTOP;
 		let usedWindows: ICodeWindow[];
 		if (!!args.extensionDevelopmentPath) {
-			this.windowsService.openExtensionDevelopmentHostWindow({ context, cli: args, userEnv });
-		} else if (args._.length === 0 && (args['new-window'] || args['unity-launch'])) {
-			usedWindows = this.windowsService.open({ context, cli: args, userEnv, forceNewWindow: true, forceEmpty: true });
+			this.windowsService.openExtensionDevelopmentHostWindow({
+				context,
+				cli: args,
+				userEnv
+			});
+		} else if (
+			args._.length === 0 &&
+			(args['new-window'] || args['unity-launch'])
+		) {
+			usedWindows = this.windowsService.open({
+				context,
+				cli: args,
+				userEnv,
+				forceNewWindow: true,
+				forceEmpty: true
+			});
 		} else if (args._.length === 0) {
 			usedWindows = [this.windowsService.focusLastActive(args, context)];
 		} else {
@@ -114,7 +129,12 @@ export class LaunchService implements ILaunchService {
 
 		// If the other instance is waiting to be killed, we hook up a window listener if one window
 		// is being used and only then resolve the startup promise which will kill this second instance
-		if (args.wait && usedWindows && usedWindows.length === 1 && usedWindows[0]) {
+		if (
+			args.wait &&
+			usedWindows &&
+			usedWindows.length === 1 &&
+			usedWindows[0]
+		) {
 			const windowId = usedWindows[0].id;
 
 			return new TPromise<void>((c, e) => {

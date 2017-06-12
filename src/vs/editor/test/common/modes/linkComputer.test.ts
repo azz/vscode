@@ -2,14 +2,16 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { ILink } from 'vs/editor/common/modes';
-import { ILinkComputerTarget, computeLinks } from 'vs/editor/common/modes/linkComputer';
+import {
+	ILinkComputerTarget,
+	computeLinks
+} from 'vs/editor/common/modes/linkComputer';
 
 class SimpleLinkComputerTarget implements ILinkComputerTarget {
-
 	constructor(private _lines: string[]) {
 		// Intentional Empty
 	}
@@ -51,81 +53,45 @@ function assertLink(text: string, extractedLink: string): void {
 	}
 
 	var r = myComputeLinks([text]);
-	assert.deepEqual(r, [{
-		range: {
-			startLineNumber: 1,
-			startColumn: startColumn,
-			endLineNumber: 1,
-			endColumn: endColumn
-		},
-		url: extractedLink.substring(startColumn - 1, endColumn - 1)
-	}]);
+	assert.deepEqual(r, [
+		{
+			range: {
+				startLineNumber: 1,
+				startColumn: startColumn,
+				endLineNumber: 1,
+				endColumn: endColumn
+			},
+			url: extractedLink.substring(startColumn - 1, endColumn - 1)
+		}
+	]);
 }
 
 suite('Editor Modes - Link Computer', () => {
-
 	test('Null model', () => {
 		var r = computeLinks(null);
 		assert.deepEqual(r, []);
 	});
 
 	test('Parsing', () => {
+		assertLink('x = "http://foo.bar";', '     http://foo.bar  ');
 
-		assertLink(
-			'x = "http://foo.bar";',
-			'     http://foo.bar  '
-		);
+		assertLink('x = (http://foo.bar);', '     http://foo.bar  ');
 
-		assertLink(
-			'x = (http://foo.bar);',
-			'     http://foo.bar  '
-		);
+		assertLink('x = [http://foo.bar];', '     http://foo.bar  ');
 
-		assertLink(
-			'x = [http://foo.bar];',
-			'     http://foo.bar  '
-		);
+		assertLink("x = 'http://foo.bar';", '     http://foo.bar  ');
 
-		assertLink(
-			'x = \'http://foo.bar\';',
-			'     http://foo.bar  '
-		);
+		assertLink('x =  http://foo.bar ;', '     http://foo.bar  ');
 
-		assertLink(
-			'x =  http://foo.bar ;',
-			'     http://foo.bar  '
-		);
+		assertLink('x = <http://foo.bar>;', '     http://foo.bar  ');
 
-		assertLink(
-			'x = <http://foo.bar>;',
-			'     http://foo.bar  '
-		);
+		assertLink('x = {http://foo.bar};', '     http://foo.bar  ');
 
-		assertLink(
-			'x = {http://foo.bar};',
-			'     http://foo.bar  '
-		);
-
-		assertLink(
-			'(see http://foo.bar)',
-			'     http://foo.bar  '
-		);
-		assertLink(
-			'[see http://foo.bar]',
-			'     http://foo.bar  '
-		);
-		assertLink(
-			'{see http://foo.bar}',
-			'     http://foo.bar  '
-		);
-		assertLink(
-			'<see http://foo.bar>',
-			'     http://foo.bar  '
-		);
-		assertLink(
-			'<url>http://mylink.com</url>',
-			'     http://mylink.com      '
-		);
+		assertLink('(see http://foo.bar)', '     http://foo.bar  ');
+		assertLink('[see http://foo.bar]', '     http://foo.bar  ');
+		assertLink('{see http://foo.bar}', '     http://foo.bar  ');
+		assertLink('<see http://foo.bar>', '     http://foo.bar  ');
+		assertLink('<url>http://mylink.com</url>', '     http://mylink.com      ');
 		assertLink(
 			'// Click here to learn more. https://go.microsoft.com/fwlink/?LinkID=513275&clcid=0x409',
 			'                             https://go.microsoft.com/fwlink/?LinkID=513275&clcid=0x409'
@@ -163,31 +129,19 @@ suite('Editor Modes - Link Computer', () => {
 			'     http://go.microsoft.com/fwlink/?LinkId=761051 '
 		);
 
-		assertLink(
-			'x = "file:///foo.bar";',
-			'     file:///foo.bar  '
-		);
-		assertLink(
-			'x = "file://c:/foo.bar";',
-			'     file://c:/foo.bar  '
-		);
+		assertLink('x = "file:///foo.bar";', '     file:///foo.bar  ');
+		assertLink('x = "file://c:/foo.bar";', '     file://c:/foo.bar  ');
 
-		assertLink(
-			'x = "file://shares/foo.bar";',
-			'     file://shares/foo.bar  '
-		);
+		assertLink('x = "file://shares/foo.bar";', '     file://shares/foo.bar  ');
 
-		assertLink(
-			'x = "file://shäres/foo.bar";',
-			'     file://shäres/foo.bar  '
-		);
+		assertLink('x = "file://shäres/foo.bar";', '     file://shäres/foo.bar  ');
 		assertLink(
 			'Some text, then http://www.bing.com.',
 			'                http://www.bing.com '
 		);
 		assertLink(
-			'let url = `http://***/_api/web/lists/GetByTitle(\'Teambuildingaanvragen\')/items`;',
-			'           http://***/_api/web/lists/GetByTitle(\'Teambuildingaanvragen\')/items  '
+			"let url = `http://***/_api/web/lists/GetByTitle('Teambuildingaanvragen')/items`;",
+			"           http://***/_api/web/lists/GetByTitle('Teambuildingaanvragen')/items  "
 		);
 	});
 });

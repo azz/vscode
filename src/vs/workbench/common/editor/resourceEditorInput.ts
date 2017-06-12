@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import { EditorInput, ITextEditorModel } from 'vs/workbench/common/editor';
@@ -17,7 +17,6 @@ import { ResourceEditorModel } from 'vs/workbench/common/editor/resourceEditorMo
  * code editor model.
  */
 export class ResourceEditorInput extends EditorInput {
-
 	static ID: string = 'workbench.editors.resourceEditorInput';
 
 	private modelReference: TPromise<IReference<ITextEditorModel>>;
@@ -29,7 +28,8 @@ export class ResourceEditorInput extends EditorInput {
 		name: string,
 		description: string,
 		resource: URI,
-		@ITextModelResolverService private textModelResolverService: ITextModelResolverService
+		@ITextModelResolverService
+		private textModelResolverService: ITextModelResolverService
 	) {
 		super();
 
@@ -77,7 +77,9 @@ export class ResourceEditorInput extends EditorInput {
 
 	public resolve(refresh?: boolean): TPromise<ITextEditorModel> {
 		if (!this.modelReference) {
-			this.modelReference = this.textModelResolverService.createModelReference(this.resource);
+			this.modelReference = this.textModelResolverService.createModelReference(
+				this.resource
+			);
 		}
 
 		return this.modelReference.then(ref => {
@@ -86,7 +88,9 @@ export class ResourceEditorInput extends EditorInput {
 			if (!(model instanceof ResourceEditorModel)) {
 				ref.dispose();
 				this.modelReference = null;
-				return TPromise.wrapError<ITextEditorModel>(`Unexpected model for ResourceInput: ${this.resource}`); // TODO@Ben eventually also files should be supported, but we guard due to the dangerous dispose of the model in dispose()
+				return TPromise.wrapError<ITextEditorModel>(
+					`Unexpected model for ResourceInput: ${this.resource}`
+				); // TODO@Ben eventually also files should be supported, but we guard due to the dangerous dispose of the model in dispose()
 			}
 
 			return model;
@@ -102,7 +106,10 @@ export class ResourceEditorInput extends EditorInput {
 			let otherResourceEditorInput = <ResourceEditorInput>otherInput;
 
 			// Compare by properties
-			return otherResourceEditorInput.resource.toString() === this.resource.toString();
+			return (
+				otherResourceEditorInput.resource.toString() ===
+				this.resource.toString()
+			);
 		}
 
 		return false;

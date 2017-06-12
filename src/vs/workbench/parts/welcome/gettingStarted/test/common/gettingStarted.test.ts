@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 // import * as assert from 'assert';
 import { TestInstantiationService } from 'vs/platform/instantiation/test/common/instantiationServiceMock';
@@ -19,20 +19,26 @@ suite('Workbench - GettingStarted', () => {
 
 	suiteSetup(() => {
 		instantiation = new TestInstantiationService();
-		instantiation.stub(IWorkspaceContextService, <any>{
-			getConfiguration: () => {
-				return {
-					env: {
-						welcomePage: welcomePageEnvConfig,
-						appName: appName
-					}
-				};
+		instantiation.stub(
+			IWorkspaceContextService,
+			<any>{
+				getConfiguration: () => {
+					return {
+						env: {
+							welcomePage: welcomePageEnvConfig,
+							appName: appName
+						}
+					};
+				}
 			}
-		});
-		instantiation.stub(IStorageService, <any>{
-			get: () => hideWelcomeSettingsValue,
-			store: (value) => hideWelcomeSettingsValue = value
-		});
+		);
+		instantiation.stub(
+			IStorageService,
+			<any>{
+				get: () => hideWelcomeSettingsValue,
+				store: value => (hideWelcomeSettingsValue = value)
+			}
+		);
 	});
 
 	suiteTeardown(() => {

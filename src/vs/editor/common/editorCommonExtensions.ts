@@ -2,26 +2,49 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { illegalArgument } from 'vs/base/common/errors';
 import URI from 'vs/base/common/uri';
 import { TPromise } from 'vs/base/common/winjs.base';
-import { ServicesAccessor, IConstructorSignature1 } from 'vs/platform/instantiation/common/instantiation';
-import { CommandsRegistry, ICommandHandlerDescription } from 'vs/platform/commands/common/commands';
-import { KeybindingsRegistry, ICommandAndKeybindingRule, IKeybindings } from 'vs/platform/keybinding/common/keybindingsRegistry';
+import {
+	ServicesAccessor,
+	IConstructorSignature1
+} from 'vs/platform/instantiation/common/instantiation';
+import {
+	CommandsRegistry,
+	ICommandHandlerDescription
+} from 'vs/platform/commands/common/commands';
+import {
+	KeybindingsRegistry,
+	ICommandAndKeybindingRule,
+	IKeybindings
+} from 'vs/platform/keybinding/common/keybindingsRegistry';
 import { Registry } from 'vs/platform/platform';
 import { ITelemetryService } from 'vs/platform/telemetry/common/telemetry';
 import { Position } from 'vs/editor/common/core/position';
 import * as editorCommon from 'vs/editor/common/editorCommon';
 import { IModelService } from 'vs/editor/common/services/modelService';
-import { MenuId, MenuRegistry, IMenuItem } from 'vs/platform/actions/common/actions';
+import {
+	MenuId,
+	MenuRegistry,
+	IMenuItem
+} from 'vs/platform/actions/common/actions';
 import { IEditorService } from 'vs/platform/editor/common/editor';
-import { IContextKeyService, ContextKeyExpr } from 'vs/platform/contextkey/common/contextkey';
-import { ICodeEditorService, getCodeEditor } from 'vs/editor/common/services/codeEditorService';
+import {
+	IContextKeyService,
+	ContextKeyExpr
+} from 'vs/platform/contextkey/common/contextkey';
+import {
+	ICodeEditorService,
+	getCodeEditor
+} from 'vs/editor/common/services/codeEditorService';
 
 export type ServicesAccessor = ServicesAccessor;
-export type ICommonEditorContributionCtor = IConstructorSignature1<editorCommon.ICommonCodeEditor, editorCommon.IEditorContribution>;
+export type ICommonEditorContributionCtor = IConstructorSignature1<
+	editorCommon.ICommonCodeEditor,
+	editorCommon.IEditorContribution
+>;
 
 // ----- Generic Command
 
@@ -48,7 +71,9 @@ export abstract class Command {
 		this._description = opts.description;
 	}
 
-	public toCommandAndKeybindingRule(defaultWeight: number): ICommandAndKeybindingRule {
+	public toCommandAndKeybindingRule(
+		defaultWeight: number
+	): ICommandAndKeybindingRule {
 		const kbOpts = this._kbOpts || { primary: 0 };
 
 		let kbWhen = kbOpts.kbExpr;
@@ -60,7 +85,9 @@ export abstract class Command {
 			}
 		}
 
-		const weight = (typeof kbOpts.weight === 'number' ? kbOpts.weight : defaultWeight);
+		const weight = typeof kbOpts.weight === 'number'
+			? kbOpts.weight
+			: defaultWeight;
 
 		return {
 			id: this.id,
@@ -76,32 +103,44 @@ export abstract class Command {
 		};
 	}
 
-	public abstract runCommand(accessor: ServicesAccessor, args: any): void | TPromise<void>;
+	public abstract runCommand(
+		accessor: ServicesAccessor,
+		args: any
+	): void | TPromise<void>;
 }
 
 // ----- Editor Command & Editor Contribution Command
 
-function findFocusedEditor(accessor: ServicesAccessor): editorCommon.ICommonCodeEditor {
+function findFocusedEditor(
+	accessor: ServicesAccessor
+): editorCommon.ICommonCodeEditor {
 	return accessor.get(ICodeEditorService).getFocusedCodeEditor();
 }
-function getWorkbenchActiveEditor(accessor: ServicesAccessor): editorCommon.ICommonCodeEditor {
+function getWorkbenchActiveEditor(
+	accessor: ServicesAccessor
+): editorCommon.ICommonCodeEditor {
 	const editorService = accessor.get(IEditorService);
-	let activeEditor = (<any>editorService).getActiveEditor && (<any>editorService).getActiveEditor();
+	let activeEditor =
+		(<any>editorService).getActiveEditor &&
+		(<any>editorService).getActiveEditor();
 	return getCodeEditor(activeEditor);
 }
 
 export interface IContributionCommandOptions<T> extends ICommandOptions {
 	handler: (controller: T) => void;
 }
-export interface EditorControllerCommand<T extends editorCommon.IEditorContribution> {
+export interface EditorControllerCommand<
+	T extends editorCommon.IEditorContribution
+> {
 	new (opts: IContributionCommandOptions<T>): EditorCommand;
 }
 export abstract class EditorCommand extends Command {
-
 	/**
 	 * Create a command class that is bound to a certain editor contribution.
 	 */
-	public static bindToContribution<T extends editorCommon.IEditorContribution>(controllerGetter: (editor: editorCommon.ICommonCodeEditor) => T): EditorControllerCommand<T> {
+	public static bindToContribution<T extends editorCommon.IEditorContribution>(
+		controllerGetter: (editor: editorCommon.ICommonCodeEditor) => T
+	): EditorControllerCommand<T> {
 		return class EditorControllerCommandImpl extends EditorCommand {
 			private _callback: (controller: T) => void;
 
@@ -111,7 +150,11 @@ export abstract class EditorCommand extends Command {
 				this._callback = opts.handler;
 			}
 
-			public runEditorCommand(accessor: ServicesAccessor, editor: editorCommon.ICommonCodeEditor, args: any): void {
+			public runEditorCommand(
+				accessor: ServicesAccessor,
+				editor: editorCommon.ICommonCodeEditor,
+				args: any
+			): void {
 				let controller = controllerGetter(editor);
 				if (controller) {
 					this._callback(controllerGetter(editor));
@@ -120,7 +163,10 @@ export abstract class EditorCommand extends Command {
 		};
 	}
 
-	public runCommand(accessor: ServicesAccessor, args: any): void | TPromise<void> {
+	public runCommand(
+		accessor: ServicesAccessor,
+		args: any
+	): void | TPromise<void> {
 		// Find the editor with text focus
 		let editor = findFocusedEditor(accessor);
 
@@ -134,7 +180,7 @@ export abstract class EditorCommand extends Command {
 			return;
 		}
 
-		return editor.invokeWithinContext((editorAccessor) => {
+		return editor.invokeWithinContext(editorAccessor => {
 			const kbService = editorAccessor.get(IContextKeyService);
 			if (!kbService.contextMatchesRules(this.precondition)) {
 				// precondition does not hold
@@ -145,7 +191,11 @@ export abstract class EditorCommand extends Command {
 		});
 	}
 
-	public abstract runEditorCommand(accessor: ServicesAccessor, editor: editorCommon.ICommonCodeEditor, args: any): void | TPromise<void>;
+	public abstract runEditorCommand(
+		accessor: ServicesAccessor,
+		editor: editorCommon.ICommonCodeEditor,
+		args: any
+	): void | TPromise<void>;
 }
 
 // ----- Editor Action
@@ -160,7 +210,6 @@ export interface IActionOptions extends ICommandOptions {
 	menuOpts?: IEditorCommandMenuOptions;
 }
 export abstract class EditorAction extends EditorCommand {
-
 	public label: string;
 	public alias: string;
 	private menuOpts: IEditorCommandMenuOptions;
@@ -188,21 +237,36 @@ export abstract class EditorAction extends EditorCommand {
 		};
 	}
 
-	public runEditorCommand(accessor: ServicesAccessor, editor: editorCommon.ICommonCodeEditor, args: any): void | TPromise<void> {
+	public runEditorCommand(
+		accessor: ServicesAccessor,
+		editor: editorCommon.ICommonCodeEditor,
+		args: any
+	): void | TPromise<void> {
 		this.reportTelemetry(accessor, editor);
 		return this.run(accessor, editor, args || {});
 	}
 
-	protected reportTelemetry(accessor: ServicesAccessor, editor: editorCommon.ICommonCodeEditor) {
-		accessor.get(ITelemetryService).publicLog('editorActionInvoked', { name: this.label, id: this.id, ...editor.getTelemetryData() });
+	protected reportTelemetry(
+		accessor: ServicesAccessor,
+		editor: editorCommon.ICommonCodeEditor
+	) {
+		accessor.get(ITelemetryService).publicLog('editorActionInvoked', {
+			name: this.label,
+			id: this.id,
+			...editor.getTelemetryData()
+		});
 	}
 
-	public abstract run(accessor: ServicesAccessor, editor: editorCommon.ICommonCodeEditor, args: any): void | TPromise<void>;
+	public abstract run(
+		accessor: ServicesAccessor,
+		editor: editorCommon.ICommonCodeEditor,
+		args: any
+	): void | TPromise<void>;
 }
 
 // --- Registration of commands and actions
 
-export function editorAction(ctor: { new (): EditorAction; }): void {
+export function editorAction(ctor: { new (): EditorAction }): void {
 	CommonEditorRegistry.registerEditorAction(new ctor());
 }
 
@@ -210,17 +274,20 @@ export function editorCommand(ctor: { new (): EditorCommand }): void {
 	registerEditorCommand(new ctor());
 }
 
-export function registerEditorCommand<T extends EditorCommand>(editorCommand: T): T {
+export function registerEditorCommand<T extends EditorCommand>(
+	editorCommand: T
+): T {
 	CommonEditorRegistry.registerEditorCommand(editorCommand);
 	return editorCommand;
 }
 
-export function commonEditorContribution(ctor: ICommonEditorContributionCtor): void {
+export function commonEditorContribution(
+	ctor: ICommonEditorContributionCtor
+): void {
 	EditorContributionRegistry.INSTANCE.registerEditorContribution(ctor);
 }
 
-export module CommonEditorRegistry {
-
+export namespace CommonEditorRegistry {
 	// --- Editor Actions
 
 	export function registerEditorAction(editorAction: EditorAction) {
@@ -249,13 +316,24 @@ export module CommonEditorRegistry {
 		EditorContributionRegistry.INSTANCE.registerEditorCommand(editorCommand);
 	}
 
-	export function registerLanguageCommand(id: string, handler: (accessor: ServicesAccessor, args: { [n: string]: any }) => any) {
-		CommandsRegistry.registerCommand(id, (accessor, args) => handler(accessor, args || {}));
+	export function registerLanguageCommand(
+		id: string,
+		handler: (accessor: ServicesAccessor, args: { [n: string]: any }) => any
+	) {
+		CommandsRegistry.registerCommand(id, (accessor, args) =>
+			handler(accessor, args || {})
+		);
 	}
 
-	export function registerDefaultLanguageCommand(id: string, handler: (model: editorCommon.IModel, position: Position, args: { [n: string]: any }) => any) {
-		registerLanguageCommand(id, function (accessor, args) {
-
+	export function registerDefaultLanguageCommand(
+		id: string,
+		handler: (
+			model: editorCommon.IModel,
+			position: Position,
+			args: { [n: string]: any }
+		) => any
+	) {
+		registerLanguageCommand(id, function(accessor, args) {
 			const { resource, position } = args;
 			if (!(resource instanceof URI)) {
 				throw illegalArgument('resource');
@@ -282,12 +360,11 @@ const Extensions = {
 };
 
 class EditorContributionRegistry {
-
 	public static INSTANCE = new EditorContributionRegistry();
 
 	private editorContributions: ICommonEditorContributionCtor[];
 	private editorActions: EditorAction[];
-	private editorCommands: { [commandId: string]: EditorCommand; };
+	private editorCommands: { [commandId: string]: EditorCommand };
 
 	constructor() {
 		this.editorContributions = [];
@@ -300,13 +377,16 @@ class EditorContributionRegistry {
 	}
 
 	public registerEditorAction(action: EditorAction) {
-
 		let menuItem = action.toMenuItem();
 		if (menuItem) {
 			MenuRegistry.appendMenuItem(MenuId.EditorContext, menuItem);
 		}
 
-		KeybindingsRegistry.registerCommandAndKeybindingRule(action.toCommandAndKeybindingRule(KeybindingsRegistry.WEIGHT.editorContrib()));
+		KeybindingsRegistry.registerCommandAndKeybindingRule(
+			action.toCommandAndKeybindingRule(
+				KeybindingsRegistry.WEIGHT.editorContrib()
+			)
+		);
 
 		this.editorActions.push(action);
 	}
@@ -320,13 +400,19 @@ class EditorContributionRegistry {
 	}
 
 	public registerEditorCommand(editorCommand: EditorCommand) {
-		KeybindingsRegistry.registerCommandAndKeybindingRule(editorCommand.toCommandAndKeybindingRule(KeybindingsRegistry.WEIGHT.editorContrib()));
+		KeybindingsRegistry.registerCommandAndKeybindingRule(
+			editorCommand.toCommandAndKeybindingRule(
+				KeybindingsRegistry.WEIGHT.editorContrib()
+			)
+		);
 		this.editorCommands[editorCommand.id] = editorCommand;
 	}
 
 	public getEditorCommand(commandId: string): EditorCommand {
-		return (this.editorCommands[commandId] || null);
+		return this.editorCommands[commandId] || null;
 	}
-
 }
-Registry.add(Extensions.EditorCommonContributions, EditorContributionRegistry.INSTANCE);
+Registry.add(
+	Extensions.EditorCommonContributions,
+	EditorContributionRegistry.INSTANCE
+);

@@ -9,9 +9,12 @@ import { Protocol } from 'vs/base/parts/ipc/common/ipc.electron';
 import { ipcRenderer } from 'electron';
 
 export class Client extends IPCClient {
-
 	private static createProtocol(): Protocol {
-		const onMessage = fromEventEmitter<string>(ipcRenderer, 'ipc:message', (_, message) => message);
+		const onMessage = fromEventEmitter<string>(
+			ipcRenderer,
+			'ipc:message',
+			(_, message) => message
+		);
 		ipcRenderer.send('ipc:hello');
 		return new Protocol(ipcRenderer, onMessage);
 	}

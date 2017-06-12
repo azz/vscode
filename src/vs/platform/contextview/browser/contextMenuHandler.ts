@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./contextMenuHandler';
 import { $, Builder } from 'vs/base/browser/builder';
@@ -14,12 +14,14 @@ import { Menu } from 'vs/base/browser/ui/menu/menu';
 import { EventType } from 'vs/base/common/events';
 import Severity from 'vs/base/common/severity';
 
-import { IContextViewService, IContextMenuDelegate } from 'vs/platform/contextview/browser/contextView';
+import {
+	IContextViewService,
+	IContextMenuDelegate
+} from 'vs/platform/contextview/browser/contextView';
 import { ITelemetryService } from 'vs/platform/telemetry/common/telemetry';
 import { IMessageService } from 'vs/platform/message/common/message';
 
 export class ContextMenuHandler {
-
 	private contextViewService: IContextViewService;
 	private messageService: IMessageService;
 	private telemetryService: ITelemetryService;
@@ -29,7 +31,12 @@ export class ContextMenuHandler {
 	private menuContainerElement: HTMLElement;
 	private toDispose: IDisposable[];
 
-	constructor(element: HTMLElement, contextViewService: IContextViewService, telemetryService: ITelemetryService, messageService: IMessageService) {
+	constructor(
+		element: HTMLElement,
+		contextViewService: IContextViewService,
+		telemetryService: ITelemetryService,
+		messageService: IMessageService
+	) {
 		this.setContainer(element);
 
 		this.contextViewService = contextViewService;
@@ -42,29 +49,36 @@ export class ContextMenuHandler {
 
 		let hideViewOnRun = false;
 
-		this.toDispose.push(this.actionRunner.addListener(EventType.BEFORE_RUN, (e: any) => {
-			if (this.telemetryService) {
-				this.telemetryService.publicLog('workbenchActionExecuted', { id: e.action.id, from: 'contextMenu' });
-			}
+		this.toDispose.push(
+			this.actionRunner.addListener(EventType.BEFORE_RUN, (e: any) => {
+				if (this.telemetryService) {
+					this.telemetryService.publicLog('workbenchActionExecuted', {
+						id: e.action.id,
+						from: 'contextMenu'
+					});
+				}
 
-			hideViewOnRun = !!e.retainActionItem;
+				hideViewOnRun = !!e.retainActionItem;
 
-			if (!hideViewOnRun) {
-				this.contextViewService.hideContextView(false);
-			}
-		}));
+				if (!hideViewOnRun) {
+					this.contextViewService.hideContextView(false);
+				}
+			})
+		);
 
-		this.toDispose.push(this.actionRunner.addListener(EventType.RUN, (e: any) => {
-			if (hideViewOnRun) {
-				this.contextViewService.hideContextView(false);
-			}
+		this.toDispose.push(
+			this.actionRunner.addListener(EventType.RUN, (e: any) => {
+				if (hideViewOnRun) {
+					this.contextViewService.hideContextView(false);
+				}
 
-			hideViewOnRun = false;
+				hideViewOnRun = false;
 
-			if (e.error && this.messageService) {
-				this.messageService.show(Severity.Error, e.error);
-			}
-		}));
+				if (e.error && this.messageService) {
+					this.messageService.show(Severity.Error, e.error);
+				}
+			})
+		);
 	}
 
 	public setContainer(container: HTMLElement): void {
@@ -84,10 +98,12 @@ export class ContextMenuHandler {
 				getAnchor: () => delegate.getAnchor(),
 				canRelayout: false,
 
-				render: (container) => {
+				render: container => {
 					this.menuContainerElement = container;
 
-					let className = delegate.getMenuClassName ? delegate.getMenuClassName() : '';
+					let className = delegate.getMenuClassName
+						? delegate.getMenuClassName()
+						: '';
 
 					if (className) {
 						container.className += ' ' + className;
@@ -95,7 +111,9 @@ export class ContextMenuHandler {
 
 					let menu = new Menu(container, actions, {
 						actionItemProvider: delegate.getActionItem,
-						context: delegate.getActionsContext ? delegate.getActionsContext() : null,
+						context: delegate.getActionsContext
+							? delegate.getActionsContext()
+							: null,
 						actionRunner: this.actionRunner
 					});
 

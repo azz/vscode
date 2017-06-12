@@ -8,7 +8,6 @@ import { TPromise } from 'vs/base/common/winjs.base';
 import { canceled } from 'vs/base/common/errors';
 
 export abstract class V8Protocol {
-
 	private static TWO_CRLF = '\r\n\r\n';
 
 	private outputStream: stream.Writable;
@@ -20,7 +19,10 @@ export abstract class V8Protocol {
 	constructor(private id: string) {
 		this.sequence = 1;
 		this.contentLength = -1;
-		this.pendingRequests = new Map<number, (e: DebugProtocol.Response) => void>();
+		this.pendingRequests = new Map<
+			number,
+			(e: DebugProtocol.Response) => void
+		>();
 		this.rawData = new Buffer(0);
 	}
 
@@ -30,10 +32,15 @@ export abstract class V8Protocol {
 
 	protected abstract onServerError(err: Error): void;
 	protected abstract onEvent(event: DebugProtocol.Event): void;
-	protected abstract dispatchRequest(request: DebugProtocol.Request, response: DebugProtocol.Response);
+	protected abstract dispatchRequest(
+		request: DebugProtocol.Request,
+		response: DebugProtocol.Response
+	);
 
-	protected connect(readable: stream.Readable, writable: stream.Writable): void {
-
+	protected connect(
+		readable: stream.Readable,
+		writable: stream.Writable
+	): void {
 		this.outputStream = writable;
 
 		readable.on('data', (data: Buffer) => {
@@ -42,30 +49,41 @@ export abstract class V8Protocol {
 		});
 	}
 
-	protected send<R extends DebugProtocol.Response>(command: string, args: any): TPromise<R> {
+	protected send<R extends DebugProtocol.Response>(
+		command: string,
+		args: any
+	): TPromise<R> {
 		let errorCallback;
-		return new TPromise<R>((completeDispatch, errorDispatch) => {
-			errorCallback = errorDispatch;
-			this.doSend(command, args, (result: R) => {
-				if (result.success) {
-					completeDispatch(result);
-				} else {
-					errorDispatch(result);
-				}
-			});
-		}, () => errorCallback(canceled()));
+		return new TPromise<R>(
+			(completeDispatch, errorDispatch) => {
+				errorCallback = errorDispatch;
+				this.doSend(command, args, (result: R) => {
+					if (result.success) {
+						completeDispatch(result);
+					} else {
+						errorDispatch(result);
+					}
+				});
+			},
+			() => errorCallback(canceled())
+		);
 	}
 
 	public sendResponse(response: DebugProtocol.Response): void {
 		if (response.seq > 0) {
-			console.error(`attempt to send more than one response for command ${response.command}`);
+			console.error(
+				`attempt to send more than one response for command ${response.command}`
+			);
 		} else {
 			this.sendMessage('response', response);
 		}
 	}
 
-	private doSend(command: string, args: any, clb: (result: DebugProtocol.Response) => void): void {
-
+	private doSend(
+		command: string,
+		args: any,
+		clb: (result: DebugProtocol.Response) => void
+	): void {
 		const request: any = {
 			command: command
 		};
@@ -81,15 +99,20 @@ export abstract class V8Protocol {
 		}
 	}
 
-	private sendMessage(typ: 'request' | 'response' | 'event', message: DebugProtocol.ProtocolMessage): void {
-
+	private sendMessage(
+		typ: 'request' | 'response' | 'event',
+		message: DebugProtocol.ProtocolMessage
+	): void {
 		message.type = typ;
 		message.seq = this.sequence++;
 
 		const json = JSON.stringify(message);
 		const length = Buffer.byteLength(json, 'utf8');
 
-		this.outputStream.write('Content-Length: ' + length.toString() + V8Protocol.TWO_CRLF, 'utf8');
+		this.outputStream.write(
+			'Content-Length: ' + length.toString() + V8Protocol.TWO_CRLF,
+			'utf8'
+		);
 		this.outputStream.write(json, 'utf8');
 	}
 
@@ -103,7 +126,7 @@ export abstract class V8Protocol {
 					if (message.length > 0) {
 						this.dispatch(message);
 					}
-					continue;	// there may be more complete messages to process
+					continue; // there may be more complete messages to process
 				}
 			} else {
 				const s = this.rawData.toString('utf8', 0, this.rawData.length);
@@ -113,7 +136,7 @@ export abstract class V8Protocol {
 					if (match && match[1]) {
 						this.contentLength = Number(match[1]);
 						this.rawData = this.rawData.slice(idx + V8Protocol.TWO_CRLF.length);
-						continue;	// try to handle a complete message
+						continue; // try to handle a complete message
 					}
 				}
 			}

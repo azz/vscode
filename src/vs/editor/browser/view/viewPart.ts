@@ -2,15 +2,17 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { ViewEventHandler } from 'vs/editor/common/viewModel/viewEventHandler';
 import { ViewContext } from 'vs/editor/common/view/viewContext';
-import { RenderingContext, RestrictedRenderingContext } from 'vs/editor/common/view/renderingContext';
+import {
+	RenderingContext,
+	RestrictedRenderingContext
+} from 'vs/editor/common/view/renderingContext';
 import { FastDomNode } from 'vs/base/browser/fastDomNode';
 
 export abstract class ViewPart extends ViewEventHandler {
-
 	_context: ViewContext;
 
 	constructor(context: ViewContext) {
@@ -42,8 +44,10 @@ export const enum PartFingerprint {
 }
 
 export class PartFingerprints {
-
-	public static write(target: Element | FastDomNode<HTMLElement>, partId: PartFingerprint) {
+	public static write(
+		target: Element | FastDomNode<HTMLElement>,
+		partId: PartFingerprint
+	) {
 		if (target instanceof FastDomNode) {
 			target.setAttribute('data-mprt', String(partId));
 		} else {
@@ -60,7 +64,8 @@ export class PartFingerprints {
 	}
 
 	public static collect(child: Element, stopAt: Element): Uint8Array {
-		let result: PartFingerprint[] = [], resultLen = 0;
+		let result: PartFingerprint[] = [],
+			resultLen = 0;
 
 		while (child && child !== document.body) {
 			if (child === stopAt) {

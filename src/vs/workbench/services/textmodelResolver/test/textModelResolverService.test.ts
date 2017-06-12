@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { IModel } from 'vs/editor/common/editorCommon';
@@ -12,7 +12,10 @@ import URI from 'vs/base/common/uri';
 import { ResourceEditorInput } from 'vs/workbench/common/editor/resourceEditorInput';
 import { ResourceEditorModel } from 'vs/workbench/common/editor/resourceEditorModel';
 import { IInstantiationService } from 'vs/platform/instantiation/common/instantiation';
-import { workbenchInstantiationService, TestTextFileService } from 'vs/workbench/test/workbenchTestServices';
+import {
+	workbenchInstantiationService,
+	TestTextFileService
+} from 'vs/workbench/test/workbenchTestServices';
 import { toResource } from 'vs/base/test/common/utils';
 import { ITextModelResolverService } from 'vs/editor/common/services/resolverService';
 import { IModelService } from 'vs/editor/common/services/modelService';
@@ -25,17 +28,16 @@ import { once } from 'vs/base/common/event';
 
 class ServiceAccessor {
 	constructor(
-		@ITextModelResolverService public textModelResolverService: ITextModelResolverService,
+		@ITextModelResolverService
+		public textModelResolverService: ITextModelResolverService,
 		@IModelService public modelService: IModelService,
 		@IModeService public modeService: IModeService,
 		@ITextFileService public textFileService: TestTextFileService,
 		@IUntitledEditorService public untitledEditorService: IUntitledEditorService
-	) {
-	}
+	) {}
 }
 
 suite('Workbench - TextModelResolverService', () => {
-
 	let instantiationService: IInstantiationService;
 	let accessor: ServiceAccessor;
 	let model: TextFileEditorModel;
@@ -55,21 +57,35 @@ suite('Workbench - TextModelResolverService', () => {
 		accessor.untitledEditorService.revertAll();
 	});
 
-	test('resolve resource', function (done) {
-		const dispose = accessor.textModelResolverService.registerTextModelContentProvider('test', {
-			provideTextContent: function (resource: URI): TPromise<IModel> {
-				if (resource.scheme === 'test') {
-					let modelContent = 'Hello Test';
-					let mode = accessor.modeService.getOrCreateMode('json');
-					return TPromise.as(accessor.modelService.createModel(modelContent, mode, resource));
+	test('resolve resource', function(done) {
+		const dispose = accessor.textModelResolverService.registerTextModelContentProvider(
+			'test',
+			{
+				provideTextContent: function(resource: URI): TPromise<IModel> {
+					if (resource.scheme === 'test') {
+						let modelContent = 'Hello Test';
+						let mode = accessor.modeService.getOrCreateMode('json');
+						return TPromise.as(
+							accessor.modelService.createModel(modelContent, mode, resource)
+						);
+					}
+
+					return TPromise.as(null);
 				}
-
-				return TPromise.as(null);
 			}
-		});
+		);
 
-		let resource = URI.from({ scheme: 'test', authority: null, path: 'thePath' });
-		let input: ResourceEditorInput = instantiationService.createInstance(ResourceEditorInput, 'The Name', 'The Description', resource);
+		let resource = URI.from({
+			scheme: 'test',
+			authority: null,
+			path: 'thePath'
+		});
+		let input: ResourceEditorInput = instantiationService.createInstance(
+			ResourceEditorInput,
+			'The Name',
+			'The Description',
+			resource
+		);
 
 		input.resolve().then((model: ResourceEditorModel) => {
 			assert.ok(model);
@@ -88,64 +104,86 @@ suite('Workbench - TextModelResolverService', () => {
 		});
 	});
 
-	test('resolve file', function () {
-		model = instantiationService.createInstance(TextFileEditorModel, toResource.call(this, '/path/file_resolver.txt'), 'utf8');
-		(<TextFileEditorModelManager>accessor.textFileService.models).add(model.getResource(), model);
+	test('resolve file', function() {
+		model = instantiationService.createInstance(
+			TextFileEditorModel,
+			toResource.call(this, '/path/file_resolver.txt'),
+			'utf8'
+		);
+		(<TextFileEditorModelManager>accessor.textFileService.models).add(
+			model.getResource(),
+			model
+		);
 
 		return model.load().then(() => {
-			return accessor.textModelResolverService.createModelReference(model.getResource()).then(ref => {
-				const model = ref.object;
-				const editorModel = model.textEditorModel;
+			return accessor.textModelResolverService
+				.createModelReference(model.getResource())
+				.then(ref => {
+					const model = ref.object;
+					const editorModel = model.textEditorModel;
 
-				assert.ok(editorModel);
-				assert.equal(editorModel.getValue(), 'Hello Html');
+					assert.ok(editorModel);
+					assert.equal(editorModel.getValue(), 'Hello Html');
 
-				let disposed = false;
-				once(model.onDispose)(() => {
-					disposed = true;
+					let disposed = false;
+					once(model.onDispose)(() => {
+						disposed = true;
+					});
+
+					ref.dispose();
+					assert.equal(disposed, true);
 				});
-
-				ref.dispose();
-				assert.equal(disposed, true);
-			});
 		});
 	});
 
-	test('resolve untitled', function () {
+	test('resolve untitled', function() {
 		const service = accessor.untitledEditorService;
 		const input = service.createOrGet();
 
 		return input.resolve().then(() => {
-			return accessor.textModelResolverService.createModelReference(input.getResource()).then(ref => {
-				const model = ref.object;
-				const editorModel = model.textEditorModel;
+			return accessor.textModelResolverService
+				.createModelReference(input.getResource())
+				.then(ref => {
+					const model = ref.object;
+					const editorModel = model.textEditorModel;
 
-				assert.ok(editorModel);
-				ref.dispose();
+					assert.ok(editorModel);
+					ref.dispose();
 
-				input.dispose();
-			});
+					input.dispose();
+				});
 		});
 	});
 
 	test('even loading documents should be refcounted', async () => {
 		let resolveModel: Function;
-		let waitForIt = new TPromise(c => resolveModel = c);
+		let waitForIt = new TPromise(c => (resolveModel = c));
 
-		const disposable = accessor.textModelResolverService.registerTextModelContentProvider('test', {
-			provideTextContent: async (resource: URI): TPromise<IModel> => {
-				await waitForIt;
+		const disposable = accessor.textModelResolverService.registerTextModelContentProvider(
+			'test',
+			{
+				provideTextContent: async (resource: URI): TPromise<IModel> => {
+					await waitForIt;
 
-				let modelContent = 'Hello Test';
-				let mode = accessor.modeService.getOrCreateMode('json');
-				return accessor.modelService.createModel(modelContent, mode, resource);
+					let modelContent = 'Hello Test';
+					let mode = accessor.modeService.getOrCreateMode('json');
+					return accessor.modelService.createModel(
+						modelContent,
+						mode,
+						resource
+					);
+				}
 			}
-		});
+		);
 
 		const uri = URI.from({ scheme: 'test', authority: null, path: 'thePath' });
 
-		const modelRefPromise1 = accessor.textModelResolverService.createModelReference(uri);
-		const modelRefPromise2 = accessor.textModelResolverService.createModelReference(uri);
+		const modelRefPromise1 = accessor.textModelResolverService.createModelReference(
+			uri
+		);
+		const modelRefPromise2 = accessor.textModelResolverService.createModelReference(
+			uri
+		);
 
 		resolveModel();
 
@@ -159,7 +197,10 @@ suite('Workbench - TextModelResolverService', () => {
 		assert(!textModel.isDisposed(), 'the text model should not be disposed');
 
 		modelRef1.dispose();
-		assert(!textModel.isDisposed(), 'the text model should still not be disposed');
+		assert(
+			!textModel.isDisposed(),
+			'the text model should still not be disposed'
+		);
 
 		modelRef2.dispose();
 		assert(textModel.isDisposed(), 'the text model should finally be disposed');

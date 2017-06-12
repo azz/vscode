@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import 'vs/workbench/browser/parts/editor/editor.contribution'; // make sure to load all contributed editor things into tests
@@ -11,7 +11,12 @@ import { Promise, TPromise } from 'vs/base/common/winjs.base';
 import Event from 'vs/base/common/event';
 import { IQuickOpenService } from 'vs/platform/quickOpen/common/quickOpen';
 import { Registry } from 'vs/platform/platform';
-import { QuickOpenHandlerDescriptor, IQuickOpenRegistry, Extensions as QuickOpenExtensions, QuickOpenAction } from 'vs/workbench/browser/quickopen';
+import {
+	QuickOpenHandlerDescriptor,
+	IQuickOpenRegistry,
+	Extensions as QuickOpenExtensions,
+	QuickOpenAction
+} from 'vs/workbench/browser/quickopen';
 
 export class TestQuickOpenService implements IQuickOpenService {
 	public _serviceBrand: any;
@@ -30,14 +35,11 @@ export class TestQuickOpenService implements IQuickOpenService {
 		return TPromise.as(null);
 	}
 
-	accept(): void {
-	}
+	accept(): void {}
 
-	focus(): void {
-	}
+	focus(): void {}
 
-	close(): void {
-	}
+	close(): void {}
 
 	show(prefix?: string, options?: any): Promise {
 		if (this.callback) {
@@ -55,14 +57,15 @@ export class TestQuickOpenService implements IQuickOpenService {
 		return null;
 	}
 
-	public dispose() { }
-	public navigate(): void { }
+	public dispose() {}
+	public navigate(): void {}
 }
 
 suite('Workbench QuickOpen', () => {
-
 	test('QuickOpen Handler and Registry', () => {
-		let registry = (<IQuickOpenRegistry>Registry.as(QuickOpenExtensions.Quickopen));
+		let registry = <IQuickOpenRegistry>Registry.as(
+			QuickOpenExtensions.Quickopen
+		);
 		let handler = new QuickOpenHandlerDescriptor(
 			'test',
 			'TestHandler',
@@ -75,12 +78,26 @@ suite('Workbench QuickOpen', () => {
 		assert(registry.getQuickOpenHandler(',') === handler);
 
 		let handlers = registry.getQuickOpenHandlers();
-		assert(handlers.some((handler: QuickOpenHandlerDescriptor) => handler.prefix === ','));
+		assert(
+			handlers.some(
+				(handler: QuickOpenHandlerDescriptor) => handler.prefix === ','
+			)
+		);
 	});
 
 	test('QuickOpen Action', () => {
-		let defaultAction = new QuickOpenAction('id', 'label', void 0, new TestQuickOpenService((prefix: string) => assert(!prefix)));
-		let prefixAction = new QuickOpenAction('id', 'label', ',', new TestQuickOpenService((prefix: string) => assert(!!prefix)));
+		let defaultAction = new QuickOpenAction(
+			'id',
+			'label',
+			void 0,
+			new TestQuickOpenService((prefix: string) => assert(!prefix))
+		);
+		let prefixAction = new QuickOpenAction(
+			'id',
+			'label',
+			',',
+			new TestQuickOpenService((prefix: string) => assert(!!prefix))
+		);
 
 		defaultAction.run();
 		prefixAction.run();

@@ -19,7 +19,6 @@ export namespace Touch {
 export type Touch = 0 | 1 | 2;
 
 export class LinkedMap<K, V> {
-
 	private _map: Map<K, Item<K, V>>;
 	private _head: Item<K, V> | undefined;
 	private _tail: Item<K, V> | undefined;
@@ -112,7 +111,10 @@ export class LinkedMap<K, V> {
 		return item.value;
 	}
 
-	public forEach(callbackfn: (value: V, key: K, map: LinkedMap<K, V>) => void, thisArg?: any): void {
+	public forEach(
+		callbackfn: (value: V, key: K, map: LinkedMap<K, V>) => void,
+		thisArg?: any
+	): void {
 		let current = this._head;
 		while (current) {
 			if (thisArg) {
@@ -124,7 +126,10 @@ export class LinkedMap<K, V> {
 		}
 	}
 
-	public forEachReverse(callbackfn: (value: V, key: K, map: LinkedMap<K, V>) => void, thisArg?: any): void {
+	public forEachReverse(
+		callbackfn: (value: V, key: K, map: LinkedMap<K, V>) => void,
+		thisArg?: any
+	): void {
 		let current = this._tail;
 		while (current) {
 			if (thisArg) {
@@ -226,14 +231,11 @@ export class LinkedMap<K, V> {
 		if (item === this._head && item === this._tail) {
 			this._head = undefined;
 			this._tail = undefined;
-		}
-		else if (item === this._head) {
+		} else if (item === this._head) {
 			this._head = item.next;
-		}
-		else if (item === this._tail) {
+		} else if (item === this._tail) {
 			this._tail = item.previous;
-		}
-		else {
+		} else {
 			const next = item.next;
 			const previous = item.previous;
 			if (!next || !previous) {
@@ -248,7 +250,7 @@ export class LinkedMap<K, V> {
 		if (!this._head || !this._tail) {
 			throw new Error('Invalid list');
 		}
-		if ((touch !== Touch.First && touch !== Touch.Last)) {
+		if (touch !== Touch.First && touch !== Touch.Last) {
 			return;
 		}
 
@@ -266,8 +268,7 @@ export class LinkedMap<K, V> {
 				// So there are more than on item in the map
 				previous!.next = undefined;
 				this._tail = previous;
-			}
-			else {
+			} else {
 				// Both next and previous are not undefined since item was neither head nor tail.
 				next!.previous = previous;
 				previous!.next = next;

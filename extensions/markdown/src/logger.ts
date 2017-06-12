@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { OutputChannel, window, workspace } from 'vscode';
 
@@ -26,7 +26,6 @@ namespace Trace {
 	}
 }
 
-
 function isString(value: any): value is string {
 	return Object.prototype.toString.call(value) === '[object String]';
 }
@@ -41,7 +40,9 @@ export class Logger {
 
 	public log(message: string, data?: any): void {
 		if (this.trace === Trace.Verbose) {
-			this.output.appendLine(`[Log - ${(new Date().toLocaleTimeString())}] ${message}`);
+			this.output.appendLine(
+				`[Log - ${new Date().toLocaleTimeString()}] ${message}`
+			);
 			if (data) {
 				this.output.appendLine(this.data2String(data));
 			}
@@ -60,7 +61,9 @@ export class Logger {
 	}
 
 	private readTrace(): Trace {
-		return Trace.fromString(workspace.getConfiguration().get<string>('markdown.trace', 'off'));
+		return Trace.fromString(
+			workspace.getConfiguration().get<string>('markdown.trace', 'off')
+		);
 	}
 
 	private data2String(data: any): string {

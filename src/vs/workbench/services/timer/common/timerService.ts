@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
 
@@ -36,7 +36,7 @@ export interface IStartupMetrics {
 	totalmem: number;
 	freemem: number;
 	meminfo: IMemoryInfo;
-	cpus: { count: number; speed: number; model: string; };
+	cpus: { count: number; speed: number; model: string };
 	initialStartup: boolean;
 	hasAccessibilitySupport: boolean;
 	isVMLikelyhood: number;

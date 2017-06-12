@@ -2,13 +2,12 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import * as words from '../utils/strings';
 
 suite('Words', () => {
-
 	let wordRegex = /(-?\d*\.\d\w*)|([^\`\~\!\@\#\%\^\&\*\(\)\-\=\+\[\{\]\}\\\|\;\:\'\"\,\.\<\>\/\?\s]+)/g;
 
 	function assertWord(value: string, expected: string): void {
@@ -21,8 +20,7 @@ suite('Words', () => {
 		assert.equal(value.substr(actualRange.start, actualRange.length), expected);
 	}
 
-
-	test('Basic', function (): any {
+	test('Basic', function(): any {
 		assertWord('|var x1 = new F<A>(a, b);', 'var');
 		assertWord('v|ar x1 = new F<A>(a, b);', 'var');
 		assertWord('var| x1 = new F<A>(a, b);', 'var');
@@ -37,10 +35,9 @@ suite('Words', () => {
 		assertWord('var x1 = |  new F<A>(a, b)|;|', '');
 	});
 
-	test('Multiline', function (): any {
+	test('Multiline', function(): any {
 		assertWord('console.log("hello");\n|var x1 = new F<A>(a, b);', 'var');
 		assertWord('console.log("hello");\n|\nvar x1 = new F<A>(a, b);', '');
 		assertWord('console.log("hello");\n\r |var x1 = new F<A>(a, b);', 'var');
 	});
-
 });

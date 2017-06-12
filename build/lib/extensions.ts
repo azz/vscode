@@ -23,7 +23,7 @@ function error(err: any): Stream {
 
 const baseHeaders = {
 	'X-Market-Client-Id': 'VSCode Build',
-	'User-Agent': 'VSCode Build',
+	'User-Agent': 'VSCode Build'
 };
 
 export function src(extensionName: string, version: string): Stream {
@@ -41,7 +41,7 @@ export function src(extensionName: string, version: string): Stream {
 	const body = JSON.stringify({ filters, assetTypes, flags });
 	const headers: any = assign({}, baseHeaders, {
 		'Content-Type': 'application/json',
-		'Accept': 'application/json;api-version=3.0-preview.1',
+		Accept: 'application/json;api-version=3.0-preview.1',
 		'Content-Length': body.length
 	});
 
@@ -55,8 +55,8 @@ export function src(extensionName: string, version: string): Stream {
 		}
 	};
 
-	return remote('/extensionquery', options)
-		.pipe(flatmap((stream, f) => {
+	return remote('/extensionquery', options).pipe(
+		flatmap((stream, f) => {
 			const rawResult = f.contents.toString('utf8');
 			const result = JSON.parse(rawResult);
 			const extension = result.results[0].extensions[0];
@@ -70,17 +70,29 @@ export function src(extensionName: string, version: string): Stream {
 				publisherDisplayName: extension.publisher.displayName
 			};
 
-			const extensionVersion = extension.versions.filter(v => v.version === version)[0];
+			const extensionVersion = extension.versions.filter(
+				v => v.version === version
+			)[0];
 			if (!extensionVersion) {
-				return error(`No such extension version: ${extensionName} @ ${version}`);
+				return error(
+					`No such extension version: ${extensionName} @ ${version}`
+				);
 			}
 
-			const asset = extensionVersion.files.filter(f => f.assetType === 'Microsoft.VisualStudio.Services.VSIXPackage')[0];
+			const asset = extensionVersion.files.filter(
+				f => f.assetType === 'Microsoft.VisualStudio.Services.VSIXPackage'
+			)[0];
 			if (!asset) {
-				return error(`No VSIX found for extension version: ${extensionName} @ ${version}`);
+				return error(
+					`No VSIX found for extension version: ${extensionName} @ ${version}`
+				);
 			}
 
-			util.log('Downloading extension:', util.colors.yellow(`${extensionName}@${version}`), '...');
+			util.log(
+				'Downloading extension:',
+				util.colors.yellow(`${extensionName}@${version}`),
+				'...'
+			);
 
 			const options = {
 				base: asset.source,
@@ -90,18 +102,22 @@ export function src(extensionName: string, version: string): Stream {
 				}
 			};
 
-			return remote('', options)
-				.pipe(flatmap(stream => {
+			return remote('', options).pipe(
+				flatmap(stream => {
 					const packageJsonFilter = filter('package.json', { restore: true });
 
 					return stream
 						.pipe(vzip.src())
 						.pipe(filter('extension/**'))
-						.pipe(rename(p => p.dirname = p.dirname.replace(/^extension\/?/, '')))
+						.pipe(
+							rename(p => (p.dirname = p.dirname.replace(/^extension\/?/, '')))
+						)
 						.pipe(packageJsonFilter)
 						.pipe(buffer())
 						.pipe(json({ __metadata: metadata }))
 						.pipe(packageJsonFilter.restore);
-				}));
-		}));
+				})
+			);
+		})
+	);
 }

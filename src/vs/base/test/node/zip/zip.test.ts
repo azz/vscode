@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import * as path from 'path';
@@ -16,7 +16,6 @@ import { rimraf, exists } from 'vs/base/node/pfs';
 const fixtures = URI.parse(require.toUrl('./fixtures')).fsPath;
 
 suite('Zip', () => {
-
 	test('extract should handle directories', () => {
 		const fixture = path.join(fixtures, 'extract.zip');
 		const target = path.join(os.tmpdir(), generateUuid());

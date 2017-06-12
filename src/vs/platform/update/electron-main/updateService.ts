@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as fs from 'original-fs';
 import * as path from 'path';
@@ -20,11 +20,16 @@ import { ILifecycleService } from 'vs/platform/lifecycle/electron-main/lifecycle
 import { IRequestService } from 'vs/platform/request/node/request';
 import product from 'vs/platform/node/product';
 import { TPromise } from 'vs/base/common/winjs.base';
-import { IUpdateService, State, IAutoUpdater, IUpdate, IRawUpdate } from 'vs/platform/update/common/update';
+import {
+	IUpdateService,
+	State,
+	IAutoUpdater,
+	IUpdate,
+	IRawUpdate
+} from 'vs/platform/update/common/update';
 import { ITelemetryService } from 'vs/platform/telemetry/common/telemetry';
 
 export class UpdateService implements IUpdateService {
-
 	_serviceBrand: any;
 
 	private _state: State = State.Uninitialized;
@@ -33,22 +38,34 @@ export class UpdateService implements IUpdateService {
 	private throttler: Throttler = new Throttler();
 
 	private _onError = new Emitter<any>();
-	get onError(): Event<any> { return this._onError.event; }
+	get onError(): Event<any> {
+		return this._onError.event;
+	}
 
 	private _onCheckForUpdate = new Emitter<void>();
-	get onCheckForUpdate(): Event<void> { return this._onCheckForUpdate.event; }
+	get onCheckForUpdate(): Event<void> {
+		return this._onCheckForUpdate.event;
+	}
 
-	private _onUpdateAvailable = new Emitter<{ url: string; version: string; }>();
-	get onUpdateAvailable(): Event<{ url: string; version: string; }> { return this._onUpdateAvailable.event; }
+	private _onUpdateAvailable = new Emitter<{ url: string; version: string }>();
+	get onUpdateAvailable(): Event<{ url: string; version: string }> {
+		return this._onUpdateAvailable.event;
+	}
 
 	private _onUpdateNotAvailable = new Emitter<boolean>();
-	get onUpdateNotAvailable(): Event<boolean> { return this._onUpdateNotAvailable.event; }
+	get onUpdateNotAvailable(): Event<boolean> {
+		return this._onUpdateNotAvailable.event;
+	}
 
 	private _onUpdateReady = new Emitter<IRawUpdate>();
-	get onUpdateReady(): Event<IRawUpdate> { return this._onUpdateReady.event; }
+	get onUpdateReady(): Event<IRawUpdate> {
+		return this._onUpdateReady.event;
+	}
 
 	private _onStateChange = new Emitter<State>();
-	get onStateChange(): Event<State> { return this._onStateChange.event; }
+	get onStateChange(): Event<State> {
+		return this._onStateChange.event;
+	}
 
 	@memoize
 	private get onRawError(): Event<string> {
@@ -61,13 +78,23 @@ export class UpdateService implements IUpdateService {
 	}
 
 	@memoize
-	private get onRawUpdateAvailable(): Event<{ url: string; version: string; }> {
-		return filterEvent(fromEventEmitter(this.raw, 'update-available', (_, url, version) => ({ url, version })), ({ url }) => !!url);
+	private get onRawUpdateAvailable(): Event<{ url: string; version: string }> {
+		return filterEvent(
+			fromEventEmitter(this.raw, 'update-available', (_, url, version) => ({
+				url,
+				version
+			})),
+			({ url }) => !!url
+		);
 	}
 
 	@memoize
 	private get onRawUpdateDownloaded(): Event<IRawUpdate> {
-		return fromEventEmitter(this.raw, 'update-downloaded', (_, releaseNotes, version, date, url) => ({ releaseNotes, version, date }));
+		return fromEventEmitter(
+			this.raw,
+			'update-downloaded',
+			(_, releaseNotes, version, date, url) => ({ releaseNotes, version, date })
+		);
 	}
 
 	get state(): State {
@@ -115,8 +142,9 @@ export class UpdateService implements IUpdateService {
 		this.state = State.Idle;
 
 		// Start checking for updates after 30 seconds
-		this.scheduleCheckForUpdates(30 * 1000)
-			.done(null, err => console.error(err));
+		this.scheduleCheckForUpdates(30 * 1000).done(null, err =>
+			console.error(err)
+		);
 	}
 
 	private scheduleCheckForUpdates(delay = 60 * 60 * 1000): TPromise<void> {
@@ -134,7 +162,8 @@ export class UpdateService implements IUpdateService {
 	}
 
 	checkForUpdates(explicit = false): TPromise<IUpdate> {
-		return this.throttler.queue(() => this._checkForUpdates(explicit))
+		return this.throttler
+			.queue(() => this._checkForUpdates(explicit))
 			.then(null, err => {
 				if (explicit) {
 					this._onError.fire(err);
@@ -156,53 +185,73 @@ export class UpdateService implements IUpdateService {
 		const result = new TPromise<IUpdate>((c, e) => {
 			once(this.onRawError)(e, null, listeners);
 			once(this.onRawUpdateNotAvailable)(() => c(null), null, listeners);
-			once(this.onRawUpdateAvailable)(({ url, version }) => url && c({ url, version }), null, listeners);
-			once(this.onRawUpdateDownloaded)(({ version, date, releaseNotes }) => c({ version, date, releaseNotes }), null, listeners);
+			once(this.onRawUpdateAvailable)(
+				({ url, version }) => url && c({ url, version }),
+				null,
+				listeners
+			);
+			once(this.onRawUpdateDownloaded)(
+				({ version, date, releaseNotes }) => c({ version, date, releaseNotes }),
+				null,
+				listeners
+			);
 
 			this.raw.checkForUpdates();
-		}).then(update => {
-			if (!update) {
-				this._onUpdateNotAvailable.fire(explicit);
+		}).then(
+			update => {
+				if (!update) {
+					this._onUpdateNotAvailable.fire(explicit);
+					this.state = State.Idle;
+					this.telemetryService.publicLog('update:notAvailable', { explicit });
+				} else if (update.url) {
+					const data: IUpdate = {
+						url: update.url,
+						releaseNotes: '',
+						version: update.version,
+						date: new Date()
+					};
+
+					this._availableUpdate = data;
+					this._onUpdateAvailable.fire({
+						url: update.url,
+						version: update.version
+					});
+					this.state = State.UpdateAvailable;
+					this.telemetryService.publicLog('update:available', {
+						explicit,
+						version: update.version,
+						currentVersion: product.commit
+					});
+				} else {
+					const data: IRawUpdate = {
+						releaseNotes: update.releaseNotes,
+						version: update.version,
+						date: update.date
+					};
+
+					this._availableUpdate = data;
+					this._onUpdateReady.fire(data);
+					this.state = State.UpdateDownloaded;
+					this.telemetryService.publicLog('update:downloaded', {
+						version: update.version
+					});
+				}
+
+				return update;
+			},
+			err => {
 				this.state = State.Idle;
-				this.telemetryService.publicLog('update:notAvailable', { explicit });
-
-			} else if (update.url) {
-				const data: IUpdate = {
-					url: update.url,
-					releaseNotes: '',
-					version: update.version,
-					date: new Date()
-				};
-
-				this._availableUpdate = data;
-				this._onUpdateAvailable.fire({ url: update.url, version: update.version });
-				this.state = State.UpdateAvailable;
-				this.telemetryService.publicLog('update:available', { explicit, version: update.version, currentVersion: product.commit });
-
-			} else {
-				const data: IRawUpdate = {
-					releaseNotes: update.releaseNotes,
-					version: update.version,
-					date: update.date
-				};
-
-				this._availableUpdate = data;
-				this._onUpdateReady.fire(data);
-				this.state = State.UpdateDownloaded;
-				this.telemetryService.publicLog('update:downloaded', { version: update.version });
+				return TPromise.wrapError<IUpdate>(err);
 			}
-
-			return update;
-		}, err => {
-			this.state = State.Idle;
-			return TPromise.wrapError<IUpdate>(err);
-		});
+		);
 
 		return always(result, () => dispose(listeners));
 	}
 
 	private getUpdateChannel(): string {
-		const config = this.configurationService.getConfiguration<{ channel: string; }>('update');
+		const config = this.configurationService.getConfiguration<{
+			channel: string;
+		}>('update');
 		const channel = config && config.channel;
 
 		return channel === 'none' ? null : product.quality;
@@ -213,7 +262,10 @@ export class UpdateService implements IUpdateService {
 			return null;
 		}
 
-		if (process.platform === 'win32' && !fs.existsSync(path.join(path.dirname(process.execPath), 'unins000.exe'))) {
+		if (
+			process.platform === 'win32' &&
+			!fs.existsSync(path.join(path.dirname(process.execPath), 'unins000.exe'))
+		) {
 			return null;
 		}
 
@@ -221,7 +273,9 @@ export class UpdateService implements IUpdateService {
 			return null;
 		}
 
-		const platform = process.platform === 'linux' ? `linux-${process.arch}` : process.platform;
+		const platform = process.platform === 'linux'
+			? `linux-${process.arch}`
+			: process.platform;
 
 		return `${product.updateUrl}/api/update/${platform}/${channel}/${product.commit}`;
 	}

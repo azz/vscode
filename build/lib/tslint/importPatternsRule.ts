@@ -14,13 +14,13 @@ interface ImportPatternsConfig {
 
 export class Rule extends Lint.Rules.AbstractRule {
 	public apply(sourceFile: ts.SourceFile): Lint.RuleFailure[] {
-
 		const configs = <ImportPatternsConfig[]>this.getOptions().ruleArguments;
-
 
 		for (const config of configs) {
 			if (minimatch(sourceFile.fileName, config.target)) {
-				return this.applyWithWalker(new ImportPatterns(sourceFile, this.getOptions(), config));
+				return this.applyWithWalker(
+					new ImportPatterns(sourceFile, this.getOptions(), config)
+				);
 			}
 		}
 
@@ -29,8 +29,11 @@ export class Rule extends Lint.Rules.AbstractRule {
 }
 
 class ImportPatterns extends Lint.RuleWalker {
-
-	constructor(file: ts.SourceFile, opts: Lint.IOptions, private _config: ImportPatternsConfig) {
+	constructor(
+		file: ts.SourceFile,
+		opts: Lint.IOptions,
+		private _config: ImportPatternsConfig
+	) {
 		super(file, opts);
 	}
 
@@ -46,7 +49,13 @@ class ImportPatterns extends Lint.RuleWalker {
 		}
 
 		if (!minimatch(path, this._config.restrictions)) {
-			this.addFailure(this.createFailure(node.getStart(), node.getWidth(), `Imports violates '${this._config.restrictions}'-restriction.`));
+			this.addFailure(
+				this.createFailure(
+					node.getStart(),
+					node.getWidth(),
+					`Imports violates '${this._config.restrictions}'-restriction.`
+				)
+			);
 		}
 	}
 }

@@ -4,7 +4,6 @@
  *--------------------------------------------------------------------------------------------*/
 
 declare module 'native-keymap' {
-
 	export interface IWindowsKeyMapping {
 		vkey: string;
 		value: string;
@@ -38,7 +37,10 @@ declare module 'native-keymap' {
 		[code: string]: IMacKeyMapping;
 	}
 
-	export type IKeyboardMapping = IWindowsKeyboardMapping | ILinuxKeyboardMapping | IMacKeyboardMapping;
+	export type IKeyboardMapping =
+		| IWindowsKeyboardMapping
+		| ILinuxKeyboardMapping
+		| IMacKeyboardMapping;
 
 	export function getKeyMap(): IKeyboardMapping;
 
@@ -61,7 +63,10 @@ declare module 'native-keymap' {
 		lang: string;
 	}
 
-	export type IKeyboardLayoutInfo = IWindowsKeyboardLayoutInfo | ILinuxKeyboardLayoutInfo | IMacKeyboardLayoutInfo;
+	export type IKeyboardLayoutInfo =
+		| IWindowsKeyboardLayoutInfo
+		| ILinuxKeyboardLayoutInfo
+		| IMacKeyboardLayoutInfo;
 
 	export function getCurrentKeyboardLayout(): IKeyboardLayoutInfo;
 

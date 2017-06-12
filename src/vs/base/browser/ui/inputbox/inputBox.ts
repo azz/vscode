@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import 'vs/css!./inputBox';
 
@@ -14,7 +14,10 @@ import { renderHtml } from 'vs/base/browser/htmlContentRenderer';
 import aria = require('vs/base/browser/ui/aria/aria');
 import { IAction } from 'vs/base/common/actions';
 import { ActionBar } from 'vs/base/browser/ui/actionbar/actionbar';
-import { IContextViewProvider, AnchorAlignment } from 'vs/base/browser/ui/contextview/contextview';
+import {
+	IContextViewProvider,
+	AnchorAlignment
+} from 'vs/base/browser/ui/contextview/contextview';
 import Event, { Emitter } from 'vs/base/common/event';
 import { Widget } from 'vs/base/browser/ui/widget';
 import { Color } from 'vs/base/common/color';
@@ -112,7 +115,11 @@ export class InputBox extends Widget {
 	private _onDidHeightChange = this._register(new Emitter<number>());
 	public onDidHeightChange: Event<number> = this._onDidHeightChange.event;
 
-	constructor(container: HTMLElement, contextViewProvider: IContextViewProvider, options?: IInputOptions) {
+	constructor(
+		container: HTMLElement,
+		contextViewProvider: IContextViewProvider,
+		options?: IInputOptions
+	) {
 		super();
 
 		this.contextViewProvider = contextViewProvider;
@@ -136,7 +143,8 @@ export class InputBox extends Widget {
 
 		if (this.options.validationOptions) {
 			this.validation = this.options.validationOptions.validation;
-			this.showValidationMessage = this.options.validationOptions.showMessage || false;
+			this.showValidationMessage =
+				this.options.validationOptions.showMessage || false;
 		}
 
 		this.element = dom.append(container, $('.monaco-inputbox.idle'));
@@ -149,8 +157,12 @@ export class InputBox extends Widget {
 		this.input.setAttribute('autocapitalize', 'off');
 		this.input.setAttribute('spellcheck', 'false');
 
-		this.onfocus(this.input, () => dom.addClass(this.element, 'synthetic-focus'));
-		this.onblur(this.input, () => dom.removeClass(this.element, 'synthetic-focus'));
+		this.onfocus(this.input, () =>
+			dom.addClass(this.element, 'synthetic-focus')
+		);
+		this.onblur(this.input, () =>
+			dom.removeClass(this.element, 'synthetic-focus')
+		);
 
 		if (this.options.flexibleHeight) {
 			this.mirror = dom.append(wrapper, $('div.mirror'));
@@ -174,7 +186,7 @@ export class InputBox extends Widget {
 
 		// Add placeholder shim for IE because IE decides to hide the placeholder on focus (we dont want that!)
 		if (this.placeholder && Bal.isIE) {
-			this.onclick(this.input, (e) => {
+			this.onclick(this.input, e => {
 				dom.EventHelper.stop(e, true);
 				this.input.focus();
 			});
@@ -217,7 +229,9 @@ export class InputBox extends Widget {
 		}
 	}
 
-	public setContextViewProvider(contextViewProvider: IContextViewProvider): void {
+	public setContextViewProvider(
+		contextViewProvider: IContextViewProvider
+	): void {
 		this.contextViewProvider = contextViewProvider;
 	}
 
@@ -237,7 +251,9 @@ export class InputBox extends Widget {
 	}
 
 	public get height(): number {
-		return this.cachedHeight === null ? dom.getTotalHeight(this.element) : this.cachedHeight;
+		return this.cachedHeight === null
+			? dom.getTotalHeight(this.element)
+			: this.cachedHeight;
 	}
 
 	public focus(): void {
@@ -295,16 +311,30 @@ export class InputBox extends Widget {
 		dom.addClass(this.element, this.classForType(message.type));
 
 		const styles = this.stylesForType(this.message.type);
-		this.element.style.border = styles.border ? `1px solid ${styles.border}` : null;
+		this.element.style.border = styles.border
+			? `1px solid ${styles.border}`
+			: null;
 
 		// ARIA Support
 		let alertText: string;
 		if (message.type === MessageType.ERROR) {
-			alertText = nls.localize('alertErrorMessage', "Error: {0}", message.content);
+			alertText = nls.localize(
+				'alertErrorMessage',
+				'Error: {0}',
+				message.content
+			);
 		} else if (message.type === MessageType.WARNING) {
-			alertText = nls.localize('alertWarningMessage', "Warning: {0}", message.content);
+			alertText = nls.localize(
+				'alertWarningMessage',
+				'Warning: {0}',
+				message.content
+			);
 		} else {
-			alertText = nls.localize('alertInfoMessage', "Info: {0}", message.content);
+			alertText = nls.localize(
+				'alertInfoMessage',
+				'Info: {0}',
+				message.content
+			);
 		}
 
 		aria.alert(alertText);
@@ -348,19 +378,36 @@ export class InputBox extends Widget {
 		return !result;
 	}
 
-	private stylesForType(type: MessageType): { border: Color; background: Color } {
+	private stylesForType(
+		type: MessageType
+	): { border: Color; background: Color } {
 		switch (type) {
-			case MessageType.INFO: return { border: this.inputValidationInfoBorder, background: this.inputValidationInfoBackground };
-			case MessageType.WARNING: return { border: this.inputValidationWarningBorder, background: this.inputValidationWarningBackground };
-			default: return { border: this.inputValidationErrorBorder, background: this.inputValidationErrorBackground };
+			case MessageType.INFO:
+				return {
+					border: this.inputValidationInfoBorder,
+					background: this.inputValidationInfoBackground
+				};
+			case MessageType.WARNING:
+				return {
+					border: this.inputValidationWarningBorder,
+					background: this.inputValidationWarningBackground
+				};
+			default:
+				return {
+					border: this.inputValidationErrorBorder,
+					background: this.inputValidationErrorBackground
+				};
 		}
 	}
 
 	private classForType(type: MessageType): string {
 		switch (type) {
-			case MessageType.INFO: return 'info';
-			case MessageType.WARNING: return 'warning';
-			default: return 'error';
+			case MessageType.INFO:
+				return 'info';
+			case MessageType.WARNING:
+				return 'warning';
+			default:
+				return 'error';
 		}
 	}
 
@@ -370,7 +417,8 @@ export class InputBox extends Widget {
 		}
 
 		let div: HTMLElement;
-		let layout = () => div.style.width = dom.getTotalWidth(this.element) + 'px';
+		let layout = () =>
+			(div.style.width = dom.getTotalWidth(this.element) + 'px');
 
 		this.state = 'open';
 
@@ -383,7 +431,7 @@ export class InputBox extends Widget {
 
 				let renderOptions: IHTMLContentElement = {
 					tagName: 'span',
-					className: 'monaco-inputbox-message',
+					className: 'monaco-inputbox-message'
 				};
 
 				if (this.message.formatContent) {
@@ -396,8 +444,12 @@ export class InputBox extends Widget {
 				dom.addClass(spanElement, this.classForType(this.message.type));
 
 				const styles = this.stylesForType(this.message.type);
-				spanElement.style.backgroundColor = styles.background ? styles.background.toString() : null;
-				spanElement.style.border = styles.border ? `1px solid ${styles.border}` : null;
+				spanElement.style.backgroundColor = styles.background
+					? styles.background.toString()
+					: null;
+				spanElement.style.border = styles.border
+					? `1px solid ${styles.border}`
+					: null;
 
 				dom.append(div, spanElement);
 
@@ -447,7 +499,8 @@ export class InputBox extends Widget {
 
 		this.inputValidationInfoBackground = styles.inputValidationInfoBackground;
 		this.inputValidationInfoBorder = styles.inputValidationInfoBorder;
-		this.inputValidationWarningBackground = styles.inputValidationWarningBackground;
+		this.inputValidationWarningBackground =
+			styles.inputValidationWarningBackground;
 		this.inputValidationWarningBorder = styles.inputValidationWarningBorder;
 		this.inputValidationErrorBackground = styles.inputValidationErrorBackground;
 		this.inputValidationErrorBorder = styles.inputValidationErrorBorder;
@@ -457,8 +510,12 @@ export class InputBox extends Widget {
 
 	protected applyStyles(): void {
 		if (this.element) {
-			const background = this.inputBackground ? this.inputBackground.toString() : null;
-			const foreground = this.inputForeground ? this.inputForeground.toString() : null;
+			const background = this.inputBackground
+				? this.inputBackground.toString()
+				: null;
+			const foreground = this.inputForeground
+				? this.inputForeground.toString()
+				: null;
 			const border = this.inputBorder ? this.inputBorder.toString() : null;
 
 			this.element.style.backgroundColor = background;

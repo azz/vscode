@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { KeyCode } from 'vs/base/common/keyCodes';
 import { IKeyboardEvent } from 'vs/base/browser/keyboardEvent';
@@ -14,8 +14,8 @@ import { DomScrollableElement } from 'vs/base/browser/ui/scrollbar/scrollableEle
 import { IDisposable, dispose } from 'vs/base/common/lifecycle';
 import { IConfigurationChangedEvent } from 'vs/editor/common/config/editorOptions';
 
-export class ContentHoverWidget extends Widget implements editorBrowser.IContentWidget {
-
+export class ContentHoverWidget extends Widget
+	implements editorBrowser.IContentWidget {
 	private _id: string;
 	protected _editor: editorBrowser.ICodeEditor;
 	private _isVisible: boolean;
@@ -51,7 +51,9 @@ export class ContentHoverWidget extends Widget implements editorBrowser.IContent
 		this._domNode = document.createElement('div');
 		this._domNode.className = 'monaco-editor-hover-content';
 
-		this.scrollbar = new DomScrollableElement(this._domNode, { canUseTranslate3d: false });
+		this.scrollbar = new DomScrollableElement(this._domNode, {
+			canUseTranslate3d: false
+		});
 		this.disposables.push(this.scrollbar);
 		this._containerDomNode.appendChild(this.scrollbar.getDomNode());
 
@@ -61,11 +63,13 @@ export class ContentHoverWidget extends Widget implements editorBrowser.IContent
 			}
 		});
 
-		this._register(this._editor.onDidChangeConfiguration((e: IConfigurationChangedEvent) => {
-			if (e.fontInfo) {
-				this.updateFont();
-			}
-		}));
+		this._register(
+			this._editor.onDidChangeConfiguration((e: IConfigurationChangedEvent) => {
+				if (e.fontInfo) {
+					this.updateFont();
+				}
+			})
+		);
 
 		this._editor.onDidLayoutChange(e => this.updateMaxHeight());
 
@@ -130,10 +134,16 @@ export class ContentHoverWidget extends Widget implements editorBrowser.IContent
 	}
 
 	private updateFont(): void {
-		const codeTags: HTMLElement[] = Array.prototype.slice.call(this._domNode.getElementsByTagName('code'));
-		const codeClasses: HTMLElement[] = Array.prototype.slice.call(this._domNode.getElementsByClassName('code'));
+		const codeTags: HTMLElement[] = Array.prototype.slice.call(
+			this._domNode.getElementsByTagName('code')
+		);
+		const codeClasses: HTMLElement[] = Array.prototype.slice.call(
+			this._domNode.getElementsByClassName('code')
+		);
 
-		[...codeTags, ...codeClasses].forEach(node => this._editor.applyFontInfo(node));
+		[...codeTags, ...codeClasses].forEach(node =>
+			this._editor.applyFontInfo(node)
+		);
 	}
 
 	protected updateContents(node: Node): void {
@@ -155,8 +165,8 @@ export class ContentHoverWidget extends Widget implements editorBrowser.IContent
 	}
 }
 
-export class GlyphHoverWidget extends Widget implements editorBrowser.IOverlayWidget {
-
+export class GlyphHoverWidget extends Widget
+	implements editorBrowser.IOverlayWidget {
 	private _id: string;
 	protected _editor: editorBrowser.ICodeEditor;
 	private _isVisible: boolean;
@@ -176,11 +186,13 @@ export class GlyphHoverWidget extends Widget implements editorBrowser.IOverlayWi
 
 		this._showAtLineNumber = -1;
 
-		this._register(this._editor.onDidChangeConfiguration((e: IConfigurationChangedEvent) => {
-			if (e.fontInfo) {
-				this.updateFont();
-			}
-		}));
+		this._register(
+			this._editor.onDidChangeConfiguration((e: IConfigurationChangedEvent) => {
+				if (e.fontInfo) {
+					this.updateFont();
+				}
+			})
+		);
 
 		this._editor.addOverlayWidget(this);
 	}
@@ -210,13 +222,17 @@ export class GlyphHoverWidget extends Widget implements editorBrowser.IOverlayWi
 		}
 
 		const editorLayout = this._editor.getLayoutInfo();
-		const topForLineNumber = this._editor.getTopForLineNumber(this._showAtLineNumber);
+		const topForLineNumber = this._editor.getTopForLineNumber(
+			this._showAtLineNumber
+		);
 		const editorScrollTop = this._editor.getScrollTop();
 		const lineHeight = this._editor.getConfiguration().lineHeight;
 		const nodeHeight = this._domNode.clientHeight;
-		const top = topForLineNumber - editorScrollTop - ((nodeHeight - lineHeight) / 2);
+		const top =
+			topForLineNumber - editorScrollTop - (nodeHeight - lineHeight) / 2;
 
-		this._domNode.style.left = `${editorLayout.glyphMarginLeft + editorLayout.glyphMarginWidth}px`;
+		this._domNode.style.left = `${editorLayout.glyphMarginLeft +
+			editorLayout.glyphMarginWidth}px`;
 		this._domNode.style.top = `${Math.max(Math.round(top), 0)}px`;
 	}
 
@@ -237,10 +253,16 @@ export class GlyphHoverWidget extends Widget implements editorBrowser.IOverlayWi
 	}
 
 	private updateFont(): void {
-		const codeTags: HTMLElement[] = Array.prototype.slice.call(this._domNode.getElementsByTagName('code'));
-		const codeClasses: HTMLElement[] = Array.prototype.slice.call(this._domNode.getElementsByClassName('code'));
+		const codeTags: HTMLElement[] = Array.prototype.slice.call(
+			this._domNode.getElementsByTagName('code')
+		);
+		const codeClasses: HTMLElement[] = Array.prototype.slice.call(
+			this._domNode.getElementsByClassName('code')
+		);
 
-		[...codeTags, ...codeClasses].forEach(node => this._editor.applyFontInfo(node));
+		[...codeTags, ...codeClasses].forEach(node =>
+			this._editor.applyFontInfo(node)
+		);
 	}
 
 	protected updateContents(node: Node): void {

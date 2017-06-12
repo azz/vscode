@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import URI from 'vs/base/common/uri';
@@ -17,7 +17,8 @@ export interface IBaselineResourceProvider {
 }
 
 export const ISCMService = createDecorator<ISCMService>('scm');
-export const DefaultSCMProviderIdStorageKey = 'settings.workspace.scm.defaultProviderId';
+export const DefaultSCMProviderIdStorageKey =
+	'settings.workspace.scm.defaultProviderId';
 
 export interface ISCMResourceDecorations {
 	icon?: URI;
@@ -60,7 +61,6 @@ export interface ISCMInput {
 }
 
 export interface ISCMService {
-
 	readonly _serviceBrand: any;
 	readonly onDidChangeProvider: Event<ISCMProvider>;
 	readonly providers: ISCMProvider[];

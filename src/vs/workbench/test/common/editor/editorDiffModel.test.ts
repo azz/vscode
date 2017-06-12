@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { EditorModel } from 'vs/workbench/common/editor';
@@ -16,22 +16,25 @@ import { ResourceEditorInput } from 'vs/workbench/common/editor/resourceEditorIn
 import URI from 'vs/base/common/uri';
 import { ITextModelResolverService } from 'vs/editor/common/services/resolverService';
 import { ITextFileService } from 'vs/workbench/services/textfile/common/textfiles';
-import { TestTextFileService, workbenchInstantiationService } from 'vs/workbench/test/workbenchTestServices';
-import { TPromise } from "vs/base/common/winjs.base";
+import {
+	TestTextFileService,
+	workbenchInstantiationService
+} from 'vs/workbench/test/workbenchTestServices';
+import { TPromise } from 'vs/base/common/winjs.base';
 import { IModel } from 'vs/editor/common/editorCommon';
 import { IInstantiationService } from 'vs/platform/instantiation/common/instantiation';
 
-class MyEditorModel extends EditorModel { }
-class MyTextEditorModel extends BaseTextEditorModel { }
+class MyEditorModel extends EditorModel {}
+class MyTextEditorModel extends BaseTextEditorModel {}
 
 class ServiceAccessor {
 	constructor(
-		@ITextModelResolverService public textModelResolverService: ITextModelResolverService,
+		@ITextModelResolverService
+		public textModelResolverService: ITextModelResolverService,
 		@IModelService public modelService: IModelService,
 		@IModeService public modeService: IModeService,
 		@ITextFileService public textFileService: TestTextFileService
-	) {
-	}
+	) {}
 }
 
 suite('Workbench - EditorModel', () => {
@@ -43,42 +46,65 @@ suite('Workbench - EditorModel', () => {
 		accessor = instantiationService.createInstance(ServiceAccessor);
 	});
 
-	test('TextDiffEditorModel', function (done) {
-		const dispose = accessor.textModelResolverService.registerTextModelContentProvider('test', {
-			provideTextContent: function (resource: URI): TPromise<IModel> {
-				if (resource.scheme === 'test') {
-					let modelContent = 'Hello Test';
-					let mode = accessor.modeService.getOrCreateMode('json');
-					return TPromise.as(accessor.modelService.createModel(modelContent, mode, resource));
+	test('TextDiffEditorModel', function(done) {
+		const dispose = accessor.textModelResolverService.registerTextModelContentProvider(
+			'test',
+			{
+				provideTextContent: function(resource: URI): TPromise<IModel> {
+					if (resource.scheme === 'test') {
+						let modelContent = 'Hello Test';
+						let mode = accessor.modeService.getOrCreateMode('json');
+						return TPromise.as(
+							accessor.modelService.createModel(modelContent, mode, resource)
+						);
+					}
+
+					return TPromise.as(null);
 				}
-
-				return TPromise.as(null);
 			}
-		});
+		);
 
-		let input = instantiationService.createInstance(ResourceEditorInput, 'name', 'description', URI.from({ scheme: 'test', authority: null, path: 'thePath' }));
-		let otherInput = instantiationService.createInstance(ResourceEditorInput, 'name2', 'description', URI.from({ scheme: 'test', authority: null, path: 'thePath' }));
-		let diffInput = new DiffEditorInput('name', 'description', input, otherInput);
+		let input = instantiationService.createInstance(
+			ResourceEditorInput,
+			'name',
+			'description',
+			URI.from({ scheme: 'test', authority: null, path: 'thePath' })
+		);
+		let otherInput = instantiationService.createInstance(
+			ResourceEditorInput,
+			'name2',
+			'description',
+			URI.from({ scheme: 'test', authority: null, path: 'thePath' })
+		);
+		let diffInput = new DiffEditorInput(
+			'name',
+			'description',
+			input,
+			otherInput
+		);
 
-		diffInput.resolve(true).then((model: any) => {
-			assert(model);
-			assert(model instanceof TextDiffEditorModel);
+		diffInput
+			.resolve(true)
+			.then((model: any) => {
+				assert(model);
+				assert(model instanceof TextDiffEditorModel);
 
-			let diffEditorModel = model.textDiffEditorModel;
-			assert(diffEditorModel.original);
-			assert(diffEditorModel.modified);
+				let diffEditorModel = model.textDiffEditorModel;
+				assert(diffEditorModel.original);
+				assert(diffEditorModel.modified);
 
-			return diffInput.resolve(true).then((model: any) => {
-				assert(model.isResolved());
+				return diffInput.resolve(true).then((model: any) => {
+					assert(model.isResolved());
 
-				assert(diffEditorModel !== model.textDiffEditorModel);
-				diffInput.dispose();
-				assert(!model.textDiffEditorModel);
+					assert(diffEditorModel !== model.textDiffEditorModel);
+					diffInput.dispose();
+					assert(!model.textDiffEditorModel);
 
-				dispose.dispose();
+					dispose.dispose();
+				});
+			})
+			.done(() => {
+				done();
 			});
-		}).done(() => {
-			done();
-		});
 	});
 });

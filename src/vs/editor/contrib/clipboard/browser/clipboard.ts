@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./clipboard';
 import * as nls from 'vs/nls';
@@ -12,7 +12,11 @@ import * as browser from 'vs/base/browser/browser';
 import { ServicesAccessor } from 'vs/platform/instantiation/common/instantiation';
 import { ICodeEditorService } from 'vs/editor/common/services/codeEditorService';
 import * as editorCommon from 'vs/editor/common/editorCommon';
-import { editorAction, IActionOptions, EditorAction } from 'vs/editor/common/editorCommonExtensions';
+import {
+	editorAction,
+	IActionOptions,
+	EditorAction
+} from 'vs/editor/common/editorCommonExtensions';
 import { CopyOptions } from 'vs/editor/browser/controller/textAreaInput';
 import { EditorContextKeys } from 'vs/editor/common/editorContextKeys';
 
@@ -20,21 +24,20 @@ const CLIPBOARD_CONTEXT_MENU_GROUP = '9_cutcopypaste';
 
 function conditionalEditorAction(testCommand: string) {
 	if (!browser.supportsExecCommand(testCommand)) {
-		return () => { };
+		return () => {};
 	}
 	return editorAction;
 }
 
 function conditionalCopyWithSyntaxHighlighting() {
 	if (browser.isEdgeOrIE || !browser.supportsExecCommand('copy')) {
-		return () => { };
+		return () => {};
 	}
 
 	return editorAction;
 }
 
 abstract class ExecCommandAction extends EditorAction {
-
 	private browserCommand: string;
 
 	constructor(browserCommand: string, opts: IActionOptions) {
@@ -53,7 +56,10 @@ abstract class ExecCommandAction extends EditorAction {
 		document.execCommand(this.browserCommand);
 	}
 
-	public run(accessor: ServicesAccessor, editor: editorCommon.ICommonCodeEditor): void {
+	public run(
+		accessor: ServicesAccessor,
+		editor: editorCommon.ICommonCodeEditor
+	): void {
 		editor.focus();
 		document.execCommand(this.browserCommand);
 	}
@@ -61,17 +67,19 @@ abstract class ExecCommandAction extends EditorAction {
 
 @conditionalEditorAction('cut')
 class ExecCommandCutAction extends ExecCommandAction {
-
 	constructor() {
 		super('cut', {
 			id: 'editor.action.clipboardCutAction',
-			label: nls.localize('actions.clipboard.cutLabel', "Cut"),
+			label: nls.localize('actions.clipboard.cutLabel', 'Cut'),
 			alias: 'Cut',
 			precondition: EditorContextKeys.writable,
 			kbOpts: {
 				kbExpr: EditorContextKeys.textFocus,
 				primary: KeyMod.CtrlCmd | KeyCode.KEY_X,
-				win: { primary: KeyMod.CtrlCmd | KeyCode.KEY_X, secondary: [KeyMod.Shift | KeyCode.Delete] }
+				win: {
+					primary: KeyMod.CtrlCmd | KeyCode.KEY_X,
+					secondary: [KeyMod.Shift | KeyCode.Delete]
+				}
 			},
 			menuOpts: {
 				group: CLIPBOARD_CONTEXT_MENU_GROUP,
@@ -80,8 +88,12 @@ class ExecCommandCutAction extends ExecCommandAction {
 		});
 	}
 
-	public run(accessor: ServicesAccessor, editor: editorCommon.ICommonCodeEditor): void {
-		const emptySelectionClipboard = editor.getConfiguration().emptySelectionClipboard;
+	public run(
+		accessor: ServicesAccessor,
+		editor: editorCommon.ICommonCodeEditor
+	): void {
+		const emptySelectionClipboard = editor.getConfiguration()
+			.emptySelectionClipboard;
 
 		if (!emptySelectionClipboard && editor.getSelection().isEmpty()) {
 			return;
@@ -93,17 +105,19 @@ class ExecCommandCutAction extends ExecCommandAction {
 
 @conditionalEditorAction('copy')
 class ExecCommandCopyAction extends ExecCommandAction {
-
 	constructor() {
 		super('copy', {
 			id: 'editor.action.clipboardCopyAction',
-			label: nls.localize('actions.clipboard.copyLabel', "Copy"),
+			label: nls.localize('actions.clipboard.copyLabel', 'Copy'),
 			alias: 'Copy',
 			precondition: null,
 			kbOpts: {
 				kbExpr: EditorContextKeys.textFocus,
 				primary: KeyMod.CtrlCmd | KeyCode.KEY_C,
-				win: { primary: KeyMod.CtrlCmd | KeyCode.KEY_C, secondary: [KeyMod.CtrlCmd | KeyCode.Insert] }
+				win: {
+					primary: KeyMod.CtrlCmd | KeyCode.KEY_C,
+					secondary: [KeyMod.CtrlCmd | KeyCode.Insert]
+				}
 			},
 			menuOpts: {
 				group: CLIPBOARD_CONTEXT_MENU_GROUP,
@@ -112,8 +126,12 @@ class ExecCommandCopyAction extends ExecCommandAction {
 		});
 	}
 
-	public run(accessor: ServicesAccessor, editor: editorCommon.ICommonCodeEditor): void {
-		const emptySelectionClipboard = editor.getConfiguration().emptySelectionClipboard;
+	public run(
+		accessor: ServicesAccessor,
+		editor: editorCommon.ICommonCodeEditor
+	): void {
+		const emptySelectionClipboard = editor.getConfiguration()
+			.emptySelectionClipboard;
 
 		if (!emptySelectionClipboard && editor.getSelection().isEmpty()) {
 			return;
@@ -125,17 +143,19 @@ class ExecCommandCopyAction extends ExecCommandAction {
 
 @conditionalEditorAction('paste')
 class ExecCommandPasteAction extends ExecCommandAction {
-
 	constructor() {
 		super('paste', {
 			id: 'editor.action.clipboardPasteAction',
-			label: nls.localize('actions.clipboard.pasteLabel', "Paste"),
+			label: nls.localize('actions.clipboard.pasteLabel', 'Paste'),
 			alias: 'Paste',
 			precondition: EditorContextKeys.writable,
 			kbOpts: {
 				kbExpr: EditorContextKeys.textFocus,
 				primary: KeyMod.CtrlCmd | KeyCode.KEY_V,
-				win: { primary: KeyMod.CtrlCmd | KeyCode.KEY_V, secondary: [KeyMod.Shift | KeyCode.Insert] }
+				win: {
+					primary: KeyMod.CtrlCmd | KeyCode.KEY_V,
+					secondary: [KeyMod.Shift | KeyCode.Insert]
+				}
 			},
 			menuOpts: {
 				group: CLIPBOARD_CONTEXT_MENU_GROUP,
@@ -147,11 +167,13 @@ class ExecCommandPasteAction extends ExecCommandAction {
 
 @conditionalCopyWithSyntaxHighlighting()
 class ExecCommandCopyWithSyntaxHighlightingAction extends ExecCommandAction {
-
 	constructor() {
 		super('copy', {
 			id: 'editor.action.clipboardCopyWithSyntaxHighlightingAction',
-			label: nls.localize('actions.clipboard.copyWithSyntaxHighlightingLabel', "Copy With Syntax Highlighting"),
+			label: nls.localize(
+				'actions.clipboard.copyWithSyntaxHighlightingLabel',
+				'Copy With Syntax Highlighting'
+			),
 			alias: 'Copy With Syntax Highlighting',
 			precondition: null,
 			kbOpts: {
@@ -161,8 +183,12 @@ class ExecCommandCopyWithSyntaxHighlightingAction extends ExecCommandAction {
 		});
 	}
 
-	public run(accessor: ServicesAccessor, editor: editorCommon.ICommonCodeEditor): void {
-		const emptySelectionClipboard = editor.getConfiguration().emptySelectionClipboard;
+	public run(
+		accessor: ServicesAccessor,
+		editor: editorCommon.ICommonCodeEditor
+	): void {
+		const emptySelectionClipboard = editor.getConfiguration()
+			.emptySelectionClipboard;
 
 		if (!emptySelectionClipboard && editor.getSelection().isEmpty()) {
 			return;

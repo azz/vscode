@@ -2,16 +2,22 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { ModelBuilder, computeHash } from 'vs/editor/node/model/modelBuilder';
 import { ITextModelCreationOptions } from 'vs/editor/common/editorCommon';
 import { TextModel } from 'vs/editor/common/model/textModel';
 import * as strings from 'vs/base/common/strings';
-import { RawTextSource, IRawTextSource } from 'vs/editor/common/model/textSource';
+import {
+	RawTextSource,
+	IRawTextSource
+} from 'vs/editor/common/model/textSource';
 
-export function testModelBuilder(chunks: string[], opts: ITextModelCreationOptions = TextModel.DEFAULT_CREATION_OPTIONS): string {
+export function testModelBuilder(
+	chunks: string[],
+	opts: ITextModelCreationOptions = TextModel.DEFAULT_CREATION_OPTIONS
+): string {
 	let expectedTextSource = RawTextSource.fromString(chunks.join(''));
 	let expectedHash = computeHash(expectedTextSource);
 
@@ -48,11 +54,16 @@ export function testDifferentHash(lines1: string[], lines2: string[]): void {
 }
 
 suite('ModelBuilder', () => {
-
 	test('uses sha1', () => {
 		// These are the sha1s of the string + \n
-		assert.equal(computeHash(toTextSource([''])), 'adc83b19e793491b1c6ea0fd8b46cd9f32e592fc');
-		assert.equal(computeHash(toTextSource(['hello world'])), '22596363b3de40b06f981fb85d82312e8c0ed511');
+		assert.equal(
+			computeHash(toTextSource([''])),
+			'adc83b19e793491b1c6ea0fd8b46cd9f32e592fc'
+		);
+		assert.equal(
+			computeHash(toTextSource(['hello world'])),
+			'22596363b3de40b06f981fb85d82312e8c0ed511'
+		);
 	});
 
 	test('no chunks', () => {
@@ -88,35 +99,77 @@ suite('ModelBuilder', () => {
 	});
 
 	test('multiple lines in single chunks', () => {
-		testModelBuilder(['Hello world\nHow are you?\nIs everything good today?\nDo you enjoy the weather?']);
+		testModelBuilder([
+			'Hello world\nHow are you?\nIs everything good today?\nDo you enjoy the weather?'
+		]);
 	});
 
 	test('multiple lines in multiple chunks 1', () => {
-		testModelBuilder(['Hello world\nHow are you', '?\nIs everything good today?\nDo you enjoy the weather?']);
+		testModelBuilder([
+			'Hello world\nHow are you',
+			'?\nIs everything good today?\nDo you enjoy the weather?'
+		]);
 	});
 
 	test('multiple lines in multiple chunks 1', () => {
-		testModelBuilder(['Hello world', '\nHow are you', '?\nIs everything good today?', '\nDo you enjoy the weather?']);
+		testModelBuilder([
+			'Hello world',
+			'\nHow are you',
+			'?\nIs everything good today?',
+			'\nDo you enjoy the weather?'
+		]);
 	});
 
 	test('multiple lines in multiple chunks 1', () => {
-		testModelBuilder(['Hello world\n', 'How are you', '?\nIs everything good today?', '\nDo you enjoy the weather?']);
+		testModelBuilder([
+			'Hello world\n',
+			'How are you',
+			'?\nIs everything good today?',
+			'\nDo you enjoy the weather?'
+		]);
 	});
 
 	test('carriage return detection (1 \\r\\n 2 \\n)', () => {
-		testModelBuilder(['Hello world\r\n', 'How are you', '?\nIs everything good today?', '\nDo you enjoy the weather?']);
+		testModelBuilder([
+			'Hello world\r\n',
+			'How are you',
+			'?\nIs everything good today?',
+			'\nDo you enjoy the weather?'
+		]);
 	});
 
 	test('carriage return detection (2 \\r\\n 1 \\n)', () => {
-		testModelBuilder(['Hello world\r\n', 'How are you', '?\r\nIs everything good today?', '\nDo you enjoy the weather?']);
+		testModelBuilder([
+			'Hello world\r\n',
+			'How are you',
+			'?\r\nIs everything good today?',
+			'\nDo you enjoy the weather?'
+		]);
 	});
 
 	test('carriage return detection (3 \\r\\n 0 \\n)', () => {
-		testModelBuilder(['Hello world\r\n', 'How are you', '?\r\nIs everything good today?', '\r\nDo you enjoy the weather?']);
+		testModelBuilder([
+			'Hello world\r\n',
+			'How are you',
+			'?\r\nIs everything good today?',
+			'\r\nDo you enjoy the weather?'
+		]);
 	});
 
 	test('carriage return detection (isolated \\r)', () => {
-		testModelBuilder(['Hello world', '\r', '\n', 'How are you', '?', '\r', '\n', 'Is everything good today?', '\r', '\n', 'Do you enjoy the weather?']);
+		testModelBuilder([
+			'Hello world',
+			'\r',
+			'\n',
+			'How are you',
+			'?',
+			'\r',
+			'\n',
+			'Is everything good today?',
+			'\r',
+			'\n',
+			'Do you enjoy the weather?'
+		]);
 	});
 
 	test('BOM handling', () => {

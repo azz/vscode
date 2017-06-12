@@ -14,7 +14,6 @@ const MAX_HISTORY_ENTRIES = 50;
  * - the navigation state is not remembered so that the user always ends up at the end of the history stack when evaluating a expression
  */
 export class ReplHistory {
-
 	private historyPointer: number;
 	private currentExpressionStoredMarkers: boolean;
 	private historyOverwrites: Map<string, string>;
@@ -36,14 +35,17 @@ export class ReplHistory {
 	private navigate(previous: boolean): string {
 		// validate new pointer
 		let newPointer = -1;
-		if (previous && this.historyPointer > 0 && this.history.length > this.historyPointer - 1) {
+		if (
+			previous &&
+			this.historyPointer > 0 &&
+			this.history.length > this.historyPointer - 1
+		) {
 			newPointer = this.historyPointer - 1;
 		} else if (!previous && this.history.length > this.historyPointer + 1) {
 			newPointer = this.historyPointer + 1;
 		}
 
 		if (newPointer >= 0) {
-
 			// remember pointer for next navigation
 			this.historyPointer = newPointer;
 
@@ -71,13 +73,14 @@ export class ReplHistory {
 
 		// when the user starts to navigate in history, add the current expression to the history
 		// once so that the user can always navigate back to it and does not loose its data.
-		if (previousPointer === this.history.length && !this.currentExpressionStoredMarkers) {
+		if (
+			previousPointer === this.history.length &&
+			!this.currentExpressionStoredMarkers
+		) {
 			this.history.push(expression);
 			this.currentExpressionStoredMarkers = true;
-		}
-
-		// keep edits that are made to history items up until the user actually evaluates a expression
-		else {
+		} else {
+			// keep edits that are made to history items up until the user actually evaluates a expression
 			this.historyOverwrites.set(previousPointer.toString(), expression);
 		}
 	}
@@ -89,7 +92,11 @@ export class ReplHistory {
 		}
 
 		// keep in local history if expression provided and not equal to previous expression stored in history
-		if (expression && (this.history.length === 0 || this.history[this.history.length - 1] !== expression)) {
+		if (
+			expression &&
+			(this.history.length === 0 ||
+				this.history[this.history.length - 1] !== expression)
+		) {
 			this.history.push(expression);
 		}
 
@@ -109,7 +116,10 @@ export class ReplHistory {
 			this.history.pop();
 		}
 		if (this.history.length > MAX_HISTORY_ENTRIES) {
-			this.history = this.history.splice(this.history.length - MAX_HISTORY_ENTRIES, MAX_HISTORY_ENTRIES);
+			this.history = this.history.splice(
+				this.history.length - MAX_HISTORY_ENTRIES,
+				MAX_HISTORY_ENTRIES
+			);
 		}
 
 		return this.history;

@@ -3,12 +3,15 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { app, ipcMain as ipc, BrowserWindow } from 'electron';
 import * as platform from 'vs/base/common/platform';
 import { WindowsManager } from 'vs/code/electron-main/windows';
-import { IWindowsService, OpenContext } from 'vs/platform/windows/common/windows';
+import {
+	IWindowsService,
+	OpenContext
+} from 'vs/platform/windows/common/windows';
 import { WindowsChannel } from 'vs/platform/windows/common/windowsIpc';
 import { WindowsService } from 'vs/platform/windows/electron-main/windowsService';
 import { ILifecycleService } from 'vs/platform/lifecycle/electron-main/lifecycleMain';
@@ -22,7 +25,10 @@ import { Server, connect, Client } from 'vs/base/parts/ipc/node/ipc.net';
 import { SharedProcess } from 'vs/code/electron-main/sharedProcess';
 import { Mutex } from 'windows-mutex';
 import { LaunchService, LaunchChannel, ILaunchService } from './launch';
-import { IInstantiationService, ServicesAccessor } from 'vs/platform/instantiation/common/instantiation';
+import {
+	IInstantiationService,
+	ServicesAccessor
+} from 'vs/platform/instantiation/common/instantiation';
 import { ServiceCollection } from 'vs/platform/instantiation/common/serviceCollection';
 import { SyncDescriptor } from 'vs/platform/instantiation/common/descriptors';
 import { ILogService } from 'vs/platform/log/common/log';
@@ -35,21 +41,31 @@ import { IURLService } from 'vs/platform/url/common/url';
 import { URLChannel } from 'vs/platform/url/common/urlIpc';
 import { ITelemetryService } from 'vs/platform/telemetry/common/telemetry';
 import { NullTelemetryService } from 'vs/platform/telemetry/common/telemetryUtils';
-import { ITelemetryAppenderChannel, TelemetryAppenderClient } from 'vs/platform/telemetry/common/telemetryIpc';
-import { TelemetryService, ITelemetryServiceConfig } from 'vs/platform/telemetry/common/telemetryService';
-import { resolveCommonProperties, machineIdStorageKey, machineIdIpcChannel } from 'vs/platform/telemetry/node/commonProperties';
+import {
+	ITelemetryAppenderChannel,
+	TelemetryAppenderClient
+} from 'vs/platform/telemetry/common/telemetryIpc';
+import {
+	TelemetryService,
+	ITelemetryServiceConfig
+} from 'vs/platform/telemetry/common/telemetryService';
+import {
+	resolveCommonProperties,
+	machineIdStorageKey,
+	machineIdIpcChannel
+} from 'vs/platform/telemetry/node/commonProperties';
 import { getDelayedChannel } from 'vs/base/parts/ipc/common/ipc';
 import product from 'vs/platform/node/product';
 import pkg from 'vs/platform/node/package';
 import { IDisposable, dispose } from 'vs/base/common/lifecycle';
 import { ConfigurationService } from 'vs/platform/configuration/node/configurationService';
-import { TPromise } from "vs/base/common/winjs.base";
-import { IWindowsMainService } from "vs/platform/windows/electron-main/windows";
-import { IHistoryMainService } from "vs/platform/history/electron-main/historyMainService";
-import { isUndefinedOrNull } from "vs/base/common/types";
-import { CodeWindow } from "vs/code/electron-main/window";
-import { isEqual, isParent } from "vs/platform/files/common/files";
-import { KeyboardLayoutMonitor } from "vs/code/electron-main/keyboard";
+import { TPromise } from 'vs/base/common/winjs.base';
+import { IWindowsMainService } from 'vs/platform/windows/electron-main/windows';
+import { IHistoryMainService } from 'vs/platform/history/electron-main/historyMainService';
+import { isUndefinedOrNull } from 'vs/base/common/types';
+import { CodeWindow } from 'vs/code/electron-main/window';
+import { isEqual, isParent } from 'vs/platform/files/common/files';
+import { KeyboardLayoutMonitor } from 'vs/code/electron-main/keyboard';
 
 export class CodeApplication {
 	private toDispose: IDisposable[];
@@ -67,7 +83,8 @@ export class CodeApplication {
 		@ILogService private logService: ILogService,
 		@IEnvironmentService private environmentService: IEnvironmentService,
 		@ILifecycleService private lifecycleService: ILifecycleService,
-		@IConfigurationService private configurationService: ConfigurationService<any>,
+		@IConfigurationService
+		private configurationService: ConfigurationService<any>,
 		@IStorageService private storageService: IStorageService,
 		@IHistoryMainService private historyService: IHistoryMainService
 	) {
@@ -77,11 +94,9 @@ export class CodeApplication {
 	}
 
 	private registerListeners(): void {
-
 		// We handle uncaught exceptions here to prevent electron from opening a dialog to the user
 		process.on('uncaughtException', (err: any) => {
 			if (err) {
-
 				// take only the message and stack property
 				const friendlyError = {
 					message: err.message,
@@ -90,7 +105,10 @@ export class CodeApplication {
 
 				// handle on client side
 				if (this.windowsMainService) {
-					this.windowsMainService.sendToFocused('vscode:reportError', JSON.stringify(friendlyError));
+					this.windowsMainService.sendToFocused(
+						'vscode:reportError',
+						JSON.stringify(friendlyError)
+					);
 				}
 			}
 
@@ -106,11 +124,17 @@ export class CodeApplication {
 			this.dispose();
 		});
 
-		app.on('accessibility-support-changed', (event: Event, accessibilitySupportEnabled: boolean) => {
-			if (this.windowsMainService) {
-				this.windowsMainService.sendToAll('vscode:accessibilitySupportChanged', accessibilitySupportEnabled);
+		app.on(
+			'accessibility-support-changed',
+			(event: Event, accessibilitySupportEnabled: boolean) => {
+				if (this.windowsMainService) {
+					this.windowsMainService.sendToAll(
+						'vscode:accessibilitySupportChanged',
+						accessibilitySupportEnabled
+					);
+				}
 			}
-		});
+		);
 
 		app.on('activate', (event: Event, hasVisibleWindows: boolean) => {
 			this.logService.log('App#activate');
@@ -140,7 +164,8 @@ export class CodeApplication {
 			runningTimeout = setTimeout(() => {
 				if (this.windowsMainService) {
 					this.windowsMainService.open({
-						context: OpenContext.DOCK /* can also be opening from finder while app is running */,
+						context:
+							OpenContext.DOCK /* can also be opening from finder while app is running */,
 						cli: this.environmentService.args,
 						pathsToOpen: macOpenFiles,
 						preferNewWindow: true /* dropping on the dock or opening from finder prefers to open in a new window */
@@ -165,57 +190,103 @@ export class CodeApplication {
 
 		ipc.on('vscode:fetchShellEnv', (event, windowId) => {
 			const { webContents } = BrowserWindow.fromId(windowId);
-			getShellEnvironment().then(shellEnv => {
-				if (!webContents.isDestroyed()) {
-					webContents.send('vscode:acceptShellEnv', shellEnv);
+			getShellEnvironment().then(
+				shellEnv => {
+					if (!webContents.isDestroyed()) {
+						webContents.send('vscode:acceptShellEnv', shellEnv);
+					}
+				},
+				err => {
+					if (!webContents.isDestroyed()) {
+						webContents.send('vscode:acceptShellEnv', {});
+					}
+					console.error('Error fetching shell env', err);
 				}
-			}, err => {
-				if (!webContents.isDestroyed()) {
-					webContents.send('vscode:acceptShellEnv', {});
-				}
-				console.error('Error fetching shell env', err);
-			});
+			);
 		});
 
-		ipc.on('vscode:broadcast', (event, windowId: number, target: string, broadcast: { channel: string; payload: any; }) => {
-			if (this.windowsMainService && broadcast.channel && !isUndefinedOrNull(broadcast.payload)) {
-				this.logService.log('IPC#vscode:broadcast', target, broadcast.channel, broadcast.payload);
+		ipc.on(
+			'vscode:broadcast',
+			(
+				event,
+				windowId: number,
+				target: string,
+				broadcast: { channel: string; payload: any }
+			) => {
+				if (
+					this.windowsMainService &&
+					broadcast.channel &&
+					!isUndefinedOrNull(broadcast.payload)
+				) {
+					this.logService.log(
+						'IPC#vscode:broadcast',
+						target,
+						broadcast.channel,
+						broadcast.payload
+					);
 
-				// Handle specific events on main side
-				this.onBroadcast(broadcast.channel, broadcast.payload);
+					// Handle specific events on main side
+					this.onBroadcast(broadcast.channel, broadcast.payload);
 
-				// Send to windows
-				if (target) {
-					const otherWindowsWithTarget = this.windowsMainService.getWindows().filter(w => w.id !== windowId && typeof w.openedWorkspacePath === 'string');
-					const directTargetMatch = otherWindowsWithTarget.filter(w => isEqual(target, w.openedWorkspacePath, !platform.isLinux /* ignorecase */));
-					const parentTargetMatch = otherWindowsWithTarget.filter(w => isParent(target, w.openedWorkspacePath, !platform.isLinux /* ignorecase */));
+					// Send to windows
+					if (target) {
+						const otherWindowsWithTarget = this.windowsMainService
+							.getWindows()
+							.filter(
+								w =>
+									w.id !== windowId && typeof w.openedWorkspacePath === 'string'
+							);
+						const directTargetMatch = otherWindowsWithTarget.filter(w =>
+							isEqual(
+								target,
+								w.openedWorkspacePath,
+								!platform.isLinux /* ignorecase */
+							)
+						);
+						const parentTargetMatch = otherWindowsWithTarget.filter(w =>
+							isParent(
+								target,
+								w.openedWorkspacePath,
+								!platform.isLinux /* ignorecase */
+							)
+						);
 
-					const targetWindow = directTargetMatch.length ? directTargetMatch[0] : parentTargetMatch[0]; // prefer direct match over parent match
-					if (targetWindow) {
-						targetWindow.send('vscode:broadcast', broadcast);
+						const targetWindow = directTargetMatch.length
+							? directTargetMatch[0]
+							: parentTargetMatch[0]; // prefer direct match over parent match
+						if (targetWindow) {
+							targetWindow.send('vscode:broadcast', broadcast);
+						}
+					} else {
+						this.windowsMainService.sendToAll('vscode:broadcast', broadcast, [
+							windowId
+						]);
 					}
-				} else {
-					this.windowsMainService.sendToAll('vscode:broadcast', broadcast, [windowId]);
 				}
 			}
-		});
+		);
 
 		// Keyboard layout changes
 		KeyboardLayoutMonitor.INSTANCE.onDidChangeKeyboardLayout(isISOKeyboard => {
 			if (this.windowsMainService) {
-				this.windowsMainService.sendToAll('vscode:keyboardLayoutChanged', isISOKeyboard);
+				this.windowsMainService.sendToAll(
+					'vscode:keyboardLayoutChanged',
+					isISOKeyboard
+				);
 			}
 		});
 	}
 
 	private onBroadcast(event: string, payload: any): void {
-
 		// Theme changes
 		if (event === 'vscode:changeColorTheme' && typeof payload === 'string') {
 			let data = JSON.parse(payload);
 
 			this.storageService.setItem(CodeWindow.themeStorageKey, data.id);
-			this.storageService.setItem(CodeWindow.themeBackgroundStorageKey, data.background);
+			this.storageService.setItem(
+				CodeWindow.themeBackgroundStorageKey,
+				data.background
+			);
 		}
 	}
 
@@ -236,18 +307,27 @@ export class CodeApplication {
 		this.electronIpcServer = new ElectronIPCServer();
 
 		// Spawn shared process
-		this.sharedProcess = new SharedProcess(this.environmentService, this.userEnv);
+		this.sharedProcess = new SharedProcess(
+			this.environmentService,
+			this.userEnv
+		);
 		this.toDispose.push(this.sharedProcess);
-		this.sharedProcessClient = this.sharedProcess.whenReady().then(() => connect(this.environmentService.sharedIPCHandle, 'main'));
+		this.sharedProcessClient = this.sharedProcess
+			.whenReady()
+			.then(() => connect(this.environmentService.sharedIPCHandle, 'main'));
 
 		// Services
 		const appInstantiationService = this.initServices();
 
 		// Open Windows
-		appInstantiationService.invokeFunction(accessor => this.openFirstWindow(accessor));
+		appInstantiationService.invokeFunction(accessor =>
+			this.openFirstWindow(accessor)
+		);
 
 		// Post Open Windows Tasks
-		appInstantiationService.invokeFunction(accessor => this.afterWindowOpen(accessor));
+		appInstantiationService.invokeFunction(accessor =>
+			this.afterWindowOpen(accessor)
+		);
 	}
 
 	private initServices(): IInstantiationService {
@@ -255,21 +335,44 @@ export class CodeApplication {
 
 		services.set(IUpdateService, new SyncDescriptor(UpdateService));
 		services.set(IWindowsMainService, new SyncDescriptor(WindowsManager));
-		services.set(IWindowsService, new SyncDescriptor(WindowsService, this.sharedProcess));
+		services.set(
+			IWindowsService,
+			new SyncDescriptor(WindowsService, this.sharedProcess)
+		);
 		services.set(ILaunchService, new SyncDescriptor(LaunchService));
 
 		// Telemtry
-		if (this.environmentService.isBuilt && !this.environmentService.isExtensionDevelopment && !!product.enableTelemetry) {
-			const channel = getDelayedChannel<ITelemetryAppenderChannel>(this.sharedProcessClient.then(c => c.getChannel('telemetryAppender')));
+		if (
+			this.environmentService.isBuilt &&
+			!this.environmentService.isExtensionDevelopment &&
+			!!product.enableTelemetry
+		) {
+			const channel = getDelayedChannel<ITelemetryAppenderChannel>(
+				this.sharedProcessClient.then(c => c.getChannel('telemetryAppender'))
+			);
 			const appender = new TelemetryAppenderClient(channel);
-			const commonProperties = resolveCommonProperties(product.commit, pkg.version)
-				.then(result => Object.defineProperty(result, 'common.machineId', {
+			const commonProperties = resolveCommonProperties(
+				product.commit,
+				pkg.version
+			).then(result =>
+				Object.defineProperty(result, 'common.machineId', {
 					get: () => this.storageService.getItem(machineIdStorageKey),
 					enumerable: true
-				}));
-			const piiPaths = [this.environmentService.appRoot, this.environmentService.extensionsPath];
-			const config: ITelemetryServiceConfig = { appender, commonProperties, piiPaths };
-			services.set(ITelemetryService, new SyncDescriptor(TelemetryService, config));
+				})
+			);
+			const piiPaths = [
+				this.environmentService.appRoot,
+				this.environmentService.extensionsPath
+			];
+			const config: ITelemetryServiceConfig = {
+				appender,
+				commonProperties,
+				piiPaths
+			};
+			services.set(
+				ITelemetryService,
+				new SyncDescriptor(TelemetryService, config)
+			);
 		} else {
 			services.set(ITelemetryService, NullTelemetryService);
 		}
@@ -285,7 +388,10 @@ export class CodeApplication {
 
 		// TODO@Joao: so ugly...
 		this.windowsMainService.onWindowClose(() => {
-			if (!platform.isMacintosh && this.windowsMainService.getWindowCount() === 0) {
+			if (
+				!platform.isMacintosh &&
+				this.windowsMainService.getWindowCount() === 0
+			) {
 				this.sharedProcess.dispose();
 			}
 		});
@@ -301,17 +407,25 @@ export class CodeApplication {
 		this.electronIpcServer.registerChannel('update', updateChannel);
 
 		const urlService = accessor.get(IURLService);
-		const urlChannel = appInstantiationService.createInstance(URLChannel, urlService);
+		const urlChannel = appInstantiationService.createInstance(
+			URLChannel,
+			urlService
+		);
 		this.electronIpcServer.registerChannel('url', urlChannel);
 
 		const backupService = accessor.get(IBackupMainService);
-		const backupChannel = appInstantiationService.createInstance(BackupChannel, backupService);
+		const backupChannel = appInstantiationService.createInstance(
+			BackupChannel,
+			backupService
+		);
 		this.electronIpcServer.registerChannel('backup', backupChannel);
 
 		const windowsService = accessor.get(IWindowsService);
 		const windowsChannel = new WindowsChannel(windowsService);
 		this.electronIpcServer.registerChannel('windows', windowsChannel);
-		this.sharedProcessClient.done(client => client.registerChannel('windows', windowsChannel));
+		this.sharedProcessClient.done(client =>
+			client.registerChannel('windows', windowsChannel)
+		);
 
 		// Lifecycle
 		this.lifecycleService.ready();
@@ -321,13 +435,37 @@ export class CodeApplication {
 
 		// Open our first window
 		const args = this.environmentService.args;
-		const context = !!process.env['VSCODE_CLI'] ? OpenContext.CLI : OpenContext.DESKTOP;
+		const context = !!process.env['VSCODE_CLI']
+			? OpenContext.CLI
+			: OpenContext.DESKTOP;
 		if (args['new-window'] && args._.length === 0) {
-			this.windowsMainService.open({ context, cli: args, forceNewWindow: true, forceEmpty: true, initialStartup: true }); // new window if "-n" was used without paths
-		} else if (global.macOpenFiles && global.macOpenFiles.length && (!args._ || !args._.length)) {
-			this.windowsMainService.open({ context: OpenContext.DOCK, cli: args, pathsToOpen: global.macOpenFiles, initialStartup: true }); // mac: open-file event received on startup
+			this.windowsMainService.open({
+				context,
+				cli: args,
+				forceNewWindow: true,
+				forceEmpty: true,
+				initialStartup: true
+			}); // new window if "-n" was used without paths
+		} else if (
+			global.macOpenFiles &&
+			global.macOpenFiles.length &&
+			(!args._ || !args._.length)
+		) {
+			this.windowsMainService.open({
+				context: OpenContext.DOCK,
+				cli: args,
+				pathsToOpen: global.macOpenFiles,
+				initialStartup: true
+			}); // mac: open-file event received on startup
 		} else {
-			this.windowsMainService.open({ context, cli: args, forceNewWindow: args['new-window'] || (!args._.length && args['unity-launch']), diffMode: args.diff, initialStartup: true }); // default: read paths from cli
+			this.windowsMainService.open({
+				context,
+				cli: args,
+				forceNewWindow:
+					args['new-window'] || (!args._.length && args['unity-launch']),
+				diffMode: args.diff,
+				initialStartup: true
+			}); // default: read paths from cli
 		}
 	}
 
@@ -351,7 +489,9 @@ export class CodeApplication {
 
 		// Jump List
 		this.historyService.updateWindowsJumpList();
-		this.historyService.onRecentPathsChange(() => this.historyService.updateWindowsJumpList());
+		this.historyService.onRecentPathsChange(() =>
+			this.historyService.updateWindowsJumpList()
+		);
 
 		// Start shared process here
 		this.sharedProcess.spawn();

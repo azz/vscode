@@ -5,9 +5,13 @@
 
 import * as assert from 'assert';
 
-import { SpectronApplication, LATEST_PATH, WORKSPACE_PATH } from "../spectron/application";
+import {
+	SpectronApplication,
+	LATEST_PATH,
+	WORKSPACE_PATH
+} from '../spectron/application';
 import { CommonActions } from '../areas/common';
-import { JavaScript } from "../areas/javascript";
+import { JavaScript } from '../areas/javascript';
 
 let app: SpectronApplication;
 let common: CommonActions;
@@ -16,18 +20,23 @@ export function testJavaScript() {
 	context('JavaScript', () => {
 		let js: JavaScript;
 
-		beforeEach(async function () {
-			app = new SpectronApplication(LATEST_PATH, this.currentTest.fullTitle(), (this.currentTest as any).currentRetry(), [WORKSPACE_PATH]);
+		beforeEach(async function() {
+			app = new SpectronApplication(
+				LATEST_PATH,
+				this.currentTest.fullTitle(),
+				(this.currentTest as any).currentRetry(),
+				[WORKSPACE_PATH]
+			);
 			common = new CommonActions(app);
 			js = new JavaScript(app);
 
 			return await app.start();
 		});
-		afterEach(async function () {
+		afterEach(async function() {
 			return await app.stop();
 		});
 
-		it('shows correct quick outline', async function () {
+		it('shows correct quick outline', async function() {
 			await common.openFirstMatchFile('bin/www');
 			await js.openQuickOutline();
 			await app.wait();
@@ -35,7 +44,7 @@ export function testJavaScript() {
 			assert.equal(symbols, 12);
 		});
 
-		it(`finds 'All References' to 'app'`, async function () {
+		it(`finds 'All References' to 'app'`, async function() {
 			await common.openFirstMatchFile('bin/www');
 			await js.findAppReferences();
 			await app.wait();
@@ -45,7 +54,7 @@ export function testJavaScript() {
 			assert.equal(treeCount, 3);
 		});
 
-		it(`renames local 'app' variable`, async function () {
+		it(`renames local 'app' variable`, async function() {
 			await common.openFirstMatchFile('bin/www');
 
 			const newVarName = 'newApp';
@@ -55,7 +64,7 @@ export function testJavaScript() {
 			assert.equal(newName, newVarName);
 		});
 
-		it('folds/unfolds the code correctly', async function () {
+		it('folds/unfolds the code correctly', async function() {
 			await common.openFirstMatchFile('bin/www');
 			// Fold
 			await js.toggleFirstCommentFold();
@@ -69,14 +78,14 @@ export function testJavaScript() {
 			assert.equal(nextLineNumber, 4);
 		});
 
-		it(`verifies that 'Go To Definition' works`, async function () {
+		it(`verifies that 'Go To Definition' works`, async function() {
 			await common.openFirstMatchFile('app.js');
 			await js.goToExpressDefinition();
 			await app.wait();
 			assert.ok(await common.getTab('index.d.ts'));
 		});
 
-		it(`verifies that 'Peek Definition' works`, async function () {
+		it(`verifies that 'Peek Definition' works`, async function() {
 			await common.openFirstMatchFile('app.js');
 			await js.peekExpressDefinition();
 			await app.wait();

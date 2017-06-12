@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import URI from 'vs/base/common/uri';
 import { normalize } from 'vs/base/common/paths';
@@ -10,12 +10,14 @@ import { relative } from 'path';
 import { IThreadService } from 'vs/workbench/services/thread/common/threadService';
 import { IResourceEdit } from 'vs/editor/common/services/bulkEdit';
 import { TPromise } from 'vs/base/common/winjs.base';
-import { fromRange, EndOfLine } from 'vs/workbench/api/node/extHostTypeConverters';
+import {
+	fromRange,
+	EndOfLine
+} from 'vs/workbench/api/node/extHostTypeConverters';
 import { MainContext, MainThreadWorkspaceShape } from './extHost.protocol';
 import * as vscode from 'vscode';
 
 export class ExtHostWorkspace {
-
 	private static _requestIdPool = 0;
 
 	private _proxy: MainThreadWorkspaceShape;
@@ -31,7 +33,6 @@ export class ExtHostWorkspace {
 	}
 
 	getRelativePath(pathOrUri: string | vscode.Uri): string {
-
 		let path: string;
 		if (typeof pathOrUri === 'string') {
 			path = pathOrUri;
@@ -55,9 +56,19 @@ export class ExtHostWorkspace {
 		return normalize(result);
 	}
 
-	findFiles(include: string, exclude: string, maxResults?: number, token?: vscode.CancellationToken): Thenable<vscode.Uri[]> {
+	findFiles(
+		include: string,
+		exclude: string,
+		maxResults?: number,
+		token?: vscode.CancellationToken
+	): Thenable<vscode.Uri[]> {
 		const requestId = ExtHostWorkspace._requestIdPool++;
-		const result = this._proxy.$startSearch(include, exclude, maxResults, requestId);
+		const result = this._proxy.$startSearch(
+			include,
+			exclude,
+			maxResults,
+			requestId
+		);
 		if (token) {
 			token.onCancellationRequested(() => this._proxy.$cancelSearch(requestId));
 		}
@@ -69,7 +80,6 @@ export class ExtHostWorkspace {
 	}
 
 	appyEdit(edit: vscode.WorkspaceEdit): TPromise<boolean> {
-
 		let resourceEdits: IResourceEdit[] = [];
 
 		let entries = edit.entries();

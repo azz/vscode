@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { isEmptyObject } from 'vs/base/common/types';
 import { forEach } from 'vs/base/common/collections';
@@ -22,7 +22,6 @@ function newNode<T>(data: T): Node<T> {
 }
 
 export class Graph<T> {
-
 	private _nodes: { [key: string]: Node<T> } = Object.create(null);
 
 	constructor(private _hashFn: (element: T) => string) {
@@ -47,7 +46,12 @@ export class Graph<T> {
 		this._traverse(startNode, inwards, Object.create(null), callback);
 	}
 
-	private _traverse(node: Node<T>, inwards: boolean, seen: { [key: string]: boolean }, callback: (data: T) => void): void {
+	private _traverse(
+		node: Node<T>,
+		inwards: boolean,
+		seen: { [key: string]: boolean },
+		callback: (data: T) => void
+	): void {
 		var key = this._hashFn(node.data);
 		if (seen[key]) {
 			return;
@@ -55,7 +59,9 @@ export class Graph<T> {
 		seen[key] = true;
 		callback(node.data);
 		var nodes = inwards ? node.outgoing : node.incoming;
-		forEach(nodes, (entry) => this._traverse(entry.value, inwards, seen, callback));
+		forEach(nodes, entry =>
+			this._traverse(entry.value, inwards, seen, callback)
+		);
 	}
 
 	insertEdge(from: T, to: T): void {
@@ -69,7 +75,7 @@ export class Graph<T> {
 	removeNode(data: T): void {
 		var key = this._hashFn(data);
 		delete this._nodes[key];
-		forEach(this._nodes, (entry) => {
+		forEach(this._nodes, entry => {
 			delete entry.value.outgoing[key];
 			delete entry.value.incoming[key];
 		});
@@ -98,7 +104,11 @@ export class Graph<T> {
 	toString(): string {
 		let data: string[] = [];
 		forEach(this._nodes, entry => {
-			data.push(`${entry.key}, (incoming)[${Object.keys(entry.value.incoming).join(', ')}], (outgoing)[${Object.keys(entry.value.outgoing).join(',')}]`);
+			data.push(
+				`${entry.key}, (incoming)[${Object.keys(entry.value.incoming).join(
+					', '
+				)}], (outgoing)[${Object.keys(entry.value.outgoing).join(',')}]`
+			);
 		});
 		return data.join('\n');
 	}

@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import * as errors from 'vs/base/common/errors';
@@ -13,9 +13,7 @@ import { DeferredTPromise } from 'vs/base/test/common/utils';
 import { QueryType, ISearchQuery } from 'vs/platform/search/common/search';
 
 suite('CacheState', () => {
-
-	test('reuse old cacheKey until new cache is loaded', function () {
-
+	test('reuse old cacheKey until new cache is loaded', function() {
 		const cache = new MockCache();
 
 		const first = createCacheState(cache);
@@ -46,8 +44,7 @@ suite('CacheState', () => {
 		assert.strictEqual(second.cacheKey, secondKey);
 	});
 
-	test('do not spawn additional load if previous is still loading', function () {
-
+	test('do not spawn additional load if previous is still loading', function() {
 		const cache = new MockCache();
 
 		const first = createCacheState(cache);
@@ -71,8 +68,7 @@ suite('CacheState', () => {
 		assert.strictEqual(Object.keys(cache.disposing).length, 0);
 	});
 
-	test('do not use previous cacheKey if query changed', function () {
-
+	test('do not use previous cacheKey if query changed', function() {
 		const cache = new MockCache();
 
 		const first = createCacheState(cache);
@@ -102,8 +98,7 @@ suite('CacheState', () => {
 		assert.strictEqual(Object.keys(cache.disposing).length, 1);
 	});
 
-	test('dispose propagates', function () {
-
+	test('dispose propagates', function() {
 		const cache = new MockCache();
 
 		const first = createCacheState(cache);
@@ -122,8 +117,7 @@ suite('CacheState', () => {
 		assert.ok(cache.disposing[firstKey]);
 	});
 
-	test('keep using old cacheKey when loading fails', function () {
-
+	test('keep using old cacheKey when loading fails', function() {
 		const cache = new MockCache();
 
 		const first = createCacheState(cache);
@@ -164,7 +158,10 @@ suite('CacheState', () => {
 		assert.strictEqual(third.cacheKey, thirdKey); // recover with next successful load
 	});
 
-	function createCacheState(cache: MockCache, previous?: CacheState): CacheState {
+	function createCacheState(
+		cache: MockCache,
+		previous?: CacheState
+	): CacheState {
 		return new CacheState(
 			cacheKey => cache.query(cacheKey),
 			query => cache.load(query),
@@ -174,7 +171,6 @@ suite('CacheState', () => {
 	}
 
 	class MockCache {
-
 		public cacheKeys: string[] = [];
 		public loading: { [cacheKey: string]: DeferredTPromise<any> } = {};
 		public disposing: { [cacheKey: string]: DeferredTPromise<void> } = {};

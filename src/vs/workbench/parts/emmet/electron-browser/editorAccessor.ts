@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { ICommonCodeEditor } from 'vs/editor/common/editorCommon';
 import strings = require('vs/base/common/strings');
@@ -12,7 +12,14 @@ import { SnippetController2 } from 'vs/editor/contrib/snippet/browser/snippetCon
 import { LanguageId, LanguageIdentifier } from 'vs/editor/common/modes';
 import { Position } from 'vs/editor/common/core/position';
 import { CoreEditingCommands } from 'vs/editor/common/controller/coreCommands';
-import { SnippetParser, walk, Placeholder, Variable, Text, Marker } from 'vs/editor/contrib/snippet/browser/snippetParser';
+import {
+	SnippetParser,
+	walk,
+	Placeholder,
+	Variable,
+	Text,
+	Marker
+} from 'vs/editor/contrib/snippet/browser/snippetParser';
 
 import emmet = require('emmet');
 
@@ -25,7 +32,6 @@ export interface ILanguageIdentifierResolver {
 }
 
 export class EditorAccessor implements emmet.Editor {
-
 	private _languageIdentifierResolver: ILanguageIdentifierResolver;
 	private _editor: ICommonCodeEditor;
 	private _syntaxProfiles: any;
@@ -34,9 +40,31 @@ export class EditorAccessor implements emmet.Editor {
 	private _emmetActionName: string;
 	private _hasMadeEdits: boolean;
 
-	private readonly emmetSupportedModes = ['html', 'css', 'xml', 'xsl', 'haml', 'jade', 'jsx', 'slim', 'scss', 'sass', 'less', 'stylus', 'styl', 'svg'];
+	private readonly emmetSupportedModes = [
+		'html',
+		'css',
+		'xml',
+		'xsl',
+		'haml',
+		'jade',
+		'jsx',
+		'slim',
+		'scss',
+		'sass',
+		'less',
+		'stylus',
+		'styl',
+		'svg'
+	];
 
-	constructor(languageIdentifierResolver: ILanguageIdentifierResolver, editor: ICommonCodeEditor, syntaxProfiles: any, excludedLanguages: String[], grammars: IGrammarContributions, emmetActionName?: string) {
+	constructor(
+		languageIdentifierResolver: ILanguageIdentifierResolver,
+		editor: ICommonCodeEditor,
+		syntaxProfiles: any,
+		excludedLanguages: String[],
+		grammars: IGrammarContributions,
+		emmetActionName?: string
+	) {
 		this._languageIdentifierResolver = languageIdentifierResolver;
 		this._editor = editor;
 		this._syntaxProfiles = syntaxProfiles;
@@ -88,7 +116,12 @@ export class EditorAccessor implements emmet.Editor {
 		this._hasMadeEdits = false;
 	}
 
-	public replaceContent(value: string, start: number, end: number, no_indent: boolean): void {
+	public replaceContent(
+		value: string,
+		start: number,
+		end: number,
+		no_indent: boolean
+	): void {
 		let range = this.getRangeToReplace(value, start, end);
 		if (!range) {
 			return;
@@ -105,7 +138,6 @@ export class EditorAccessor implements emmet.Editor {
 	}
 
 	private static fixEmmetFinalTabstop(template: string): string {
-
 		let matchFinalStops = template.match(/\$\{0\}|\$0/g);
 		if (!matchFinalStops || matchFinalStops.length === 1) {
 			return template;
@@ -142,16 +174,19 @@ export class EditorAccessor implements emmet.Editor {
 		function toSnippetString(marker: Marker): string {
 			if (marker instanceof Text) {
 				return SnippetParser.escape(marker.string);
-
 			} else if (marker instanceof Placeholder) {
 				if (marker.children.length > 0) {
-					return `\${${marker.index}:${marker.children.map(toSnippetString).join('')}}`;
+					return `\${${marker.index}:${marker.children
+						.map(toSnippetString)
+						.join('')}}`;
 				} else {
 					return `\$${marker.index}`;
 				}
 			} else if (marker instanceof Variable) {
 				if (marker.children.length > 0) {
-					return `\${${marker.name}:${marker.children.map(toSnippetString).join('')}}`;
+					return `\${${marker.name}:${marker.children
+						.map(toSnippetString)
+						.join('')}}`;
 				} else {
 					return `\$${marker.name}`;
 				}
@@ -168,20 +203,34 @@ export class EditorAccessor implements emmet.Editor {
 		let endPosition = this.getPositionFromOffset(end);
 
 		// test if < or </ are located before or > after the replace range. Either replace these too, or block the expansion
-		var currentLine = this._editor.getModel().getLineContent(startPosition.lineNumber).substr(0, startPosition.column - 1); // content before the replaced range
+		var currentLine = this._editor
+			.getModel()
+			.getLineContent(startPosition.lineNumber)
+			.substr(0, startPosition.column - 1); // content before the replaced range
 		var match = currentLine.match(/<[/]?$/);
 		if (match) {
 			if (strings.startsWith(value, match[0])) {
-				startPosition = new Position(startPosition.lineNumber, startPosition.column - match[0].length);
+				startPosition = new Position(
+					startPosition.lineNumber,
+					startPosition.column - match[0].length
+				);
 			} else {
 				return null; // ignore
 			}
 		}
 
 		// test if > is located after the replace range. Either replace these too, or block the expansion
-		if (this._editor.getModel().getLineContent(endPosition.lineNumber).substr(endPosition.column - 1, endPosition.column) === '>') {
+		if (
+			this._editor
+				.getModel()
+				.getLineContent(endPosition.lineNumber)
+				.substr(endPosition.column - 1, endPosition.column) === '>'
+		) {
 			if (strings.endsWith(value, '>')) {
-				endPosition = new Position(endPosition.lineNumber, endPosition.column + 1);
+				endPosition = new Position(
+					endPosition.lineNumber,
+					endPosition.column + 1
+				);
 			} else {
 				return null; // ignore
 			}
@@ -193,12 +242,20 @@ export class EditorAccessor implements emmet.Editor {
 			this._editor.pushUndoStop();
 		}
 
-		let range = new Range(startPosition.lineNumber, startPosition.column, endPosition.lineNumber, endPosition.column);
+		let range = new Range(
+			startPosition.lineNumber,
+			startPosition.column,
+			endPosition.lineNumber,
+			endPosition.column
+		);
 		let textToReplace = this._editor.getModel().getValueInRange(range);
 
 		// During Expand Abbreviation action, if the expanded abbr is the same as the text it intends to replace,
 		// then treat it as a no-op and return TAB to the editor
-		if (this._emmetActionName === 'expand_abbreviation' && (value === textToReplace || value === textToReplace + '${0}')) {
+		if (
+			this._emmetActionName === 'expand_abbreviation' &&
+			(value === textToReplace || value === textToReplace + '${0}')
+		) {
 			CoreEditingCommands.Tab.runEditorCommand(null, this._editor, null);
 			return null;
 		}
@@ -225,7 +282,12 @@ export class EditorAccessor implements emmet.Editor {
 		} else {
 			endPosition = this.getPositionFromOffset(endOffset);
 		}
-		let range = new Range(startPosition.lineNumber, startPosition.column, endPosition.lineNumber, endPosition.column);
+		let range = new Range(
+			startPosition.lineNumber,
+			startPosition.column,
+			endPosition.lineNumber,
+			endPosition.column
+		);
 		this._editor.setSelection(range);
 		this._editor.revealRange(range);
 	}
@@ -237,8 +299,12 @@ export class EditorAccessor implements emmet.Editor {
 	public getSyntaxInternal(overrideUsingProfiles: boolean): string {
 		let position = this._editor.getSelection().getStartPosition();
 		this._editor.getModel().forceTokenization(position.lineNumber);
-		let languageId = this._editor.getModel().getLanguageIdAtPosition(position.lineNumber, position.column);
-		let language = this._languageIdentifierResolver.getLanguageIdentifier(languageId).language;
+		let languageId = this._editor
+			.getModel()
+			.getLanguageIdAtPosition(position.lineNumber, position.column);
+		let language = this._languageIdentifierResolver.getLanguageIdentifier(
+			languageId
+		).language;
 		let syntax = language.split('.').pop();
 
 		if (this._excludedLanguages.indexOf(syntax) !== -1) {
@@ -247,7 +313,11 @@ export class EditorAccessor implements emmet.Editor {
 
 		// user can overwrite the syntax using the emmet syntaxProfiles setting
 		let profile = this.getSyntaxProfile(syntax);
-		if (overrideUsingProfiles && profile && this.emmetSupportedModes.indexOf(profile) !== -1) {
+		if (
+			overrideUsingProfiles &&
+			profile &&
+			this.emmetSupportedModes.indexOf(profile) !== -1
+		) {
 			return profile;
 		}
 
@@ -255,10 +325,12 @@ export class EditorAccessor implements emmet.Editor {
 			return syntax;
 		}
 
-		if (/\b(typescriptreact|javascriptreact|jsx-tags)\b/.test(syntax)) { // treat tsx like jsx
+		if (/\b(typescriptreact|javascriptreact|jsx-tags)\b/.test(syntax)) {
+			// treat tsx like jsx
 			return 'jsx';
 		}
-		if (syntax === 'sass-indented') { // map sass-indented to sass
+		if (syntax === 'sass-indented') {
+			// map sass-indented to sass
 			return 'sass';
 		}
 		syntax = this.checkParentMode(syntax);
@@ -314,7 +386,12 @@ export class EditorAccessor implements emmet.Editor {
 		let model = this._editor.getModel();
 		let start = selection.getStartPosition();
 		let end = selection.getEndPosition();
-		let range = new Range(start.lineNumber, start.column, end.lineNumber, end.column);
+		let range = new Range(
+			start.lineNumber,
+			start.column,
+			end.lineNumber,
+			end.column
+		);
 		return model.getValueInRange(range);
 	}
 

@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import 'vs/css!vs/base/browser/ui/progressbar/progressbar';
 import * as nls from 'vs/nls';
@@ -11,7 +11,10 @@ import { onUnexpectedError } from 'vs/base/common/errors';
 import { $ } from 'vs/base/browser/dom';
 import { TPromise } from 'vs/base/common/winjs.base';
 import { renderMarkedString } from 'vs/base/browser/htmlContentRenderer';
-import { IOpenerService, NullOpenerService } from 'vs/platform/opener/common/opener';
+import {
+	IOpenerService,
+	NullOpenerService
+} from 'vs/platform/opener/common/opener';
 import { IModeService } from 'vs/editor/common/services/modeService';
 import { Range } from 'vs/editor/common/core/range';
 import { Position } from 'vs/editor/common/core/position';
@@ -25,7 +28,6 @@ import { textToMarkedString, MarkedString } from 'vs/base/common/htmlContent';
 import { ModelDecorationOptions } from 'vs/editor/common/model/textModelWithDecorations';
 
 class ModesContentComputer implements IHoverComputer<Hover[]> {
-
 	private _editor: ICodeEditor;
 	private _result: Hover[];
 	private _range: Range;
@@ -51,10 +53,10 @@ class ModesContentComputer implements IHoverComputer<Hover[]> {
 			return TPromise.as(null);
 		}
 
-		return getHover(model, new Position(
-			this._range.startLineNumber,
-			this._range.startColumn
-		));
+		return getHover(
+			model,
+			new Position(this._range.startLineNumber, this._range.startColumn)
+		);
 	}
 
 	computeSync(): Hover[] {
@@ -66,21 +68,37 @@ class ModesContentComputer implements IHoverComputer<Hover[]> {
 		}
 
 		const hasHoverContent = (contents: MarkedString | MarkedString[]) => {
-			return contents && (!Array.isArray(contents) || (<MarkedString[]>contents).length > 0);
+			return (
+				contents &&
+				(!Array.isArray(contents) || (<MarkedString[]>contents).length > 0)
+			);
 		};
 
 		const maxColumn = this._editor.getModel().getLineMaxColumn(lineNumber);
 		const lineDecorations = this._editor.getLineDecorations(lineNumber);
 
 		const result = lineDecorations.map(d => {
-			const startColumn = (d.range.startLineNumber === lineNumber) ? d.range.startColumn : 1;
-			const endColumn = (d.range.endLineNumber === lineNumber) ? d.range.endColumn : maxColumn;
+			const startColumn = d.range.startLineNumber === lineNumber
+				? d.range.startColumn
+				: 1;
+			const endColumn = d.range.endLineNumber === lineNumber
+				? d.range.endColumn
+				: maxColumn;
 
-			if (startColumn > this._range.startColumn || this._range.endColumn > endColumn || !hasHoverContent(d.options.hoverMessage)) {
+			if (
+				startColumn > this._range.startColumn ||
+				this._range.endColumn > endColumn ||
+				!hasHoverContent(d.options.hoverMessage)
+			) {
 				return null;
 			}
 
-			const range = new Range(this._range.startLineNumber, startColumn, this._range.startLineNumber, endColumn);
+			const range = new Range(
+				this._range.startLineNumber,
+				startColumn,
+				this._range.startLineNumber,
+				endColumn
+			);
 			let contents: MarkedString[];
 
 			if (d.options.hoverMessage) {
@@ -117,13 +135,16 @@ class ModesContentComputer implements IHoverComputer<Hover[]> {
 	private _getLoadingMessage(): Hover {
 		return {
 			range: this._range,
-			contents: [textToMarkedString(nls.localize('modesContentHover.loading', "Loading..."))]
+			contents: [
+				textToMarkedString(
+					nls.localize('modesContentHover.loading', 'Loading...')
+				)
+			]
 		};
 	}
 }
 
 export class ModesContentHoverWidget extends ContentHoverWidget {
-
 	static ID = 'editor.contrib.modesContentHoverWidget';
 
 	private _messages: Hover[];
@@ -136,7 +157,11 @@ export class ModesContentHoverWidget extends ContentHoverWidget {
 	private _modeService: IModeService;
 	private _shouldFocus: boolean;
 
-	constructor(editor: ICodeEditor, openerService: IOpenerService, modeService: IModeService) {
+	constructor(
+		editor: ICodeEditor,
+		openerService: IOpenerService,
+		modeService: IModeService
+	) {
 		super(ModesContentHoverWidget.ID, editor);
 
 		this._computer = new ModesContentComputer(this._editor);
@@ -190,7 +215,10 @@ export class ModesContentHoverWidget extends ContentHoverWidget {
 				for (var i = 0, len = this._messages.length; i < len; i++) {
 					var msg = this._messages[i];
 					var rng = msg.range;
-					if (rng.startColumn <= range.startColumn && rng.endColumn >= range.endColumn) {
+					if (
+						rng.startColumn <= range.startColumn &&
+						rng.endColumn >= range.endColumn
+					) {
 						filteredMessages.push(msg);
 					}
 				}
@@ -213,7 +241,10 @@ export class ModesContentHoverWidget extends ContentHoverWidget {
 		this._hoverOperation.cancel();
 		super.hide();
 		this._isChangingDecorations = true;
-		this._highlightDecorations = this._editor.deltaDecorations(this._highlightDecorations, []);
+		this._highlightDecorations = this._editor.deltaDecorations(
+			this._highlightDecorations,
+			[]
+		);
 		this._isChangingDecorations = false;
 	}
 
@@ -228,13 +259,12 @@ export class ModesContentHoverWidget extends ContentHoverWidget {
 	}
 
 	private _renderMessages(renderRange: Range, messages: Hover[]): void {
-
 		// update column from which to show
 		var renderColumn = Number.MAX_VALUE,
 			highlightRange = messages[0].range,
 			fragment = document.createDocumentFragment();
 
-		messages.forEach((msg) => {
+		messages.forEach(msg => {
 			if (!msg.range) {
 				return;
 			}
@@ -242,41 +272,55 @@ export class ModesContentHoverWidget extends ContentHoverWidget {
 			renderColumn = Math.min(renderColumn, msg.range.startColumn);
 			highlightRange = Range.plusRange(highlightRange, msg.range);
 
-			msg.contents
-				.filter(contents => !!contents)
-				.forEach(contents => {
-					const renderedContents = renderMarkedString(contents, {
-						actionCallback: (content) => {
-							this._openerService.open(URI.parse(content)).then(void 0, onUnexpectedError);
-						},
-						codeBlockRenderer: (languageAlias, value): string | TPromise<string> => {
-							// In markdown,
-							// it is possible that we stumble upon language aliases (e.g.js instead of javascript)
-							// it is possible no alias is given in which case we fall back to the current editor lang
-							const modeId = languageAlias
-								? this._modeService.getModeIdForLanguageName(languageAlias)
-								: this._editor.getModel().getLanguageIdentifier().language;
+			msg.contents.filter(contents => !!contents).forEach(contents => {
+				const renderedContents = renderMarkedString(contents, {
+					actionCallback: content => {
+						this._openerService
+							.open(URI.parse(content))
+							.then(void 0, onUnexpectedError);
+					},
+					codeBlockRenderer: (
+						languageAlias,
+						value
+					): string | TPromise<string> => {
+						// In markdown,
+						// it is possible that we stumble upon language aliases (e.g.js instead of javascript)
+						// it is possible no alias is given in which case we fall back to the current editor lang
+						const modeId = languageAlias
+							? this._modeService.getModeIdForLanguageName(languageAlias)
+							: this._editor.getModel().getLanguageIdentifier().language;
 
-							return this._modeService.getOrCreateMode(modeId).then(_ => {
-								return `<div class="code">${tokenizeToString(value, modeId)}</div>`;
-							});
-						}
-					});
-
-					fragment.appendChild($('div.hover-row', null, renderedContents));
+						return this._modeService.getOrCreateMode(modeId).then(_ => {
+							return `<div class="code">${tokenizeToString(
+								value,
+								modeId
+							)}</div>`;
+						});
+					}
 				});
+
+				fragment.appendChild($('div.hover-row', null, renderedContents));
+			});
 		});
 
 		// show
-		this.showAt(new Position(renderRange.startLineNumber, renderColumn), this._shouldFocus);
+		this.showAt(
+			new Position(renderRange.startLineNumber, renderColumn),
+			this._shouldFocus
+		);
 
 		this.updateContents(fragment);
 
 		this._isChangingDecorations = true;
-		this._highlightDecorations = this._editor.deltaDecorations(this._highlightDecorations, [{
-			range: highlightRange,
-			options: ModesContentHoverWidget._DECORATION_OPTIONS
-		}]);
+		this._highlightDecorations = this._editor.deltaDecorations(
+			this._highlightDecorations,
+			[
+				{
+					range: highlightRange,
+					options: ModesContentHoverWidget._DECORATION_OPTIONS
+				}
+			]
+		);
 		this._isChangingDecorations = false;
 	}
 

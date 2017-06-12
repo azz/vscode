@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { Position } from 'vs/editor/common/core/position';
 import * as nls from 'vs/nls';
@@ -12,14 +12,15 @@ import { IModel } from 'vs/editor/common/editorCommon';
 import { Selection } from 'vs/editor/common/core/selection';
 
 export class ScreenReaderMessageGenerator {
-
 	public static xSelected(x: string): string {
 		return nls.localize(
 			{
 				key: 'x.selected',
-				comment: ['A piece of text was added to the selection (this should be a message suitable for a Screen Reader).']
+				comment: [
+					'A piece of text was added to the selection (this should be a message suitable for a Screen Reader).'
+				]
 			},
-			"{0}\nSelected",
+			'{0}\nSelected',
 			x
 		);
 	}
@@ -28,9 +29,11 @@ export class ScreenReaderMessageGenerator {
 		return nls.localize(
 			{
 				key: 'x.unselected',
-				comment: ['A piece of text was removed from the selection (this should be a message suitable for a Screen Reader).']
+				comment: [
+					'A piece of text was removed from the selection (this should be a message suitable for a Screen Reader).'
+				]
 			},
-			"{0}\nUnselected",
+			'{0}\nUnselected',
 			x
 		);
 	}
@@ -39,9 +42,11 @@ export class ScreenReaderMessageGenerator {
 		return nls.localize(
 			{
 				key: 'x.chars.selected',
-				comment: ['A large number of characters were added to the selection (this should be a message suitable for a Screen Reader).']
+				comment: [
+					'A large number of characters were added to the selection (this should be a message suitable for a Screen Reader).'
+				]
 			},
-			"{0}\nCharacters selected",
+			'{0}\nCharacters selected',
 			x
 		);
 	}
@@ -50,30 +55,53 @@ export class ScreenReaderMessageGenerator {
 		return nls.localize(
 			{
 				key: 'x.chars.unselected',
-				comment: ['A large number of characters were removed from the selection (this should be a message suitable for a Screen Reader).']
+				comment: [
+					'A large number of characters were removed from the selection (this should be a message suitable for a Screen Reader).'
+				]
 			},
-			"{0}\nCharacters unselected",
+			'{0}\nCharacters unselected',
 			x
 		);
 	}
 
-	public static generateMessage(source: string, model: IModel, oldModelId: number, oldSelection: Selection, newModelId: number, newSelection: Selection): string {
+	public static generateMessage(
+		source: string,
+		model: IModel,
+		oldModelId: number,
+		oldSelection: Selection,
+		newModelId: number,
+		newSelection: Selection
+	): string {
 		if (oldModelId === newModelId) {
-			return this._cursorChangeMessage(source, model, oldSelection, newSelection);
+			return this._cursorChangeMessage(
+				source,
+				model,
+				oldSelection,
+				newSelection
+			);
 		}
 		return 'TODO';
 	}
 
-	private static _cursorChangeMessage(source: string, model: IModel, oldSelection: Selection, newSelection: Selection): string {
+	private static _cursorChangeMessage(
+		source: string,
+		model: IModel,
+		oldSelection: Selection,
+		newSelection: Selection
+	): string {
 		if (oldSelection.equalsRange(newSelection)) {
 			return '';
 		}
 
 		if (oldSelection.isEmpty()) {
-
 			if (newSelection.isEmpty()) {
 				// ...[]... => ...[]...
-				return this._cursorMoveMessage(source, model, oldSelection.getPosition(), newSelection.getPosition());
+				return this._cursorMoveMessage(
+					source,
+					model,
+					oldSelection.getPosition(),
+					newSelection.getPosition()
+				);
 			}
 
 			// ...[]... => ...[x]...:
@@ -87,49 +115,107 @@ export class ScreenReaderMessageGenerator {
 			}
 
 			// moved away from the old selection and collapsed it
-			return this._cursorMoveMessage(source, model, oldSelection.getPosition(), newSelection.getPosition()) + '\n' + this._cursorUnselectedMessage(model, oldSelection);
+			return (
+				this._cursorMoveMessage(
+					source,
+					model,
+					oldSelection.getPosition(),
+					newSelection.getPosition()
+				) +
+				'\n' +
+				this._cursorUnselectedMessage(model, oldSelection)
+			);
 		}
 
 		// ...[x]... => ...[y]...
 
-		if (newSelection.getStartPosition().equals(oldSelection.getStartPosition())) {
-
+		if (
+			newSelection.getStartPosition().equals(oldSelection.getStartPosition())
+		) {
 			// ...a[x]... => ...a[y]...
 
-			if (newSelection.getEndPosition().isBefore(oldSelection.getEndPosition())) {
+			if (
+				newSelection.getEndPosition().isBefore(oldSelection.getEndPosition())
+			) {
 				// ...a[xy]... => ...a[x]y...
-				return this._cursorUnselectedMessage(model, new Range(newSelection.endLineNumber, newSelection.endColumn, oldSelection.endLineNumber, oldSelection.endColumn));
-
+				return this._cursorUnselectedMessage(
+					model,
+					new Range(
+						newSelection.endLineNumber,
+						newSelection.endColumn,
+						oldSelection.endLineNumber,
+						oldSelection.endColumn
+					)
+				);
 			}
 
 			// ...a[x]y... => ...a[xy]...
-			return this._cursorSelectedMessage(model, new Range(oldSelection.endLineNumber, oldSelection.endColumn, newSelection.endLineNumber, newSelection.endColumn));
-
+			return this._cursorSelectedMessage(
+				model,
+				new Range(
+					oldSelection.endLineNumber,
+					oldSelection.endColumn,
+					newSelection.endLineNumber,
+					newSelection.endColumn
+				)
+			);
 		}
 
 		if (newSelection.getEndPosition().equals(oldSelection.getEndPosition())) {
-
 			// ...[x]a... => ...[y]a...
 
-			if (newSelection.getStartPosition().isBefore(oldSelection.getStartPosition())) {
+			if (
+				newSelection
+					.getStartPosition()
+					.isBefore(oldSelection.getStartPosition())
+			) {
 				// ...y[x]a... => ...[yx]a...
-				return this._cursorSelectedMessage(model, new Range(newSelection.startLineNumber, newSelection.startColumn, oldSelection.startLineNumber, oldSelection.startColumn));
+				return this._cursorSelectedMessage(
+					model,
+					new Range(
+						newSelection.startLineNumber,
+						newSelection.startColumn,
+						oldSelection.startLineNumber,
+						oldSelection.startColumn
+					)
+				);
 			}
 
 			// ...[yx]a... => ...y[x]a...
-			return this._cursorUnselectedMessage(model, new Range(oldSelection.startLineNumber, oldSelection.startColumn, newSelection.startLineNumber, newSelection.startColumn));
-
+			return this._cursorUnselectedMessage(
+				model,
+				new Range(
+					oldSelection.startLineNumber,
+					oldSelection.startColumn,
+					newSelection.startLineNumber,
+					newSelection.startColumn
+				)
+			);
 		}
 
 		// weird jump
-		return this._cursorSelectedMessage(model, newSelection) + '\n' + this._cursorUnselectedMessage(model, oldSelection);
-
+		return (
+			this._cursorSelectedMessage(model, newSelection) +
+			'\n' +
+			this._cursorUnselectedMessage(model, oldSelection)
+		);
 	}
 
-	private static _cursorMoveMessage(source: string, model: IModel, oldPosition: Position, newPosition: Position): string {
-
+	private static _cursorMoveMessage(
+		source: string,
+		model: IModel,
+		oldPosition: Position,
+		newPosition: Position
+	): string {
 		if (source === 'moveWordCommand') {
-			return model.getValueInRange(new Range(oldPosition.lineNumber, oldPosition.column, newPosition.lineNumber, newPosition.column));
+			return model.getValueInRange(
+				new Range(
+					oldPosition.lineNumber,
+					oldPosition.column,
+					newPosition.lineNumber,
+					newPosition.column
+				)
+			);
 		}
 
 		const oldLineNumber = oldPosition.lineNumber;
@@ -138,12 +224,20 @@ export class ScreenReaderMessageGenerator {
 		const newColumn = newPosition.column;
 
 		// check going down via right arrow
-		if (newLineNumber === oldLineNumber + 1 && newColumn === 1 && oldColumn === model.getLineMaxColumn(oldLineNumber)) {
+		if (
+			newLineNumber === oldLineNumber + 1 &&
+			newColumn === 1 &&
+			oldColumn === model.getLineMaxColumn(oldLineNumber)
+		) {
 			return this._cursorCharMessage(model, newPosition);
 		}
 
 		// check going up via up arrow
-		if (newLineNumber === oldLineNumber - 1 && newColumn === model.getLineMaxColumn(newLineNumber) && oldColumn === 1) {
+		if (
+			newLineNumber === oldLineNumber - 1 &&
+			newColumn === model.getLineMaxColumn(newLineNumber) &&
+			oldColumn === 1
+		) {
 			return this._cursorCharMessage(model, newPosition);
 		}
 
@@ -190,5 +284,4 @@ export class ScreenReaderMessageGenerator {
 		}
 		return this.xUnselected(model.getValueInRange(range));
 	}
-
 }

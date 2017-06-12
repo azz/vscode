@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { IDisposable } from 'vs/base/common/lifecycle';
 import { IKeyboardEvent } from 'vs/base/browser/keyboardEvent';
@@ -249,7 +249,7 @@ export enum MouseTargetType {
 	/**
 	 * Mouse is outside of the editor.
 	 */
-	OUTSIDE_EDITOR,
+	OUTSIDE_EDITOR
 }
 
 /**
@@ -292,7 +292,10 @@ export interface IEditorMouseEvent {
 /**
  * @internal
  */
-export type IEditorContributionCtor = IConstructorSignature1<ICodeEditor, editorCommon.IEditorContribution>;
+export type IEditorContributionCtor = IConstructorSignature1<
+	ICodeEditor,
+	editorCommon.IEditorContribution
+>;
 
 /**
  * An overview ruler
@@ -360,12 +363,16 @@ export interface ICodeEditor extends editorCommon.ICommonCodeEditor {
 	 * An event emitted when the layout of the editor has changed.
 	 * @event
 	 */
-	onDidLayoutChange(listener: (e: editorOptions.EditorLayoutInfo) => void): IDisposable;
+	onDidLayoutChange(
+		listener: (e: editorOptions.EditorLayoutInfo) => void
+	): IDisposable;
 	/**
 	 * An event emitted when the scroll in the editor has changed.
 	 * @event
 	 */
-	onDidScrollChange(listener: (e: editorCommon.IScrollEvent) => void): IDisposable;
+	onDidScrollChange(
+		listener: (e: editorCommon.IScrollEvent) => void
+	): IDisposable;
 
 	/**
 	 * Returns the editor's dom node
@@ -453,7 +460,9 @@ export interface ICodeEditor extends editorCommon.ICommonCodeEditor {
 	 * Explanation 2: the results of this method will not change if the container of the editor gets repositioned.
 	 * Warning: the results of this method are innacurate for positions that are outside the current editor viewport.
 	 */
-	getScrolledVisiblePosition(position: IPosition): { top: number; left: number; height: number; };
+	getScrolledVisiblePosition(
+		position: IPosition
+	): { top: number; left: number; height: number };
 
 	/**
 	 * Set the model ranges that will be hidden in the view.

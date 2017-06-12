@@ -2,12 +2,11 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as dom from 'vs/base/browser/dom';
 
 export abstract class FastDomNode<T extends HTMLElement> {
-
 	public readonly domNode: T;
 	private _maxWidth: number;
 	private _width: number;
@@ -263,13 +262,15 @@ class StandardFastDomNode<T extends HTMLElement> extends FastDomNode<T> {
 }
 
 let useWebKitFastDomNode = false;
-(function () {
+(function() {
 	let testDomNode = document.createElement('div');
 	if (typeof (<any>testDomNode.style).webkitTransform !== 'undefined') {
 		useWebKitFastDomNode = true;
 	}
 })();
-export function createFastDomNode<T extends HTMLElement>(domNode: T): FastDomNode<T> {
+export function createFastDomNode<T extends HTMLElement>(
+	domNode: T
+): FastDomNode<T> {
 	if (useWebKitFastDomNode) {
 		return new WebKitFastDomNode(domNode);
 	} else {

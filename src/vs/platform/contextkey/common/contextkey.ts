@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
 import Event from 'vs/base/common/event';
@@ -16,7 +16,6 @@ export enum ContextKeyExprType {
 }
 
 export abstract class ContextKeyExpr {
-
 	public static has(key: string): ContextKeyExpr {
 		return new ContextKeyDefinedExpr(key);
 	}
@@ -43,7 +42,9 @@ export abstract class ContextKeyExpr {
 		}
 
 		let pieces = serialized.split('&&');
-		let result = new ContextKeyAndExpr(pieces.map(p => this._deserializeOne(p)));
+		let result = new ContextKeyAndExpr(
+			pieces.map(p => this._deserializeOne(p))
+		);
 		return result.normalize();
 	}
 
@@ -52,12 +53,18 @@ export abstract class ContextKeyExpr {
 
 		if (serializedOne.indexOf('!=') >= 0) {
 			let pieces = serializedOne.split('!=');
-			return new ContextKeyNotEqualsExpr(pieces[0].trim(), this._deserializeValue(pieces[1]));
+			return new ContextKeyNotEqualsExpr(
+				pieces[0].trim(),
+				this._deserializeValue(pieces[1])
+			);
 		}
 
 		if (serializedOne.indexOf('==') >= 0) {
 			let pieces = serializedOne.split('==');
-			return new ContextKeyEqualsExpr(pieces[0].trim(), this._deserializeValue(pieces[1]));
+			return new ContextKeyEqualsExpr(
+				pieces[0].trim(),
+				this._deserializeValue(pieces[1])
+			);
 		}
 
 		if (/^\!\s*/.test(serializedOne)) {
@@ -115,8 +122,7 @@ function cmp(a: ContextKeyExpr, b: ContextKeyExpr): number {
 }
 
 export class ContextKeyDefinedExpr implements ContextKeyExpr {
-	constructor(protected key: string) {
-	}
+	constructor(protected key: string) {}
 
 	public getType(): ContextKeyExprType {
 		return ContextKeyExprType.Defined;
@@ -134,13 +140,13 @@ export class ContextKeyDefinedExpr implements ContextKeyExpr {
 
 	public equals(other: ContextKeyExpr): boolean {
 		if (other instanceof ContextKeyDefinedExpr) {
-			return (this.key === other.key);
+			return this.key === other.key;
 		}
 		return false;
 	}
 
 	public evaluate(context: IContext): boolean {
-		return (!!context.getValue(this.key));
+		return !!context.getValue(this.key);
 	}
 
 	public normalize(): ContextKeyExpr {
@@ -157,8 +163,7 @@ export class ContextKeyDefinedExpr implements ContextKeyExpr {
 }
 
 export class ContextKeyEqualsExpr implements ContextKeyExpr {
-	constructor(private key: string, private value: any) {
-	}
+	constructor(private key: string, private value: any) {}
 
 	public getType(): ContextKeyExprType {
 		return ContextKeyExprType.Equals;
@@ -182,7 +187,7 @@ export class ContextKeyEqualsExpr implements ContextKeyExpr {
 
 	public equals(other: ContextKeyExpr): boolean {
 		if (other instanceof ContextKeyEqualsExpr) {
-			return (this.key === other.key && this.value === other.value);
+			return this.key === other.key && this.value === other.value;
 		}
 		return false;
 	}
@@ -190,7 +195,7 @@ export class ContextKeyEqualsExpr implements ContextKeyExpr {
 	public evaluate(context: IContext): boolean {
 		/* tslint:disable:triple-equals */
 		// Intentional ==
-		return (context.getValue(this.key) == this.value);
+		return context.getValue(this.key) == this.value;
 		/* tslint:enable:triple-equals */
 	}
 
@@ -209,7 +214,7 @@ export class ContextKeyEqualsExpr implements ContextKeyExpr {
 			return this.normalize().serialize();
 		}
 
-		return this.key + ' == \'' + this.value + '\'';
+		return this.key + " == '" + this.value + "'";
 	}
 
 	public keys(): string[] {
@@ -218,8 +223,7 @@ export class ContextKeyEqualsExpr implements ContextKeyExpr {
 }
 
 export class ContextKeyNotEqualsExpr implements ContextKeyExpr {
-	constructor(private key: string, private value: any) {
-	}
+	constructor(private key: string, private value: any) {}
 
 	public getType(): ContextKeyExprType {
 		return ContextKeyExprType.NotEquals;
@@ -243,7 +247,7 @@ export class ContextKeyNotEqualsExpr implements ContextKeyExpr {
 
 	public equals(other: ContextKeyExpr): boolean {
 		if (other instanceof ContextKeyNotEqualsExpr) {
-			return (this.key === other.key && this.value === other.value);
+			return this.key === other.key && this.value === other.value;
 		}
 		return false;
 	}
@@ -251,7 +255,7 @@ export class ContextKeyNotEqualsExpr implements ContextKeyExpr {
 	public evaluate(context: IContext): boolean {
 		/* tslint:disable:triple-equals */
 		// Intentional !=
-		return (context.getValue(this.key) != this.value);
+		return context.getValue(this.key) != this.value;
 		/* tslint:enable:triple-equals */
 	}
 
@@ -270,7 +274,7 @@ export class ContextKeyNotEqualsExpr implements ContextKeyExpr {
 			return this.normalize().serialize();
 		}
 
-		return this.key + ' != \'' + this.value + '\'';
+		return this.key + " != '" + this.value + "'";
 	}
 
 	public keys(): string[] {
@@ -279,8 +283,7 @@ export class ContextKeyNotEqualsExpr implements ContextKeyExpr {
 }
 
 export class ContextKeyNotExpr implements ContextKeyExpr {
-	constructor(private key: string) {
-	}
+	constructor(private key: string) {}
 
 	public getType(): ContextKeyExprType {
 		return ContextKeyExprType.Not;
@@ -298,13 +301,13 @@ export class ContextKeyNotExpr implements ContextKeyExpr {
 
 	public equals(other: ContextKeyExpr): boolean {
 		if (other instanceof ContextKeyNotExpr) {
-			return (this.key === other.key);
+			return this.key === other.key;
 		}
 		return false;
 	}
 
 	public evaluate(context: IContext): boolean {
-		return (!context.getValue(this.key));
+		return !context.getValue(this.key);
 	}
 
 	public normalize(): ContextKeyExpr {
@@ -416,7 +419,6 @@ export class ContextKeyAndExpr implements ContextKeyExpr {
 }
 
 export class RawContextKey<T> extends ContextKeyDefinedExpr {
-
 	private _defaultValue: T;
 
 	constructor(key: string, defaultValue: T) {
@@ -459,7 +461,9 @@ export interface IContextKeyServiceTarget {
 	getAttribute(attr: string): string;
 }
 
-export let IContextKeyService = createDecorator<IContextKeyService>('contextKeyService');
+export let IContextKeyService = createDecorator<IContextKeyService>(
+	'contextKeyService'
+);
 
 export interface IContextKeyService {
 	_serviceBrand: any;

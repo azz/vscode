@@ -2,10 +2,9 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as platform from 'vs/base/common/platform';
-
 
 function _encode(ch: string): string {
 	return '%' + ch.charCodeAt(0).toString(16).toUpperCase();
@@ -19,7 +18,6 @@ function encodeURIComponent2(str: string): string {
 function encodeNoop(str: string): string {
 	return str.replace(/[#?]/, _encode);
 }
-
 
 /**
  * Uniform Resource Identifier (URI) http://tools.ietf.org/html/rfc3986.
@@ -38,7 +36,6 @@ function encodeNoop(str: string): string {
  *
  */
 export default class URI {
-
 	static isUri(thing: any): thing is URI {
 		if (thing instanceof URI) {
 			return true;
@@ -46,11 +43,13 @@ export default class URI {
 		if (!thing) {
 			return false;
 		}
-		return typeof (<URI>thing).authority === 'string'
-			&& typeof (<URI>thing).fragment === 'string'
-			&& typeof (<URI>thing).path === 'string'
-			&& typeof (<URI>thing).query === 'string'
-			&& typeof (<URI>thing).scheme === 'string';
+		return (
+			typeof (<URI>thing).authority === 'string' &&
+			typeof (<URI>thing).fragment === 'string' &&
+			typeof (<URI>thing).path === 'string' &&
+			typeof (<URI>thing).query === 'string' &&
+			typeof (<URI>thing).scheme === 'string'
+		);
 	}
 
 	private static _empty = '';
@@ -146,8 +145,13 @@ export default class URI {
 
 	// ---- modify to new -------------------------
 
-	public with(change: { scheme?: string; authority?: string; path?: string; query?: string; fragment?: string }): URI {
-
+	public with(change: {
+		scheme?: string;
+		authority?: string;
+		path?: string;
+		query?: string;
+		fragment?: string;
+	}): URI {
 		if (!change) {
 			return this;
 		}
@@ -179,12 +183,13 @@ export default class URI {
 			fragment = '';
 		}
 
-		if (scheme === this.scheme
-			&& authority === this.authority
-			&& path === this.path
-			&& query === this.query
-			&& fragment === this.fragment) {
-
+		if (
+			scheme === this.scheme &&
+			authority === this.authority &&
+			path === this.path &&
+			query === this.query &&
+			fragment === this.fragment
+		) {
 			return this;
 		}
 
@@ -213,7 +218,6 @@ export default class URI {
 	}
 
 	public static file(path: string): URI {
-
 		const ret = new URI();
 		ret._scheme = 'file';
 
@@ -250,13 +254,12 @@ export default class URI {
 	}
 
 	private static _parseComponents(value: string): UriComponents {
-
 		const ret: UriComponents = {
 			scheme: URI._empty,
 			authority: URI._empty,
 			path: URI._empty,
 			query: URI._empty,
-			fragment: URI._empty,
+			fragment: URI._empty
 		};
 
 		const match = URI._regexp.exec(value);
@@ -270,7 +273,13 @@ export default class URI {
 		return ret;
 	}
 
-	public static from(components: { scheme?: string; authority?: string; path?: string; query?: string; fragment?: string }): URI {
+	public static from(components: {
+		scheme?: string;
+		authority?: string;
+		path?: string;
+		query?: string;
+		fragment?: string;
+	}): URI {
 		return new URI().with(components);
 	}
 
@@ -293,11 +302,15 @@ export default class URI {
 		if (ret.path) {
 			if (ret.authority) {
 				if (!URI._singleSlashStart.test(ret.path)) {
-					throw new Error('[UriError]: If a URI contains an authority component, then the path component must either be empty or begin with a slash ("/") character');
+					throw new Error(
+						'[UriError]: If a URI contains an authority component, then the path component must either be empty or begin with a slash ("/") character'
+					);
 				}
 			} else {
 				if (URI._doubleSlashStart.test(ret.path)) {
-					throw new Error('[UriError]: If a URI does not contain an authority component, then the path cannot begin with two slash characters ("//")');
+					throw new Error(
+						'[UriError]: If a URI does not contain an authority component, then the path cannot begin with two slash characters ("//")'
+					);
 				}
 			}
 		}
@@ -322,10 +335,7 @@ export default class URI {
 	}
 
 	private static _asFormatted(uri: URI, skipEncoding: boolean): string {
-
-		const encoder = !skipEncoding
-			? encodeURIComponent2
-			: encodeNoop;
+		const encoder = !skipEncoding ? encodeURIComponent2 : encodeNoop;
 
 		const parts: string[] = [];
 
@@ -369,7 +379,7 @@ export default class URI {
 				}
 				parts.push(encoder(path.substring(lastIdx, idx)), URI._slash);
 				lastIdx = idx + 1;
-			};
+			}
 		}
 		if (query) {
 			parts.push('?', encoder(query));

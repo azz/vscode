@@ -2,21 +2,26 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import URI from 'vs/base/common/uri';
-import { createDecorator, IInstantiationService } from 'vs/platform/instantiation/common/instantiation';
+import {
+	createDecorator,
+	IInstantiationService
+} from 'vs/platform/instantiation/common/instantiation';
 import arrays = require('vs/base/common/arrays');
 import { UntitledEditorInput } from 'vs/workbench/common/editor/untitledEditorInput';
 import { IFilesConfiguration } from 'vs/platform/files/common/files';
 import { IConfigurationService } from 'vs/platform/configuration/common/configuration';
 import Event, { Emitter, once } from 'vs/base/common/event';
 import { ResourceMap } from 'vs/base/common/map';
-import { TPromise } from "vs/base/common/winjs.base";
-import { UntitledEditorModel } from "vs/workbench/common/editor/untitledEditorModel";
-import { Schemas } from "vs/base/common/network";
+import { TPromise } from 'vs/base/common/winjs.base';
+import { UntitledEditorModel } from 'vs/workbench/common/editor/untitledEditorModel';
+import { Schemas } from 'vs/base/common/network';
 
-export const IUntitledEditorService = createDecorator<IUntitledEditorService>('untitledEditorService');
+export const IUntitledEditorService = createDecorator<IUntitledEditorService>(
+	'untitledEditorService'
+);
 
 export const UNTITLED_SCHEMA = 'untitled';
 
@@ -28,7 +33,6 @@ export interface IModelLoadOrCreateOptions {
 }
 
 export interface IUntitledEditorService {
-
 	_serviceBrand: any;
 
 	/**
@@ -78,7 +82,12 @@ export interface IUntitledEditorService {
 	 * It is valid to pass in a file resource. In that case the path will be used as identifier.
 	 * The use case is to be able to create a new file with a specific path with VSCode.
 	 */
-	createOrGet(resource?: URI, modeId?: string, initialValue?: string, encoding?: string): UntitledEditorInput;
+	createOrGet(
+		resource?: URI,
+		modeId?: string,
+		initialValue?: string,
+		encoding?: string
+	): UntitledEditorInput;
 
 	/**
 	 * Creates a new untitled model with the optional resource URI or returns an existing one
@@ -87,7 +96,9 @@ export interface IUntitledEditorService {
 	 * It is valid to pass in a file resource. In that case the path will be used as identifier.
 	 * The use case is to be able to create a new file with a specific path with VSCode.
 	 */
-	loadOrCreate(options: IModelLoadOrCreateOptions): TPromise<UntitledEditorModel>;
+	loadOrCreate(
+		options: IModelLoadOrCreateOptions
+	): TPromise<UntitledEditorModel>;
 
 	/**
 	 * A check to find out if a untitled resource has a file path associated or not.
@@ -106,7 +117,6 @@ export interface IUntitledEditorService {
 }
 
 export class UntitledEditorService implements IUntitledEditorService {
-
 	public _serviceBrand: any;
 
 	private mapResourceToInput = new ResourceMap<UntitledEditorInput>();
@@ -189,21 +199,30 @@ export class UntitledEditorService implements IUntitledEditorService {
 			inputs = this.mapResourceToInput.values();
 		}
 
-		return inputs
-			.filter(i => i.isDirty())
-			.map(i => i.getResource());
+		return inputs.filter(i => i.isDirty()).map(i => i.getResource());
 	}
 
-	public loadOrCreate(options: IModelLoadOrCreateOptions = Object.create(null)): TPromise<UntitledEditorModel> {
-		return this.createOrGet(options.resource, options.modeId, options.initialValue, options.encoding).resolve();
+	public loadOrCreate(
+		options: IModelLoadOrCreateOptions = Object.create(null)
+	): TPromise<UntitledEditorModel> {
+		return this.createOrGet(
+			options.resource,
+			options.modeId,
+			options.initialValue,
+			options.encoding
+		).resolve();
 	}
 
-	public createOrGet(resource?: URI, modeId?: string, initialValue?: string, encoding?: string): UntitledEditorInput {
-
+	public createOrGet(
+		resource?: URI,
+		modeId?: string,
+		initialValue?: string,
+		encoding?: string
+	): UntitledEditorInput {
 		// Massage resource if it comes with a file:// scheme
 		let hasAssociatedFilePath = false;
 		if (resource) {
-			hasAssociatedFilePath = (resource.scheme === Schemas.file);
+			hasAssociatedFilePath = resource.scheme === Schemas.file;
 			resource = resource.with({ scheme: UNTITLED_SCHEMA }); // ensure we have the right scheme
 
 			if (hasAssociatedFilePath) {
@@ -217,29 +236,52 @@ export class UntitledEditorService implements IUntitledEditorService {
 		}
 
 		// Create new otherwise
-		return this.doCreate(resource, hasAssociatedFilePath, modeId, initialValue, encoding);
+		return this.doCreate(
+			resource,
+			hasAssociatedFilePath,
+			modeId,
+			initialValue,
+			encoding
+		);
 	}
 
-	private doCreate(resource?: URI, hasAssociatedFilePath?: boolean, modeId?: string, initialValue?: string, encoding?: string): UntitledEditorInput {
+	private doCreate(
+		resource?: URI,
+		hasAssociatedFilePath?: boolean,
+		modeId?: string,
+		initialValue?: string,
+		encoding?: string
+	): UntitledEditorInput {
 		if (!resource) {
-
 			// Create new taking a resource URI that is not already taken
 			let counter = this.mapResourceToInput.size + 1;
 			do {
-				resource = URI.from({ scheme: UNTITLED_SCHEMA, path: `Untitled-${counter}` });
+				resource = URI.from({
+					scheme: UNTITLED_SCHEMA,
+					path: `Untitled-${counter}`
+				});
 				counter++;
 			} while (this.mapResourceToInput.has(resource));
 		}
 
 		// Look up default language from settings if any
 		if (!modeId && !hasAssociatedFilePath) {
-			const configuration = this.configurationService.getConfiguration<IFilesConfiguration>();
+			const configuration = this.configurationService.getConfiguration<
+				IFilesConfiguration
+			>();
 			if (configuration.files && configuration.files.defaultLanguage) {
 				modeId = configuration.files.defaultLanguage;
 			}
 		}
 
-		const input = this.instantiationService.createInstance(UntitledEditorInput, resource, hasAssociatedFilePath, modeId, initialValue, encoding);
+		const input = this.instantiationService.createInstance(
+			UntitledEditorInput,
+			resource,
+			hasAssociatedFilePath,
+			modeId,
+			initialValue,
+			encoding
+		);
 
 		const contentListener = input.onDidModelChangeContent(() => {
 			this._onDidChangeContent.fire(resource);

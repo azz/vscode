@@ -2,9 +2,13 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
-import { ResolvedKeybinding, Keybinding, KeyCode } from 'vs/base/common/keyCodes';
+import {
+	ResolvedKeybinding,
+	Keybinding,
+	KeyCode
+} from 'vs/base/common/keyCodes';
 import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
 import { IContextKeyServiceTarget } from 'vs/platform/contextkey/common/contextkey';
 import { IResolveResult } from 'vs/platform/keybinding/common/keybindingResolver';
@@ -37,7 +41,9 @@ export interface IKeyboardEvent {
 	readonly code: string;
 }
 
-export let IKeybindingService = createDecorator<IKeybindingService>('keybindingService');
+export let IKeybindingService = createDecorator<IKeybindingService>(
+	'keybindingService'
+);
 
 export interface IKeybindingService {
 	_serviceBrand: any;
@@ -56,7 +62,10 @@ export interface IKeybindingService {
 	/**
 	 * Resolve and dispatch `keyboardEvent`, but do not invoke the command or change inner state.
 	 */
-	softDispatch(keyboardEvent: IKeyboardEvent, target: IContextKeyServiceTarget): IResolveResult;
+	softDispatch(
+		keyboardEvent: IKeyboardEvent,
+		target: IContextKeyServiceTarget
+	): IResolveResult;
 
 	/**
 	 * Look up keybindings for a command.
@@ -78,4 +87,3 @@ export interface IKeybindingService {
 
 	customKeybindingsCount(): number;
 }
-

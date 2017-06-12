@@ -3,20 +3,20 @@
 // Definitions by: Qubo <https://github.com/tkQubo>
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 
-declare type Strings = string|string[];
+declare type Strings = string | string[];
 
-declare module "orchestrator" {
-    class Orchestrator {
-        add: Orchestrator.AddMethod;
-        /**
+declare module 'orchestrator' {
+	class Orchestrator {
+		add: Orchestrator.AddMethod;
+		/**
          * Have you defined a task with this name?
          * @param name The task name to query
          */
-        hasTask(name: string): boolean;
-        start: Orchestrator.StartMethod;
-        stop(): void;
+		hasTask(name: string): boolean;
+		start: Orchestrator.StartMethod;
+		stop(): void;
 
-        /**
+		/**
          * Listen to orchestrator internals
          * @param event Event name to listen to:
          * <ul>
@@ -31,37 +31,40 @@ declare module "orchestrator" {
          * </ul>
          * @param cb Passes single argument: e: event details
          */
-        on(event: string, cb: (e: Orchestrator.OnCallbackEvent) => any): Orchestrator;
+		on(
+			event: string,
+			cb: (e: Orchestrator.OnCallbackEvent) => any
+		): Orchestrator;
 
-        /**
+		/**
          * Listen to all orchestrator events from one callback
          * @param cb Passes single argument: e: event details
          */
-        onAll(cb: (e: Orchestrator.OnAllCallbackEvent) => any): void;
-    }
+		onAll(cb: (e: Orchestrator.OnAllCallbackEvent) => any): void;
+	}
 
-    namespace Orchestrator {
-        interface AddMethodCallback {
-            /**
+	namespace Orchestrator {
+		interface AddMethodCallback {
+			/**
              * Accept a callback
              * @param callback
              */
-            (callback?: Function): any;
-            /**
+			(callback?: Function): any;
+			/**
              * Return a promise
              */
-            (): Q.Promise<any>;
-            /**
+			(): Q.Promise<any>;
+			/**
              * Return a stream: (task is marked complete when stream ends)
              */
-            (): any; //TODO: stream type should be here e.g. map-stream
-        }
+			(): any; //TODO: stream type should be here e.g. map-stream
+		}
 
-        /**
+		/**
          * Define a task
          */
-        interface AddMethod {
-            /**
+		interface AddMethod {
+			/**
              * Define a task
              * @param name The name of the task.
              * @param deps An array of task names to be executed and completed before your task will run.
@@ -71,8 +74,10 @@ declare module "orchestrator" {
              *     <li>Return a stream or a promise</li>
              * </ul>
              */
-            (name: string, deps?: string[], fn?: AddMethodCallback|Function): Orchestrator;
-            /**
+			(name: string, deps?: string[], fn?:
+				| AddMethodCallback
+				| Function): Orchestrator;
+			/**
              * Define a task
              * @param name The name of the task.
              * @param fn The function that performs the task's operations. For asynchronous tasks, you need to provide a hint when the task is complete:
@@ -81,45 +86,52 @@ declare module "orchestrator" {
              *     <li>Return a stream or a promise</li>
              * </ul>
              */
-            (name: string, fn?: AddMethodCallback|Function): Orchestrator;
-        }
+			(name: string, fn?: AddMethodCallback | Function): Orchestrator;
+		}
 
-        /**
+		/**
          * Start running the tasks
          */
-        interface StartMethod {
-            /**
+		interface StartMethod {
+			/**
              * Start running the tasks
              * @param tasks Tasks to be executed. You may pass any number of tasks as individual arguments.
              * @param cb Callback to call after run completed.
              */
-            (tasks: Strings, cb?: (error?: any) => any): Orchestrator;
-            /**
+			(tasks: Strings, cb?: (error?: any) => any): Orchestrator;
+			/**
              * Start running the tasks
              * @param tasks Tasks to be executed. You may pass any number of tasks as individual arguments.
              * @param cb Callback to call after run completed.
              */
-            (...tasks: Strings[]/*, cb?: (error: any) => any */): Orchestrator;
-            //TODO: TypeScript 1.5.3 cannot express varargs followed by callback as a last argument...
-            (task1: Strings, task2: Strings, cb?: (error?: any) => any): Orchestrator;
-            (task1: Strings, task2: Strings, task3: Strings, cb?: (error?: any) => any): Orchestrator;
-            (task1: Strings, task2: Strings, task3: Strings, task4: Strings, cb?: (error?: any) => any): Orchestrator;
-            (task1: Strings, task2: Strings, task3: Strings, task4: Strings, task5: Strings, cb?: (error?: any) => any): Orchestrator;
-            (task1: Strings, task2: Strings, task3: Strings, task4: Strings, task5: Strings, task6: Strings, cb?: (error?: any) => any): Orchestrator;
-        }
+			(...tasks: Strings[] /*, cb?: (error: any) => any */): Orchestrator;
+			//TODO: TypeScript 1.5.3 cannot express varargs followed by callback as a last argument...
+			(task1: Strings, task2: Strings, cb?: (error?: any) => any): Orchestrator;
+			(task1: Strings, task2: Strings, task3: Strings, cb?: (
+				error?: any
+			) => any): Orchestrator;
+			(task1: Strings, task2: Strings, task3: Strings, task4: Strings, cb?: (
+				error?: any
+			) => any): Orchestrator;
+			(task1: Strings, task2: Strings, task3: Strings, task4: Strings, task5: Strings, cb?: (
+				error?: any
+			) => any): Orchestrator;
+			(task1: Strings, task2: Strings, task3: Strings, task4: Strings, task5: Strings, task6: Strings, cb?: (
+				error?: any
+			) => any): Orchestrator;
+		}
 
-        interface OnCallbackEvent {
-            message: string;
-            task: string;
-            err: any;
-            duration?: number;
-        }
+		interface OnCallbackEvent {
+			message: string;
+			task: string;
+			err: any;
+			duration?: number;
+		}
 
-        interface OnAllCallbackEvent extends OnCallbackEvent {
-            src: string;
-        }
+		interface OnAllCallbackEvent extends OnCallbackEvent {
+			src: string;
+		}
+	}
 
-    }
-
-    export = Orchestrator;
+	export = Orchestrator;
 }

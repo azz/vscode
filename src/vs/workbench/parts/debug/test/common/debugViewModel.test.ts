@@ -5,7 +5,12 @@
 
 import * as assert from 'assert';
 import { ViewModel } from 'vs/workbench/parts/debug/common/debugViewModel';
-import { StackFrame, Expression, Thread, Process } from 'vs/workbench/parts/debug/common/debugModel';
+import {
+	StackFrame,
+	Expression,
+	Thread,
+	Process
+} from 'vs/workbench/parts/debug/common/debugModel';
 import { MockSession } from 'vs/workbench/parts/debug/test/common/mockDebug';
 
 suite('Debug - View Model', () => {
@@ -23,9 +28,24 @@ suite('Debug - View Model', () => {
 		assert.equal(model.focusedStackFrame, null);
 		assert.equal(model.focusedThread, null);
 		const mockSession = new MockSession();
-		const process = new Process({ name: 'mockProcess', type: 'node', request: 'launch' }, mockSession);
+		const process = new Process(
+			{ name: 'mockProcess', type: 'node', request: 'launch' },
+			mockSession
+		);
 		const thread = new Thread(process, 'myThread', 1);
-		const frame = new StackFrame(thread, 1, null, 'app.js', { startColumn: 1, startLineNumber: 1, endColumn: undefined, endLineNumber: undefined }, 0);
+		const frame = new StackFrame(
+			thread,
+			1,
+			null,
+			'app.js',
+			{
+				startColumn: 1,
+				startLineNumber: 1,
+				endColumn: undefined,
+				endLineNumber: undefined
+			},
+			0
+		);
 		model.setFocusedStackFrame(frame, process);
 
 		assert.equal(model.focusedStackFrame.getId(), frame.getId());

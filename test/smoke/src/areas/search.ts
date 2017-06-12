@@ -6,7 +6,6 @@
 import { SpectronApplication } from '../spectron/application';
 
 export class Search {
-
 	constructor(private spectron: SpectronApplication) {
 		// noop
 	}
@@ -21,15 +20,23 @@ export class Search {
 	}
 
 	public setReplaceText(text: string): any {
-		return this.spectron.client.setValue('.viewlet .input[title="Replace"]', text);
+		return this.spectron.client.setValue(
+			'.viewlet .input[title="Replace"]',
+			text
+		);
 	}
 
 	public replaceFirstMatch(): any {
-		return this.spectron.client.click('.monaco-tree-rows.show-twisties .action-label.icon.action-replace-all');
+		return this.spectron.client.click(
+			'.monaco-tree-rows.show-twisties .action-label.icon.action-replace-all'
+		);
 	}
 
 	public getResultText(): any {
-		return this.spectron.waitFor(this.spectron.client.getText, '.search-viewlet .message>p');
+		return this.spectron.waitFor(
+			this.spectron.client.getText,
+			'.search-viewlet .message>p'
+		);
 	}
 
 	public toggleSearchDetails(): any {
@@ -37,11 +44,16 @@ export class Search {
 	}
 
 	public toggleReplace(): any {
-		return this.spectron.client.click('.monaco-button.toggle-replace-button.collapse');
+		return this.spectron.client.click(
+			'.monaco-button.toggle-replace-button.collapse'
+		);
 	}
 
 	public hoverOverResultCount(): any {
-		return this.spectron.waitFor(this.spectron.client.moveToObject, '.monaco-count-badge');
+		return this.spectron.waitFor(
+			this.spectron.client.moveToObject,
+			'.monaco-count-badge'
+		);
 	}
 
 	public dismissResult(): any {

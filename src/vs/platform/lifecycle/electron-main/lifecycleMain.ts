@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { ipcMain as ipc, app } from 'electron';
 import { TPromise, TValueCallback } from 'vs/base/common/winjs.base';
@@ -12,10 +12,12 @@ import { ILogService } from 'vs/platform/log/common/log';
 import { IStorageService } from 'vs/platform/storage/node/storage';
 import Event, { Emitter } from 'vs/base/common/event';
 import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
-import { ICodeWindow } from "vs/platform/windows/electron-main/windows";
-import { ReadyState } from "vs/platform/windows/common/windows";
+import { ICodeWindow } from 'vs/platform/windows/electron-main/windows';
+import { ReadyState } from 'vs/platform/windows/common/windows';
 
-export const ILifecycleService = createDecorator<ILifecycleService>('lifecycleService');
+export const ILifecycleService = createDecorator<ILifecycleService>(
+	'lifecycleService'
+);
 
 export enum UnloadReason {
 	CLOSE = 1,
@@ -49,18 +51,20 @@ export interface ILifecycleService {
 	ready(): void;
 	registerWindow(codeWindow: ICodeWindow): void;
 
-	unload(codeWindow: ICodeWindow, reason: UnloadReason): TPromise<boolean /* veto */>;
+	unload(
+		codeWindow: ICodeWindow,
+		reason: UnloadReason
+	): TPromise<boolean> /* veto */;
 
-	relaunch(options?: { addArgs?: string[], removeArgs?: string[] });
+	relaunch(options?: { addArgs?: string[]; removeArgs?: string[] });
 
-	quit(fromUpdate?: boolean): TPromise<boolean /* veto */>;
+	quit(fromUpdate?: boolean): TPromise<boolean> /* veto */;
 	isQuitRequested(): boolean;
 
 	kill(code?: number);
 }
 
 export class LifecycleService implements ILifecycleService {
-
 	_serviceBrand: any;
 
 	private static QUIT_FROM_RESTART_MARKER = 'quit.from.restart'; // use a marker to find out if the session was restarted
@@ -92,7 +96,9 @@ export class LifecycleService implements ILifecycleService {
 	}
 
 	private handleRestarted(): void {
-		this._wasRestarted = !!this.storageService.getItem(LifecycleService.QUIT_FROM_RESTART_MARKER);
+		this._wasRestarted = !!this.storageService.getItem(
+			LifecycleService.QUIT_FROM_RESTART_MARKER
+		);
 
 		if (this._wasRestarted) {
 			this.storageService.removeItem(LifecycleService.QUIT_FROM_RESTART_MARKER); // remove the marker right after if found
@@ -108,9 +114,8 @@ export class LifecycleService implements ILifecycleService {
 	}
 
 	private registerListeners(): void {
-
 		// before-quit
-		app.on('before-quit', (e) => {
+		app.on('before-quit', e => {
 			this.logService.log('Lifecycle#before-quit');
 
 			if (!this.quitRequested) {
@@ -127,14 +132,17 @@ export class LifecycleService implements ILifecycleService {
 			// Windows/Linux: we quit when all windows have closed
 			// Mac: we only quit when quit was requested
 			// --wait: we quit when all windows are closed
-			if (this.quitRequested || process.platform !== 'darwin' || this.environmentService.wait) {
+			if (
+				this.quitRequested ||
+				process.platform !== 'darwin' ||
+				this.environmentService.wait
+			) {
 				app.quit();
 			}
 		});
 	}
 
 	public registerWindow(codeWindow: ICodeWindow): void {
-
 		// Window Before Closing: Main -> Renderer
 		codeWindow.win.on('close', e => {
 			const windowId = codeWindow.id;
@@ -164,8 +172,10 @@ export class LifecycleService implements ILifecycleService {
 		});
 	}
 
-	public unload(codeWindow: ICodeWindow, reason: UnloadReason): TPromise<boolean /* veto */> {
-
+	public unload(
+		codeWindow: ICodeWindow,
+		reason: UnloadReason
+	): TPromise<boolean> /* veto */ {
 		// Always allow to unload a window that is not yet ready
 		if (codeWindow.readyState !== ReadyState.READY) {
 			return TPromise.as<boolean>(false);
@@ -173,7 +183,7 @@ export class LifecycleService implements ILifecycleService {
 
 		this.logService.log('Lifecycle#unload()', codeWindow.id);
 
-		return new TPromise<boolean>((c) => {
+		return new TPromise<boolean>(c => {
 			const oneTimeEventToken = this.oneTimeListenerTokenGenerator++;
 			const okChannel = `vscode:ok${oneTimeEventToken}`;
 			const cancelChannel = `vscode:cancel${oneTimeEventToken}`;
@@ -183,7 +193,6 @@ export class LifecycleService implements ILifecycleService {
 			});
 
 			ipc.once(cancelChannel, () => {
-
 				// Any cancellation also cancels a pending quit if present
 				if (this.pendingQuitPromiseComplete) {
 					this.pendingQuitPromiseComplete(true /* veto */);
@@ -194,7 +203,11 @@ export class LifecycleService implements ILifecycleService {
 				c(true); // veto
 			});
 
-			codeWindow.send('vscode:beforeUnload', { okChannel, cancelChannel, reason: this.quitRequested ? UnloadReason.QUIT : reason });
+			codeWindow.send('vscode:beforeUnload', {
+				okChannel,
+				cancelChannel,
+				reason: this.quitRequested ? UnloadReason.QUIT : reason
+			});
 		});
 	}
 
@@ -202,19 +215,21 @@ export class LifecycleService implements ILifecycleService {
 	 * A promise that completes to indicate if the quit request has been veto'd
 	 * by the user or not.
 	 */
-	public quit(fromUpdate?: boolean): TPromise<boolean /* veto */> {
+	public quit(fromUpdate?: boolean): TPromise<boolean> /* veto */ {
 		this.logService.log('Lifecycle#quit()');
 
 		if (!this.pendingQuitPromise) {
 			this.pendingQuitPromise = new TPromise<boolean>(c => {
-
 				// Store as field to access it from a window cancellation
 				this.pendingQuitPromiseComplete = c;
 
 				app.once('will-quit', () => {
 					if (this.pendingQuitPromiseComplete) {
 						if (fromUpdate) {
-							this.storageService.setItem(LifecycleService.QUIT_FROM_RESTART_MARKER, true);
+							this.storageService.setItem(
+								LifecycleService.QUIT_FROM_RESTART_MARKER,
+								true
+							);
 						}
 
 						this.pendingQuitPromiseComplete(false /* no veto */);
@@ -234,7 +249,10 @@ export class LifecycleService implements ILifecycleService {
 		app.exit(code);
 	}
 
-	public relaunch(options?: { addArgs?: string[], removeArgs?: string[] }): void {
+	public relaunch(options?: {
+		addArgs?: string[];
+		removeArgs?: string[];
+	}): void {
 		const args = process.argv.slice(1);
 		if (options && options.addArgs) {
 			args.push(...options.addArgs);
@@ -252,7 +270,10 @@ export class LifecycleService implements ILifecycleService {
 		let vetod = false;
 		app.once('quit', () => {
 			if (!vetod) {
-				this.storageService.setItem(LifecycleService.QUIT_FROM_RESTART_MARKER, true);
+				this.storageService.setItem(
+					LifecycleService.QUIT_FROM_RESTART_MARKER,
+					true
+				);
 				app.relaunch({ args });
 			}
 		});

@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { Emitter } from 'vs/base/common/event';
 import { KeyMod as ConstKeyMod, KeyChord } from 'vs/base/common/keyCodes';
@@ -22,7 +22,7 @@ export enum Severity {
 	Ignore = 0,
 	Info = 1,
 	Warning = 2,
-	Error = 3,
+	Error = 3
 }
 
 // --------------------------------------------

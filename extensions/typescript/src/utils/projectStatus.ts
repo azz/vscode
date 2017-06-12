@@ -7,11 +7,13 @@ import * as vscode from 'vscode';
 import { ITypescriptServiceClient } from '../typescriptService';
 import { loadMessageBundle } from 'vscode-nls';
 import { dirname } from 'path';
-import { openOrCreateConfigFile, isImplicitProjectConfigFile } from './tsconfig';
+import {
+	openOrCreateConfigFile,
+	isImplicitProjectConfigFile
+} from './tsconfig';
 
 const localize = loadMessageBundle();
 const selector = ['javascript', 'javascriptreact'];
-
 
 interface Hint {
 	message: string;
@@ -30,7 +32,10 @@ class ExcludeHintItem {
 
 	constructor(client: ITypescriptServiceClient) {
 		this._client = client;
-		this._item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, Number.MIN_VALUE);
+		this._item = vscode.window.createStatusBarItem(
+			vscode.StatusBarAlignment.Right,
+			Number.MIN_VALUE
+		);
 		this._item.command = 'js.projectStatus.command';
 	}
 
@@ -45,23 +50,41 @@ class ExcludeHintItem {
 	public show(largeRoots: string) {
 		this._currentHint = {
 			message: largeRoots.length > 0
-				? localize('hintExclude', "To enable project-wide JavaScript/TypeScript language features, exclude folders with many files, like: {0}", largeRoots)
-				: localize('hintExclude.generic', "To enable project-wide JavaScript/TypeScript language features, exclude large folders with source files that you do not work on.")
+				? localize(
+						'hintExclude',
+						'To enable project-wide JavaScript/TypeScript language features, exclude folders with many files, like: {0}',
+						largeRoots
+					)
+				: localize(
+						'hintExclude.generic',
+						'To enable project-wide JavaScript/TypeScript language features, exclude large folders with source files that you do not work on.'
+					)
 		};
 		this._item.tooltip = this._currentHint.message;
-		this._item.text = localize('large.label', "Configure Excludes");
-		this._item.tooltip = localize('hintExclude.tooltip', "To enable project-wide JavaScript/TypeScript language features, exclude large folders with source files that you do not work on.");
+		this._item.text = localize('large.label', 'Configure Excludes');
+		this._item.tooltip = localize(
+			'hintExclude.tooltip',
+			'To enable project-wide JavaScript/TypeScript language features, exclude large folders with source files that you do not work on.'
+		);
 		this._item.color = '#A5DF3B';
 		this._item.show();
 		this._client.logTelemetry('js.hintProjectExcludes');
 	}
 }
 
-function createLargeProjectMonitorForProject(item: ExcludeHintItem, client: ITypescriptServiceClient, isOpen: (path: string) => Promise<boolean>, memento: vscode.Memento): vscode.Disposable[] {
+function createLargeProjectMonitorForProject(
+	item: ExcludeHintItem,
+	client: ITypescriptServiceClient,
+	isOpen: (path: string) => Promise<boolean>,
+	memento: vscode.Memento
+): vscode.Disposable[] {
 	const toDispose: vscode.Disposable[] = [];
 	const projectHinted: ProjectHintedMap = Object.create(null);
 
-	const projectHintIgnoreList = memento.get<string[]>('projectHintIgnoreList', []);
+	const projectHintIgnoreList = memento.get<string[]>(
+		'projectHintIgnoreList',
+		[]
+	);
 	for (let path of projectHintIgnoreList) {
 		if (path === null) {
 			path = 'undefined';
@@ -70,10 +93,11 @@ function createLargeProjectMonitorForProject(item: ExcludeHintItem, client: ITyp
 	}
 
 	function onEditor(editor: vscode.TextEditor | undefined): void {
-		if (!editor
-			|| !vscode.languages.match(selector, editor.document)
-			|| !client.normalizePath(editor.document.uri)) {
-
+		if (
+			!editor ||
+			!vscode.languages.match(selector, editor.document) ||
+			!client.normalizePath(editor.document.uri)
+		) {
 			item.hide();
 			return;
 		}
@@ -82,37 +106,51 @@ function createLargeProjectMonitorForProject(item: ExcludeHintItem, client: ITyp
 		if (!file) {
 			return;
 		}
-		isOpen(file).then(value => {
-			if (!value) {
-				return;
-			}
-
-			return client.execute('projectInfo', { file, needFileNameList: true } as protocol.ProjectInfoRequestArgs).then(res => {
-				if (!res.body) {
-					return;
-				}
-				let { configFileName, fileNames } = res.body;
-
-				if (projectHinted[configFileName] === true || !fileNames) {
+		isOpen(file)
+			.then(value => {
+				if (!value) {
 					return;
 				}
 
-				if (fileNames.length > fileLimit || res.body.languageServiceDisabled) {
-					let largeRoots = computeLargeRoots(configFileName, fileNames).map(f => `'/${f}/'`).join(', ');
-					item.show(largeRoots);
-					projectHinted[configFileName] = true;
-				} else {
-					item.hide();
-				}
+				return client
+					.execute(
+						'projectInfo',
+						{ file, needFileNameList: true } as protocol.ProjectInfoRequestArgs
+					)
+					.then(res => {
+						if (!res.body) {
+							return;
+						}
+						let { configFileName, fileNames } = res.body;
+
+						if (projectHinted[configFileName] === true || !fileNames) {
+							return;
+						}
+
+						if (
+							fileNames.length > fileLimit ||
+							res.body.languageServiceDisabled
+						) {
+							let largeRoots = computeLargeRoots(configFileName, fileNames)
+								.map(f => `'/${f}/'`)
+								.join(', ');
+							item.show(largeRoots);
+							projectHinted[configFileName] = true;
+						} else {
+							item.hide();
+						}
+					});
+			})
+			.catch(err => {
+				client.warn(err);
 			});
-		}).catch(err => {
-			client.warn(err);
-		});
 	}
 
-	toDispose.push(vscode.workspace.onDidChangeTextDocument(e => {
-		delete projectHinted[e.document.fileName];
-	}));
+	toDispose.push(
+		vscode.workspace.onDidChangeTextDocument(e => {
+			delete projectHinted[e.document.fileName];
+		})
+	);
 
 	toDispose.push(vscode.window.onDidChangeActiveTextEditor(onEditor));
 	onEditor(vscode.window.activeTextEditor);
@@ -120,7 +158,10 @@ function createLargeProjectMonitorForProject(item: ExcludeHintItem, client: ITyp
 	return toDispose;
 }
 
-function createLargeProjectMonitorFromTypeScript(item: ExcludeHintItem, client: ITypescriptServiceClient): vscode.Disposable {
+function createLargeProjectMonitorFromTypeScript(
+	item: ExcludeHintItem,
+	client: ITypescriptServiceClient
+): vscode.Disposable {
 	return client.onProjectLanguageServiceStateChanged(body => {
 		if (body.languageServiceEnabled) {
 			item.hide();
@@ -128,10 +169,13 @@ function createLargeProjectMonitorFromTypeScript(item: ExcludeHintItem, client: 
 			const configFileName = body.projectName;
 			if (configFileName) {
 				if (!isImplicitProjectConfigFile(configFileName)) {
-					vscode.workspace.openTextDocument(configFileName)
+					vscode.workspace
+						.openTextDocument(configFileName)
 						.then(vscode.window.showTextDocument);
 				} else {
-					openOrCreateConfigFile(configFileName.match(/tsconfig\.?.*\.json/) !== null);
+					openOrCreateConfigFile(
+						configFileName.match(/tsconfig\.?.*\.json/) !== null
+					);
 				}
 			}
 
@@ -140,26 +184,36 @@ function createLargeProjectMonitorFromTypeScript(item: ExcludeHintItem, client: 
 	});
 }
 
-export function create(client: ITypescriptServiceClient, isOpen: (path: string) => Promise<boolean>, memento: vscode.Memento) {
+export function create(
+	client: ITypescriptServiceClient,
+	isOpen: (path: string) => Promise<boolean>,
+	memento: vscode.Memento
+) {
 	const toDispose: vscode.Disposable[] = [];
 
 	let item = new ExcludeHintItem(client);
-	toDispose.push(vscode.commands.registerCommand('js.projectStatus.command', () => {
-		let { message } = item.getCurrentHint();
-		return vscode.window.showInformationMessage(message);
-	}));
+	toDispose.push(
+		vscode.commands.registerCommand('js.projectStatus.command', () => {
+			let { message } = item.getCurrentHint();
+			return vscode.window.showInformationMessage(message);
+		})
+	);
 
 	if (client.apiVersion.has213Features()) {
 		toDispose.push(createLargeProjectMonitorFromTypeScript(item, client));
 	} else {
-		toDispose.push(...createLargeProjectMonitorForProject(item, client, isOpen, memento));
+		toDispose.push(
+			...createLargeProjectMonitorForProject(item, client, isOpen, memento)
+		);
 	}
 
 	return vscode.Disposable.from(...toDispose);
 }
 
-function computeLargeRoots(configFileName: string, fileNames: string[]): string[] {
-
+function computeLargeRoots(
+	configFileName: string,
+	fileNames: string[]
+): string[] {
 	let roots: { [first: string]: number } = Object.create(null);
 	let dir = dirname(configFileName);
 

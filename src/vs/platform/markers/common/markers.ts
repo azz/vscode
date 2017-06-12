@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import URI from 'vs/base/common/uri';
 import Severity from 'vs/base/common/severity';
@@ -22,7 +22,7 @@ export interface IMarkerService {
 
 	remove(owner: string, resources: URI[]): void;
 
-	read(filter?: { owner?: string; resource?: URI; take?: number; }): IMarker[];
+	read(filter?: { owner?: string; resource?: URI; take?: number }): IMarker[];
 
 	onMarkerChanged: Event<URI[]>;
 }

@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { IModelService } from 'vs/editor/common/services/modelService';
 import { IModeService } from 'vs/editor/common/services/modeService';
@@ -15,13 +15,15 @@ import { IWorkbenchContribution } from 'vs/workbench/common/contributions';
 import { ITextModelResolverService } from 'vs/editor/common/services/resolverService';
 import { IPreferencesService } from 'vs/workbench/parts/preferences/common/preferences';
 
-const schemaRegistry = Registry.as<JSONContributionRegistry.IJSONContributionRegistry>(JSONContributionRegistry.Extensions.JSONContribution);
+const schemaRegistry = Registry.as<
+	JSONContributionRegistry.IJSONContributionRegistry
+>(JSONContributionRegistry.Extensions.JSONContribution);
 
 export class PreferencesContentProvider implements IWorkbenchContribution {
-
 	constructor(
 		@IModelService private modelService: IModelService,
-		@ITextModelResolverService private textModelResolverService: ITextModelResolverService,
+		@ITextModelResolverService
+		private textModelResolverService: ITextModelResolverService,
 		@IPreferencesService private preferencesService: IPreferencesService,
 		@IModeService private modeService: IModeService
 	) {
@@ -44,14 +46,21 @@ export class PreferencesContentProvider implements IWorkbenchContribution {
 					if (schema) {
 						let modelContent = JSON.stringify(schema);
 						let mode = this.modeService.getOrCreateMode('json');
-						return TPromise.as(this.modelService.createModel(modelContent, mode, uri));
+						return TPromise.as(
+							this.modelService.createModel(modelContent, mode, uri)
+						);
 					}
 				}
-				return this.preferencesService.createPreferencesEditorModel(uri)
+				return this.preferencesService
+					.createPreferencesEditorModel(uri)
 					.then(preferencesModel => {
 						if (preferencesModel) {
 							let mode = this.modeService.getOrCreateMode('json');
-							const model = this.modelService.createModel(preferencesModel.content, mode, uri);
+							const model = this.modelService.createModel(
+								preferencesModel.content,
+								mode,
+								uri
+							);
 							preferencesModel.dispose();
 							return TPromise.as(model);
 						}

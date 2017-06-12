@@ -2,12 +2,25 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
-import { ResolvedKeybinding, Keybinding, SimpleKeybinding } from 'vs/base/common/keyCodes';
+import {
+	ResolvedKeybinding,
+	Keybinding,
+	SimpleKeybinding
+} from 'vs/base/common/keyCodes';
 import Event from 'vs/base/common/event';
-import { IKeybindingService, IKeybindingEvent, IKeyboardEvent } from 'vs/platform/keybinding/common/keybinding';
-import { IContextKey, IContextKeyService, IContextKeyServiceTarget, ContextKeyExpr } from 'vs/platform/contextkey/common/contextkey';
+import {
+	IKeybindingService,
+	IKeybindingEvent,
+	IKeyboardEvent
+} from 'vs/platform/keybinding/common/keybinding';
+import {
+	IContextKey,
+	IContextKeyService,
+	IContextKeyServiceTarget,
+	ContextKeyExpr
+} from 'vs/platform/contextkey/common/contextkey';
 import { IResolveResult } from 'vs/platform/keybinding/common/keybindingResolver';
 import { USLayoutResolvedKeybinding } from 'vs/platform/keybinding/common/usLayoutResolvedKeybinding';
 import { OS } from 'vs/base/common/platform';
@@ -38,7 +51,6 @@ class MockKeybindingContextKey<T> implements IContextKey<T> {
 }
 
 export class MockContextKeyService implements IContextKeyService {
-
 	public _serviceBrand: any;
 	private _keys = new Map<string, IContextKey<any>>();
 
@@ -92,7 +104,9 @@ export class MockKeybindingService implements IKeybindingService {
 		return [new USLayoutResolvedKeybinding(keybinding, OS)];
 	}
 
-	public resolveKeyboardEvent(keyboardEvent: IKeyboardEvent): ResolvedKeybinding {
+	public resolveKeyboardEvent(
+		keyboardEvent: IKeyboardEvent
+	): ResolvedKeybinding {
 		let keybinding = new SimpleKeybinding(
 			keyboardEvent.ctrlKey,
 			keyboardEvent.shiftKey,
@@ -119,7 +133,10 @@ export class MockKeybindingService implements IKeybindingService {
 		return 0;
 	}
 
-	public softDispatch(keybinding: IKeyboardEvent, target: IContextKeyServiceTarget): IResolveResult {
+	public softDispatch(
+		keybinding: IKeyboardEvent,
+		target: IContextKeyServiceTarget
+	): IResolveResult {
 		return null;
 	}
 }

@@ -3,19 +3,26 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { IConfigurationService, IConfigurationValue, IConfigurationKeys } from 'vs/platform/configuration/common/configuration';
+import {
+	IConfigurationService,
+	IConfigurationValue,
+	IConfigurationKeys
+} from 'vs/platform/configuration/common/configuration';
 import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
 
 export const CONFIG_DEFAULT_NAME = 'settings';
 export const WORKSPACE_CONFIG_FOLDER_DEFAULT_NAME = '.vscode';
 export const WORKSPACE_CONFIG_DEFAULT_PATH = `${WORKSPACE_CONFIG_FOLDER_DEFAULT_NAME}/${CONFIG_DEFAULT_NAME}.json`;
 
-export const IWorkspaceConfigurationService = createDecorator<IWorkspaceConfigurationService>('configurationService');
+export const IWorkspaceConfigurationService = createDecorator<
+	IWorkspaceConfigurationService
+>('configurationService');
 
-export type IWorkspaceConfigurationValues = { [key: string]: IWorkspaceConfigurationValue<any> };
+export type IWorkspaceConfigurationValues = {
+	[key: string]: IWorkspaceConfigurationValue<any>;
+};
 
 export interface IWorkspaceConfigurationService extends IConfigurationService {
-
 	/**
 	 * Returns untrusted configuration keys for the current workspace.
 	 */
@@ -37,7 +44,8 @@ export interface IWorkspaceConfigurationService extends IConfigurationService {
 	values(): IWorkspaceConfigurationValues;
 }
 
-export interface IWorkspaceConfigurationValue<T> extends IConfigurationValue<T> {
+export interface IWorkspaceConfigurationValue<T>
+	extends IConfigurationValue<T> {
 	workspace: T;
 }
 
@@ -46,6 +54,6 @@ export interface IWorkspaceConfigurationKeys extends IConfigurationKeys {
 }
 
 export const WORKSPACE_STANDALONE_CONFIGURATIONS = {
-	'tasks': `${WORKSPACE_CONFIG_FOLDER_DEFAULT_NAME}/tasks.json`,
-	'launch': `${WORKSPACE_CONFIG_FOLDER_DEFAULT_NAME}/launch.json`
+	tasks: `${WORKSPACE_CONFIG_FOLDER_DEFAULT_NAME}/tasks.json`,
+	launch: `${WORKSPACE_CONFIG_FOLDER_DEFAULT_NAME}/launch.json`
 };

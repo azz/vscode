@@ -22,13 +22,21 @@ export function splitJoinTag() {
 
 	editor.edit(editBuilder => {
 		editor.selections.reverse().forEach(selection => {
-			let [rangeToReplace, textToReplaceWith] = getRangesToReplace(editor.document, selection, rootNode);
+			let [rangeToReplace, textToReplaceWith] = getRangesToReplace(
+				editor.document,
+				selection,
+				rootNode
+			);
 			editBuilder.replace(rangeToReplace, textToReplaceWith);
 		});
 	});
 }
 
-function getRangesToReplace(document: vscode.TextDocument, selection: vscode.Selection, rootNode: Node): [vscode.Range, string] {
+function getRangesToReplace(
+	document: vscode.TextDocument,
+	selection: vscode.Selection,
+	rootNode: Node
+): [vscode.Range, string] {
 	let offset = document.offsetAt(selection.start);
 	let nodeToUpdate: Node = getNode(rootNode, offset);
 	let rangeToReplace: vscode.Range;
@@ -36,16 +44,27 @@ function getRangesToReplace(document: vscode.TextDocument, selection: vscode.Sel
 
 	if (!nodeToUpdate.close) {
 		// Split Tag
-		let nodeText = document.getText(new vscode.Range(document.positionAt(nodeToUpdate.start), document.positionAt(nodeToUpdate.end)));
+		let nodeText = document.getText(
+			new vscode.Range(
+				document.positionAt(nodeToUpdate.start),
+				document.positionAt(nodeToUpdate.end)
+			)
+		);
 		let m = nodeText.match(/(\s*\/)?>$/);
 		let end = nodeToUpdate.open.end;
 		let start = m ? end - m[0].length : end;
 
-		rangeToReplace = new vscode.Range(document.positionAt(start), document.positionAt(end));
+		rangeToReplace = new vscode.Range(
+			document.positionAt(start),
+			document.positionAt(end)
+		);
 		textToReplaceWith = `></${nodeToUpdate.name}>`;
 	} else {
 		// Join Tag
-		rangeToReplace = new vscode.Range(document.positionAt(nodeToUpdate.open.end - 1), document.positionAt(nodeToUpdate.close.end));
+		rangeToReplace = new vscode.Range(
+			document.positionAt(nodeToUpdate.open.end - 1),
+			document.positionAt(nodeToUpdate.close.end)
+		);
 		textToReplaceWith = '/>';
 	}
 

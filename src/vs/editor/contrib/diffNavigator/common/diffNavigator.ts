@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'vs/base/common/assert';
 import { EventEmitter } from 'vs/base/common/eventEmitter';
@@ -33,7 +33,6 @@ var defaultOptions: Options = {
  * Create a new diff navigator for the provided diff editor.
  */
 export class DiffNavigator extends EventEmitter {
-
 	public static Events = {
 		UPDATED: 'navigation.updated'
 	};
@@ -49,9 +48,7 @@ export class DiffNavigator extends EventEmitter {
 	public revealFirst: boolean;
 
 	constructor(editor: ICommonDiffEditor, options: Options = {}) {
-		super([
-			DiffNavigator.Events.UPDATED
-		]);
+		super([DiffNavigator.Events.UPDATED]);
 		this.editor = editor;
 		this.options = objects.mixin(options, defaultOptions, false);
 
@@ -68,17 +65,23 @@ export class DiffNavigator extends EventEmitter {
 		this.toUnbind.push(this.editor.onDidUpdateDiff(() => this.onDiffUpdated()));
 
 		if (this.options.followsCaret) {
-			this.toUnbind.push(this.editor.getModifiedEditor().onDidChangeCursorPosition((e: ICursorPositionChangedEvent) => {
-				if (this.ignoreSelectionChange) {
-					return;
-				}
-				this.nextIdx = -1;
-			}));
+			this.toUnbind.push(
+				this.editor
+					.getModifiedEditor()
+					.onDidChangeCursorPosition((e: ICursorPositionChangedEvent) => {
+						if (this.ignoreSelectionChange) {
+							return;
+						}
+						this.nextIdx = -1;
+					})
+			);
 		}
 		if (this.options.alwaysRevealFirst) {
-			this.toUnbind.push(this.editor.getModifiedEditor().onDidChangeModel((e) => {
-				this.revealFirst = true;
-			}));
+			this.toUnbind.push(
+				this.editor.getModifiedEditor().onDidChangeModel(e => {
+					this.revealFirst = true;
+				})
+			);
 		}
 
 		// init things
@@ -107,31 +110,33 @@ export class DiffNavigator extends EventEmitter {
 	}
 
 	private compute(lineChanges: ILineChange[]): void {
-
 		// new ranges
 		this.ranges = [];
 
 		if (lineChanges) {
 			// create ranges from changes
-			lineChanges.forEach((lineChange) => {
-
+			lineChanges.forEach(lineChange => {
 				if (!this.options.ignoreCharChanges && lineChange.charChanges) {
-
-					lineChange.charChanges.forEach((charChange) => {
+					lineChange.charChanges.forEach(charChange => {
 						this.ranges.push({
 							rhs: true,
 							range: new Range(
 								charChange.modifiedStartLineNumber,
 								charChange.modifiedStartColumn,
 								charChange.modifiedEndLineNumber,
-								charChange.modifiedEndColumn)
+								charChange.modifiedEndColumn
+							)
 						});
 					});
-
 				} else {
 					this.ranges.push({
 						rhs: true,
-						range: new Range(lineChange.modifiedStartLineNumber, 1, lineChange.modifiedStartLineNumber, 1)
+						range: new Range(
+							lineChange.modifiedStartLineNumber,
+							1,
+							lineChange.modifiedStartLineNumber,
+							1
+						)
 					});
 				}
 			});
@@ -139,9 +144,17 @@ export class DiffNavigator extends EventEmitter {
 
 		// sort
 		this.ranges.sort((left, right) => {
-			if (left.range.getStartPosition().isBeforeOrEqual(right.range.getStartPosition())) {
+			if (
+				left.range
+					.getStartPosition()
+					.isBeforeOrEqual(right.range.getStartPosition())
+			) {
 				return -1;
-			} else if (right.range.getStartPosition().isBeforeOrEqual(left.range.getStartPosition())) {
+			} else if (
+				right.range
+					.getStartPosition()
+					.isBeforeOrEqual(left.range.getStartPosition())
+			) {
 				return 1;
 			} else {
 				return 0;
@@ -171,7 +184,10 @@ export class DiffNavigator extends EventEmitter {
 	}
 
 	private move(fwd: boolean): void {
-		assert.ok(!this.disposed, 'Illegal State - diff navigator has been disposed');
+		assert.ok(
+			!this.disposed,
+			'Illegal State - diff navigator has been disposed'
+		);
 
 		if (!this.canNavigate()) {
 			return;
@@ -179,7 +195,6 @@ export class DiffNavigator extends EventEmitter {
 
 		if (this.nextIdx === -1) {
 			this.initIdx(fwd);
-
 		} else if (fwd) {
 			this.nextIdx += 1;
 			if (this.nextIdx >= this.ranges.length) {
@@ -223,4 +238,3 @@ export class DiffNavigator extends EventEmitter {
 		super.dispose();
 	}
 }
-

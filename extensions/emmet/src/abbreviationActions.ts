@@ -7,7 +7,8 @@ import * as vscode from 'vscode';
 import { expand } from '@emmetio/expand-abbreviation';
 import { getSyntax, getProfile, extractAbbreviation } from './util';
 
-const field = (index, placeholder) => `\${${index}${placeholder ? ':' + placeholder : ''}}`;
+const field = (index, placeholder) =>
+	`\${${index}${placeholder ? ':' + placeholder : ''}}`;
 
 export function wrapWithAbbreviation() {
 	let editor = vscode.window.activeTextEditor;
@@ -17,7 +18,12 @@ export function wrapWithAbbreviation() {
 	}
 	let rangeToReplace: vscode.Range = editor.selection;
 	if (rangeToReplace.isEmpty) {
-		rangeToReplace = new vscode.Range(rangeToReplace.start.line, 0, rangeToReplace.start.line, editor.document.lineAt(rangeToReplace.start.line).text.length);
+		rangeToReplace = new vscode.Range(
+			rangeToReplace.start.line,
+			0,
+			rangeToReplace.start.line,
+			editor.document.lineAt(rangeToReplace.start.line).text.length
+		);
 	}
 	let textToReplace = editor.document.getText(rangeToReplace);
 	let syntax = getSyntax(editor.document);
@@ -26,13 +32,18 @@ export function wrapWithAbbreviation() {
 		syntax: syntax,
 		profile: getProfile(getSyntax(editor.document)),
 		text: textToReplace,
-		addons: syntax === 'jsx' ? { 'jsx': syntax === 'jsx' } : null
+		addons: syntax === 'jsx' ? { jsx: syntax === 'jsx' } : null
 	};
 
 	vscode.window.showInputBox({ prompt: 'Enter Abbreviation' }).then(abbr => {
-		if (!abbr || !abbr.trim()) { return; }
+		if (!abbr || !abbr.trim()) {
+			return;
+		}
 		let expandedText = expand(abbr, options);
-		editor.insertSnippet(new vscode.SnippetString(expandedText), rangeToReplace);
+		editor.insertSnippet(
+			new vscode.SnippetString(expandedText),
+			rangeToReplace
+		);
 	});
 }
 
@@ -52,7 +63,7 @@ export function expandAbbreviation() {
 		field: field,
 		syntax: syntax,
 		profile: getProfile(getSyntax(editor.document)),
-		addons: syntax === 'jsx' ? { 'jsx': true } : null
+		addons: syntax === 'jsx' ? { jsx: true } : null
 	};
 
 	let expandedText = expand(abbr, options);

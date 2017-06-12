@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { Promise, TPromise } from 'vs/base/common/winjs.base';
 import * as extfs from 'vs/base/node/extfs';
@@ -27,13 +27,17 @@ export function chmod(path: string, mode: number): TPromise<boolean> {
 }
 
 export function mkdirp(path: string, mode?: number): TPromise<boolean> {
-	const mkdir = () => nfcall(fs.mkdir, path, mode)
-		.then(null, (err: NodeJS.ErrnoException) => {
+	const mkdir = () =>
+		nfcall(fs.mkdir, path, mode).then(null, (err: NodeJS.ErrnoException) => {
 			if (err.code === 'EEXIST') {
-				return nfcall(fs.stat, path)
-					.then((stat: fs.Stats) => stat.isDirectory
-						? null
-						: Promise.wrapError(new Error(`'${path}' exists and is not a directory.`)));
+				return nfcall(fs.stat, path).then(
+					(stat: fs.Stats) =>
+						stat.isDirectory
+							? null
+							: Promise.wrapError(
+									new Error(`'${path}' exists and is not a directory.`)
+								)
+				);
 			}
 
 			return TPromise.wrapError<boolean>(err);
@@ -54,21 +58,26 @@ export function mkdirp(path: string, mode?: number): TPromise<boolean> {
 }
 
 export function rimraf(path: string): TPromise<void> {
-	return lstat(path).then(stat => {
-		if (stat.isDirectory() && !stat.isSymbolicLink()) {
-			return readdir(path)
-				.then(children => TPromise.join(children.map(child => rimraf(join(path, child)))))
-				.then(() => rmdir(path));
-		} else {
-			return unlink(path);
-		}
-	}, (err: NodeJS.ErrnoException) => {
-		if (err.code === 'ENOENT') {
-			return void 0;
-		}
+	return lstat(path).then(
+		stat => {
+			if (stat.isDirectory() && !stat.isSymbolicLink()) {
+				return readdir(path)
+					.then(children =>
+						TPromise.join(children.map(child => rimraf(join(path, child))))
+					)
+					.then(() => rmdir(path));
+			} else {
+				return unlink(path);
+			}
+		},
+		(err: NodeJS.ErrnoException) => {
+			if (err.code === 'ENOENT') {
+				return void 0;
+			}
 
-		return TPromise.wrapError<void>(err);
-	});
+			return TPromise.wrapError<void>(err);
+		}
+	);
 }
 
 export function realpath(path: string): TPromise<string> {
@@ -95,7 +104,11 @@ export function unlink(path: string): Promise {
 	return nfcall(fs.unlink, path);
 }
 
-export function symlink(target: string, path: string, type?: string): TPromise<void> {
+export function symlink(
+	target: string,
+	path: string,
+	type?: string
+): TPromise<void> {
 	return nfcall<void>(fs.symlink, target, path, type);
 }
 
@@ -111,7 +124,10 @@ export function touch(path: string): TPromise<void> {
 
 export function readFile(path: string): TPromise<Buffer>;
 export function readFile(path: string, encoding: string): TPromise<string>;
-export function readFile(path: string, encoding?: string): TPromise<Buffer | string> {
+export function readFile(
+	path: string,
+	encoding?: string
+): TPromise<Buffer | string> {
 	return nfcall(fs.readFile, path, encoding);
 }
 
@@ -120,12 +136,26 @@ export function readFile(path: string, encoding?: string): TPromise<Buffer | str
 // Therefor we use a Queue on the path that is given to us to sequentialize calls to the same path properly.
 const writeFilePathQueue: { [path: string]: Queue<void> } = Object.create(null);
 
-export function writeFile(path: string, data: string, encoding?: string): TPromise<void>;
-export function writeFile(path: string, data: NodeBuffer, encoding?: string): TPromise<void>;
-export function writeFile(path: string, data: any, encoding: string = 'utf8'): TPromise<void> {
+export function writeFile(
+	path: string,
+	data: string,
+	encoding?: string
+): TPromise<void>;
+export function writeFile(
+	path: string,
+	data: NodeBuffer,
+	encoding?: string
+): TPromise<void>;
+export function writeFile(
+	path: string,
+	data: any,
+	encoding: string = 'utf8'
+): TPromise<void> {
 	let queueKey = toQueueKey(path);
 
-	return ensureWriteFileQueue(queueKey).queue(() => nfcall(extfs.writeFileAndFlush, path, data, encoding));
+	return ensureWriteFileQueue(queueKey).queue(() =>
+		nfcall(extfs.writeFileAndFlush, path, data, encoding)
+	);
 }
 
 function toQueueKey(path: string): string {
@@ -158,7 +188,9 @@ function ensureWriteFileQueue(queueKey: string): Queue<void> {
 */
 export function readDirsInDir(dirPath: string): TPromise<string[]> {
 	return readdir(dirPath).then(children => {
-		return TPromise.join(children.map(c => dirExists(join(dirPath, c)))).then(exists => {
+		return TPromise.join(
+			children.map(c => dirExists(join(dirPath, c)))
+		).then(exists => {
 			return children.filter((_, i) => exists[i]);
 		});
 	});

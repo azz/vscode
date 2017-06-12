@@ -3,19 +3,23 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { localize } from 'vs/nls';
 import { TPromise } from 'vs/base/common/winjs.base';
 import { EditorInput } from 'vs/workbench/common/editor';
 
 export class ReleaseNotesInput extends EditorInput {
+	static get ID() {
+		return 'workbench.releaseNotes.input';
+	}
 
-	static get ID() { return 'workbench.releaseNotes.input'; }
-
-
-	get version(): string { return this._version; }
-	get text(): string { return this._text; }
+	get version(): string {
+		return this._version;
+	}
+	get text(): string {
+		return this._text;
+	}
 
 	constructor(private _version: string, private _text: string) {
 		super();
@@ -26,7 +30,11 @@ export class ReleaseNotesInput extends EditorInput {
 	}
 
 	getName(): string {
-		return localize('releaseNotesInputName', "Release Notes: {0}", this.version);
+		return localize(
+			'releaseNotesInputName',
+			'Release Notes: {0}',
+			this.version
+		);
 	}
 
 	matches(other: any): boolean {

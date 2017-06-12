@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { SpectronApplication } from "../spectron/application";
+import { SpectronApplication } from '../spectron/application';
 var fs = require('fs');
 
 const __testTime = new Date().toISOString();
@@ -23,7 +23,7 @@ export class Screenshot {
 	public capture(): Promise<any> {
 		return new Promise(async (res, rej) => {
 			const image: Electron.NativeImage = await this.spectron.app.browserWindow.capturePage();
-			fs.writeFile(`${this.testPath}/${this.index}.png`, image, (err) => {
+			fs.writeFile(`${this.testPath}/${this.index}.png`, image, err => {
 				if (err) {
 					rej(err);
 				}

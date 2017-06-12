@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./media/feedback';
 import nls = require('vs/nls');
@@ -17,9 +17,24 @@ import * as dom from 'vs/base/browser/dom';
 import { ICommandService } from 'vs/platform/commands/common/commands';
 import * as errors from 'vs/base/common/errors';
 import { IIntegrityService } from 'vs/platform/integrity/common/integrity';
-import { IThemeService, registerThemingParticipant, ITheme, ICssStyleCollector } from 'vs/platform/theme/common/themeService';
+import {
+	IThemeService,
+	registerThemingParticipant,
+	ITheme,
+	ICssStyleCollector
+} from 'vs/platform/theme/common/themeService';
 import { attachStylerCallback } from 'vs/platform/theme/common/styler';
-import { editorWidgetBackground, widgetShadow, inputBorder, inputForeground, inputBackground, inputActiveOptionBorder, editorBackground, buttonBackground, contrastBorder } from 'vs/platform/theme/common/colorRegistry';
+import {
+	editorWidgetBackground,
+	widgetShadow,
+	inputBorder,
+	inputForeground,
+	inputBackground,
+	inputActiveOptionBorder,
+	editorBackground,
+	buttonBackground,
+	contrastBorder
+} from 'vs/platform/theme/common/colorRegistry';
 
 export interface IFeedback {
 	feedback: string;
@@ -90,13 +105,15 @@ export class FeedbackDropdown extends Dropdown {
 		});
 
 		this.element.addClass('send-feedback');
-		this.element.title(nls.localize('sendFeedback', "Tweet Feedback"));
+		this.element.title(nls.localize('sendFeedback', 'Tweet Feedback'));
 
 		this.feedbackService = options.feedbackService;
 
 		this.feedback = '';
 		this.sentiment = 1;
-		this.maxFeedbackCharacters = this.feedbackService.getCharacterLimit(this.sentiment);
+		this.maxFeedbackCharacters = this.feedbackService.getCharacterLimit(
+			this.sentiment
+		);
 
 		this.feedbackForm = null;
 		this.feedbackDescriptionInput = null;
@@ -111,16 +128,20 @@ export class FeedbackDropdown extends Dropdown {
 	}
 
 	protected renderContents(container: HTMLElement): IDisposable {
-		const $form = $('form.feedback-form').attr({
-			action: 'javascript:void(0);',
-			tabIndex: '-1'
-		}).appendTo(container);
+		const $form = $('form.feedback-form')
+			.attr({
+				action: 'javascript:void(0);',
+				tabIndex: '-1'
+			})
+			.appendTo(container);
 
 		$(container).addClass('monaco-menu-container');
 
 		this.feedbackForm = <HTMLFormElement>$form.getHTMLElement();
 
-		$('h2.title').text(nls.localize("label.sendASmile", "Tweet us your feedback.")).appendTo($form);
+		$('h2.title')
+			.text(nls.localize('label.sendASmile', 'Tweet us your feedback.'))
+			.appendTo($form);
 
 		this.invoke($('div.cancel').attr('tabindex', '0'), () => {
 			this.hide();
@@ -130,31 +151,48 @@ export class FeedbackDropdown extends Dropdown {
 
 		const $sentimentContainer = $('div').appendTo($content);
 		if (!this._isPure) {
-			$('span').text(nls.localize("patchedVersion1", "Your installation is corrupt.")).appendTo($sentimentContainer);
+			$('span')
+				.text(nls.localize('patchedVersion1', 'Your installation is corrupt.'))
+				.appendTo($sentimentContainer);
 			$('br').appendTo($sentimentContainer);
-			$('span').text(nls.localize("patchedVersion2", "Please specify this if you submit a bug.")).appendTo($sentimentContainer);
+			$('span')
+				.text(
+					nls.localize(
+						'patchedVersion2',
+						'Please specify this if you submit a bug.'
+					)
+				)
+				.appendTo($sentimentContainer);
 			$('br').appendTo($sentimentContainer);
 		}
-		$('span').text(nls.localize("sentiment", "How was your experience?")).appendTo($sentimentContainer);
+		$('span')
+			.text(nls.localize('sentiment', 'How was your experience?'))
+			.appendTo($sentimentContainer);
 
-		const $feedbackSentiment = $('div.feedback-sentiment').appendTo($sentimentContainer);
+		const $feedbackSentiment = $('div.feedback-sentiment').appendTo(
+			$sentimentContainer
+		);
 
 		this.smileyInput = $('div').addClass('sentiment smile').attr({
 			'aria-checked': 'false',
-			'aria-label': nls.localize('smileCaption', "Happy"),
-			'tabindex': 0,
-			'role': 'checkbox'
+			'aria-label': nls.localize('smileCaption', 'Happy'),
+			tabindex: 0,
+			role: 'checkbox'
 		});
-		this.invoke(this.smileyInput, () => { this.setSentiment(true); }).appendTo($feedbackSentiment);
+		this.invoke(this.smileyInput, () => {
+			this.setSentiment(true);
+		}).appendTo($feedbackSentiment);
 
 		this.frownyInput = $('div').addClass('sentiment frown').attr({
 			'aria-checked': 'false',
-			'aria-label': nls.localize('frownCaption', "Sad"),
-			'tabindex': 0,
-			'role': 'checkbox'
+			'aria-label': nls.localize('frownCaption', 'Sad'),
+			tabindex: 0,
+			role: 'checkbox'
 		});
 
-		this.invoke(this.frownyInput, () => { this.setSentiment(false); }).appendTo($feedbackSentiment);
+		this.invoke(this.frownyInput, () => {
+			this.setSentiment(false);
+		}).appendTo($feedbackSentiment);
 
 		if (this.sentiment === 1) {
 			this.smileyInput.addClass('checked').attr('aria-checked', 'true');
@@ -164,57 +202,120 @@ export class FeedbackDropdown extends Dropdown {
 
 		const $contactUs = $('div.contactus').appendTo($content);
 
-		$('span').text(nls.localize("other ways to contact us", "Other ways to contact us")).appendTo($contactUs);
+		$('span')
+			.text(
+				nls.localize('other ways to contact us', 'Other ways to contact us')
+			)
+			.appendTo($contactUs);
 
 		const $contactUsContainer = $('div.channels').appendTo($contactUs);
 
-		$('div').append($('a').attr('target', '_blank').attr('href', '#').text(nls.localize("submit a bug", "Submit a bug")).attr('tabindex', '0'))
+		$('div')
+			.append(
+				$('a')
+					.attr('target', '_blank')
+					.attr('href', '#')
+					.text(nls.localize('submit a bug', 'Submit a bug'))
+					.attr('tabindex', '0')
+			)
 			.on('click', event => {
 				dom.EventHelper.stop(event);
-				this.commandService.executeCommand('workbench.action.reportIssues').done(null, errors.onUnexpectedError);
+				this.commandService
+					.executeCommand('workbench.action.reportIssues')
+					.done(null, errors.onUnexpectedError);
 			})
 			.appendTo($contactUsContainer);
 
-		$('div').append($('a').attr('target', '_blank').attr('href', this.requestFeatureLink).text(nls.localize("request a missing feature", "Request a missing feature")).attr('tabindex', '0'))
+		$('div')
+			.append(
+				$('a')
+					.attr('target', '_blank')
+					.attr('href', this.requestFeatureLink)
+					.text(
+						nls.localize(
+							'request a missing feature',
+							'Request a missing feature'
+						)
+					)
+					.attr('tabindex', '0')
+			)
 			.appendTo($contactUsContainer);
 
-		this.remainingCharacterCount = $('span.char-counter').text(this.getCharCountText(0));
+		this.remainingCharacterCount = $('span.char-counter').text(
+			this.getCharCountText(0)
+		);
 
-		$('h3').text(nls.localize("tell us why?", "Tell us why?"))
+		$('h3')
+			.text(nls.localize('tell us why?', 'Tell us why?'))
 			.append(this.remainingCharacterCount)
 			.appendTo($form);
 
-		this.feedbackDescriptionInput = <HTMLTextAreaElement>$('textarea.feedback-description').attr({
-			rows: 3,
-			maxlength: this.maxFeedbackCharacters,
-			'aria-label': nls.localize("commentsHeader", "Comments")
-		})
-			.text(this.feedback).attr('required', 'required')
+		this.feedbackDescriptionInput = <HTMLTextAreaElement>$(
+			'textarea.feedback-description'
+		)
+			.attr({
+				rows: 3,
+				maxlength: this.maxFeedbackCharacters,
+				'aria-label': nls.localize('commentsHeader', 'Comments')
+			})
+			.text(this.feedback)
+			.attr('required', 'required')
 			.on('keyup', () => {
 				this.updateCharCountText();
 			})
-			.appendTo($form).domFocus().getHTMLElement();
+			.appendTo($form)
+			.domFocus()
+			.getHTMLElement();
 
 		const $buttons = $('div.form-buttons').appendTo($form);
 
-		this.sendButton = this.invoke($('input.send').type('submit').attr('disabled', '').value(nls.localize('tweet', "Tweet")).appendTo($buttons), () => {
-			if (this.isSendingFeedback) {
-				return;
+		this.sendButton = this.invoke(
+			$('input.send')
+				.type('submit')
+				.attr('disabled', '')
+				.value(nls.localize('tweet', 'Tweet'))
+				.appendTo($buttons),
+			() => {
+				if (this.isSendingFeedback) {
+					return;
+				}
+				this.onSubmit();
 			}
-			this.onSubmit();
-		});
+		);
 
-		this.toDispose.push(attachStylerCallback(this.themeService, { widgetShadow, editorWidgetBackground, inputBackground, inputForeground, inputBorder, editorBackground, contrastBorder }, colors => {
-			$form.style('background-color', colors.editorWidgetBackground);
-			$form.style('box-shadow', colors.widgetShadow ? `0 2px 8px ${colors.widgetShadow}` : null);
+		this.toDispose.push(
+			attachStylerCallback(
+				this.themeService,
+				{
+					widgetShadow,
+					editorWidgetBackground,
+					inputBackground,
+					inputForeground,
+					inputBorder,
+					editorBackground,
+					contrastBorder
+				},
+				colors => {
+					$form.style('background-color', colors.editorWidgetBackground);
+					$form.style(
+						'box-shadow',
+						colors.widgetShadow ? `0 2px 8px ${colors.widgetShadow}` : null
+					);
 
-			this.feedbackDescriptionInput.style.backgroundColor = colors.inputBackground;
-			this.feedbackDescriptionInput.style.color = colors.inputForeground;
-			this.feedbackDescriptionInput.style.border = `1px solid ${colors.inputBorder || 'transparent'}`;
+					this.feedbackDescriptionInput.style.backgroundColor =
+						colors.inputBackground;
+					this.feedbackDescriptionInput.style.color = colors.inputForeground;
+					this.feedbackDescriptionInput.style.border = `1px solid ${colors.inputBorder ||
+						'transparent'}`;
 
-			$contactUs.style('background-color', colors.editorBackground);
-			$contactUs.style('border', `1px solid ${colors.contrastBorder || 'transparent'}`);
-		}));
+					$contactUs.style('background-color', colors.editorBackground);
+					$contactUs.style(
+						'border',
+						`1px solid ${colors.contrastBorder || 'transparent'}`
+					);
+				}
+			)
+		);
 
 		return {
 			dispose: () => {
@@ -228,16 +329,20 @@ export class FeedbackDropdown extends Dropdown {
 
 	private getCharCountText(charCount: number): string {
 		const remaining = this.maxFeedbackCharacters - charCount;
-		const text = (remaining === 1)
-			? nls.localize("character left", "character left")
-			: nls.localize("characters left", "characters left");
+		const text = remaining === 1
+			? nls.localize('character left', 'character left')
+			: nls.localize('characters left', 'characters left');
 
 		return '(' + remaining + ' ' + text + ')';
 	}
 
 	private updateCharCountText(): void {
-		this.remainingCharacterCount.text(this.getCharCountText(this.feedbackDescriptionInput.value.length));
-		this.feedbackDescriptionInput.value ? this.sendButton.removeAttribute('disabled') : this.sendButton.attr('disabled', '');
+		this.remainingCharacterCount.text(
+			this.getCharCountText(this.feedbackDescriptionInput.value.length)
+		);
+		this.feedbackDescriptionInput.value
+			? this.sendButton.removeAttribute('disabled')
+			: this.sendButton.attr('disabled', '');
 	}
 
 	protected setSentiment(smile: boolean): void {
@@ -253,17 +358,22 @@ export class FeedbackDropdown extends Dropdown {
 			this.smileyInput.attr('aria-checked', 'false');
 		}
 		this.sentiment = smile ? 1 : 0;
-		this.maxFeedbackCharacters = this.feedbackService.getCharacterLimit(this.sentiment);
+		this.maxFeedbackCharacters = this.feedbackService.getCharacterLimit(
+			this.sentiment
+		);
 		this.updateCharCountText();
-		$(this.feedbackDescriptionInput).attr({ maxlength: this.maxFeedbackCharacters });
+		$(this.feedbackDescriptionInput).attr({
+			maxlength: this.maxFeedbackCharacters
+		});
 	}
 
 	protected invoke(element: Builder, callback: () => void): Builder {
 		element.on('click', callback);
-		element.on('keypress', (e) => {
+		element.on('keypress', e => {
 			if (e instanceof KeyboardEvent) {
 				const keyboardEvent = <KeyboardEvent>e;
-				if (keyboardEvent.keyCode === 13 || keyboardEvent.keyCode === 32) { // Enter or Spacebar
+				if (keyboardEvent.keyCode === 13 || keyboardEvent.keyCode === 32) {
+					// Enter or Spacebar
 					callback();
 				}
 			}
@@ -287,14 +397,15 @@ export class FeedbackDropdown extends Dropdown {
 	public onEvent(e: Event, activeElement: HTMLElement): void {
 		if (e instanceof KeyboardEvent) {
 			const keyboardEvent = <KeyboardEvent>e;
-			if (keyboardEvent.keyCode === 27) { // Escape
+			if (keyboardEvent.keyCode === 27) {
+				// Escape
 				this.hide();
 			}
 		}
 	}
 
 	protected onSubmit(): void {
-		if ((this.feedbackForm.checkValidity && !this.feedbackForm.checkValidity())) {
+		if (this.feedbackForm.checkValidity && !this.feedbackForm.checkValidity()) {
 			return;
 		}
 
@@ -308,17 +419,18 @@ export class FeedbackDropdown extends Dropdown {
 		this.changeFormStatus(FormEvent.SENT);
 	}
 
-
 	private changeFormStatus(event: FormEvent): void {
 		switch (event) {
 			case FormEvent.SENDING:
 				this.isSendingFeedback = true;
 				this.sendButton.setClass('send in-progress');
-				this.sendButton.value(nls.localize('feedbackSending', "Sending"));
+				this.sendButton.value(nls.localize('feedbackSending', 'Sending'));
 				break;
 			case FormEvent.SENT:
 				this.isSendingFeedback = false;
-				this.sendButton.setClass('send success').value(nls.localize('feedbackSent', "Thanks"));
+				this.sendButton
+					.setClass('send success')
+					.value(nls.localize('feedbackSent', 'Thanks'));
 				this.resetForm();
 				this.autoHideTimeout = setTimeout(() => {
 					this.hide();
@@ -331,7 +443,9 @@ export class FeedbackDropdown extends Dropdown {
 				break;
 			case FormEvent.SEND_ERROR:
 				this.isSendingFeedback = false;
-				this.sendButton.setClass('send error').value(nls.localize('feedbackSendingError', "Try again"));
+				this.sendButton
+					.setClass('send error')
+					.value(nls.localize('feedbackSendingError', 'Try again'));
 				break;
 		}
 	}
@@ -341,22 +455,28 @@ export class FeedbackDropdown extends Dropdown {
 			this.feedbackDescriptionInput.value = '';
 		}
 		this.sentiment = 1;
-		this.maxFeedbackCharacters = this.feedbackService.getCharacterLimit(this.sentiment);
+		this.maxFeedbackCharacters = this.feedbackService.getCharacterLimit(
+			this.sentiment
+		);
 		this.aliasEnabled = false;
 	}
 }
 
 registerThemingParticipant((theme: ITheme, collector: ICssStyleCollector) => {
-
 	// Sentiment Buttons
 	const inputActiveOptionBorderColor = theme.getColor(inputActiveOptionBorder);
 	if (inputActiveOptionBorderColor) {
-		collector.addRule(`.monaco-shell .feedback-form .sentiment.checked { border: 1px solid ${inputActiveOptionBorderColor}; }`);
+		collector.addRule(
+			`.monaco-shell .feedback-form .sentiment.checked { border: 1px solid ${inputActiveOptionBorderColor}; }`
+		);
 	}
 
 	// Links
-	const linkColor = theme.getColor(buttonBackground) || theme.getColor(contrastBorder);
+	const linkColor =
+		theme.getColor(buttonBackground) || theme.getColor(contrastBorder);
 	if (linkColor) {
-		collector.addRule(`.monaco-shell .feedback-form .content .channels a { color: ${linkColor}; }`);
+		collector.addRule(
+			`.monaco-shell .feedback-form .content .channels a { color: ${linkColor}; }`
+		);
 	}
 });

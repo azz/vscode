@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as path from 'path';
 import * as pfs from 'vs/base/node/pfs';
@@ -29,20 +29,19 @@ interface IUpdate {
 }
 
 export class Win32AutoUpdaterImpl extends EventEmitter implements IAutoUpdater {
-
 	private url: string = null;
 	private currentRequest: Promise = null;
 	private updatePackagePath: string = null;
 
-	constructor(
-		@IRequestService private requestService: IRequestService
-	) {
+	constructor(@IRequestService private requestService: IRequestService) {
 		super();
 	}
 
 	get cachePath(): TPromise<string> {
 		const result = path.join(tmpdir(), 'vscode-update');
-		return new TPromise<string>((c, e) => mkdirp(result, null, err => err ? e(err) : c(result)));
+		return new TPromise<string>((c, e) =>
+			mkdirp(result, null, err => (err ? e(err) : c(result)))
+		);
 	}
 
 	setFeedURL(url: string): void {
@@ -60,7 +59,8 @@ export class Win32AutoUpdaterImpl extends EventEmitter implements IAutoUpdater {
 
 		this.emit('checking-for-update');
 
-		this.currentRequest = this.requestService.request({ url: this.url })
+		this.currentRequest = this.requestService
+			.request({ url: this.url })
 			.then<IUpdate>(asJson)
 			.then(update => {
 				if (!update || !update.url || !update.version) {
@@ -71,33 +71,41 @@ export class Win32AutoUpdaterImpl extends EventEmitter implements IAutoUpdater {
 				this.emit('update-available');
 
 				return this.cleanup(update.version).then(() => {
-					return this.getUpdatePackagePath(update.version).then(updatePackagePath => {
-						return pfs.exists(updatePackagePath).then(exists => {
-							if (exists) {
-								return TPromise.as(updatePackagePath);
-							}
+					return this.getUpdatePackagePath(update.version)
+						.then(updatePackagePath => {
+							return pfs.exists(updatePackagePath).then(exists => {
+								if (exists) {
+									return TPromise.as(updatePackagePath);
+								}
 
-							const url = update.url;
-							const hash = update.hash;
-							const downloadPath = `${updatePackagePath}.tmp`;
+								const url = update.url;
+								const hash = update.hash;
+								const downloadPath = `${updatePackagePath}.tmp`;
 
-							return this.requestService.request({ url })
-								.then(context => download(downloadPath, context))
-								.then(hash ? () => checksum(downloadPath, update.hash) : () => null)
-								.then(() => pfs.rename(downloadPath, updatePackagePath))
-								.then(() => updatePackagePath);
+								return this.requestService
+									.request({ url })
+									.then(context => download(downloadPath, context))
+									.then(
+										hash
+											? () => checksum(downloadPath, update.hash)
+											: () => null
+									)
+									.then(() => pfs.rename(downloadPath, updatePackagePath))
+									.then(() => updatePackagePath);
+							});
+						})
+						.then(updatePackagePath => {
+							this.updatePackagePath = updatePackagePath;
+
+							this.emit(
+								'update-downloaded',
+								{},
+								update.releaseNotes,
+								update.productVersion,
+								new Date(),
+								this.url
+							);
 						});
-					}).then(updatePackagePath => {
-						this.updatePackagePath = updatePackagePath;
-
-						this.emit('update-downloaded',
-							{},
-							update.releaseNotes,
-							update.productVersion,
-							new Date(),
-							this.url
-						);
-					});
 				});
 			})
 			.then(null, e => {
@@ -108,23 +116,34 @@ export class Win32AutoUpdaterImpl extends EventEmitter implements IAutoUpdater {
 				this.emit('update-not-available');
 				this.emit('error', e);
 			})
-			.then(() => this.currentRequest = null);
+			.then(() => (this.currentRequest = null));
 	}
 
 	private getUpdatePackagePath(version: string): TPromise<string> {
-		return this.cachePath.then(cachePath => path.join(cachePath, `CodeSetup-${product.quality}-${version}.exe`));
+		return this.cachePath.then(cachePath =>
+			path.join(cachePath, `CodeSetup-${product.quality}-${version}.exe`)
+		);
 	}
 
 	private cleanup(exceptVersion: string = null): Promise {
-		const filter = exceptVersion ? one => !(new RegExp(`${product.quality}-${exceptVersion}\\.exe$`).test(one)) : () => true;
+		const filter = exceptVersion
+			? one =>
+					!new RegExp(`${product.quality}-${exceptVersion}\\.exe$`).test(one)
+			: () => true;
 
-		return this.cachePath
-			.then(cachePath => pfs.readdir(cachePath)
-				.then(all => Promise.join(all
-					.filter(filter)
-					.map(one => pfs.unlink(path.join(cachePath, one)).then(null, () => null))
-				))
-			);
+		return this.cachePath.then(cachePath =>
+			pfs
+				.readdir(cachePath)
+				.then(all =>
+					Promise.join(
+						all
+							.filter(filter)
+							.map(one =>
+								pfs.unlink(path.join(cachePath, one)).then(null, () => null)
+							)
+					)
+				)
+		);
 	}
 
 	quitAndInstall(): void {
@@ -132,9 +151,13 @@ export class Win32AutoUpdaterImpl extends EventEmitter implements IAutoUpdater {
 			return;
 		}
 
-		spawn(this.updatePackagePath, ['/silent', '/mergetasks=runcode,!desktopicon,!quicklaunchicon'], {
-			detached: true,
-			stdio: ['ignore', 'ignore', 'ignore']
-		});
+		spawn(
+			this.updatePackagePath,
+			['/silent', '/mergetasks=runcode,!desktopicon,!quicklaunchicon'],
+			{
+				detached: true,
+				stdio: ['ignore', 'ignore', 'ignore']
+			}
+		);
 	}
 }

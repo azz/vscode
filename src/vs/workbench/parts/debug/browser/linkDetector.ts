@@ -47,9 +47,13 @@ export class LinkDetector {
 			while (match !== null) {
 				let resource: uri = null;
 				try {
-					resource = (match && !strings.startsWith(match[0], 'http'))
-						&& (match[2] || strings.startsWith(match[1], '/') ? uri.file(match[1]) : this.contextService.toResource(match[1]));
-				} catch (e) { }
+					resource =
+						match &&
+						!strings.startsWith(match[0], 'http') &&
+						(match[2] || strings.startsWith(match[1], '/')
+							? uri.file(match[1])
+							: this.contextService.toResource(match[1]));
+				} catch (e) {}
 
 				if (!resource) {
 					match = pattern.exec(text);
@@ -68,11 +72,20 @@ export class LinkDetector {
 
 				const link = document.createElement('a');
 				link.textContent = text.substr(match.index, match[0].length);
-				link.title = isMacintosh ? nls.localize('fileLinkMac', "Click to follow (Cmd + click opens to the side)") : nls.localize('fileLink', "Click to follow (Ctrl + click opens to the side)");
+				link.title = isMacintosh
+					? nls.localize(
+							'fileLinkMac',
+							'Click to follow (Cmd + click opens to the side)'
+						)
+					: nls.localize(
+							'fileLink',
+							'Click to follow (Ctrl + click opens to the side)'
+						);
 				linkContainer.appendChild(link);
 				const line = Number(match[3]);
 				const column = match[4] ? Number(match[4]) : undefined;
-				link.onclick = (e) => this.onLinkClick(new StandardMouseEvent(e), resource, line, column);
+				link.onclick = e =>
+					this.onLinkClick(new StandardMouseEvent(e), resource, line, column);
 
 				lastMatchIndex = pattern.lastIndex;
 				const currentMatch = match;
@@ -80,7 +93,9 @@ export class LinkDetector {
 
 				// Append last string part if no more link matches
 				if (!match) {
-					let textAfterLink = text.substr(currentMatch.index + currentMatch[0].length);
+					let textAfterLink = text.substr(
+						currentMatch.index + currentMatch[0].length
+					);
 					if (textAfterLink) {
 						let span = document.createElement('span');
 						span.textContent = textAfterLink;
@@ -93,7 +108,12 @@ export class LinkDetector {
 		return linkContainer || text;
 	}
 
-	private onLinkClick(event: IMouseEvent, resource: uri, line: number, column: number = 0): void {
+	private onLinkClick(
+		event: IMouseEvent,
+		resource: uri,
+		line: number,
+		column: number = 0
+	): void {
 		const selection = window.getSelection();
 		if (selection.type === 'Range') {
 			return; // do not navigate when user is selecting
@@ -101,14 +121,19 @@ export class LinkDetector {
 
 		event.preventDefault();
 
-		this.editorService.openEditor({
-			resource,
-			options: {
-				selection: {
-					startLineNumber: line,
-					startColumn: column
-				}
-			}
-		}, event.ctrlKey || event.metaKey).done(null, errors.onUnexpectedError);
+		this.editorService
+			.openEditor(
+				{
+					resource,
+					options: {
+						selection: {
+							startLineNumber: line,
+							startColumn: column
+						}
+					}
+				},
+				event.ctrlKey || event.metaKey
+			)
+			.done(null, errors.onUnexpectedError);
 	}
 }

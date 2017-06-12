@@ -108,13 +108,14 @@ export abstract class Composite extends Component implements IComposite {
 			// Only submit telemetry data when not running from an integration test
 			if (this._telemetryService && this._telemetryService.publicLog) {
 				const eventName: string = 'compositeOpen';
-				this._telemetryService.publicLog(eventName, { composite: this.getId() });
+				this._telemetryService.publicLog(eventName, {
+					composite: this.getId()
+				});
 			}
-		}
-
-		// Send telemetry data when composite hides
-		else {
-			this._telemetryData.timeSpent = (Date.now() - this._telemetryData.startTime) / 1000;
+		} else {
+			// Send telemetry data when composite hides
+			this._telemetryData.timeSpent =
+				(Date.now() - this._telemetryData.startTime) / 1000;
 			delete this._telemetryData.startTime;
 
 			// Only submit telemetry data when not running from an integration test
@@ -211,13 +212,22 @@ export abstract class Composite extends Component implements IComposite {
 /**
  * A composite descriptor is a leightweight descriptor of a composite in the workbench.
  */
-export abstract class CompositeDescriptor<T extends Composite> extends AsyncDescriptor<T> {
+export abstract class CompositeDescriptor<
+	T extends Composite
+> extends AsyncDescriptor<T> {
 	public id: string;
 	public name: string;
 	public cssClass: string;
 	public order: number;
 
-	constructor(moduleId: string, ctorName: string, id: string, name: string, cssClass?: string, order?: number) {
+	constructor(
+		moduleId: string,
+		ctorName: string,
+		id: string,
+		name: string,
+		cssClass?: string,
+		order?: number
+	) {
 		super(moduleId, ctorName);
 
 		this.id = id;

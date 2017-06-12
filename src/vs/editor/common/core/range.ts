@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { Position, IPosition } from 'vs/editor/common/core/position';
 
@@ -33,7 +33,6 @@ export interface IRange {
  * A range in the editor. (startLineNumber,startColumn) is <= (endLineNumber,endColumn)
  */
 export class Range {
-
 	/**
 	 * Line number on which the range starts (starts at 1).
 	 */
@@ -51,8 +50,16 @@ export class Range {
 	 */
 	public readonly endColumn: number;
 
-	constructor(startLineNumber: number, startColumn: number, endLineNumber: number, endColumn: number) {
-		if ((startLineNumber > endLineNumber) || (startLineNumber === endLineNumber && startColumn > endColumn)) {
+	constructor(
+		startLineNumber: number,
+		startColumn: number,
+		endLineNumber: number,
+		endColumn: number
+	) {
+		if (
+			startLineNumber > endLineNumber ||
+			(startLineNumber === endLineNumber && startColumn > endColumn)
+		) {
 			this.startLineNumber = endLineNumber;
 			this.startColumn = endColumn;
 			this.endLineNumber = startLineNumber;
@@ -76,7 +83,10 @@ export class Range {
 	 * Test if `range` is empty.
 	 */
 	public static isEmpty(range: IRange): boolean {
-		return (range.startLineNumber === range.endLineNumber && range.startColumn === range.endColumn);
+		return (
+			range.startLineNumber === range.endLineNumber &&
+			range.startColumn === range.endColumn
+		);
 	}
 
 	/**
@@ -90,13 +100,22 @@ export class Range {
 	 * Test if `position` is in `range`. If the position is at the edges, will return true.
 	 */
 	public static containsPosition(range: IRange, position: IPosition): boolean {
-		if (position.lineNumber < range.startLineNumber || position.lineNumber > range.endLineNumber) {
+		if (
+			position.lineNumber < range.startLineNumber ||
+			position.lineNumber > range.endLineNumber
+		) {
 			return false;
 		}
-		if (position.lineNumber === range.startLineNumber && position.column < range.startColumn) {
+		if (
+			position.lineNumber === range.startLineNumber &&
+			position.column < range.startColumn
+		) {
 			return false;
 		}
-		if (position.lineNumber === range.endLineNumber && position.column > range.endColumn) {
+		if (
+			position.lineNumber === range.endLineNumber &&
+			position.column > range.endColumn
+		) {
 			return false;
 		}
 		return true;
@@ -113,16 +132,28 @@ export class Range {
 	 * Test if `otherRange` is in `range`. If the ranges are equal, will return true.
 	 */
 	public static containsRange(range: IRange, otherRange: IRange): boolean {
-		if (otherRange.startLineNumber < range.startLineNumber || otherRange.endLineNumber < range.startLineNumber) {
+		if (
+			otherRange.startLineNumber < range.startLineNumber ||
+			otherRange.endLineNumber < range.startLineNumber
+		) {
 			return false;
 		}
-		if (otherRange.startLineNumber > range.endLineNumber || otherRange.endLineNumber > range.endLineNumber) {
+		if (
+			otherRange.startLineNumber > range.endLineNumber ||
+			otherRange.endLineNumber > range.endLineNumber
+		) {
 			return false;
 		}
-		if (otherRange.startLineNumber === range.startLineNumber && otherRange.startColumn < range.startColumn) {
+		if (
+			otherRange.startLineNumber === range.startLineNumber &&
+			otherRange.startColumn < range.startColumn
+		) {
 			return false;
 		}
-		if (otherRange.endLineNumber === range.endLineNumber && otherRange.endColumn > range.endColumn) {
+		if (
+			otherRange.endLineNumber === range.endLineNumber &&
+			otherRange.endColumn > range.endColumn
+		) {
 			return false;
 		}
 		return true;
@@ -141,7 +172,10 @@ export class Range {
 	 * The smallest position will be used as the start point, and the largest one as the end point.
 	 */
 	public static plusRange(a: IRange, b: IRange): Range {
-		var startLineNumber: number, startColumn: number, endLineNumber: number, endColumn: number;
+		var startLineNumber: number,
+			startColumn: number,
+			endLineNumber: number,
+			endColumn: number;
 		if (b.startLineNumber < a.startLineNumber) {
 			startLineNumber = b.startLineNumber;
 			startColumn = b.startColumn;
@@ -205,10 +239,18 @@ export class Range {
 		if (resultStartLineNumber > resultEndLineNumber) {
 			return null;
 		}
-		if (resultStartLineNumber === resultEndLineNumber && resultStartColumn > resultEndColumn) {
+		if (
+			resultStartLineNumber === resultEndLineNumber &&
+			resultStartColumn > resultEndColumn
+		) {
 			return null;
 		}
-		return new Range(resultStartLineNumber, resultStartColumn, resultEndLineNumber, resultEndColumn);
+		return new Range(
+			resultStartLineNumber,
+			resultStartColumn,
+			resultEndLineNumber,
+			resultEndColumn
+		);
 	}
 
 	/**
@@ -250,28 +292,53 @@ export class Range {
 	 * Clone this range.
 	 */
 	public cloneRange(): Range {
-		return new Range(this.startLineNumber, this.startColumn, this.endLineNumber, this.endColumn);
+		return new Range(
+			this.startLineNumber,
+			this.startColumn,
+			this.endLineNumber,
+			this.endColumn
+		);
 	}
 
 	/**
 	 * Transform to a user presentable string representation.
 	 */
 	public toString(): string {
-		return '[' + this.startLineNumber + ',' + this.startColumn + ' -> ' + this.endLineNumber + ',' + this.endColumn + ']';
+		return (
+			'[' +
+			this.startLineNumber +
+			',' +
+			this.startColumn +
+			' -> ' +
+			this.endLineNumber +
+			',' +
+			this.endColumn +
+			']'
+		);
 	}
 
 	/**
 	 * Create a new range using this range's start position, and using endLineNumber and endColumn as the end position.
 	 */
 	public setEndPosition(endLineNumber: number, endColumn: number): Range {
-		return new Range(this.startLineNumber, this.startColumn, endLineNumber, endColumn);
+		return new Range(
+			this.startLineNumber,
+			this.startColumn,
+			endLineNumber,
+			endColumn
+		);
 	}
 
 	/**
 	 * Create a new range using this range's end position, and using startLineNumber and startColumn as the start position.
 	 */
 	public setStartPosition(startLineNumber: number, startColumn: number): Range {
-		return new Range(startLineNumber, startColumn, this.endLineNumber, this.endColumn);
+		return new Range(
+			startLineNumber,
+			startColumn,
+			this.endLineNumber,
+			this.endColumn
+		);
 	}
 
 	/**
@@ -285,13 +352,23 @@ export class Range {
 	 * Create a new empty range using this range's start position.
 	 */
 	public static collapseToStart(range: IRange): Range {
-		return new Range(range.startLineNumber, range.startColumn, range.startLineNumber, range.startColumn);
+		return new Range(
+			range.startLineNumber,
+			range.startColumn,
+			range.startLineNumber,
+			range.startColumn
+		);
 	}
 
 	// ---
 
 	public static fromPositions(start: IPosition, end: IPosition = start): Range {
-		return new Range(start.lineNumber, start.column, end.lineNumber, end.column);
+		return new Range(
+			start.lineNumber,
+			start.column,
+			end.lineNumber,
+			end.column
+		);
 	}
 
 	/**
@@ -301,7 +378,12 @@ export class Range {
 		if (!range) {
 			return null;
 		}
-		return new Range(range.startLineNumber, range.startColumn, range.endLineNumber, range.endColumn);
+		return new Range(
+			range.startLineNumber,
+			range.startColumn,
+			range.endLineNumber,
+			range.endColumn
+		);
 	}
 
 	/**
@@ -309,11 +391,11 @@ export class Range {
 	 */
 	public static isIRange(obj: any): obj is IRange {
 		return (
-			obj
-			&& (typeof obj.startLineNumber === 'number')
-			&& (typeof obj.startColumn === 'number')
-			&& (typeof obj.endLineNumber === 'number')
-			&& (typeof obj.endColumn === 'number')
+			obj &&
+			typeof obj.startLineNumber === 'number' &&
+			typeof obj.startColumn === 'number' &&
+			typeof obj.endLineNumber === 'number' &&
+			typeof obj.endColumn === 'number'
 		);
 	}
 
@@ -322,12 +404,18 @@ export class Range {
 	 */
 	public static areIntersectingOrTouching(a: IRange, b: IRange): boolean {
 		// Check if `a` is before `b`
-		if (a.endLineNumber < b.startLineNumber || (a.endLineNumber === b.startLineNumber && a.endColumn < b.startColumn)) {
+		if (
+			a.endLineNumber < b.startLineNumber ||
+			(a.endLineNumber === b.startLineNumber && a.endColumn < b.startColumn)
+		) {
 			return false;
 		}
 
 		// Check if `b` is before `a`
-		if (b.endLineNumber < a.startLineNumber || (b.endLineNumber === a.startLineNumber && b.endColumn < a.startColumn)) {
+		if (
+			b.endLineNumber < a.startLineNumber ||
+			(b.endLineNumber === a.startLineNumber && b.endColumn < a.startColumn)
+		) {
 			return false;
 		}
 
@@ -387,4 +475,3 @@ export class Range {
 		return range.endLineNumber > range.startLineNumber;
 	}
 }
-

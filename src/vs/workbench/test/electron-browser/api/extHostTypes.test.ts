@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import URI from 'vs/base/common/uri';
@@ -16,10 +16,8 @@ function assertToJSON(a: any, expected: any) {
 	assert.deepEqual(actual, expected);
 }
 
-suite('ExtHostTypes', function () {
-
-	test('URI, toJSON', function () {
-
+suite('ExtHostTypes', function() {
+	test('URI, toJSON', function() {
 		let uri = URI.parse('file:///path/test.file');
 		let data = uri.toJSON();
 		assert.deepEqual(data, {
@@ -31,8 +29,7 @@ suite('ExtHostTypes', function () {
 		});
 	});
 
-	test('Disposable', function () {
-
+	test('Disposable', function() {
 		let count = 0;
 		let d = new types.Disposable(() => {
 			count += 1;
@@ -44,9 +41,14 @@ suite('ExtHostTypes', function () {
 		d.dispose();
 		assert.equal(count, 1);
 
-		types.Disposable.from(undefined, { dispose() { count += 1; } }).dispose();
+		types.Disposable
+			.from(undefined, {
+				dispose() {
+					count += 1;
+				}
+			})
+			.dispose();
 		assert.equal(count, 2);
-
 
 		assert.throws(() => {
 			new types.Disposable(() => {
@@ -55,29 +57,28 @@ suite('ExtHostTypes', function () {
 		});
 
 		new types.Disposable(undefined).dispose();
-
 	});
 
-	test('Position', function () {
+	test('Position', function() {
 		assert.throws(() => new types.Position(-1, 0));
 		assert.throws(() => new types.Position(0, -1));
 
 		let pos = new types.Position(0, 0);
-		assert.throws(() => (pos as any).line = -1);
-		assert.throws(() => (pos as any).character = -1);
-		assert.throws(() => (pos as any).line = 12);
+		assert.throws(() => ((pos as any).line = -1));
+		assert.throws(() => ((pos as any).character = -1));
+		assert.throws(() => ((pos as any).line = 12));
 
 		let { line, character } = pos.toJSON();
 		assert.equal(line, 0);
 		assert.equal(character, 0);
 	});
 
-	test('Position, toJSON', function () {
+	test('Position, toJSON', function() {
 		let pos = new types.Position(4, 2);
 		assertToJSON(pos, { line: 4, character: 2 });
 	});
 
-	test('Position, isBefore(OrEqual)?', function () {
+	test('Position, isBefore(OrEqual)?', function() {
 		let p1 = new types.Position(1, 3);
 		let p2 = new types.Position(1, 2);
 		let p3 = new types.Position(0, 4);
@@ -88,7 +89,7 @@ suite('ExtHostTypes', function () {
 		assert.ok(p3.isBefore(p2));
 	});
 
-	test('Position, isAfter(OrEqual)?', function () {
+	test('Position, isAfter(OrEqual)?', function() {
 		let p1 = new types.Position(1, 3);
 		let p2 = new types.Position(1, 2);
 		let p3 = new types.Position(0, 4);
@@ -100,7 +101,7 @@ suite('ExtHostTypes', function () {
 		assert.ok(p1.isAfter(p3));
 	});
 
-	test('Position, compareTo', function () {
+	test('Position, compareTo', function() {
 		let p1 = new types.Position(1, 3);
 		let p2 = new types.Position(1, 2);
 		let p3 = new types.Position(0, 4);
@@ -112,7 +113,7 @@ suite('ExtHostTypes', function () {
 		assert.equal(p1.compareTo(p3), 1);
 	});
 
-	test('Position, translate', function () {
+	test('Position, translate', function() {
 		let p1 = new types.Position(1, 3);
 
 		assert.ok(p1.translate() === p1);
@@ -150,7 +151,7 @@ suite('ExtHostTypes', function () {
 		assert.throws(() => p1.translate(0, -4));
 	});
 
-	test('Position, with', function () {
+	test('Position, with', function() {
 		let p1 = new types.Position(1, 3);
 
 		assert.ok(p1.with() === p1);
@@ -173,7 +174,7 @@ suite('ExtHostTypes', function () {
 		assert.throws(() => p1.with({ character: -1 }));
 	});
 
-	test('Range', function () {
+	test('Range', function() {
 		assert.throws(() => new types.Range(-1, 0, 0, 0));
 		assert.throws(() => new types.Range(0, -1, 0, 0));
 		assert.throws(() => new types.Range(new types.Position(0, 0), undefined));
@@ -182,17 +183,16 @@ suite('ExtHostTypes', function () {
 		assert.throws(() => new types.Range(null, new types.Position(0, 0)));
 
 		let range = new types.Range(1, 0, 0, 0);
-		assert.throws(() => (range as any).start = null);
-		assert.throws(() => (range as any).start = new types.Position(0, 3));
+		assert.throws(() => ((range as any).start = null));
+		assert.throws(() => ((range as any).start = new types.Position(0, 3)));
 	});
 
-	test('Range, toJSON', function () {
-
+	test('Range, toJSON', function() {
 		let range = new types.Range(1, 2, 3, 4);
 		assertToJSON(range, [{ line: 1, character: 2 }, { line: 3, character: 4 }]);
 	});
 
-	test('Range, sorting', function () {
+	test('Range, sorting', function() {
 		// sorts start/end
 		let range = new types.Range(1, 0, 0, 0);
 		assert.equal(range.start.line, 0);
@@ -203,7 +203,7 @@ suite('ExtHostTypes', function () {
 		assert.equal(range.end.line, 1);
 	});
 
-	test('Range, isEmpty|isSingleLine', function () {
+	test('Range, isEmpty|isSingleLine', function() {
 		let range = new types.Range(1, 0, 0, 0);
 		assert.ok(!range.isEmpty);
 		assert.ok(!range.isSingleLine);
@@ -221,7 +221,7 @@ suite('ExtHostTypes', function () {
 		assert.ok(!range.isSingleLine);
 	});
 
-	test('Range, contains', function () {
+	test('Range, contains', function() {
 		let range = new types.Range(1, 1, 2, 11);
 
 		assert.ok(range.contains(range.start));
@@ -234,7 +234,7 @@ suite('ExtHostTypes', function () {
 		assert.ok(!range.contains(new types.Range(1, 1, 3, 11)));
 	});
 
-	test('Range, intersection', function () {
+	test('Range, intersection', function() {
 		let range = new types.Range(1, 1, 2, 11);
 		let res: types.Range;
 
@@ -264,7 +264,7 @@ suite('ExtHostTypes', function () {
 		assert.throws(() => range.intersection(undefined));
 	});
 
-	test('Range, union', function () {
+	test('Range, union', function() {
 		let ran1 = new types.Range(0, 0, 5, 5);
 		assert.ok(ran1.union(new types.Range(0, 0, 1, 1)) === ran1);
 
@@ -281,7 +281,7 @@ suite('ExtHostTypes', function () {
 		assert.equal(res.start.character, 0);
 	});
 
-	test('Range, with', function () {
+	test('Range, with', function() {
 		let range = new types.Range(1, 1, 2, 11);
 
 		assert.ok(range.with(range.start) === range);
@@ -307,7 +307,10 @@ suite('ExtHostTypes', function () {
 		assert.equal(res.start.line, 1);
 		assert.equal(res.start.character, 1);
 
-		res = range.with({ end: new types.Position(9, 8), start: new types.Position(2, 3) });
+		res = range.with({
+			end: new types.Position(9, 8),
+			start: new types.Position(2, 3)
+		});
 		assert.equal(res.end.line, 9);
 		assert.equal(res.end.character, 8);
 		assert.equal(res.start.line, 2);
@@ -317,12 +320,14 @@ suite('ExtHostTypes', function () {
 		assert.throws(() => range.with(undefined, null));
 	});
 
-	test('TextEdit', function () {
-
+	test('TextEdit', function() {
 		let range = new types.Range(1, 1, 2, 11);
 		let edit = new types.TextEdit(range, undefined);
 		assert.equal(edit.newText, '');
-		assertToJSON(edit, { range: [{ line: 1, character: 1 }, { line: 2, character: 11 }], newText: '' });
+		assertToJSON(edit, {
+			range: [{ line: 1, character: 1 }, { line: 2, character: 11 }],
+			newText: ''
+		});
 
 		edit = new types.TextEdit(range, null);
 		assert.equal(edit.newText, '');
@@ -331,8 +336,7 @@ suite('ExtHostTypes', function () {
 		assert.equal(edit.newText, '');
 	});
 
-	test('WorkspaceEdit', function () {
-
+	test('WorkspaceEdit', function() {
 		let a = types.Uri.file('a.ts');
 		let b = types.Uri.file('b.ts');
 
@@ -342,15 +346,45 @@ suite('ExtHostTypes', function () {
 		edit.set(a, [types.TextEdit.insert(new types.Position(0, 0), 'fff')]);
 		assert.ok(edit.has(a));
 		assert.equal(edit.size, 1);
-		assertToJSON(edit, [[URI.parse('file:///a.ts').toJSON(), [{ range: [{ line: 0, character: 0 }, { line: 0, character: 0 }], newText: 'fff' }]]]);
+		assertToJSON(edit, [
+			[
+				URI.parse('file:///a.ts').toJSON(),
+				[
+					{
+						range: [{ line: 0, character: 0 }, { line: 0, character: 0 }],
+						newText: 'fff'
+					}
+				]
+			]
+		]);
 
 		edit.insert(b, new types.Position(1, 1), 'fff');
 		edit.delete(b, new types.Range(0, 0, 0, 0));
 		assert.ok(edit.has(b));
 		assert.equal(edit.size, 2);
 		assertToJSON(edit, [
-			[URI.parse('file:///a.ts').toJSON(), [{ range: [{ line: 0, character: 0 }, { line: 0, character: 0 }], newText: 'fff' }]],
-			[URI.parse('file:///b.ts').toJSON(), [{ range: [{ line: 1, character: 1 }, { line: 1, character: 1 }], newText: 'fff' }, { range: [{ line: 0, character: 0 }, { line: 0, character: 0 }], newText: '' }]]
+			[
+				URI.parse('file:///a.ts').toJSON(),
+				[
+					{
+						range: [{ line: 0, character: 0 }, { line: 0, character: 0 }],
+						newText: 'fff'
+					}
+				]
+			],
+			[
+				URI.parse('file:///b.ts').toJSON(),
+				[
+					{
+						range: [{ line: 1, character: 1 }, { line: 1, character: 1 }],
+						newText: 'fff'
+					},
+					{
+						range: [{ line: 0, character: 0 }, { line: 0, character: 0 }],
+						newText: ''
+					}
+				]
+			]
 		]);
 
 		edit.set(b, undefined);
@@ -359,64 +393,121 @@ suite('ExtHostTypes', function () {
 
 		edit.set(b, [types.TextEdit.insert(new types.Position(0, 0), 'ffff')]);
 		assert.equal(edit.get(b).length, 1);
-
 	});
 
-	test('DocumentLink', function () {
+	test('DocumentLink', function() {
 		assert.throws(() => new types.DocumentLink(null, null));
-		assert.throws(() => new types.DocumentLink(new types.Range(1, 1, 1, 1), null));
+		assert.throws(
+			() => new types.DocumentLink(new types.Range(1, 1, 1, 1), null)
+		);
 	});
 
-	test('toJSON & stringify', function () {
+	test('toJSON & stringify', function() {
+		assertToJSON(new types.Selection(3, 4, 2, 1), {
+			start: { line: 2, character: 1 },
+			end: { line: 3, character: 4 },
+			anchor: { line: 3, character: 4 },
+			active: { line: 2, character: 1 }
+		});
 
-		assertToJSON(new types.Selection(3, 4, 2, 1), { start: { line: 2, character: 1 }, end: { line: 3, character: 4 }, anchor: { line: 3, character: 4 }, active: { line: 2, character: 1 } });
-
-		assertToJSON(new types.Location(types.Uri.file('u.ts'), new types.Position(3, 4)), { uri: URI.parse('file:///u.ts').toJSON(), range: [{ line: 3, character: 4 }, { line: 3, character: 4 }] });
-		assertToJSON(new types.Location(types.Uri.file('u.ts'), new types.Range(1, 2, 3, 4)), { uri: URI.parse('file:///u.ts').toJSON(), range: [{ line: 1, character: 2 }, { line: 3, character: 4 }] });
+		assertToJSON(
+			new types.Location(types.Uri.file('u.ts'), new types.Position(3, 4)),
+			{
+				uri: URI.parse('file:///u.ts').toJSON(),
+				range: [{ line: 3, character: 4 }, { line: 3, character: 4 }]
+			}
+		);
+		assertToJSON(
+			new types.Location(types.Uri.file('u.ts'), new types.Range(1, 2, 3, 4)),
+			{
+				uri: URI.parse('file:///u.ts').toJSON(),
+				range: [{ line: 1, character: 2 }, { line: 3, character: 4 }]
+			}
+		);
 
 		let diag = new types.Diagnostic(new types.Range(0, 1, 2, 3), 'hello');
-		assertToJSON(diag, { severity: 'Error', message: 'hello', range: [{ line: 0, character: 1 }, { line: 2, character: 3 }] });
+		assertToJSON(diag, {
+			severity: 'Error',
+			message: 'hello',
+			range: [{ line: 0, character: 1 }, { line: 2, character: 3 }]
+		});
 		diag.source = 'me';
-		assertToJSON(diag, { severity: 'Error', message: 'hello', range: [{ line: 0, character: 1 }, { line: 2, character: 3 }], source: 'me' });
+		assertToJSON(diag, {
+			severity: 'Error',
+			message: 'hello',
+			range: [{ line: 0, character: 1 }, { line: 2, character: 3 }],
+			source: 'me'
+		});
 
-		assertToJSON(new types.DocumentHighlight(new types.Range(2, 3, 4, 5)), { range: [{ line: 2, character: 3 }, { line: 4, character: 5 }], kind: 'Text' });
-		assertToJSON(new types.DocumentHighlight(new types.Range(2, 3, 4, 5), types.DocumentHighlightKind.Read), { range: [{ line: 2, character: 3 }, { line: 4, character: 5 }], kind: 'Read' });
-
-		assertToJSON(new types.SymbolInformation('test', types.SymbolKind.Boolean, new types.Range(0, 1, 2, 3)), {
-			name: 'test',
-			kind: 'Boolean',
-			location: {
-				range: [{ line: 0, character: 1 }, { line: 2, character: 3 }]
+		assertToJSON(new types.DocumentHighlight(new types.Range(2, 3, 4, 5)), {
+			range: [{ line: 2, character: 3 }, { line: 4, character: 5 }],
+			kind: 'Text'
+		});
+		assertToJSON(
+			new types.DocumentHighlight(
+				new types.Range(2, 3, 4, 5),
+				types.DocumentHighlightKind.Read
+			),
+			{
+				range: [{ line: 2, character: 3 }, { line: 4, character: 5 }],
+				kind: 'Read'
 			}
-		});
+		);
 
-		assertToJSON(new types.CodeLens(new types.Range(7, 8, 9, 10)), { range: [{ line: 7, character: 8 }, { line: 9, character: 10 }] });
-		assertToJSON(new types.CodeLens(new types.Range(7, 8, 9, 10), { command: 'id', title: 'title' }), {
-			range: [{ line: 7, character: 8 }, { line: 9, character: 10 }],
-			command: { command: 'id', title: 'title' }
+		assertToJSON(
+			new types.SymbolInformation(
+				'test',
+				types.SymbolKind.Boolean,
+				new types.Range(0, 1, 2, 3)
+			),
+			{
+				name: 'test',
+				kind: 'Boolean',
+				location: {
+					range: [{ line: 0, character: 1 }, { line: 2, character: 3 }]
+				}
+			}
+		);
+
+		assertToJSON(new types.CodeLens(new types.Range(7, 8, 9, 10)), {
+			range: [{ line: 7, character: 8 }, { line: 9, character: 10 }]
 		});
+		assertToJSON(
+			new types.CodeLens(new types.Range(7, 8, 9, 10), {
+				command: 'id',
+				title: 'title'
+			}),
+			{
+				range: [{ line: 7, character: 8 }, { line: 9, character: 10 }],
+				command: { command: 'id', title: 'title' }
+			}
+		);
 
 		assertToJSON(new types.CompletionItem('complete'), { label: 'complete' });
 
 		let item = new types.CompletionItem('complete');
 		item.kind = types.CompletionItemKind.Interface;
 		assertToJSON(item, { label: 'complete', kind: 'Interface' });
-
 	});
 
-	test('SymbolInformation, old ctor', function () {
-
-		let info = new types.SymbolInformation('foo', types.SymbolKind.Array, new types.Range(1, 1, 2, 3));
+	test('SymbolInformation, old ctor', function() {
+		let info = new types.SymbolInformation(
+			'foo',
+			types.SymbolKind.Array,
+			new types.Range(1, 1, 2, 3)
+		);
 		assert.ok(info.location instanceof types.Location);
 		assert.equal(info.location.uri, undefined);
 	});
 
-	test('SnippetString, builder-methods', function () {
-
+	test('SnippetString, builder-methods', function() {
 		let string: types.SnippetString;
 
 		string = new types.SnippetString();
-		assert.equal(string.appendText('I need $ and $').value, 'I need \\$ and \\$');
+		assert.equal(
+			string.appendText('I need $ and $').value,
+			'I need \\$ and \\$'
+		);
 
 		string = new types.SnippetString();
 		assert.equal(string.appendText('I need \\$').value, 'I need \\\\\\$');
@@ -446,7 +537,10 @@ suite('ExtHostTypes', function () {
 		assert.equal(string.value, 'foo${1:far\\$boo}bar');
 
 		string = new types.SnippetString();
-		string.appendText('foo').appendPlaceholder(b => b.appendText('abc').appendPlaceholder('nested')).appendText('bar');
+		string
+			.appendText('foo')
+			.appendPlaceholder(b => b.appendText('abc').appendPlaceholder('nested'))
+			.appendText('bar');
 		assert.equal(string.value, 'foo${1:abc${2:nested}}bar');
 
 		string = new types.SnippetString();
@@ -454,7 +548,10 @@ suite('ExtHostTypes', function () {
 		assert.equal(string.value, '${foo}');
 
 		string = new types.SnippetString();
-		string.appendText('foo').appendVariable('TM_SELECTED_TEXT').appendText('bar');
+		string
+			.appendText('foo')
+			.appendVariable('TM_SELECTED_TEXT')
+			.appendText('bar');
 		assert.equal(string.value, 'foo${TM_SELECTED_TEXT}bar');
 
 		string = new types.SnippetString();
@@ -462,8 +559,7 @@ suite('ExtHostTypes', function () {
 		assert.equal(string.value, '${BAR:${1:ops}}');
 
 		string = new types.SnippetString();
-		string.appendVariable('BAR', b => { });
+		string.appendVariable('BAR', b => {});
 		assert.equal(string.value, '${BAR}');
-
 	});
 });

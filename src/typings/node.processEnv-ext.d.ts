@@ -4,9 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 declare namespace NodeJS {
-
 	export interface Process {
-
 		/**
 		 * The lazy enviroment is a promise that resolves to `process.env`
 		 * once the process is resolved. The use-case is VS Code running

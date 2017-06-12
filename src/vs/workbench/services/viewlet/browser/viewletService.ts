@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { TPromise, ValueCallback } from 'vs/base/common/winjs.base';
 import { IViewlet } from 'vs/workbench/common/viewlet';
@@ -10,12 +10,15 @@ import { IViewletService } from 'vs/workbench/services/viewlet/browser/viewlet';
 import Event from 'vs/base/common/event';
 import { SidebarPart } from 'vs/workbench/browser/parts/sidebar/sidebarPart';
 import { Registry } from 'vs/platform/platform';
-import { ViewletDescriptor, ViewletRegistry, Extensions as ViewletExtensions } from 'vs/workbench/browser/viewlet';
+import {
+	ViewletDescriptor,
+	ViewletRegistry,
+	Extensions as ViewletExtensions
+} from 'vs/workbench/browser/viewlet';
 import { IExtensionService } from 'vs/platform/extensions/common/extensions';
 import { IProgressService } from 'vs/platform/progress/common/progress';
 
 export class ViewletService implements IViewletService {
-
 	public _serviceBrand: any;
 
 	private sidebarPart: SidebarPart;
@@ -25,15 +28,21 @@ export class ViewletService implements IViewletService {
 	private extensionViewletsLoaded: TPromise<void>;
 	private extensionViewletsLoadedPromiseComplete: ValueCallback;
 
-	public get onDidViewletOpen(): Event<IViewlet> { return this.sidebarPart.onDidViewletOpen; };
-	public get onDidViewletClose(): Event<IViewlet> { return this.sidebarPart.onDidViewletClose; };
+	public get onDidViewletOpen(): Event<IViewlet> {
+		return this.sidebarPart.onDidViewletOpen;
+	}
+	public get onDidViewletClose(): Event<IViewlet> {
+		return this.sidebarPart.onDidViewletClose;
+	}
 
 	constructor(
 		sidebarPart: SidebarPart,
 		@IExtensionService private extensionService: IExtensionService
 	) {
 		this.sidebarPart = sidebarPart;
-		this.viewletRegistry = Registry.as<ViewletRegistry>(ViewletExtensions.Viewlets);
+		this.viewletRegistry = Registry.as<ViewletRegistry>(
+			ViewletExtensions.Viewlets
+		);
 
 		this.loadExtensionViewlets();
 	}
@@ -58,7 +67,6 @@ export class ViewletService implements IViewletService {
 	}
 
 	public openViewlet(id: string, focus?: boolean): TPromise<IViewlet> {
-
 		// Built in viewlets do not need to wait for extensions to be loaded
 		const builtInViewletIds = this.getBuiltInViewlets().map(v => v.id);
 		const isBuiltInViewlet = builtInViewletIds.indexOf(id) !== -1;
@@ -88,7 +96,8 @@ export class ViewletService implements IViewletService {
 	}
 
 	private getBuiltInViewlets(): ViewletDescriptor[] {
-		return this.viewletRegistry.getViewlets()
+		return this.viewletRegistry
+			.getViewlets()
 			.filter(viewlet => !viewlet.extensionId)
 			.sort((v1, v2) => v1.order - v2.order);
 	}

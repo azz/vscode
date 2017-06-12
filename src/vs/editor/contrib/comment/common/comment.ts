@@ -2,18 +2,22 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as nls from 'vs/nls';
 import { KeyCode, KeyMod, KeyChord } from 'vs/base/common/keyCodes';
 import { ICommand, ICommonCodeEditor } from 'vs/editor/common/editorCommon';
 import { EditorContextKeys } from 'vs/editor/common/editorContextKeys';
-import { editorAction, IActionOptions, EditorAction, ServicesAccessor } from 'vs/editor/common/editorCommonExtensions';
+import {
+	editorAction,
+	IActionOptions,
+	EditorAction,
+	ServicesAccessor
+} from 'vs/editor/common/editorCommonExtensions';
 import { BlockCommentCommand } from './blockCommentCommand';
 import { LineCommentCommand, Type } from './lineCommentCommand';
 
 abstract class CommentLineAction extends EditorAction {
-
 	private _type: Type;
 
 	constructor(type: Type, opts: IActionOptions) {
@@ -32,14 +36,15 @@ abstract class CommentLineAction extends EditorAction {
 		var opts = model.getOptions();
 
 		for (var i = 0; i < selections.length; i++) {
-			commands.push(new LineCommentCommand(selections[i], opts.tabSize, this._type));
+			commands.push(
+				new LineCommentCommand(selections[i], opts.tabSize, this._type)
+			);
 		}
 
 		editor.pushUndoStop();
 		editor.executeCommands(this.id, commands);
 		editor.pushUndoStop();
 	}
-
 }
 
 @editorAction
@@ -47,7 +52,7 @@ class ToggleCommentLineAction extends CommentLineAction {
 	constructor() {
 		super(Type.Toggle, {
 			id: 'editor.action.commentLine',
-			label: nls.localize('comment.line', "Toggle Line Comment"),
+			label: nls.localize('comment.line', 'Toggle Line Comment'),
 			alias: 'Toggle Line Comment',
 			precondition: EditorContextKeys.writable,
 			kbOpts: {
@@ -63,12 +68,15 @@ class AddLineCommentAction extends CommentLineAction {
 	constructor() {
 		super(Type.ForceAdd, {
 			id: 'editor.action.addCommentLine',
-			label: nls.localize('comment.line.add', "Add Line Comment"),
+			label: nls.localize('comment.line.add', 'Add Line Comment'),
 			alias: 'Add Line Comment',
 			precondition: EditorContextKeys.writable,
 			kbOpts: {
 				kbExpr: EditorContextKeys.textFocus,
-				primary: KeyChord(KeyMod.CtrlCmd | KeyCode.KEY_K, KeyMod.CtrlCmd | KeyCode.KEY_C)
+				primary: KeyChord(
+					KeyMod.CtrlCmd | KeyCode.KEY_K,
+					KeyMod.CtrlCmd | KeyCode.KEY_C
+				)
 			}
 		});
 	}
@@ -79,12 +87,15 @@ class RemoveLineCommentAction extends CommentLineAction {
 	constructor() {
 		super(Type.ForceRemove, {
 			id: 'editor.action.removeCommentLine',
-			label: nls.localize('comment.line.remove', "Remove Line Comment"),
+			label: nls.localize('comment.line.remove', 'Remove Line Comment'),
 			alias: 'Remove Line Comment',
 			precondition: EditorContextKeys.writable,
 			kbOpts: {
 				kbExpr: EditorContextKeys.textFocus,
-				primary: KeyChord(KeyMod.CtrlCmd | KeyCode.KEY_K, KeyMod.CtrlCmd | KeyCode.KEY_U)
+				primary: KeyChord(
+					KeyMod.CtrlCmd | KeyCode.KEY_K,
+					KeyMod.CtrlCmd | KeyCode.KEY_U
+				)
 			}
 		});
 	}
@@ -92,11 +103,10 @@ class RemoveLineCommentAction extends CommentLineAction {
 
 @editorAction
 class BlockCommentAction extends EditorAction {
-
 	constructor() {
 		super({
 			id: 'editor.action.blockComment',
-			label: nls.localize('comment.block', "Toggle Block Comment"),
+			label: nls.localize('comment.block', 'Toggle Block Comment'),
 			alias: 'Toggle Block Comment',
 			precondition: EditorContextKeys.writable,
 			kbOpts: {

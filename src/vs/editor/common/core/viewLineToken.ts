@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { ColorId } from 'vs/editor/common/modes';
 import { TokenMetadata } from 'vs/editor/common/model/tokensBinaryEncoding';
@@ -37,10 +37,7 @@ export class ViewLineToken {
 	}
 
 	private static _equals(a: ViewLineToken, b: ViewLineToken): boolean {
-		return (
-			a.endIndex === b.endIndex
-			&& a._metadata === b._metadata
-		);
+		return a.endIndex === b.endIndex && a._metadata === b._metadata;
 	}
 
 	public static equalsArr(a: ViewLineToken[], b: ViewLineToken[]): boolean {
@@ -59,12 +56,14 @@ export class ViewLineToken {
 }
 
 export class ViewLineTokenFactory {
-
-	public static inflateArr(tokens: Uint32Array, lineLength: number): ViewLineToken[] {
+	public static inflateArr(
+		tokens: Uint32Array,
+		lineLength: number
+	): ViewLineToken[] {
 		let result: ViewLineToken[] = [];
 
-		for (let i = 0, len = (tokens.length >>> 1); i < len; i++) {
-			let endOffset = (i + 1 < len ? tokens[((i + 1) << 1)] : lineLength);
+		for (let i = 0, len = tokens.length >>> 1; i < len; i++) {
+			let endOffset = i + 1 < len ? tokens[(i + 1) << 1] : lineLength;
 			let metadata = tokens[(i << 1) + 1];
 
 			result[i] = new ViewLineToken(endOffset, metadata);
@@ -73,20 +72,30 @@ export class ViewLineTokenFactory {
 		return result;
 	}
 
-	public static sliceAndInflate(tokens: Uint32Array, startOffset: number, endOffset: number, deltaOffset: number, lineLength: number): ViewLineToken[] {
+	public static sliceAndInflate(
+		tokens: Uint32Array,
+		startOffset: number,
+		endOffset: number,
+		deltaOffset: number,
+		lineLength: number
+	): ViewLineToken[] {
 		const tokenIndex = this.findIndexInSegmentsArray(tokens, startOffset);
-		const maxEndOffset = (endOffset - startOffset + deltaOffset);
-		let result: ViewLineToken[] = [], resultLen = 0;
+		const maxEndOffset = endOffset - startOffset + deltaOffset;
+		let result: ViewLineToken[] = [],
+			resultLen = 0;
 
-		for (let i = tokenIndex, len = (tokens.length >>> 1); i < len; i++) {
-			let tokenStartOffset = tokens[(i << 1)];
+		for (let i = tokenIndex, len = tokens.length >>> 1; i < len; i++) {
+			let tokenStartOffset = tokens[i << 1];
 
 			if (tokenStartOffset >= endOffset) {
 				break;
 			}
 
-			let tokenEndOffset = (i + 1 < len ? tokens[((i + 1) << 1)] : lineLength);
-			let newEndOffset = Math.min(maxEndOffset, tokenEndOffset - startOffset + deltaOffset);
+			let tokenEndOffset = i + 1 < len ? tokens[(i + 1) << 1] : lineLength;
+			let newEndOffset = Math.min(
+				maxEndOffset,
+				tokenEndOffset - startOffset + deltaOffset
+			);
 			let metadata = tokens[(i << 1) + 1];
 
 			result[resultLen++] = new ViewLineToken(newEndOffset, metadata);
@@ -95,16 +104,17 @@ export class ViewLineTokenFactory {
 		return result;
 	}
 
-	public static findIndexInSegmentsArray(tokens: Uint32Array, desiredIndex: number): number {
-
+	public static findIndexInSegmentsArray(
+		tokens: Uint32Array,
+		desiredIndex: number
+	): number {
 		let low = 0;
 		let high = (tokens.length >>> 1) - 1;
 
 		while (low < high) {
-
 			let mid = low + Math.ceil((high - low) / 2);
 
-			let value = tokens[(mid << 1)];
+			let value = tokens[mid << 1];
 
 			if (value > desiredIndex) {
 				high = mid - 1;

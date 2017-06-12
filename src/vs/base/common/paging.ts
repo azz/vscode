@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import { isArray } from 'vs/base/common/types';
@@ -45,21 +45,34 @@ export function singlePagePager<T>(elements: T[]): IPager<T> {
 }
 
 export class PagedModel<T> implements IPagedModel<T> {
-
 	private pager: IPager<T>;
 	private pages: IPage<T>[] = [];
 
-	get length(): number { return this.pager.total; }
+	get length(): number {
+		return this.pager.total;
+	}
 
 	constructor(private arg: IPager<T> | T[], private pageTimeout: number = 500) {
 		this.pager = isArray(arg) ? singlePagePager<T>(arg) : arg;
 
-		this.pages = [{ isResolved: true, promise: null, promiseIndexes: new Set<number>(), elements: this.pager.firstPage.slice() }];
+		this.pages = [
+			{
+				isResolved: true,
+				promise: null,
+				promiseIndexes: new Set<number>(),
+				elements: this.pager.firstPage.slice()
+			}
+		];
 
 		const totalPages = Math.ceil(this.pager.total / this.pager.pageSize);
 
 		for (let i = 0, len = totalPages - 1; i < len; i++) {
-			this.pages.push({ isResolved: false, promise: null, promiseIndexes: new Set<number>(), elements: [] });
+			this.pages.push({
+				isResolved: false,
+				promise: null,
+				promiseIndexes: new Set<number>(),
+				elements: []
+			});
 		}
 	}
 
@@ -89,31 +102,37 @@ export class PagedModel<T> implements IPagedModel<T> {
 		if (!page.promise) {
 			page.promise = TPromise.timeout(this.pageTimeout)
 				.then(() => this.pager.getPage(pageIndex))
-				.then(elements => {
-					page.elements = elements;
-					page.isResolved = true;
-					page.promise = null;
-				}, err => {
-					page.isResolved = false;
-					page.promise = null;
-					return TPromise.wrapError(err);
-				});
+				.then(
+					elements => {
+						page.elements = elements;
+						page.isResolved = true;
+						page.promise = null;
+					},
+					err => {
+						page.isResolved = false;
+						page.promise = null;
+						return TPromise.wrapError(err);
+					}
+				);
 		}
 
-		return new TPromise<T>((c, e) => {
-			page.promiseIndexes.add(index);
-			page.promise.done(() => c(page.elements[indexInPage]));
-		}, () => {
-			if (!page.promise) {
-				return;
-			}
+		return new TPromise<T>(
+			(c, e) => {
+				page.promiseIndexes.add(index);
+				page.promise.done(() => c(page.elements[indexInPage]));
+			},
+			() => {
+				if (!page.promise) {
+					return;
+				}
 
-			page.promiseIndexes.delete(index);
+				page.promiseIndexes.delete(index);
 
-			if (page.promiseIndexes.size === 0) {
-				page.promise.cancel();
+				if (page.promiseIndexes.size === 0) {
+					page.promise.cancel();
+				}
 			}
-		});
+		);
 	}
 }
 
@@ -139,8 +158,10 @@ export function mergePagers<T>(one: IPager<T>, other: IPager<T>): IPager<T> {
 		total: one.total + other.total,
 		pageSize: one.pageSize + other.pageSize,
 		getPage(pageIndex: number): TPromise<T[]> {
-			return TPromise.join([one.getPage(pageIndex), other.getPage(pageIndex)])
-				.then(([onePage, otherPage]) => [...onePage, ...otherPage]);
+			return TPromise.join([
+				one.getPage(pageIndex),
+				other.getPage(pageIndex)
+			]).then(([onePage, otherPage]) => [...onePage, ...otherPage]);
 		}
 	};
 }

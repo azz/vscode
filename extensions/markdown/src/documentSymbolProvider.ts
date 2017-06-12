@@ -3,23 +3,28 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as vscode from 'vscode';
 
 import { MarkdownEngine } from './markdownEngine';
 import { TableOfContentsProvider } from './tableOfContentsProvider';
 
-export default class MDDocumentSymbolProvider implements vscode.DocumentSymbolProvider {
+export default class MDDocumentSymbolProvider
+	implements vscode.DocumentSymbolProvider {
+	constructor(private engine: MarkdownEngine) {}
 
-	constructor(
-		private engine: MarkdownEngine
-	) { }
-
-	provideDocumentSymbols(document: vscode.TextDocument): vscode.ProviderResult<vscode.SymbolInformation[]> {
+	provideDocumentSymbols(
+		document: vscode.TextDocument
+	): vscode.ProviderResult<vscode.SymbolInformation[]> {
 		const toc = new TableOfContentsProvider(this.engine, document);
 		return toc.getToc().map(entry => {
-			return new vscode.SymbolInformation(entry.text, vscode.SymbolKind.Namespace, '', entry.location);
+			return new vscode.SymbolInformation(
+				entry.text,
+				vscode.SymbolKind.Namespace,
+				'',
+				entry.location
+			);
 		});
 	}
 }

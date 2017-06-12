@@ -13,7 +13,6 @@ const BackslashR: number = new Buffer('\r', 'utf8')[0];
 const BackslashN: number = new Buffer('\n', 'utf8')[0];
 
 class ProtocolBuffer {
-
 	private index: number;
 	private buffer: Buffer;
 
@@ -32,12 +31,17 @@ class ProtocolBuffer {
 		if (this.buffer.length - this.index >= toAppend.length) {
 			toAppend.copy(this.buffer, this.index, 0, toAppend.length);
 		} else {
-			let newSize = (Math.ceil((this.index + toAppend.length) / DefaultSize) + 1) * DefaultSize;
+			let newSize =
+				(Math.ceil((this.index + toAppend.length) / DefaultSize) + 1) *
+				DefaultSize;
 			if (this.index === 0) {
 				this.buffer = new Buffer(newSize);
 				toAppend.copy(this.buffer, 0, 0, toAppend.length);
 			} else {
-				this.buffer = Buffer.concat([this.buffer.slice(0, this.index), toAppend], newSize);
+				this.buffer = Buffer.concat(
+					[this.buffer.slice(0, this.index), toAppend],
+					newSize
+				);
 			}
 		}
 		this.index += toAppend.length;
@@ -47,7 +51,12 @@ class ProtocolBuffer {
 		let result = -1;
 		let current = 0;
 		// we are utf8 encoding...
-		while (current < this.index && (this.buffer[current] === Blank || this.buffer[current] === BackslashR || this.buffer[current] === BackslashN)) {
+		while (
+			current < this.index &&
+			(this.buffer[current] === Blank ||
+				this.buffer[current] === BackslashR ||
+				this.buffer[current] === BackslashN)
+		) {
 			current++;
 		}
 		if (this.index < current + ContentLengthSize) {
@@ -58,7 +67,12 @@ class ProtocolBuffer {
 		while (current < this.index && this.buffer[current] !== BackslashR) {
 			current++;
 		}
-		if (current + 3 >= this.index || this.buffer[current + 1] !== BackslashN || this.buffer[current + 2] !== BackslashR || this.buffer[current + 3] !== BackslashN) {
+		if (
+			current + 3 >= this.index ||
+			this.buffer[current + 1] !== BackslashN ||
+			this.buffer[current + 2] !== BackslashR ||
+			this.buffer[current + 3] !== BackslashN
+		) {
 			return result;
 		}
 		let data = this.buffer.toString('utf8', start, current);
@@ -74,7 +88,11 @@ class ProtocolBuffer {
 		}
 		let result = this.buffer.toString('utf8', 0, length);
 		let sourceStart = length;
-		while (sourceStart < this.index && (this.buffer[sourceStart] === BackslashR || this.buffer[sourceStart] === BackslashN)) {
+		while (
+			sourceStart < this.index &&
+			(this.buffer[sourceStart] === BackslashR ||
+				this.buffer[sourceStart] === BackslashN)
+		) {
 			sourceStart++;
 		}
 		this.buffer.copy(this.buffer, 0, sourceStart);
@@ -88,7 +106,6 @@ export interface ICallback<T> {
 }
 
 export class Reader<T> {
-
 	private readonly readable: stream.Readable;
 	private readonly callback: ICallback<T>;
 	private readonly buffer: ProtocolBuffer;

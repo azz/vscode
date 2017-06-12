@@ -1,10 +1,9 @@
 declare module 'gulp-remote-src' {
-
-	import stream = require("stream");
+	import stream = require('stream');
 
 	function remote(url: string, options: remote.IOptions): stream.Stream;
 
-	module remote {
+	namespace remote {
 		export interface IRequestOptions {
 			body?: any;
 			json?: boolean;

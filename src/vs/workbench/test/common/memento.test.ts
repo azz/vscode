@@ -3,14 +3,17 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { WorkspaceContextService } from 'vs/platform/workspace/common/workspace';
 import { StorageScope } from 'vs/platform/storage/common/storage';
 import { TestWorkspace } from 'vs/platform/workspace/test/common/testWorkspace';
 import { Memento, Scope } from 'vs/workbench/common/memento';
-import { StorageService, InMemoryLocalStorage } from 'vs/platform/storage/common/storageService';
+import {
+	StorageService,
+	InMemoryLocalStorage
+} from 'vs/platform/storage/common/storageService';
 
 suite('Workbench Memento', () => {
 	let context;
@@ -48,9 +51,14 @@ suite('Workbench Memento', () => {
 		assert.deepEqual(memento, { foo: 'Hello World' });
 
 		// Assert the Mementos are stored properly in storage
-		assert.deepEqual(JSON.parse(storage.get('memento/memento.test')), { foo: [1, 2, 3] });
+		assert.deepEqual(JSON.parse(storage.get('memento/memento.test')), {
+			foo: [1, 2, 3]
+		});
 
-		assert.deepEqual(JSON.parse(storage.get('memento/memento.test', StorageScope.WORKSPACE)), { foo: 'Hello World' });
+		assert.deepEqual(
+			JSON.parse(storage.get('memento/memento.test', StorageScope.WORKSPACE)),
+			{ foo: 'Hello World' }
+		);
 
 		// Delete Global
 		memento = myMemento.getMemento(storage, context);
@@ -71,9 +79,15 @@ suite('Workbench Memento', () => {
 		assert.deepEqual(memento, {});
 
 		// Assert the Mementos are also removed from storage
-		assert.strictEqual(storage.get('memento/memento.test', Scope.GLOBAL, null), null);
+		assert.strictEqual(
+			storage.get('memento/memento.test', Scope.GLOBAL, null),
+			null
+		);
 
-		assert.strictEqual(storage.get('memento/memento.test', Scope.WORKSPACE, null), null);
+		assert.strictEqual(
+			storage.get('memento/memento.test', Scope.WORKSPACE, null),
+			null
+		);
 	});
 
 	test('Save and Load', () => {

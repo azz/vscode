@@ -2,11 +2,14 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { IdGenerator } from 'vs/base/common/idGenerator';
 import { Position } from 'vs/editor/common/core/position';
-import { ITextModelWithMarkers, ITextModelCreationOptions } from 'vs/editor/common/editorCommon';
+import {
+	ITextModelWithMarkers,
+	ITextModelCreationOptions
+} from 'vs/editor/common/editorCommon';
 import { LineMarker } from 'vs/editor/common/model/modelLine';
 import { TextModelWithTokens } from 'vs/editor/common/model/textModelWithTokens';
 import { LanguageIdentifier } from 'vs/editor/common/modes';
@@ -24,14 +27,18 @@ export interface INewMarker {
 
 var _INSTANCE_COUNT = 0;
 
-export class TextModelWithMarkers extends TextModelWithTokens implements ITextModelWithMarkers {
-
+export class TextModelWithMarkers extends TextModelWithTokens
+	implements ITextModelWithMarkers {
 	private _markerIdGenerator: IdGenerator;
 	protected _markerIdToMarker: IMarkerIdToMarkerMap;
 
-	constructor(rawTextSource: IRawTextSource, creationOptions: ITextModelCreationOptions, languageIdentifier: LanguageIdentifier) {
+	constructor(
+		rawTextSource: IRawTextSource,
+		creationOptions: ITextModelCreationOptions,
+		languageIdentifier: LanguageIdentifier
+	) {
 		super(rawTextSource, creationOptions, languageIdentifier);
-		this._markerIdGenerator = new IdGenerator((++_INSTANCE_COUNT) + ';');
+		this._markerIdGenerator = new IdGenerator(++_INSTANCE_COUNT + ';');
 		this._markerIdToMarker = Object.create(null);
 	}
 
@@ -47,10 +54,20 @@ export class TextModelWithMarkers extends TextModelWithTokens implements ITextMo
 		this._markerIdToMarker = Object.create(null);
 	}
 
-	_addMarker(internalDecorationId: number, lineNumber: number, column: number, stickToPreviousCharacter: boolean): string {
+	_addMarker(
+		internalDecorationId: number,
+		lineNumber: number,
+		column: number,
+		stickToPreviousCharacter: boolean
+	): string {
 		var pos = this.validatePosition(new Position(lineNumber, column));
 
-		var marker = new LineMarker(this._markerIdGenerator.nextId(), internalDecorationId, pos, stickToPreviousCharacter);
+		var marker = new LineMarker(
+			this._markerIdGenerator.nextId(),
+			internalDecorationId,
+			pos,
+			stickToPreviousCharacter
+		);
 		this._markerIdToMarker[marker.id] = marker;
 
 		this._lines[pos.lineNumber - 1].addMarker(marker);
@@ -67,7 +84,12 @@ export class TextModelWithMarkers extends TextModelWithTokens implements ITextMo
 		for (let i = 0, len = newMarkers.length; i < len; i++) {
 			let newMarker = newMarkers[i];
 
-			let marker = new LineMarker(this._markerIdGenerator.nextId(), newMarker.internalDecorationId, newMarker.position, newMarker.stickToPreviousCharacter);
+			let marker = new LineMarker(
+				this._markerIdGenerator.nextId(),
+				newMarker.internalDecorationId,
+				newMarker.position,
+				newMarker.stickToPreviousCharacter
+			);
 			this._markerIdToMarker[marker.id] = marker;
 
 			markers[i] = marker;
@@ -79,7 +101,8 @@ export class TextModelWithMarkers extends TextModelWithTokens implements ITextMo
 		});
 
 		let currentLineNumber = 0;
-		let currentMarkers: LineMarker[] = [], currentMarkersLen = 0;
+		let currentMarkers: LineMarker[] = [],
+			currentMarkersLen = 0;
 		for (let i = 0, len = sortedMarkers.length; i < len; i++) {
 			let marker = sortedMarkers[i];
 
@@ -116,7 +139,10 @@ export class TextModelWithMarkers extends TextModelWithTokens implements ITextMo
 		marker.setPosition(newPos);
 	}
 
-	_changeMarkerStickiness(id: string, newStickToPreviousCharacter: boolean): void {
+	_changeMarkerStickiness(
+		id: string,
+		newStickToPreviousCharacter: boolean
+	): void {
 		let marker = this._markerIdToMarker[id];
 		if (!marker) {
 			return;
@@ -154,7 +180,7 @@ export class TextModelWithMarkers extends TextModelWithTokens implements ITextMo
 		});
 
 		let currentLineNumber = 0;
-		let currentMarkers: { [markerId: string]: boolean; } = null;
+		let currentMarkers: { [markerId: string]: boolean } = null;
 		for (let i = 0, len = markers.length; i < len; i++) {
 			let marker = markers[i];
 			delete this._markerIdToMarker[marker.id];

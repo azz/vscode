@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { localize } from 'vs/nls';
 import { TPromise } from 'vs/base/common/winjs.base';
@@ -12,9 +12,12 @@ import { IExtension } from 'vs/workbench/parts/extensions/common/extensions';
 import URI from 'vs/base/common/uri';
 
 export class ExtensionsInput extends EditorInput {
-
-	static get ID() { return 'workbench.extensions.input2'; }
-	get extension(): IExtension { return this._extension; }
+	static get ID() {
+		return 'workbench.extensions.input2';
+	}
+	get extension(): IExtension {
+		return this._extension;
+	}
 
 	constructor(private _extension: IExtension) {
 		super();
@@ -25,7 +28,11 @@ export class ExtensionsInput extends EditorInput {
 	}
 
 	getName(): string {
-		return localize('extensionsInputName', "Extension: {0}", this.extension.displayName);
+		return localize(
+			'extensionsInputName',
+			'Extension: {0}',
+			this.extension.displayName
+		);
 	}
 
 	matches(other: any): boolean {

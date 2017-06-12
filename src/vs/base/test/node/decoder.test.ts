@@ -3,14 +3,13 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import decoder = require('vs/base/node/decoder');
 
 suite('Decoder', () => {
-
-	test('decoding', function () {
+	test('decoding', function() {
 		const lineDecoder = new decoder.LineDecoder();
 		let res = lineDecoder.write(new Buffer('hello'));
 		assert.equal(res.length, 0);

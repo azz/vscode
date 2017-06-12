@@ -3,11 +3,15 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import { localize } from 'vs/nls';
 import { IKeybindingService } from 'vs/platform/keybinding/common/keybinding';
-import { IMenu, MenuItemAction, IMenuActionOptions } from 'vs/platform/actions/common/actions';
+import {
+	IMenu,
+	MenuItemAction,
+	IMenuActionOptions
+} from 'vs/platform/actions/common/actions';
 import { IMessageService } from 'vs/platform/message/common/message';
 import Severity from 'vs/base/common/severity';
 import { IAction } from 'vs/base/common/actions';
@@ -16,8 +20,12 @@ import { ActionItem, Separator } from 'vs/base/browser/ui/actionbar/actionbar';
 import { domEvent } from 'vs/base/browser/event';
 import { Emitter } from 'vs/base/common/event';
 
-
-export function fillInActions(menu: IMenu, options: IMenuActionOptions, target: IAction[] | { primary: IAction[]; secondary: IAction[]; }, isPrimaryGroup: (group: string) => boolean = group => group === 'navigation'): void {
+export function fillInActions(
+	menu: IMenu,
+	options: IMenuActionOptions,
+	target: IAction[] | { primary: IAction[]; secondary: IAction[] },
+	isPrimaryGroup: (group: string) => boolean = group => group === 'navigation'
+): void {
 	const groups = menu.getActions(options);
 	if (groups.length === 0) {
 		return;
@@ -26,7 +34,6 @@ export function fillInActions(menu: IMenu, options: IMenuActionOptions, target: 
 	for (let tuple of groups) {
 		let [group, actions] = tuple;
 		if (isPrimaryGroup(group)) {
-
 			const head = Array.isArray<IAction>(target) ? target : target.primary;
 
 			// split contributed actions at the point where order
@@ -51,7 +58,6 @@ export function fillInActions(menu: IMenu, options: IMenuActionOptions, target: 
 			}
 			// append contributed actions with order gt zero
 			head.splice(sep, 0, ...actions.slice(pivot));
-
 		} else {
 			const to = Array.isArray<IAction>(target) ? target : target.secondary;
 
@@ -64,36 +70,44 @@ export function fillInActions(menu: IMenu, options: IMenuActionOptions, target: 
 	}
 }
 
-
-export function createActionItem(action: IAction, keybindingService: IKeybindingService, messageService: IMessageService): ActionItem {
+export function createActionItem(
+	action: IAction,
+	keybindingService: IKeybindingService,
+	messageService: IMessageService
+): ActionItem {
 	if (action instanceof MenuItemAction) {
 		return new MenuItemActionItem(action, keybindingService, messageService);
 	}
 	return undefined;
 }
 
-
 const _altKey = new class extends Emitter<boolean> {
-
 	private _subscriptions: IDisposable[] = [];
 
 	constructor() {
 		super();
 
-		this._subscriptions.push(domEvent(document.body, 'keydown')(e => this.fire(e.altKey)));
-		this._subscriptions.push(domEvent(document.body, 'keyup')(e => this.fire(false)));
-		this._subscriptions.push(domEvent(document.body, 'mouseleave')(e => this.fire(false)));
-		this._subscriptions.push(domEvent(document.body, 'blur')(e => this.fire(false)));
+		this._subscriptions.push(
+			domEvent(document.body, 'keydown')(e => this.fire(e.altKey))
+		);
+		this._subscriptions.push(
+			domEvent(document.body, 'keyup')(e => this.fire(false))
+		);
+		this._subscriptions.push(
+			domEvent(document.body, 'mouseleave')(e => this.fire(false))
+		);
+		this._subscriptions.push(
+			domEvent(document.body, 'blur')(e => this.fire(false))
+		);
 	}
 
 	dispose() {
 		super.dispose();
 		this._subscriptions = dispose(this._subscriptions);
 	}
-};
+}();
 
 export class MenuItemActionItem extends ActionItem {
-
 	private _wantsAltCommand: boolean = false;
 
 	constructor(
@@ -105,14 +119,18 @@ export class MenuItemActionItem extends ActionItem {
 	}
 
 	protected get _commandAction(): IAction {
-		return this._wantsAltCommand && (<MenuItemAction>this._action).alt || this._action;
+		return (
+			(this._wantsAltCommand && (<MenuItemAction>this._action).alt) ||
+			this._action
+		);
 	}
 
 	onClick(event: MouseEvent): void {
 		event.preventDefault();
 		event.stopPropagation();
 
-		this.actionRunner.run(this._commandAction)
+		this.actionRunner
+			.run(this._commandAction)
 			.done(undefined, err => this._messageService.show(Severity.Error, err));
 	}
 
@@ -132,20 +150,26 @@ export class MenuItemActionItem extends ActionItem {
 			}
 		};
 
-		this._callOnDispose.push(_altKey.event(value => {
-			altDown = value;
-			updateAltState();
-		}));
+		this._callOnDispose.push(
+			_altKey.event(value => {
+				altDown = value;
+				updateAltState();
+			})
+		);
 
-		this._callOnDispose.push(domEvent(container, 'mouseleave')(_ => {
-			mouseOver = false;
-			updateAltState();
-		}));
+		this._callOnDispose.push(
+			domEvent(container, 'mouseleave')(_ => {
+				mouseOver = false;
+				updateAltState();
+			})
+		);
 
-		this._callOnDispose.push(domEvent(container, 'mouseenter')(e => {
-			mouseOver = true;
-			updateAltState();
-		}));
+		this._callOnDispose.push(
+			domEvent(container, 'mouseenter')(e => {
+				mouseOver = true;
+				updateAltState();
+			})
+		);
 	}
 
 	_updateLabel(): void {
@@ -156,11 +180,18 @@ export class MenuItemActionItem extends ActionItem {
 
 	_updateTooltip(): void {
 		const element = this.$e.getHTMLElement();
-		const keybinding = this._keybindingService.lookupKeybinding(this._commandAction.id);
+		const keybinding = this._keybindingService.lookupKeybinding(
+			this._commandAction.id
+		);
 		const keybindingLabel = keybinding && keybinding.getLabel();
 
 		element.title = keybindingLabel
-			? localize('titleAndKb', "{0} ({1})", this._commandAction.label, keybindingLabel)
+			? localize(
+					'titleAndKb',
+					'{0} ({1})',
+					this._commandAction.label,
+					keybindingLabel
+				)
 			: this._commandAction.label;
 	}
 

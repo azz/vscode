@@ -3,12 +3,15 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import nls = require('vs/nls');
 
 import { Registry } from 'vs/platform/platform';
-import { IConfigurationRegistry, Extensions as ConfigurationExtensions } from 'vs/platform/configuration/common/configurationRegistry';
+import {
+	IConfigurationRegistry,
+	Extensions as ConfigurationExtensions
+} from 'vs/platform/configuration/common/configurationRegistry';
 
 import './actions/expandAbbreviation';
 import './actions/balance';
@@ -28,42 +31,62 @@ import './actions/reflectCssValue';
 import './actions/updateTag';
 
 // Configuration: emmet
-const configurationRegistry = <IConfigurationRegistry>Registry.as(ConfigurationExtensions.Configuration);
+const configurationRegistry = <IConfigurationRegistry>Registry.as(
+	ConfigurationExtensions.Configuration
+);
 configurationRegistry.registerConfiguration({
-	'id': 'emmet',
-	'order': 6,
-	'title': nls.localize('emmetConfigurationTitle', "Emmet"),
-	'type': 'object',
-	'properties': {
+	id: 'emmet',
+	order: 6,
+	title: nls.localize('emmetConfigurationTitle', 'Emmet'),
+	type: 'object',
+	properties: {
 		'emmet.triggerExpansionOnTab': {
-			'type': 'boolean',
-			'default': true,
-			'description': nls.localize('triggerExpansionOnTab', "When enabled, emmet abbreviations are expanded when pressing TAB.")
+			type: 'boolean',
+			default: true,
+			description: nls.localize(
+				'triggerExpansionOnTab',
+				'When enabled, emmet abbreviations are expanded when pressing TAB.'
+			)
 		},
 		'emmet.preferences': {
-			'type': 'object',
-			'default': {},
-			'description': nls.localize('emmetPreferences', "Preferences used to modify behavior of some actions and resolvers of Emmet.")
+			type: 'object',
+			default: {},
+			description: nls.localize(
+				'emmetPreferences',
+				'Preferences used to modify behavior of some actions and resolvers of Emmet.'
+			)
 		},
 		'emmet.syntaxProfiles': {
-			'type': 'object',
-			'default': {},
-			'description': nls.localize('emmetSyntaxProfiles', "Define profile for specified syntax or use your own profile with specific rules.")
+			type: 'object',
+			default: {},
+			description: nls.localize(
+				'emmetSyntaxProfiles',
+				'Define profile for specified syntax or use your own profile with specific rules.'
+			)
 		},
 		'emmet.excludeLanguages': {
-			'type': 'array',
-			'default': ['markdown'],
-			'description': nls.localize('emmetExclude', "An array of languages where emmet abbreviations should not be expanded.")
+			type: 'array',
+			default: ['markdown'],
+			description: nls.localize(
+				'emmetExclude',
+				'An array of languages where emmet abbreviations should not be expanded.'
+			)
 		},
 		'emmet.extensionsPath': {
-			'type': 'string',
-			'default': null,
-			'description': nls.localize('emmetExtensionsPath', 'Path to a folder containing emmet profiles, snippets and preferences')
+			type: 'string',
+			default: null,
+			description: nls.localize(
+				'emmetExtensionsPath',
+				'Path to a folder containing emmet profiles, snippets and preferences'
+			)
 		},
 		'emmet.useNewEmmet': {
-			'type': 'boolean',
-			'default': true,
-			'description': nls.localize('useNewEmmet', 'Try out the new emmet modules (which will eventually replace the old single emmet library) for all emmet features.')
+			type: 'boolean',
+			default: true,
+			description: nls.localize(
+				'useNewEmmet',
+				'Try out the new emmet modules (which will eventually replace the old single emmet library) for all emmet features.'
+			)
 		}
 	}
 });

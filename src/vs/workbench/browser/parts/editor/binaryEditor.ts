@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import nls = require('vs/nls');
 import Event, { Emitter } from 'vs/base/common/event';
@@ -11,7 +11,11 @@ import URI from 'vs/base/common/uri';
 import { TPromise } from 'vs/base/common/winjs.base';
 import { Dimension, Builder, $ } from 'vs/base/browser/builder';
 import { ResourceViewer } from 'vs/base/browser/ui/resourceviewer/resourceViewer';
-import { EditorModel, EditorInput, EditorOptions } from 'vs/workbench/common/editor';
+import {
+	EditorModel,
+	EditorInput,
+	EditorOptions
+} from 'vs/workbench/common/editor';
 import { BaseEditor } from 'vs/workbench/browser/parts/editor/baseEditor';
 import { BinaryEditorModel } from 'vs/workbench/common/editor/binaryEditorModel';
 import { ITelemetryService } from 'vs/platform/telemetry/common/telemetry';
@@ -46,11 +50,12 @@ export abstract class BaseBinaryResourceEditor extends BaseEditor {
 	}
 
 	public getTitle(): string {
-		return this.input ? this.input.getName() : nls.localize('binaryEditor', "Binary Viewer");
+		return this.input
+			? this.input.getName()
+			: nls.localize('binaryEditor', 'Binary Viewer');
 	}
 
 	protected createEditor(parent: Builder): void {
-
 		// Container for Binary
 		const binaryContainerElement = document.createElement('div');
 		binaryContainerElement.className = 'binary-container';
@@ -59,7 +64,11 @@ export abstract class BaseBinaryResourceEditor extends BaseEditor {
 		this.binaryContainer.tabindex(0); // enable focus support from the editor part (do not remove)
 
 		// Custom Scrollbars
-		this.scrollbar = new DomScrollableElement(binaryContainerElement, { canUseTranslate3d: false, horizontal: ScrollbarVisibility.Auto, vertical: ScrollbarVisibility.Auto });
+		this.scrollbar = new DomScrollableElement(binaryContainerElement, {
+			canUseTranslate3d: false,
+			horizontal: ScrollbarVisibility.Auto,
+			vertical: ScrollbarVisibility.Auto
+		});
 		parent.getHTMLElement().appendChild(this.scrollbar.getDomNode());
 	}
 
@@ -77,7 +86,6 @@ export abstract class BaseBinaryResourceEditor extends BaseEditor {
 
 		// Different Input (Reload)
 		return input.resolve(true).then((resolvedModel: EditorModel) => {
-
 			// Assert Model instance
 			if (!(resolvedModel instanceof BinaryEditorModel)) {
 				return TPromise.wrapError<void>('Unable to open file as binary');
@@ -91,18 +99,26 @@ export abstract class BaseBinaryResourceEditor extends BaseEditor {
 			// Render Input
 			const model = <BinaryEditorModel>resolvedModel;
 			ResourceViewer.show(
-				{ name: model.getName(), resource: model.getResource(), size: model.getSize(), etag: model.getETag() },
+				{
+					name: model.getName(),
+					resource: model.getResource(),
+					size: model.getSize(),
+					etag: model.getETag()
+				},
 				this.binaryContainer,
 				this.scrollbar,
 				(resource: URI) => {
-					this.windowsService.openExternal(resource.toString()).then(didOpen => {
-						if (!didOpen) {
-							return this.windowsService.showItemInFolder(resource.fsPath);
-						}
-						return undefined;
-					});
+					this.windowsService
+						.openExternal(resource.toString())
+						.then(didOpen => {
+							if (!didOpen) {
+								return this.windowsService.showItemInFolder(resource.fsPath);
+							}
+							return undefined;
+						});
 				},
-				(meta) => this.handleMetadataChanged(meta));
+				meta => this.handleMetadataChanged(meta)
+			);
 
 			return TPromise.as<void>(null);
 		});
@@ -118,7 +134,6 @@ export abstract class BaseBinaryResourceEditor extends BaseEditor {
 	}
 
 	public clearInput(): void {
-
 		// Clear Meta
 		this.handleMetadataChanged(null);
 
@@ -129,7 +144,6 @@ export abstract class BaseBinaryResourceEditor extends BaseEditor {
 	}
 
 	public layout(dimension: Dimension): void {
-
 		// Pass on to Binary Container
 		this.binaryContainer.size(dimension.width, dimension.height);
 		this.scrollbar.scanDomNode();
@@ -140,7 +154,6 @@ export abstract class BaseBinaryResourceEditor extends BaseEditor {
 	}
 
 	public dispose(): void {
-
 		// Destroy Container
 		this.binaryContainer.destroy();
 		this.scrollbar.dispose();

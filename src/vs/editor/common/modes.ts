@@ -2,13 +2,16 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { MarkedString } from 'vs/base/common/htmlContent';
 import { IDisposable } from 'vs/base/common/lifecycle';
 import URI from 'vs/base/common/uri';
 import * as editorCommon from 'vs/editor/common/editorCommon';
-import { TokenizationResult, TokenizationResult2 } from 'vs/editor/common/core/token';
+import {
+	TokenizationResult,
+	TokenizationResult2
+} from 'vs/editor/common/core/token';
 import LanguageFeatureRegistry from 'vs/editor/common/modes/languageFeatureRegistry';
 import { CancellationToken } from 'vs/base/common/cancellation';
 import { Position } from 'vs/editor/common/core/position';
@@ -30,7 +33,6 @@ export const enum LanguageId {
  * @internal
  */
 export class LanguageIdentifier {
-
 	/**
 	 * A string identifier. Unique across languages. e.g. 'javascript'.
 	 */
@@ -53,11 +55,9 @@ export class LanguageIdentifier {
  * @internal
  */
 export interface IMode {
-
 	getId(): string;
 
 	getLanguageIdentifier(): LanguageIdentifier;
-
 }
 
 /**
@@ -133,13 +133,20 @@ export const enum MetadataConsts {
  * @internal
  */
 export interface ITokenizationSupport {
-
 	getInitialState(): IState;
 
 	// add offsetDelta to each of the returned indices
-	tokenize(line: string, state: IState, offsetDelta: number): TokenizationResult;
+	tokenize(
+		line: string,
+		state: IState,
+		offsetDelta: number
+	): TokenizationResult;
 
-	tokenize2(line: string, state: IState, offsetDelta: number): TokenizationResult2;
+	tokenize2(
+		line: string,
+		state: IState,
+		offsetDelta: number
+	): TokenizationResult2;
 }
 
 /**
@@ -180,13 +187,18 @@ export interface HoverProvider {
 	 * position will be merged by the editor. A hover can have a range which defaults
 	 * to the word range at the position when omitted.
 	 */
-	provideHover(model: editorCommon.IReadOnlyModel, position: Position, token: CancellationToken): Hover | Thenable<Hover>;
+	provideHover(
+		model: editorCommon.IReadOnlyModel,
+		position: Position,
+		token: CancellationToken
+	): Hover | Thenable<Hover>;
 }
 
 /**
  * @internal
  */
-export type SuggestionType = 'method'
+export type SuggestionType =
+	| 'method'
 	| 'function'
 	| 'constructor'
 	| 'field'
@@ -250,12 +262,20 @@ export interface ISuggestResult {
  * @internal
  */
 export interface ISuggestSupport {
-
 	triggerCharacters?: string[];
 
-	provideCompletionItems(model: editorCommon.IModel, position: Position, token: CancellationToken): ISuggestResult | Thenable<ISuggestResult>;
+	provideCompletionItems(
+		model: editorCommon.IModel,
+		position: Position,
+		token: CancellationToken
+	): ISuggestResult | Thenable<ISuggestResult>;
 
-	resolveCompletionItem?(model: editorCommon.IModel, position: Position, item: ISuggestion, token: CancellationToken): ISuggestion | Thenable<ISuggestion>;
+	resolveCompletionItem?(
+		model: editorCommon.IModel,
+		position: Position,
+		item: ISuggestion,
+		token: CancellationToken
+	): ISuggestion | Thenable<ISuggestion>;
 }
 
 /**
@@ -274,7 +294,11 @@ export interface CodeActionProvider {
 	/**
 	 * Provide commands for the given document and range.
 	 */
-	provideCodeActions(model: editorCommon.IReadOnlyModel, range: Range, token: CancellationToken): CodeAction[] | Thenable<CodeAction[]>;
+	provideCodeActions(
+		model: editorCommon.IReadOnlyModel,
+		range: Range,
+		token: CancellationToken
+	): CodeAction[] | Thenable<CodeAction[]>;
 }
 
 /**
@@ -338,13 +362,16 @@ export interface SignatureHelp {
  * the [parameter hints](https://code.visualstudio.com/docs/editor/intellisense)-feature.
  */
 export interface SignatureHelpProvider {
-
 	signatureHelpTriggerCharacters: string[];
 
 	/**
 	 * Provide help for the signature at the given position and document.
 	 */
-	provideSignatureHelp(model: editorCommon.IReadOnlyModel, position: Position, token: CancellationToken): SignatureHelp | Thenable<SignatureHelp>;
+	provideSignatureHelp(
+		model: editorCommon.IReadOnlyModel,
+		position: Position,
+		token: CancellationToken
+	): SignatureHelp | Thenable<SignatureHelp>;
 }
 
 /**
@@ -388,7 +415,11 @@ export interface DocumentHighlightProvider {
 	 * Provide a set of document highlights, like all occurrences of a variable or
 	 * all exit-points of a function.
 	 */
-	provideDocumentHighlights(model: editorCommon.IReadOnlyModel, position: Position, token: CancellationToken): DocumentHighlight[] | Thenable<DocumentHighlight[]>;
+	provideDocumentHighlights(
+		model: editorCommon.IReadOnlyModel,
+		position: Position,
+		token: CancellationToken
+	): DocumentHighlight[] | Thenable<DocumentHighlight[]>;
 }
 
 /**
@@ -409,7 +440,12 @@ export interface ReferenceProvider {
 	/**
 	 * Provide a set of project-wide references for the given position and document.
 	 */
-	provideReferences(model: editorCommon.IReadOnlyModel, position: Position, context: ReferenceContext, token: CancellationToken): Location[] | Thenable<Location[]>;
+	provideReferences(
+		model: editorCommon.IReadOnlyModel,
+		position: Position,
+		context: ReferenceContext,
+		token: CancellationToken
+	): Location[] | Thenable<Location[]>;
 }
 
 /**
@@ -442,7 +478,11 @@ export interface DefinitionProvider {
 	/**
 	 * Provide the definition of the symbol at the given position and document.
 	 */
-	provideDefinition(model: editorCommon.IReadOnlyModel, position: Position, token: CancellationToken): Definition | Thenable<Definition>;
+	provideDefinition(
+		model: editorCommon.IReadOnlyModel,
+		position: Position,
+		token: CancellationToken
+	): Definition | Thenable<Definition>;
 }
 
 /**
@@ -453,7 +493,11 @@ export interface ImplementationProvider {
 	/**
 	 * Provide the implementation of the symbol at the given position and document.
 	 */
-	provideImplementation(model: editorCommon.IReadOnlyModel, position: Position, token: CancellationToken): Definition | Thenable<Definition>;
+	provideImplementation(
+		model: editorCommon.IReadOnlyModel,
+		position: Position,
+		token: CancellationToken
+	): Definition | Thenable<Definition>;
 }
 
 /**
@@ -464,7 +508,11 @@ export interface TypeDefinitionProvider {
 	/**
 	 * Provide the type definition of the symbol at the given position and document.
 	 */
-	provideTypeDefinition(model: editorCommon.IReadOnlyModel, position: Position, token: CancellationToken): Definition | Thenable<Definition>;
+	provideTypeDefinition(
+		model: editorCommon.IReadOnlyModel,
+		position: Position,
+		token: CancellationToken
+	): Definition | Thenable<Definition>;
 }
 
 /**
@@ -499,12 +547,10 @@ export enum SymbolKind {
 	TypeParameter = 25
 }
 
-
 /**
  * @internal
  */
-export const symbolKindToCssClass = (function () {
-
+export const symbolKindToCssClass = (function() {
 	const _fromMapping: { [n: number]: string } = Object.create(null);
 	_fromMapping[SymbolKind.File] = 'file';
 	_fromMapping[SymbolKind.Module] = 'module';
@@ -538,7 +584,6 @@ export const symbolKindToCssClass = (function () {
 	};
 })();
 
-
 /**
  * Represents information about programming constructs like variables, classes,
  * interfaces etc.
@@ -569,7 +614,10 @@ export interface DocumentSymbolProvider {
 	/**
 	 * Provide symbol information for the given document.
 	 */
-	provideDocumentSymbols(model: editorCommon.IReadOnlyModel, token: CancellationToken): SymbolInformation[] | Thenable<SymbolInformation[]>;
+	provideDocumentSymbols(
+		model: editorCommon.IReadOnlyModel,
+		token: CancellationToken
+	): SymbolInformation[] | Thenable<SymbolInformation[]>;
 }
 
 export interface TextEdit {
@@ -599,7 +647,11 @@ export interface DocumentFormattingEditProvider {
 	/**
 	 * Provide formatting edits for a whole document.
 	 */
-	provideDocumentFormattingEdits(model: editorCommon.IReadOnlyModel, options: FormattingOptions, token: CancellationToken): TextEdit[] | Thenable<TextEdit[]>;
+	provideDocumentFormattingEdits(
+		model: editorCommon.IReadOnlyModel,
+		options: FormattingOptions,
+		token: CancellationToken
+	): TextEdit[] | Thenable<TextEdit[]>;
 }
 /**
  * The document formatting provider interface defines the contract between extensions and
@@ -613,7 +665,12 @@ export interface DocumentRangeFormattingEditProvider {
 	 * or larger range. Often this is done by adjusting the start and end
 	 * of the range to full syntax nodes.
 	 */
-	provideDocumentRangeFormattingEdits(model: editorCommon.IReadOnlyModel, range: Range, options: FormattingOptions, token: CancellationToken): TextEdit[] | Thenable<TextEdit[]>;
+	provideDocumentRangeFormattingEdits(
+		model: editorCommon.IReadOnlyModel,
+		range: Range,
+		options: FormattingOptions,
+		token: CancellationToken
+	): TextEdit[] | Thenable<TextEdit[]>;
 }
 /**
  * The document formatting provider interface defines the contract between extensions and
@@ -628,7 +685,13 @@ export interface OnTypeFormattingEditProvider {
 	 * what range the position to expand to, like find the matching `{`
 	 * when `}` has been entered.
 	 */
-	provideOnTypeFormattingEdits(model: editorCommon.IReadOnlyModel, position: Position, ch: string, options: FormattingOptions, token: CancellationToken): TextEdit[] | Thenable<TextEdit[]>;
+	provideOnTypeFormattingEdits(
+		model: editorCommon.IReadOnlyModel,
+		position: Position,
+		ch: string,
+		options: FormattingOptions,
+		token: CancellationToken
+	): TextEdit[] | Thenable<TextEdit[]>;
 }
 
 /**
@@ -650,10 +713,15 @@ export interface ILink {
  * A provider of links.
  */
 export interface LinkProvider {
-	provideLinks(model: editorCommon.IReadOnlyModel, token: CancellationToken): ILink[] | Thenable<ILink[]>;
-	resolveLink?: (link: ILink, token: CancellationToken) => ILink | Thenable<ILink>;
+	provideLinks(
+		model: editorCommon.IReadOnlyModel,
+		token: CancellationToken
+	): ILink[] | Thenable<ILink[]>;
+	resolveLink?: (
+		link: ILink,
+		token: CancellationToken
+	) => ILink | Thenable<ILink>;
 }
-
 
 export interface IResourceEdit {
 	resource: URI;
@@ -665,9 +733,13 @@ export interface WorkspaceEdit {
 	rejectReason?: string;
 }
 export interface RenameProvider {
-	provideRenameEdits(model: editorCommon.IReadOnlyModel, position: Position, newName: string, token: CancellationToken): WorkspaceEdit | Thenable<WorkspaceEdit>;
+	provideRenameEdits(
+		model: editorCommon.IReadOnlyModel,
+		position: Position,
+		newName: string,
+		token: CancellationToken
+	): WorkspaceEdit | Thenable<WorkspaceEdit>;
 }
-
 
 export interface Command {
 	id: string;
@@ -682,8 +754,15 @@ export interface ICodeLensSymbol {
 }
 export interface CodeLensProvider {
 	onDidChange?: Event<this>;
-	provideCodeLenses(model: editorCommon.IReadOnlyModel, token: CancellationToken): ICodeLensSymbol[] | Thenable<ICodeLensSymbol[]>;
-	resolveCodeLens?(model: editorCommon.IReadOnlyModel, codeLens: ICodeLensSymbol, token: CancellationToken): ICodeLensSymbol | Thenable<ICodeLensSymbol>;
+	provideCodeLenses(
+		model: editorCommon.IReadOnlyModel,
+		token: CancellationToken
+	): ICodeLensSymbol[] | Thenable<ICodeLensSymbol[]>;
+	resolveCodeLens?(
+		model: editorCommon.IReadOnlyModel,
+		codeLens: ICodeLensSymbol,
+		token: CancellationToken
+	): ICodeLensSymbol | Thenable<ICodeLensSymbol>;
 }
 
 // --- feature registries ------
@@ -691,12 +770,16 @@ export interface CodeLensProvider {
 /**
  * @internal
  */
-export const ReferenceProviderRegistry = new LanguageFeatureRegistry<ReferenceProvider>();
+export const ReferenceProviderRegistry = new LanguageFeatureRegistry<
+	ReferenceProvider
+>();
 
 /**
  * @internal
  */
-export const RenameProviderRegistry = new LanguageFeatureRegistry<RenameProvider>();
+export const RenameProviderRegistry = new LanguageFeatureRegistry<
+	RenameProvider
+>();
 
 /**
  * @internal
@@ -706,62 +789,86 @@ export const SuggestRegistry = new LanguageFeatureRegistry<ISuggestSupport>();
 /**
  * @internal
  */
-export const SignatureHelpProviderRegistry = new LanguageFeatureRegistry<SignatureHelpProvider>();
+export const SignatureHelpProviderRegistry = new LanguageFeatureRegistry<
+	SignatureHelpProvider
+>();
 
 /**
  * @internal
  */
-export const HoverProviderRegistry = new LanguageFeatureRegistry<HoverProvider>();
+export const HoverProviderRegistry = new LanguageFeatureRegistry<
+	HoverProvider
+>();
 
 /**
  * @internal
  */
-export const DocumentSymbolProviderRegistry = new LanguageFeatureRegistry<DocumentSymbolProvider>();
+export const DocumentSymbolProviderRegistry = new LanguageFeatureRegistry<
+	DocumentSymbolProvider
+>();
 
 /**
  * @internal
  */
-export const DocumentHighlightProviderRegistry = new LanguageFeatureRegistry<DocumentHighlightProvider>();
+export const DocumentHighlightProviderRegistry = new LanguageFeatureRegistry<
+	DocumentHighlightProvider
+>();
 
 /**
  * @internal
  */
-export const DefinitionProviderRegistry = new LanguageFeatureRegistry<DefinitionProvider>();
+export const DefinitionProviderRegistry = new LanguageFeatureRegistry<
+	DefinitionProvider
+>();
 
 /**
  * @internal
  */
-export const ImplementationProviderRegistry = new LanguageFeatureRegistry<ImplementationProvider>();
+export const ImplementationProviderRegistry = new LanguageFeatureRegistry<
+	ImplementationProvider
+>();
 
 /**
  * @internal
  */
-export const TypeDefinitionProviderRegistry = new LanguageFeatureRegistry<TypeDefinitionProvider>();
+export const TypeDefinitionProviderRegistry = new LanguageFeatureRegistry<
+	TypeDefinitionProvider
+>();
 
 /**
  * @internal
  */
-export const CodeLensProviderRegistry = new LanguageFeatureRegistry<CodeLensProvider>();
+export const CodeLensProviderRegistry = new LanguageFeatureRegistry<
+	CodeLensProvider
+>();
 
 /**
  * @internal
  */
-export const CodeActionProviderRegistry = new LanguageFeatureRegistry<CodeActionProvider>();
+export const CodeActionProviderRegistry = new LanguageFeatureRegistry<
+	CodeActionProvider
+>();
 
 /**
  * @internal
  */
-export const DocumentFormattingEditProviderRegistry = new LanguageFeatureRegistry<DocumentFormattingEditProvider>();
+export const DocumentFormattingEditProviderRegistry = new LanguageFeatureRegistry<
+	DocumentFormattingEditProvider
+>();
 
 /**
  * @internal
  */
-export const DocumentRangeFormattingEditProviderRegistry = new LanguageFeatureRegistry<DocumentRangeFormattingEditProvider>();
+export const DocumentRangeFormattingEditProviderRegistry = new LanguageFeatureRegistry<
+	DocumentRangeFormattingEditProvider
+>();
 
 /**
  * @internal
  */
-export const OnTypeFormattingEditProviderRegistry = new LanguageFeatureRegistry<OnTypeFormattingEditProvider>();
+export const OnTypeFormattingEditProviderRegistry = new LanguageFeatureRegistry<
+	OnTypeFormattingEditProvider
+>();
 
 /**
  * @internal
@@ -780,7 +887,6 @@ export interface ITokenizationSupportChangedEvent {
  * @internal
  */
 export interface ITokenizationRegistry {
-
 	/**
 	 * An event triggered when:
 	 *  - a tokenization support is registered, unregistered or changed.

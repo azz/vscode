@@ -2,39 +2,48 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
-import { RenderMinimap, EditorLayoutInfo, EditorLayoutProvider, IEditorLayoutProviderOpts } from 'vs/editor/common/config/editorOptions';
+import {
+	RenderMinimap,
+	EditorLayoutInfo,
+	EditorLayoutProvider,
+	IEditorLayoutProviderOpts
+} from 'vs/editor/common/config/editorOptions';
 
 suite('Editor ViewLayout - EditorLayoutProvider', () => {
-
-	function doTest(input: IEditorLayoutProviderOpts, expected: EditorLayoutInfo): void {
+	function doTest(
+		input: IEditorLayoutProviderOpts,
+		expected: EditorLayoutInfo
+	): void {
 		let actual = EditorLayoutProvider.compute(input);
 		assert.deepEqual(actual, expected);
 	}
 
 	test('EditorLayoutProvider 1', () => {
-		doTest({
-			outerWidth: 1000,
-			outerHeight: 800,
-			showGlyphMargin: false,
-			lineHeight: 16,
-			showLineNumbers: false,
-			lineNumbersMinChars: 0,
-			lineNumbersDigitCount: 1,
-			lineDecorationsWidth: 10,
-			typicalHalfwidthCharacterWidth: 10,
-			maxDigitWidth: 10,
-			verticalScrollbarWidth: 0,
-			horizontalScrollbarHeight: 0,
-			scrollbarArrowSize: 0,
-			verticalScrollbarHasArrows: false,
-			minimap: false,
-			minimapRenderCharacters: true,
-			minimapMaxColumn: 150,
-			pixelRatio: 1,
-		}, {
+		doTest(
+			{
+				outerWidth: 1000,
+				outerHeight: 800,
+				showGlyphMargin: false,
+				lineHeight: 16,
+				showLineNumbers: false,
+				lineNumbersMinChars: 0,
+				lineNumbersDigitCount: 1,
+				lineDecorationsWidth: 10,
+				typicalHalfwidthCharacterWidth: 10,
+				maxDigitWidth: 10,
+				verticalScrollbarWidth: 0,
+				horizontalScrollbarHeight: 0,
+				scrollbarArrowSize: 0,
+				verticalScrollbarHasArrows: false,
+				minimap: false,
+				minimapRenderCharacters: true,
+				minimapMaxColumn: 150,
+				pixelRatio: 1
+			},
+			{
 				width: 1000,
 				height: 800,
 
@@ -67,30 +76,33 @@ suite('Editor ViewLayout - EditorLayoutProvider', () => {
 					height: 800,
 					right: 0
 				}
-			});
+			}
+		);
 	});
 
 	test('EditorLayoutProvider 1.1', () => {
-		doTest({
-			outerWidth: 1000,
-			outerHeight: 800,
-			showGlyphMargin: false,
-			lineHeight: 16,
-			showLineNumbers: false,
-			lineNumbersMinChars: 0,
-			lineNumbersDigitCount: 1,
-			lineDecorationsWidth: 10,
-			typicalHalfwidthCharacterWidth: 10,
-			maxDigitWidth: 10,
-			verticalScrollbarWidth: 11,
-			horizontalScrollbarHeight: 12,
-			scrollbarArrowSize: 13,
-			verticalScrollbarHasArrows: true,
-			minimap: false,
-			minimapRenderCharacters: true,
-			minimapMaxColumn: 150,
-			pixelRatio: 1,
-		}, {
+		doTest(
+			{
+				outerWidth: 1000,
+				outerHeight: 800,
+				showGlyphMargin: false,
+				lineHeight: 16,
+				showLineNumbers: false,
+				lineNumbersMinChars: 0,
+				lineNumbersDigitCount: 1,
+				lineDecorationsWidth: 10,
+				typicalHalfwidthCharacterWidth: 10,
+				maxDigitWidth: 10,
+				verticalScrollbarWidth: 11,
+				horizontalScrollbarHeight: 12,
+				scrollbarArrowSize: 13,
+				verticalScrollbarHasArrows: true,
+				minimap: false,
+				minimapRenderCharacters: true,
+				minimapMaxColumn: 150,
+				pixelRatio: 1
+			},
+			{
 				width: 1000,
 				height: 800,
 
@@ -120,33 +132,36 @@ suite('Editor ViewLayout - EditorLayoutProvider', () => {
 				overviewRuler: {
 					top: 13,
 					width: 11,
-					height: (800 - 2 * 13),
+					height: 800 - 2 * 13,
 					right: 0
 				}
-			});
+			}
+		);
 	});
 
 	test('EditorLayoutProvider 2', () => {
-		doTest({
-			outerWidth: 900,
-			outerHeight: 800,
-			showGlyphMargin: false,
-			lineHeight: 16,
-			showLineNumbers: false,
-			lineNumbersMinChars: 0,
-			lineNumbersDigitCount: 1,
-			lineDecorationsWidth: 10,
-			typicalHalfwidthCharacterWidth: 10,
-			maxDigitWidth: 10,
-			verticalScrollbarWidth: 0,
-			horizontalScrollbarHeight: 0,
-			scrollbarArrowSize: 0,
-			verticalScrollbarHasArrows: false,
-			minimap: false,
-			minimapRenderCharacters: true,
-			minimapMaxColumn: 150,
-			pixelRatio: 1,
-		}, {
+		doTest(
+			{
+				outerWidth: 900,
+				outerHeight: 800,
+				showGlyphMargin: false,
+				lineHeight: 16,
+				showLineNumbers: false,
+				lineNumbersMinChars: 0,
+				lineNumbersDigitCount: 1,
+				lineDecorationsWidth: 10,
+				typicalHalfwidthCharacterWidth: 10,
+				maxDigitWidth: 10,
+				verticalScrollbarWidth: 0,
+				horizontalScrollbarHeight: 0,
+				scrollbarArrowSize: 0,
+				verticalScrollbarHasArrows: false,
+				minimap: false,
+				minimapRenderCharacters: true,
+				minimapMaxColumn: 150,
+				pixelRatio: 1
+			},
+			{
 				width: 900,
 				height: 800,
 
@@ -179,30 +194,33 @@ suite('Editor ViewLayout - EditorLayoutProvider', () => {
 					height: 800,
 					right: 0
 				}
-			});
+			}
+		);
 	});
 
 	test('EditorLayoutProvider 3', () => {
-		doTest({
-			outerWidth: 900,
-			outerHeight: 900,
-			showGlyphMargin: false,
-			lineHeight: 16,
-			showLineNumbers: false,
-			lineNumbersMinChars: 0,
-			lineNumbersDigitCount: 1,
-			lineDecorationsWidth: 10,
-			typicalHalfwidthCharacterWidth: 10,
-			maxDigitWidth: 10,
-			verticalScrollbarWidth: 0,
-			horizontalScrollbarHeight: 0,
-			scrollbarArrowSize: 0,
-			verticalScrollbarHasArrows: false,
-			minimap: false,
-			minimapRenderCharacters: true,
-			minimapMaxColumn: 150,
-			pixelRatio: 1,
-		}, {
+		doTest(
+			{
+				outerWidth: 900,
+				outerHeight: 900,
+				showGlyphMargin: false,
+				lineHeight: 16,
+				showLineNumbers: false,
+				lineNumbersMinChars: 0,
+				lineNumbersDigitCount: 1,
+				lineDecorationsWidth: 10,
+				typicalHalfwidthCharacterWidth: 10,
+				maxDigitWidth: 10,
+				verticalScrollbarWidth: 0,
+				horizontalScrollbarHeight: 0,
+				scrollbarArrowSize: 0,
+				verticalScrollbarHasArrows: false,
+				minimap: false,
+				minimapRenderCharacters: true,
+				minimapMaxColumn: 150,
+				pixelRatio: 1
+			},
+			{
 				width: 900,
 				height: 900,
 
@@ -235,30 +253,33 @@ suite('Editor ViewLayout - EditorLayoutProvider', () => {
 					height: 900,
 					right: 0
 				}
-			});
+			}
+		);
 	});
 
 	test('EditorLayoutProvider 4', () => {
-		doTest({
-			outerWidth: 900,
-			outerHeight: 900,
-			showGlyphMargin: false,
-			lineHeight: 16,
-			showLineNumbers: false,
-			lineNumbersMinChars: 5,
-			lineNumbersDigitCount: 1,
-			lineDecorationsWidth: 10,
-			typicalHalfwidthCharacterWidth: 10,
-			maxDigitWidth: 10,
-			verticalScrollbarWidth: 0,
-			horizontalScrollbarHeight: 0,
-			scrollbarArrowSize: 0,
-			verticalScrollbarHasArrows: false,
-			minimap: false,
-			minimapRenderCharacters: true,
-			minimapMaxColumn: 150,
-			pixelRatio: 1,
-		}, {
+		doTest(
+			{
+				outerWidth: 900,
+				outerHeight: 900,
+				showGlyphMargin: false,
+				lineHeight: 16,
+				showLineNumbers: false,
+				lineNumbersMinChars: 5,
+				lineNumbersDigitCount: 1,
+				lineDecorationsWidth: 10,
+				typicalHalfwidthCharacterWidth: 10,
+				maxDigitWidth: 10,
+				verticalScrollbarWidth: 0,
+				horizontalScrollbarHeight: 0,
+				scrollbarArrowSize: 0,
+				verticalScrollbarHasArrows: false,
+				minimap: false,
+				minimapRenderCharacters: true,
+				minimapMaxColumn: 150,
+				pixelRatio: 1
+			},
+			{
 				width: 900,
 				height: 900,
 
@@ -291,30 +312,33 @@ suite('Editor ViewLayout - EditorLayoutProvider', () => {
 					height: 900,
 					right: 0
 				}
-			});
+			}
+		);
 	});
 
 	test('EditorLayoutProvider 5', () => {
-		doTest({
-			outerWidth: 900,
-			outerHeight: 900,
-			showGlyphMargin: false,
-			lineHeight: 16,
-			showLineNumbers: true,
-			lineNumbersMinChars: 5,
-			lineNumbersDigitCount: 1,
-			lineDecorationsWidth: 10,
-			typicalHalfwidthCharacterWidth: 10,
-			maxDigitWidth: 10,
-			verticalScrollbarWidth: 0,
-			horizontalScrollbarHeight: 0,
-			scrollbarArrowSize: 0,
-			verticalScrollbarHasArrows: false,
-			minimap: false,
-			minimapRenderCharacters: true,
-			minimapMaxColumn: 150,
-			pixelRatio: 1,
-		}, {
+		doTest(
+			{
+				outerWidth: 900,
+				outerHeight: 900,
+				showGlyphMargin: false,
+				lineHeight: 16,
+				showLineNumbers: true,
+				lineNumbersMinChars: 5,
+				lineNumbersDigitCount: 1,
+				lineDecorationsWidth: 10,
+				typicalHalfwidthCharacterWidth: 10,
+				maxDigitWidth: 10,
+				verticalScrollbarWidth: 0,
+				horizontalScrollbarHeight: 0,
+				scrollbarArrowSize: 0,
+				verticalScrollbarHasArrows: false,
+				minimap: false,
+				minimapRenderCharacters: true,
+				minimapMaxColumn: 150,
+				pixelRatio: 1
+			},
+			{
 				width: 900,
 				height: 900,
 
@@ -347,30 +371,33 @@ suite('Editor ViewLayout - EditorLayoutProvider', () => {
 					height: 900,
 					right: 0
 				}
-			});
+			}
+		);
 	});
 
 	test('EditorLayoutProvider 6', () => {
-		doTest({
-			outerWidth: 900,
-			outerHeight: 900,
-			showGlyphMargin: false,
-			lineHeight: 16,
-			showLineNumbers: true,
-			lineNumbersMinChars: 5,
-			lineNumbersDigitCount: 5,
-			lineDecorationsWidth: 10,
-			typicalHalfwidthCharacterWidth: 10,
-			maxDigitWidth: 10,
-			verticalScrollbarWidth: 0,
-			horizontalScrollbarHeight: 0,
-			scrollbarArrowSize: 0,
-			verticalScrollbarHasArrows: false,
-			minimap: false,
-			minimapRenderCharacters: true,
-			minimapMaxColumn: 150,
-			pixelRatio: 1,
-		}, {
+		doTest(
+			{
+				outerWidth: 900,
+				outerHeight: 900,
+				showGlyphMargin: false,
+				lineHeight: 16,
+				showLineNumbers: true,
+				lineNumbersMinChars: 5,
+				lineNumbersDigitCount: 5,
+				lineDecorationsWidth: 10,
+				typicalHalfwidthCharacterWidth: 10,
+				maxDigitWidth: 10,
+				verticalScrollbarWidth: 0,
+				horizontalScrollbarHeight: 0,
+				scrollbarArrowSize: 0,
+				verticalScrollbarHasArrows: false,
+				minimap: false,
+				minimapRenderCharacters: true,
+				minimapMaxColumn: 150,
+				pixelRatio: 1
+			},
+			{
 				width: 900,
 				height: 900,
 
@@ -403,30 +430,33 @@ suite('Editor ViewLayout - EditorLayoutProvider', () => {
 					height: 900,
 					right: 0
 				}
-			});
+			}
+		);
 	});
 
 	test('EditorLayoutProvider 7', () => {
-		doTest({
-			outerWidth: 900,
-			outerHeight: 900,
-			showGlyphMargin: false,
-			lineHeight: 16,
-			showLineNumbers: true,
-			lineNumbersMinChars: 5,
-			lineNumbersDigitCount: 6,
-			lineDecorationsWidth: 10,
-			typicalHalfwidthCharacterWidth: 10,
-			maxDigitWidth: 10,
-			verticalScrollbarWidth: 0,
-			horizontalScrollbarHeight: 0,
-			scrollbarArrowSize: 0,
-			verticalScrollbarHasArrows: false,
-			minimap: false,
-			minimapRenderCharacters: true,
-			minimapMaxColumn: 150,
-			pixelRatio: 1,
-		}, {
+		doTest(
+			{
+				outerWidth: 900,
+				outerHeight: 900,
+				showGlyphMargin: false,
+				lineHeight: 16,
+				showLineNumbers: true,
+				lineNumbersMinChars: 5,
+				lineNumbersDigitCount: 6,
+				lineDecorationsWidth: 10,
+				typicalHalfwidthCharacterWidth: 10,
+				maxDigitWidth: 10,
+				verticalScrollbarWidth: 0,
+				horizontalScrollbarHeight: 0,
+				scrollbarArrowSize: 0,
+				verticalScrollbarHasArrows: false,
+				minimap: false,
+				minimapRenderCharacters: true,
+				minimapMaxColumn: 150,
+				pixelRatio: 1
+			},
+			{
 				width: 900,
 				height: 900,
 
@@ -459,30 +489,33 @@ suite('Editor ViewLayout - EditorLayoutProvider', () => {
 					height: 900,
 					right: 0
 				}
-			});
+			}
+		);
 	});
 
 	test('EditorLayoutProvider 8', () => {
-		doTest({
-			outerWidth: 900,
-			outerHeight: 900,
-			showGlyphMargin: false,
-			lineHeight: 16,
-			showLineNumbers: true,
-			lineNumbersMinChars: 5,
-			lineNumbersDigitCount: 6,
-			lineDecorationsWidth: 10,
-			typicalHalfwidthCharacterWidth: 5,
-			maxDigitWidth: 5,
-			verticalScrollbarWidth: 0,
-			horizontalScrollbarHeight: 0,
-			scrollbarArrowSize: 0,
-			verticalScrollbarHasArrows: false,
-			minimap: false,
-			minimapRenderCharacters: true,
-			minimapMaxColumn: 150,
-			pixelRatio: 1,
-		}, {
+		doTest(
+			{
+				outerWidth: 900,
+				outerHeight: 900,
+				showGlyphMargin: false,
+				lineHeight: 16,
+				showLineNumbers: true,
+				lineNumbersMinChars: 5,
+				lineNumbersDigitCount: 6,
+				lineDecorationsWidth: 10,
+				typicalHalfwidthCharacterWidth: 5,
+				maxDigitWidth: 5,
+				verticalScrollbarWidth: 0,
+				horizontalScrollbarHeight: 0,
+				scrollbarArrowSize: 0,
+				verticalScrollbarHasArrows: false,
+				minimap: false,
+				minimapRenderCharacters: true,
+				minimapMaxColumn: 150,
+				pixelRatio: 1
+			},
+			{
 				width: 900,
 				height: 900,
 
@@ -515,30 +548,33 @@ suite('Editor ViewLayout - EditorLayoutProvider', () => {
 					height: 900,
 					right: 0
 				}
-			});
+			}
+		);
 	});
 
 	test('EditorLayoutProvider 8 - rounds floats', () => {
-		doTest({
-			outerWidth: 900,
-			outerHeight: 900,
-			showGlyphMargin: false,
-			lineHeight: 16,
-			showLineNumbers: true,
-			lineNumbersMinChars: 5,
-			lineNumbersDigitCount: 6,
-			lineDecorationsWidth: 10,
-			typicalHalfwidthCharacterWidth: 5.05,
-			maxDigitWidth: 5.05,
-			verticalScrollbarWidth: 0,
-			horizontalScrollbarHeight: 0,
-			scrollbarArrowSize: 0,
-			verticalScrollbarHasArrows: false,
-			minimap: false,
-			minimapRenderCharacters: true,
-			minimapMaxColumn: 150,
-			pixelRatio: 1,
-		}, {
+		doTest(
+			{
+				outerWidth: 900,
+				outerHeight: 900,
+				showGlyphMargin: false,
+				lineHeight: 16,
+				showLineNumbers: true,
+				lineNumbersMinChars: 5,
+				lineNumbersDigitCount: 6,
+				lineDecorationsWidth: 10,
+				typicalHalfwidthCharacterWidth: 5.05,
+				maxDigitWidth: 5.05,
+				verticalScrollbarWidth: 0,
+				horizontalScrollbarHeight: 0,
+				scrollbarArrowSize: 0,
+				verticalScrollbarHasArrows: false,
+				minimap: false,
+				minimapRenderCharacters: true,
+				minimapMaxColumn: 150,
+				pixelRatio: 1
+			},
+			{
 				width: 900,
 				height: 900,
 
@@ -571,30 +607,33 @@ suite('Editor ViewLayout - EditorLayoutProvider', () => {
 					height: 900,
 					right: 0
 				}
-			});
+			}
+		);
 	});
 
 	test('EditorLayoutProvider 9 - render minimap', () => {
-		doTest({
-			outerWidth: 1000,
-			outerHeight: 800,
-			showGlyphMargin: false,
-			lineHeight: 16,
-			showLineNumbers: false,
-			lineNumbersMinChars: 0,
-			lineNumbersDigitCount: 1,
-			lineDecorationsWidth: 10,
-			typicalHalfwidthCharacterWidth: 10,
-			maxDigitWidth: 10,
-			verticalScrollbarWidth: 0,
-			horizontalScrollbarHeight: 0,
-			scrollbarArrowSize: 0,
-			verticalScrollbarHasArrows: false,
-			minimap: true,
-			minimapRenderCharacters: true,
-			minimapMaxColumn: 150,
-			pixelRatio: 1,
-		}, {
+		doTest(
+			{
+				outerWidth: 1000,
+				outerHeight: 800,
+				showGlyphMargin: false,
+				lineHeight: 16,
+				showLineNumbers: false,
+				lineNumbersMinChars: 0,
+				lineNumbersDigitCount: 1,
+				lineDecorationsWidth: 10,
+				typicalHalfwidthCharacterWidth: 10,
+				maxDigitWidth: 10,
+				verticalScrollbarWidth: 0,
+				horizontalScrollbarHeight: 0,
+				scrollbarArrowSize: 0,
+				verticalScrollbarHasArrows: false,
+				minimap: true,
+				minimapRenderCharacters: true,
+				minimapMaxColumn: 150,
+				pixelRatio: 1
+			},
+			{
 				width: 1000,
 				height: 800,
 
@@ -627,30 +666,33 @@ suite('Editor ViewLayout - EditorLayoutProvider', () => {
 					height: 800,
 					right: 0
 				}
-			});
+			}
+		);
 	});
 
 	test('EditorLayoutProvider 9 - render minimap with pixelRatio = 2', () => {
-		doTest({
-			outerWidth: 1000,
-			outerHeight: 800,
-			showGlyphMargin: false,
-			lineHeight: 16,
-			showLineNumbers: false,
-			lineNumbersMinChars: 0,
-			lineNumbersDigitCount: 1,
-			lineDecorationsWidth: 10,
-			typicalHalfwidthCharacterWidth: 10,
-			maxDigitWidth: 10,
-			verticalScrollbarWidth: 0,
-			horizontalScrollbarHeight: 0,
-			scrollbarArrowSize: 0,
-			verticalScrollbarHasArrows: false,
-			minimap: true,
-			minimapRenderCharacters: true,
-			minimapMaxColumn: 150,
-			pixelRatio: 2,
-		}, {
+		doTest(
+			{
+				outerWidth: 1000,
+				outerHeight: 800,
+				showGlyphMargin: false,
+				lineHeight: 16,
+				showLineNumbers: false,
+				lineNumbersMinChars: 0,
+				lineNumbersDigitCount: 1,
+				lineDecorationsWidth: 10,
+				typicalHalfwidthCharacterWidth: 10,
+				maxDigitWidth: 10,
+				verticalScrollbarWidth: 0,
+				horizontalScrollbarHeight: 0,
+				scrollbarArrowSize: 0,
+				verticalScrollbarHasArrows: false,
+				minimap: true,
+				minimapRenderCharacters: true,
+				minimapMaxColumn: 150,
+				pixelRatio: 2
+			},
+			{
 				width: 1000,
 				height: 800,
 
@@ -683,30 +725,33 @@ suite('Editor ViewLayout - EditorLayoutProvider', () => {
 					height: 800,
 					right: 0
 				}
-			});
+			}
+		);
 	});
 
 	test('EditorLayoutProvider 9 - render minimap with pixelRatio = 4', () => {
-		doTest({
-			outerWidth: 1000,
-			outerHeight: 800,
-			showGlyphMargin: false,
-			lineHeight: 16,
-			showLineNumbers: false,
-			lineNumbersMinChars: 0,
-			lineNumbersDigitCount: 1,
-			lineDecorationsWidth: 10,
-			typicalHalfwidthCharacterWidth: 10,
-			maxDigitWidth: 10,
-			verticalScrollbarWidth: 0,
-			horizontalScrollbarHeight: 0,
-			scrollbarArrowSize: 0,
-			verticalScrollbarHasArrows: false,
-			minimap: true,
-			minimapRenderCharacters: true,
-			minimapMaxColumn: 150,
-			pixelRatio: 4,
-		}, {
+		doTest(
+			{
+				outerWidth: 1000,
+				outerHeight: 800,
+				showGlyphMargin: false,
+				lineHeight: 16,
+				showLineNumbers: false,
+				lineNumbersMinChars: 0,
+				lineNumbersDigitCount: 1,
+				lineDecorationsWidth: 10,
+				typicalHalfwidthCharacterWidth: 10,
+				maxDigitWidth: 10,
+				verticalScrollbarWidth: 0,
+				horizontalScrollbarHeight: 0,
+				scrollbarArrowSize: 0,
+				verticalScrollbarHasArrows: false,
+				minimap: true,
+				minimapRenderCharacters: true,
+				minimapMaxColumn: 150,
+				pixelRatio: 4
+			},
+			{
 				width: 1000,
 				height: 800,
 
@@ -739,6 +784,7 @@ suite('Editor ViewLayout - EditorLayoutProvider', () => {
 					height: 800,
 					right: 0
 				}
-			});
+			}
+		);
 	});
 });

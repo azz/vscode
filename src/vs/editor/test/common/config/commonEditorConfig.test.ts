@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import * as assert from 'assert';
 import { EditorZoom } from 'vs/editor/common/config/editorZoom';
@@ -12,7 +12,6 @@ import { AccessibilitySupport } from 'vs/base/common/platform';
 
 suite('Common Editor Config', () => {
 	test('Zoom Level', () => {
-
 		//Zoom levels are defined to go between -9, 9 inclusive
 		var zoom = EditorZoom;
 
@@ -68,8 +67,15 @@ suite('Common Editor Config', () => {
 		}
 	}
 
-	function assertWrapping(config: TestConfiguration, isViewportWrapping: boolean, wrappingColumn: number): void {
-		assert.equal(config.editor.wrappingInfo.isViewportWrapping, isViewportWrapping);
+	function assertWrapping(
+		config: TestConfiguration,
+		isViewportWrapping: boolean,
+		wrappingColumn: number
+	): void {
+		assert.equal(
+			config.editor.wrappingInfo.isViewportWrapping,
+			isViewportWrapping
+		);
 		assert.equal(config.editor.wrappingInfo.wrappingColumn, wrappingColumn);
 	}
 

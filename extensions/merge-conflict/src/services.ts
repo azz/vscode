@@ -13,14 +13,11 @@ import * as interfaces from './interfaces';
 const ConfigurationSectionName = 'merge-conflict';
 
 export default class ServiceWrapper implements vscode.Disposable {
-
 	private services: vscode.Disposable[] = [];
 
-	constructor(private context: vscode.ExtensionContext) {
-	}
+	constructor(private context: vscode.ExtensionContext) {}
 
 	begin() {
-
 		let configuration = this.createExtensionConfiguration();
 		const documentTracker = new DocumentTracker();
 
@@ -29,7 +26,7 @@ export default class ServiceWrapper implements vscode.Disposable {
 			new CommandHandler(this.context, documentTracker),
 			new CodeLensProvider(this.context, documentTracker),
 			new ContentProvider(this.context),
-			new Decorator(this.context, documentTracker),
+			new Decorator(this.context, documentTracker)
 		);
 
 		this.services.forEach((service: any) => {
@@ -40,7 +37,10 @@ export default class ServiceWrapper implements vscode.Disposable {
 
 		vscode.workspace.onDidChangeConfiguration(() => {
 			this.services.forEach((service: any) => {
-				if (service.configurationUpdated && service.configurationUpdated instanceof Function) {
+				if (
+					service.configurationUpdated &&
+					service.configurationUpdated instanceof Function
+				) {
 					service.configurationUpdated(this.createExtensionConfiguration());
 				}
 			});
@@ -48,9 +48,17 @@ export default class ServiceWrapper implements vscode.Disposable {
 	}
 
 	createExtensionConfiguration(): interfaces.IExtensionConfiguration {
-		const workspaceConfiguration = vscode.workspace.getConfiguration(ConfigurationSectionName);
-		const codeLensEnabled: boolean = workspaceConfiguration.get('codeLens.enabled', true);
-		const decoratorsEnabled: boolean = workspaceConfiguration.get('decorators.enabled', true);
+		const workspaceConfiguration = vscode.workspace.getConfiguration(
+			ConfigurationSectionName
+		);
+		const codeLensEnabled: boolean = workspaceConfiguration.get(
+			'codeLens.enabled',
+			true
+		);
+		const decoratorsEnabled: boolean = workspaceConfiguration.get(
+			'decorators.enabled',
+			true
+		);
 
 		return {
 			enableCodeLens: codeLensEnabled,
@@ -64,4 +72,3 @@ export default class ServiceWrapper implements vscode.Disposable {
 		this.services = [];
 	}
 }
-

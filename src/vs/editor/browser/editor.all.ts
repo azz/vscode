@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/editor/common/controller/coreCommands';
 import 'vs/editor/browser/widget/codeEditorWidget';

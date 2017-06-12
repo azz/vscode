@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { BareFontInfo } from 'vs/editor/common/config/fontInfo';
 
@@ -13,7 +13,6 @@ export const enum CharWidthRequestType {
 }
 
 export class CharWidthRequest {
-
 	public readonly chr: string;
 	public readonly type: CharWidthRequestType;
 	public width: number;
@@ -34,7 +33,6 @@ interface ICharWidthReader {
 }
 
 class DomCharWidthReader implements ICharWidthReader {
-
 	private readonly _bareFontInfo: BareFontInfo;
 	private readonly _requests: CharWidthRequest[];
 
@@ -77,7 +75,8 @@ class DomCharWidthReader implements ICharWidthReader {
 		regularDomNode.style.fontWeight = this._bareFontInfo.fontWeight;
 		regularDomNode.style.fontSize = this._bareFontInfo.fontSize + 'px';
 		regularDomNode.style.lineHeight = this._bareFontInfo.lineHeight + 'px';
-		regularDomNode.style.letterSpacing = this._bareFontInfo.letterSpacing + 'px';
+		regularDomNode.style.letterSpacing =
+			this._bareFontInfo.letterSpacing + 'px';
 		container.appendChild(regularDomNode);
 
 		let boldDomNode = document.createElement('div');
@@ -125,7 +124,10 @@ class DomCharWidthReader implements ICharWidthReader {
 		this._testElements = testElements;
 	}
 
-	private static _render(testElement: HTMLElement, request: CharWidthRequest): void {
+	private static _render(
+		testElement: HTMLElement,
+		request: CharWidthRequest
+	): void {
 		if (request.chr === ' ') {
 			let htmlString = '&nbsp;';
 			// Repeat character 256 (2^8) times
@@ -153,7 +155,10 @@ class DomCharWidthReader implements ICharWidthReader {
 	}
 }
 
-export function readCharWidths(bareFontInfo: BareFontInfo, requests: CharWidthRequest[]): void {
+export function readCharWidths(
+	bareFontInfo: BareFontInfo,
+	requests: CharWidthRequest[]
+): void {
 	let reader = new DomCharWidthReader(bareFontInfo, requests);
 	reader.read();
 }

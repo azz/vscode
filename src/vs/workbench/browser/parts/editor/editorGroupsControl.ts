@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./media/editorGroupsControl';
 import arrays = require('vs/base/common/arrays');
@@ -11,7 +11,13 @@ import Event, { Emitter } from 'vs/base/common/event';
 import { StandardMouseEvent } from 'vs/base/browser/mouseEvent';
 import types = require('vs/base/common/types');
 import { Dimension, Builder, $ } from 'vs/base/browser/builder';
-import { Sash, ISashEvent, IVerticalSashLayoutProvider, IHorizontalSashLayoutProvider, Orientation } from 'vs/base/browser/ui/sash/sash';
+import {
+	Sash,
+	ISashEvent,
+	IVerticalSashLayoutProvider,
+	IHorizontalSashLayoutProvider,
+	Orientation
+} from 'vs/base/browser/ui/sash/sash';
 import { ProgressBar } from 'vs/base/browser/ui/progressbar/progressbar';
 import { BaseEditor } from 'vs/workbench/browser/parts/editor/baseEditor';
 import DOM = require('vs/base/browser/dom');
@@ -20,22 +26,49 @@ import { RunOnceScheduler } from 'vs/base/common/async';
 import { isMacintosh } from 'vs/base/common/platform';
 import { IWorkbenchEditorService } from 'vs/workbench/services/editor/common/editorService';
 import { Position, POSITIONS } from 'vs/platform/editor/common/editor';
-import { IEditorGroupService, ITabOptions, GroupArrangement, GroupOrientation } from 'vs/workbench/services/group/common/groupService';
+import {
+	IEditorGroupService,
+	ITabOptions,
+	GroupArrangement,
+	GroupOrientation
+} from 'vs/workbench/services/group/common/groupService';
 import { ITelemetryService } from 'vs/platform/telemetry/common/telemetry';
 import { IInstantiationService } from 'vs/platform/instantiation/common/instantiation';
 import { ServiceCollection } from 'vs/platform/instantiation/common/serviceCollection';
 import { IContextKeyService } from 'vs/platform/contextkey/common/contextkey';
 import { IExtensionService } from 'vs/platform/extensions/common/extensions';
 import { TabsTitleControl } from 'vs/workbench/browser/parts/editor/tabsTitleControl';
-import { TitleControl, ITitleAreaControl } from 'vs/workbench/browser/parts/editor/titleControl';
+import {
+	TitleControl,
+	ITitleAreaControl
+} from 'vs/workbench/browser/parts/editor/titleControl';
 import { NoTabsTitleControl } from 'vs/workbench/browser/parts/editor/noTabsTitleControl';
-import { IEditorStacksModel, IStacksModelChangeEvent, IEditorGroup, EditorOptions, TextEditorOptions, IEditorIdentifier } from 'vs/workbench/common/editor';
+import {
+	IEditorStacksModel,
+	IStacksModelChangeEvent,
+	IEditorGroup,
+	EditorOptions,
+	TextEditorOptions,
+	IEditorIdentifier
+} from 'vs/workbench/common/editor';
 import { extractResources } from 'vs/base/browser/dnd';
 import { IWindowService } from 'vs/platform/windows/common/windows';
 import { getCodeEditor } from 'vs/editor/common/services/codeEditorService';
 import { IThemeService } from 'vs/platform/theme/common/themeService';
-import { editorBackground, contrastBorder, activeContrastBorder } from 'vs/platform/theme/common/colorRegistry';
-import { Themable, EDITOR_GROUP_HEADER_TABS_BACKGROUND, EDITOR_GROUP_HEADER_NO_TABS_BACKGROUND, EDITOR_GROUP_BORDER, EDITOR_DRAG_AND_DROP_BACKGROUND, EDITOR_GROUP_BACKGROUND, EDITOR_GROUP_HEADER_TABS_BORDER } from 'vs/workbench/common/theme';
+import {
+	editorBackground,
+	contrastBorder,
+	activeContrastBorder
+} from 'vs/platform/theme/common/colorRegistry';
+import {
+	Themable,
+	EDITOR_GROUP_HEADER_TABS_BACKGROUND,
+	EDITOR_GROUP_HEADER_NO_TABS_BACKGROUND,
+	EDITOR_GROUP_BORDER,
+	EDITOR_DRAG_AND_DROP_BACKGROUND,
+	EDITOR_GROUP_BACKGROUND,
+	EDITOR_GROUP_HEADER_TABS_BORDER
+} from 'vs/workbench/common/theme';
 import { attachProgressBarStyler } from 'vs/platform/theme/common/styler';
 
 export enum Rochade {
@@ -52,11 +85,19 @@ export enum ProgressState {
 }
 
 export interface IEditorGroupsControl {
-
 	onGroupFocusChanged: Event<void>;
 
-	show(editor: BaseEditor, position: Position, preserveActive: boolean, ratio?: number[]): void;
-	hide(editor: BaseEditor, position: Position, layoutAndRochade: boolean): Rochade;
+	show(
+		editor: BaseEditor,
+		position: Position,
+		preserveActive: boolean,
+		ratio?: number[]
+	): void;
+	hide(
+		editor: BaseEditor,
+		position: Position,
+		layoutAndRochade: boolean
+	): Rochade;
 
 	setActive(editor: BaseEditor): void;
 
@@ -83,15 +124,16 @@ export interface IEditorGroupsControl {
 
 	getRatio(): number[];
 
-
 	dispose(): void;
 }
 
 /**
  * Helper class to manage multiple side by side editors for the editor part.
  */
-export class EditorGroupsControl extends Themable implements IEditorGroupsControl, IVerticalSashLayoutProvider, IHorizontalSashLayoutProvider {
-
+export class EditorGroupsControl extends Themable
+	implements IEditorGroupsControl,
+		IVerticalSashLayoutProvider,
+		IHorizontalSashLayoutProvider {
 	private static TITLE_AREA_CONTROL_KEY = '__titleAreaControl';
 	private static PROGRESS_BAR_CONTROL_KEY = '__progressBar';
 	private static INSTANTIATION_SERVICE_KEY = '__instantiationService';
@@ -166,14 +208,17 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 		this._onGroupFocusChanged = new Emitter<void>();
 		this.toUnbind.push(this._onGroupFocusChanged);
 
-		this.onStacksChangeScheduler = new RunOnceScheduler(() => this.handleStacksChanged(), 0);
+		this.onStacksChangeScheduler = new RunOnceScheduler(
+			() => this.handleStacksChanged(),
+			0
+		);
 		this.toUnbind.push(this.onStacksChangeScheduler);
 		this.stacksChangedBuffer = [];
 
 		this.updateTabOptions(this.editorGroupService.getTabOptions());
 
 		const editorGroupOrientation = groupOrientation || 'vertical';
-		this.layoutVertically = (editorGroupOrientation !== 'horizontal');
+		this.layoutVertically = editorGroupOrientation !== 'horizontal';
 
 		this.create();
 
@@ -189,15 +234,21 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 	}
 
 	private get minSize(): number {
-		return this.layoutVertically ? EditorGroupsControl.MIN_EDITOR_WIDTH : EditorGroupsControl.MIN_EDITOR_HEIGHT;
+		return this.layoutVertically
+			? EditorGroupsControl.MIN_EDITOR_WIDTH
+			: EditorGroupsControl.MIN_EDITOR_HEIGHT;
 	}
 
 	private isSiloMinimized(position: number): boolean {
-		return this.silosSize[position] === this.minSize && this.silosMinimized[position];
+		return (
+			this.silosSize[position] === this.minSize && this.silosMinimized[position]
+		);
 	}
 
 	private enableMinimizedState(): void {
-		POSITIONS.forEach(p => this.silosMinimized[p] = this.silosSize[p] === this.minSize);
+		POSITIONS.forEach(
+			p => (this.silosMinimized[p] = this.silosSize[p] === this.minSize)
+		);
 	}
 
 	private updateMinimizedState(): void {
@@ -209,17 +260,27 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 	}
 
 	private get snapToMinimizeThresholdSize(): number {
-		return this.layoutVertically ? EditorGroupsControl.SNAP_TO_MINIMIZED_THRESHOLD_WIDTH : EditorGroupsControl.SNAP_TO_MINIMIZED_THRESHOLD_HEIGHT;
+		return this.layoutVertically
+			? EditorGroupsControl.SNAP_TO_MINIMIZED_THRESHOLD_WIDTH
+			: EditorGroupsControl.SNAP_TO_MINIMIZED_THRESHOLD_HEIGHT;
 	}
 
 	private registerListeners(): void {
-		this.toUnbind.push(this.stacks.onModelChanged(e => this.onStacksChanged(e)));
-		this.toUnbind.push(this.editorGroupService.onTabOptionsChanged(options => this.updateTabOptions(options, true)));
+		this.toUnbind.push(
+			this.stacks.onModelChanged(e => this.onStacksChanged(e))
+		);
+		this.toUnbind.push(
+			this.editorGroupService.onTabOptionsChanged(options =>
+				this.updateTabOptions(options, true)
+			)
+		);
 		this.extensionService.onReady().then(() => this.onExtensionsReady());
 	}
 
 	private updateTabOptions(tabOptions: ITabOptions, refresh?: boolean): void {
-		const tabCloseButton = this.tabOptions ? this.tabOptions.tabCloseButton : 'right';
+		const tabCloseButton = this.tabOptions
+			? this.tabOptions.tabCloseButton
+			: 'right';
 		this.tabOptions = tabOptions;
 
 		if (!refresh) {
@@ -247,17 +308,23 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 
 			// Title Control
 			if (titleControl) {
-				const usingTabs = (titleControl instanceof TabsTitleControl);
+				const usingTabs = titleControl instanceof TabsTitleControl;
 
 				// Recreate title when tabs change
 				if (usingTabs !== this.tabOptions.showTabs) {
 					titleControl.dispose();
 					titleContainer.empty();
-					this.createTitleControl(this.stacks.groupAt(position), this.silos[position], titleContainer, this.getInstantiationService(position));
-				}
-
-				// Refresh title when icons change
-				else if (showingIcons !== this.tabOptions.showIcons || tabCloseButton !== this.tabOptions.tabCloseButton) {
+					this.createTitleControl(
+						this.stacks.groupAt(position),
+						this.silos[position],
+						titleContainer,
+						this.getInstantiationService(position)
+					);
+				} else if (
+					showingIcons !== this.tabOptions.showIcons ||
+					tabCloseButton !== this.tabOptions.tabCloseButton
+				) {
+					// Refresh title when icons change
 					titleControl.refresh();
 				}
 			}
@@ -268,7 +335,6 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 	}
 
 	private onExtensionsReady(): void {
-
 		// Up to date title areas
 		POSITIONS.forEach(position => this.getTitleAreaControl(position).update());
 	}
@@ -279,7 +345,6 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 	}
 
 	private handleStacksChanged(): void {
-
 		// Read and reset buffer of events
 		const buffer = this.stacksChangedBuffer;
 		this.stacksChangedBuffer = [];
@@ -298,7 +363,8 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 		// Refresh / update if group is visible and has a position
 		buffer.forEach(e => {
 			const position = this.stacks.positionOfGroup(e.group);
-			if (position >= 0) { // group could be gone by now because we run from a scheduler with timeout
+			if (position >= 0) {
+				// group could be gone by now because we run from a scheduler with timeout
 				if (e.structural) {
 					this.getTitleAreaControl(position).refresh();
 				} else {
@@ -312,7 +378,12 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 		return this._onGroupFocusChanged.event;
 	}
 
-	public show(editor: BaseEditor, position: Position, preserveActive: boolean, ratio?: number[]): void {
+	public show(
+		editor: BaseEditor,
+		position: Position,
+		preserveActive: boolean,
+		ratio?: number[]
+	): void {
 		const visibleEditorCount = this.getVisibleEditorCount();
 
 		// Store into editor bucket
@@ -344,10 +415,8 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 				if (hasLayoutInfo) {
 					this.silosSize[position] = this.totalSize * ratio[position];
 				}
-			}
-
-			// Adjust layout: -> [!][!][!]
-			else if (ratio.length === 3) {
+			} else if (ratio.length === 3) {
+				// Adjust layout: -> [!][!][!]
 				if (hasLayoutInfo) {
 					this.silosSize[position] = this.totalSize * ratio[position];
 				}
@@ -366,31 +435,38 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 			if (hasLayoutInfo) {
 				this.layoutContainers();
 			}
-		}
-
-		// Adjust layout: -> [!]
-		else if (visibleEditorCount === 0 && this.dimension) {
+		} else if (visibleEditorCount === 0 && this.dimension) {
+			// Adjust layout: -> [!]
 			this.silosSize[position] = this.totalSize;
 
 			this.layoutContainers();
-		}
-
-		// Adjust layout: [] -> []|[!]
-		else if (position === Position.TWO && this.sashOne.isHidden() && this.sashTwo.isHidden() && this.dimension) {
+		} else if (
+			position === Position.TWO &&
+			this.sashOne.isHidden() &&
+			this.sashTwo.isHidden() &&
+			this.dimension
+		) {
+			// Adjust layout: [] -> []|[!]
 			this.silosSize[Position.ONE] = this.totalSize / 2;
-			this.silosSize[Position.TWO] = this.totalSize - this.silosSize[Position.ONE];
+			this.silosSize[Position.TWO] =
+				this.totalSize - this.silosSize[Position.ONE];
 
 			this.sashOne.show();
 			this.sashOne.layout();
 
 			this.layoutContainers();
-		}
-
-		// Adjust layout: []|[] -> []|[]|[!]
-		else if (position === Position.THREE && this.sashTwo.isHidden() && this.dimension) {
+		} else if (
+			position === Position.THREE &&
+			this.sashTwo.isHidden() &&
+			this.dimension
+		) {
+			// Adjust layout: []|[] -> []|[]|[!]
 			this.silosSize[Position.ONE] = this.totalSize / 3;
 			this.silosSize[Position.TWO] = this.totalSize / 3;
-			this.silosSize[Position.THREE] = this.totalSize - this.silosSize[Position.ONE] - this.silosSize[Position.TWO];
+			this.silosSize[Position.THREE] =
+				this.totalSize -
+				this.silosSize[Position.ONE] -
+				this.silosSize[Position.TWO];
 
 			this.sashOne.layout();
 			this.sashTwo.show();
@@ -408,14 +484,15 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 	}
 
 	private trackFocus(editor: BaseEditor, position: Position): void {
-
 		// In case there is a previous tracker on the position, dispose it first
 		if (this.visibleEditorFocusTrackers[position]) {
 			this.visibleEditorFocusTrackers[position].dispose();
 		}
 
 		// Track focus on editor container
-		this.visibleEditorFocusTrackers[position] = DOM.trackFocus(editor.getContainer().getHTMLElement());
+		this.visibleEditorFocusTrackers[position] = DOM.trackFocus(
+			editor.getContainer().getHTMLElement()
+		);
 		this.visibleEditorFocusTrackers[position].addFocusListener(() => {
 			this.onFocusGained(editor);
 		});
@@ -426,14 +503,12 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 	}
 
 	public setActive(editor: BaseEditor): void {
-
 		// Update active editor and position
 		if (this.lastActiveEditor !== editor) {
 			this.doSetActive(editor, this.visibleEditors.indexOf(editor));
 
 			// Automatically maximize this position if it is minimized
 			if (this.isSiloMinimized(this.lastActivePosition)) {
-
 				// Log this fact in telemetry
 				if (this.telemetryService) {
 					this.telemetryService.publicLog('workbenchEditorMaximized');
@@ -480,16 +555,20 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 	}
 
 	private focusNextNonMinimized(): void {
-
 		// If the current focussed editor is minimized, try to focus the next largest editor
-		if (!types.isUndefinedOrNull(this.lastActivePosition) && this.silosMinimized[this.lastActivePosition]) {
+		if (
+			!types.isUndefinedOrNull(this.lastActivePosition) &&
+			this.silosMinimized[this.lastActivePosition]
+		) {
 			let candidate: Position = null;
 			let currentSize = this.minSize;
 			POSITIONS.forEach(position => {
-
 				// Skip current active position and check if the editor is larger than min size
 				if (position !== this.lastActivePosition) {
-					if (this.visibleEditors[position] && this.silosSize[position] > currentSize) {
+					if (
+						this.visibleEditors[position] &&
+						this.silosSize[position] > currentSize
+					) {
 						candidate = position;
 						currentSize = this.silosSize[position];
 					}
@@ -503,7 +582,11 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 		}
 	}
 
-	public hide(editor: BaseEditor, position: Position, layoutAndRochade: boolean): Rochade {
+	public hide(
+		editor: BaseEditor,
+		position: Position,
+		layoutAndRochade: boolean
+	): Rochade {
 		let result = Rochade.NONE;
 
 		const visibleEditorCount = this.getVisibleEditorCount();
@@ -524,7 +607,6 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 
 		// Adjust layout and rochade if instructed to do so
 		if (layoutAndRochade) {
-
 			// Adjust layout: [x] ->
 			if (visibleEditorCount === 1) {
 				this.silosSize[position] = 0;
@@ -533,10 +615,8 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 				this.sashTwo.hide();
 
 				this.layoutContainers();
-			}
-
-			// Adjust layout: []|[x] -> [] or [x]|[] -> []
-			else if (hasEditorInPositionTwo && !hasEditorInPositionThree) {
+			} else if (hasEditorInPositionTwo && !hasEditorInPositionThree) {
+				// Adjust layout: []|[x] -> [] or [x]|[] -> []
 				this.silosSize[Position.ONE] = this.totalSize;
 				this.silosSize[Position.TWO] = 0;
 
@@ -550,12 +630,11 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 				}
 
 				this.layoutContainers();
-			}
-
-			// Adjust layout: []|[]|[x] -> [ ]|[ ] or []|[x]|[] -> [ ]|[ ] or [x]|[]|[] -> [ ]|[ ]
-			else if (hasEditorInPositionTwo && hasEditorInPositionThree) {
+			} else if (hasEditorInPositionTwo && hasEditorInPositionThree) {
+				// Adjust layout: []|[]|[x] -> [ ]|[ ] or []|[x]|[] -> [ ]|[ ] or [x]|[]|[] -> [ ]|[ ]
 				this.silosSize[Position.ONE] = this.totalSize / 2;
-				this.silosSize[Position.TWO] = this.totalSize - this.silosSize[Position.ONE];
+				this.silosSize[Position.TWO] =
+					this.totalSize - this.silosSize[Position.ONE];
 				this.silosSize[Position.THREE] = 0;
 
 				this.sashOne.layout();
@@ -565,10 +644,8 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 				if (position === Position.TWO) {
 					this.rochade(Position.THREE, Position.TWO);
 					result = Rochade.THREE_TO_TWO;
-				}
-
-				// Move THREE to TWO and TWO to ONE ([x]|[]|[] -> [ ]|[ ])
-				else if (position === Position.ONE) {
+				} else if (position === Position.ONE) {
+					// Move THREE to TWO and TWO to ONE ([x]|[]|[] -> [ ]|[ ])
 					this.rochade(Position.TWO, Position.ONE);
 					this.rochade(Position.THREE, Position.TWO);
 					result = Rochade.TWO_AND_THREE_TO_ONE;
@@ -580,7 +657,6 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 
 		// Automatically pick the next editor as active if any
 		if (this.lastActiveEditor === editor) {
-
 			// Clear old
 			this.doSetActive(null, null);
 
@@ -600,7 +676,10 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 				}
 
 				if (!types.isUndefinedOrNull(newActivePosition)) {
-					this.doSetActive(this.visibleEditors[newActivePosition], newActivePosition);
+					this.doSetActive(
+						this.visibleEditors[newActivePosition],
+						newActivePosition
+					);
 				}
 			}
 		}
@@ -614,7 +693,6 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 	}
 
 	private clearPosition(position: Position): void {
-
 		// Unregister Listeners
 		if (this.visibleEditorFocusTrackers[position]) {
 			this.visibleEditorFocusTrackers[position].dispose();
@@ -626,7 +704,6 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 	}
 
 	private rochade(from: Position, to: Position): void {
-
 		// Move container to new position
 		const containerFrom = this.silos[from].child();
 		containerFrom.appendTo(this.silos[to]);
@@ -657,10 +734,8 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 	}
 
 	public move(from: Position, to: Position): void {
-
 		// Distance 1: Swap Editors
 		if (Math.abs(from - to) === 1) {
-
 			// Move containers to new position
 			const containerFrom = this.silos[from].child();
 			containerFrom.appendTo(this.silos[to]);
@@ -678,11 +753,8 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 			} else if (this.lastActivePosition === to) {
 				this.doSetActive(this.lastActiveEditor, from);
 			}
-		}
-
-		// Otherwise Move Editors
-		else {
-
+		} else {
+			// Otherwise Move Editors
 			// Find new positions
 			let newPositionOne: Position;
 			let newPositionTwo: Position;
@@ -743,16 +815,22 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 	}
 
 	public setGroupOrientation(orientation: GroupOrientation): void {
-		this.layoutVertically = (orientation !== 'horizontal');
+		this.layoutVertically = orientation !== 'horizontal';
 
 		// Editor Layout
 		const verticalLayouting = this.parent.hasClass('vertical-layout');
 		if (verticalLayouting !== this.layoutVertically) {
 			this.parent.removeClass('vertical-layout', 'horizontal-layout');
-			this.parent.addClass(this.layoutVertically ? 'vertical-layout' : 'horizontal-layout');
+			this.parent.addClass(
+				this.layoutVertically ? 'vertical-layout' : 'horizontal-layout'
+			);
 
-			this.sashOne.setOrientation(this.layoutVertically ? Orientation.VERTICAL : Orientation.HORIZONTAL);
-			this.sashTwo.setOrientation(this.layoutVertically ? Orientation.VERTICAL : Orientation.HORIZONTAL);
+			this.sashOne.setOrientation(
+				this.layoutVertically ? Orientation.VERTICAL : Orientation.HORIZONTAL
+			);
+			this.sashTwo.setOrientation(
+				this.layoutVertically ? Orientation.VERTICAL : Orientation.HORIZONTAL
+			);
 
 			// Update styles
 			this.updateStyles();
@@ -849,7 +927,6 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 
 	// Resize the editor/group position - changes main axis
 	public resizeGroup(position: Position, groupSizeChange: number): void {
-
 		enum VISIBLE_EDITORS {
 			ONE = 1,
 			TWO = 2,
@@ -869,12 +946,20 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 			case VISIBLE_EDITORS.TWO:
 				switch (activeGroupPosition) {
 					case Position.ONE:
-						this.silosSize[Position.ONE] = this.boundSiloSize(Position.ONE, groupSizeChange);
-						this.silosSize[Position.TWO] = availableSize - this.silosSize[Position.ONE];
+						this.silosSize[Position.ONE] = this.boundSiloSize(
+							Position.ONE,
+							groupSizeChange
+						);
+						this.silosSize[Position.TWO] =
+							availableSize - this.silosSize[Position.ONE];
 						break;
 					case Position.TWO:
-						this.silosSize[Position.TWO] = this.boundSiloSize(Position.TWO, groupSizeChange);
-						this.silosSize[Position.ONE] = availableSize - this.silosSize[Position.TWO];
+						this.silosSize[Position.TWO] = this.boundSiloSize(
+							Position.TWO,
+							groupSizeChange
+						);
+						this.silosSize[Position.ONE] =
+							availableSize - this.silosSize[Position.TWO];
 					default:
 						break;
 				}
@@ -882,16 +967,37 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 			case VISIBLE_EDITORS.THREE:
 				switch (activeGroupPosition) {
 					case Position.ONE:
-						this.silosSize[Position.ONE] = this.boundSiloSize(Position.ONE, groupSizeChange);
-						this.distributeRemainingSilosSize(Position.TWO, Position.THREE, availableSize - this.silosSize[Position.ONE]);
+						this.silosSize[Position.ONE] = this.boundSiloSize(
+							Position.ONE,
+							groupSizeChange
+						);
+						this.distributeRemainingSilosSize(
+							Position.TWO,
+							Position.THREE,
+							availableSize - this.silosSize[Position.ONE]
+						);
 						break;
 					case Position.TWO:
-						this.silosSize[Position.TWO] = this.boundSiloSize(Position.TWO, groupSizeChange);
-						this.distributeRemainingSilosSize(Position.ONE, Position.THREE, availableSize - this.silosSize[Position.TWO]);
+						this.silosSize[Position.TWO] = this.boundSiloSize(
+							Position.TWO,
+							groupSizeChange
+						);
+						this.distributeRemainingSilosSize(
+							Position.ONE,
+							Position.THREE,
+							availableSize - this.silosSize[Position.TWO]
+						);
 						break;
 					case Position.THREE:
-						this.silosSize[Position.THREE] = this.boundSiloSize(Position.THREE, groupSizeChange);
-						this.distributeRemainingSilosSize(Position.ONE, Position.TWO, availableSize - this.silosSize[Position.THREE]);
+						this.silosSize[Position.THREE] = this.boundSiloSize(
+							Position.THREE,
+							groupSizeChange
+						);
+						this.distributeRemainingSilosSize(
+							Position.ONE,
+							Position.TWO,
+							availableSize - this.silosSize[Position.THREE]
+						);
 						break;
 					default:
 						break;
@@ -907,19 +1013,37 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 		const visibleEditors = this.getVisibleEditorCount();
 		let newSiloSize: number = 0;
 
-		newSiloSize = Math.max(this.minSize, this.silosSize[siloPosition] + sizeChangePx);
-		newSiloSize = Math.min(newSiloSize, (this.totalSize - this.minSize * (visibleEditors - 1)));
+		newSiloSize = Math.max(
+			this.minSize,
+			this.silosSize[siloPosition] + sizeChangePx
+		);
+		newSiloSize = Math.min(
+			newSiloSize,
+			this.totalSize - this.minSize * (visibleEditors - 1)
+		);
 
 		return newSiloSize;
 	}
 
-	private distributeRemainingSilosSize(remPosition1: Position, remPosition2: Position, availableSize: number): void {
+	private distributeRemainingSilosSize(
+		remPosition1: Position,
+		remPosition2: Position,
+		availableSize: number
+	): void {
 		let scaleFactor: number = 0;
 
-		scaleFactor = this.silosSize[remPosition1] / (this.silosSize[remPosition1] + this.silosSize[remPosition2]);
+		scaleFactor =
+			this.silosSize[remPosition1] /
+			(this.silosSize[remPosition1] + this.silosSize[remPosition2]);
 		this.silosSize[remPosition1] = scaleFactor * availableSize;
-		this.silosSize[remPosition1] = Math.max(this.silosSize[remPosition1], this.minSize);
-		this.silosSize[remPosition1] = Math.min(this.silosSize[remPosition1], (availableSize - this.minSize));
+		this.silosSize[remPosition1] = Math.max(
+			this.silosSize[remPosition1],
+			this.minSize
+		);
+		this.silosSize[remPosition1] = Math.min(
+			this.silosSize[remPosition1],
+			availableSize - this.minSize
+		);
 		this.silosSize[remPosition2] = availableSize - this.silosSize[remPosition1];
 	}
 
@@ -932,53 +1056,96 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 	}
 
 	private create(): void {
-
 		// Store layout as class property
-		this.parent.addClass(this.layoutVertically ? 'vertical-layout' : 'horizontal-layout');
+		this.parent.addClass(
+			this.layoutVertically ? 'vertical-layout' : 'horizontal-layout'
+		);
 
 		// Allow to drop into container to open
 		this.enableDropTarget(this.parent.getHTMLElement());
 
 		// Silo One
-		this.silos[Position.ONE] = $(this.parent).div({ class: 'one-editor-silo editor-one' });
+		this.silos[Position.ONE] = $(this.parent).div({
+			class: 'one-editor-silo editor-one'
+		});
 
 		// Sash One
-		this.sashOne = new Sash(this.parent.getHTMLElement(), this, { baseSize: 5, orientation: this.layoutVertically ? Orientation.VERTICAL : Orientation.HORIZONTAL });
-		this.toUnbind.push(this.sashOne.addListener('start', () => this.onSashOneDragStart()));
-		this.toUnbind.push(this.sashOne.addListener('change', (e: ISashEvent) => this.onSashOneDrag(e)));
-		this.toUnbind.push(this.sashOne.addListener('end', () => this.onSashOneDragEnd()));
-		this.toUnbind.push(this.sashOne.addListener('reset', () => this.onSashOneReset()));
+		this.sashOne = new Sash(this.parent.getHTMLElement(), this, {
+			baseSize: 5,
+			orientation: this.layoutVertically
+				? Orientation.VERTICAL
+				: Orientation.HORIZONTAL
+		});
+		this.toUnbind.push(
+			this.sashOne.addListener('start', () => this.onSashOneDragStart())
+		);
+		this.toUnbind.push(
+			this.sashOne.addListener('change', (e: ISashEvent) =>
+				this.onSashOneDrag(e)
+			)
+		);
+		this.toUnbind.push(
+			this.sashOne.addListener('end', () => this.onSashOneDragEnd())
+		);
+		this.toUnbind.push(
+			this.sashOne.addListener('reset', () => this.onSashOneReset())
+		);
 		this.sashOne.hide();
 
 		// Silo Two
-		this.silos[Position.TWO] = $(this.parent).div({ class: 'one-editor-silo editor-two' });
+		this.silos[Position.TWO] = $(this.parent).div({
+			class: 'one-editor-silo editor-two'
+		});
 
 		// Sash Two
-		this.sashTwo = new Sash(this.parent.getHTMLElement(), this, { baseSize: 5, orientation: this.layoutVertically ? Orientation.VERTICAL : Orientation.HORIZONTAL });
-		this.toUnbind.push(this.sashTwo.addListener('start', () => this.onSashTwoDragStart()));
-		this.toUnbind.push(this.sashTwo.addListener('change', (e: ISashEvent) => this.onSashTwoDrag(e)));
-		this.toUnbind.push(this.sashTwo.addListener('end', () => this.onSashTwoDragEnd()));
-		this.toUnbind.push(this.sashTwo.addListener('reset', () => this.onSashTwoReset()));
+		this.sashTwo = new Sash(this.parent.getHTMLElement(), this, {
+			baseSize: 5,
+			orientation: this.layoutVertically
+				? Orientation.VERTICAL
+				: Orientation.HORIZONTAL
+		});
+		this.toUnbind.push(
+			this.sashTwo.addListener('start', () => this.onSashTwoDragStart())
+		);
+		this.toUnbind.push(
+			this.sashTwo.addListener('change', (e: ISashEvent) =>
+				this.onSashTwoDrag(e)
+			)
+		);
+		this.toUnbind.push(
+			this.sashTwo.addListener('end', () => this.onSashTwoDragEnd())
+		);
+		this.toUnbind.push(
+			this.sashTwo.addListener('reset', () => this.onSashTwoReset())
+		);
 		this.sashTwo.hide();
 
 		// Silo Three
-		this.silos[Position.THREE] = $(this.parent).div({ class: 'one-editor-silo editor-three' });
+		this.silos[Position.THREE] = $(this.parent).div({
+			class: 'one-editor-silo editor-three'
+		});
 
 		// For each position
 		POSITIONS.forEach(position => {
 			const silo = this.silos[position];
 
 			// Containers (they contain everything and can move between silos)
-			const container = $(silo).div({ 'class': 'container' });
+			const container = $(silo).div({ class: 'container' });
 
 			// InstantiationServices
-			const instantiationService = this.instantiationService.createChild(new ServiceCollection(
-				[IContextKeyService, this.contextKeyService.createScoped(container.getHTMLElement())]
-			));
-			container.setProperty(EditorGroupsControl.INSTANTIATION_SERVICE_KEY, instantiationService); // associate with container
+			const instantiationService = this.instantiationService.createChild(
+				new ServiceCollection([
+					IContextKeyService,
+					this.contextKeyService.createScoped(container.getHTMLElement())
+				])
+			);
+			container.setProperty(
+				EditorGroupsControl.INSTANTIATION_SERVICE_KEY,
+				instantiationService
+			); // associate with container
 
 			// Title containers
-			const titleContainer = $(container).div({ 'class': 'title' });
+			const titleContainer = $(container).div({ class: 'title' });
 			if (this.tabOptions.showTabs) {
 				titleContainer.addClass('tabs');
 			}
@@ -988,13 +1155,23 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 			this.hookTitleDragListener(titleContainer);
 
 			// Title Control
-			this.createTitleControl(this.stacks.groupAt(position), silo, titleContainer, instantiationService);
+			this.createTitleControl(
+				this.stacks.groupAt(position),
+				silo,
+				titleContainer,
+				instantiationService
+			);
 
 			// Progress Bar
 			const progressBar = new ProgressBar($(container));
-			this.toUnbind.push(attachProgressBarStyler(progressBar, this.themeService));
+			this.toUnbind.push(
+				attachProgressBarStyler(progressBar, this.themeService)
+			);
 			progressBar.getContainer().hide();
-			container.setProperty(EditorGroupsControl.PROGRESS_BAR_CONTROL_KEY, progressBar); // associate with container
+			container.setProperty(
+				EditorGroupsControl.PROGRESS_BAR_CONTROL_KEY,
+				progressBar
+			); // associate with container
 		});
 
 		// Update Styles
@@ -1006,24 +1183,47 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 
 		// Editor container colors
 		this.silos.forEach((silo, index) => {
-
 			// Background
 			silo.style('background-color', this.getColor(editorBackground));
 
 			// Border
-			silo.style('border-left-color', index > Position.ONE ? (this.getColor(EDITOR_GROUP_BORDER) || this.getColor(contrastBorder)) : null);
-			silo.style('border-top-color', index > Position.ONE ? (this.getColor(EDITOR_GROUP_BORDER) || this.getColor(contrastBorder)) : null);
+			silo.style(
+				'border-left-color',
+				index > Position.ONE
+					? this.getColor(EDITOR_GROUP_BORDER) || this.getColor(contrastBorder)
+					: null
+			);
+			silo.style(
+				'border-top-color',
+				index > Position.ONE
+					? this.getColor(EDITOR_GROUP_BORDER) || this.getColor(contrastBorder)
+					: null
+			);
 		});
 
 		// Title control
 		POSITIONS.forEach(position => {
 			const container = this.getTitleAreaControl(position).getContainer();
-			const borderColor = this.getColor(EDITOR_GROUP_HEADER_TABS_BORDER) || this.getColor(contrastBorder);
+			const borderColor =
+				this.getColor(EDITOR_GROUP_HEADER_TABS_BORDER) ||
+				this.getColor(contrastBorder);
 
-			container.style.backgroundColor = this.getColor(this.tabOptions.showTabs ? EDITOR_GROUP_HEADER_TABS_BACKGROUND : EDITOR_GROUP_HEADER_NO_TABS_BACKGROUND);
-			container.style.borderBottomWidth = (borderColor && this.tabOptions.showTabs) ? '1px' : null;
-			container.style.borderBottomStyle = (borderColor && this.tabOptions.showTabs) ? 'solid' : null;
-			container.style.borderBottomColor = this.tabOptions.showTabs ? borderColor : null;
+			container.style.backgroundColor = this.getColor(
+				this.tabOptions.showTabs
+					? EDITOR_GROUP_HEADER_TABS_BACKGROUND
+					: EDITOR_GROUP_HEADER_NO_TABS_BACKGROUND
+			);
+			container.style.borderBottomWidth = borderColor &&
+				this.tabOptions.showTabs
+				? '1px'
+				: null;
+			container.style.borderBottomStyle = borderColor &&
+				this.tabOptions.showTabs
+				? 'solid'
+				: null;
+			container.style.borderBottomColor = this.tabOptions.showTabs
+				? borderColor
+				: null;
 		});
 	}
 
@@ -1046,29 +1246,40 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 			});
 		}
 
-		function optionsFromDraggedEditor(identifier: IEditorIdentifier): EditorOptions {
-
+		function optionsFromDraggedEditor(
+			identifier: IEditorIdentifier
+		): EditorOptions {
 			// When moving an editor, try to preserve as much view state as possible by checking
 			// for th editor to be a text editor and creating the options accordingly if so
 			let options = EditorOptions.create({ pinned: true });
 			const activeEditor = $this.editorService.getActiveEditor();
 			const editor = getCodeEditor(activeEditor);
-			if (editor && activeEditor.position === stacks.positionOfGroup(identifier.group) && identifier.editor.matches(activeEditor.input)) {
+			if (
+				editor &&
+				activeEditor.position === stacks.positionOfGroup(identifier.group) &&
+				identifier.editor.matches(activeEditor.input)
+			) {
 				options = TextEditorOptions.fromEditor(editor, { pinned: true });
 			}
 
 			return options;
 		}
 
-		function onDrop(e: DragEvent, position: Position, splitTo?: Position): void {
+		function onDrop(
+			e: DragEvent,
+			position: Position,
+			splitTo?: Position
+		): void {
 			$this.updateFromDropping(node, false);
 			cleanUp();
 
 			const editorService = $this.editorService;
 			const groupService = $this.editorGroupService;
 
-			const splitEditor = (typeof splitTo === 'number');
-			const freeGroup = (stacks.groups.length === 1) ? Position.TWO : Position.THREE;
+			const splitEditor = typeof splitTo === 'number';
+			const freeGroup = stacks.groups.length === 1
+				? Position.TWO
+				: Position.THREE;
 
 			// Check for transfer from title control
 			const draggedEditor = TitleControl.getDraggedEditor();
@@ -1078,56 +1289,94 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 				// Copy editor to new location
 				if (isCopy) {
 					if (splitEditor) {
-						editorService.openEditor(draggedEditor.editor, optionsFromDraggedEditor(draggedEditor), freeGroup).then(() => {
-							if (splitTo !== freeGroup) {
-								groupService.moveGroup(freeGroup, splitTo);
-							}
-						}).done(null, errors.onUnexpectedError);
+						editorService
+							.openEditor(
+								draggedEditor.editor,
+								optionsFromDraggedEditor(draggedEditor),
+								freeGroup
+							)
+							.then(() => {
+								if (splitTo !== freeGroup) {
+									groupService.moveGroup(freeGroup, splitTo);
+								}
+							})
+							.done(null, errors.onUnexpectedError);
 					} else {
-						editorService.openEditor(draggedEditor.editor, optionsFromDraggedEditor(draggedEditor), position).done(null, errors.onUnexpectedError);
+						editorService
+							.openEditor(
+								draggedEditor.editor,
+								optionsFromDraggedEditor(draggedEditor),
+								position
+							)
+							.done(null, errors.onUnexpectedError);
 					}
-				}
-
-				// Move editor to new location
-				else {
+				} else {
+					// Move editor to new location
 					const sourcePosition = stacks.positionOfGroup(draggedEditor.group);
 					if (splitEditor) {
 						if (draggedEditor.group.count === 1) {
 							groupService.moveGroup(sourcePosition, splitTo);
 						} else {
-							editorService.openEditor(draggedEditor.editor, optionsFromDraggedEditor(draggedEditor), freeGroup).then(() => {
-								if (splitTo !== freeGroup) {
-									groupService.moveGroup(freeGroup, splitTo);
-								}
-								groupService.moveEditor(draggedEditor.editor, stacks.positionOfGroup(draggedEditor.group), splitTo);
-							}).done(null, errors.onUnexpectedError);
+							editorService
+								.openEditor(
+									draggedEditor.editor,
+									optionsFromDraggedEditor(draggedEditor),
+									freeGroup
+								)
+								.then(() => {
+									if (splitTo !== freeGroup) {
+										groupService.moveGroup(freeGroup, splitTo);
+									}
+									groupService.moveEditor(
+										draggedEditor.editor,
+										stacks.positionOfGroup(draggedEditor.group),
+										splitTo
+									);
+								})
+								.done(null, errors.onUnexpectedError);
 						}
-
 					} else {
-						groupService.moveEditor(draggedEditor.editor, sourcePosition, position);
+						groupService.moveEditor(
+							draggedEditor.editor,
+							sourcePosition,
+							position
+						);
 					}
 				}
-			}
-
-			// Check for URI transfer
-			else {
-				const droppedResources = extractResources(e).filter(r => r.resource.scheme === 'file' || r.resource.scheme === 'untitled');
+			} else {
+				// Check for URI transfer
+				const droppedResources = extractResources(e).filter(
+					r => r.resource.scheme === 'file' || r.resource.scheme === 'untitled'
+				);
 				if (droppedResources.length) {
-
 					// Add external ones to recently open list
-					const externalResources = droppedResources.filter(d => d.isExternal).map(d => d.resource);
+					const externalResources = droppedResources
+						.filter(d => d.isExternal)
+						.map(d => d.resource);
 					if (externalResources.length) {
-						$this.windowService.addToRecentlyOpen(externalResources.map(resource => {
-							return {
-								path: resource.fsPath,
-								isFile: true
-							};
-						}));
+						$this.windowService.addToRecentlyOpen(
+							externalResources.map(resource => {
+								return {
+									path: resource.fsPath,
+									isFile: true
+								};
+							})
+						);
 					}
 
 					// Open in Editor
-					$this.windowService.focusWindow()
-						.then(() => editorService.openEditors(droppedResources.map(d => { return { input: { resource: d.resource, options: { pinned: true } }, position: splitEditor ? freeGroup : position }; })))
+					$this.windowService
+						.focusWindow()
+						.then(() =>
+							editorService.openEditors(
+								droppedResources.map(d => {
+									return {
+										input: { resource: d.resource, options: { pinned: true } },
+										position: splitEditor ? freeGroup : position
+									};
+								})
+							)
+						)
 						.then(() => {
 							if (splitEditor && splitTo !== freeGroup) {
 								groupService.moveGroup(freeGroup, splitTo);
@@ -1140,29 +1389,39 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 			}
 		}
 
-		function positionOverlay(e: DragEvent, groups: number, position: Position): void {
+		function positionOverlay(
+			e: DragEvent,
+			groups: number,
+			position: Position
+		): void {
 			const target = <HTMLElement>e.target;
-			const overlayIsSplit = typeof overlay.getProperty(splitToPropertyKey) === 'number';
+			const overlayIsSplit =
+				typeof overlay.getProperty(splitToPropertyKey) === 'number';
 			const isCopy = (e.ctrlKey && !isMacintosh) || (e.altKey && isMacintosh);
 			const draggedEditor = TitleControl.getDraggedEditor();
 
-			const overlaySize = $this.layoutVertically ? target.clientWidth : target.clientHeight;
-			const splitThreshold = overlayIsSplit ? overlaySize / 5 : overlaySize / 10;
+			const overlaySize = $this.layoutVertically
+				? target.clientWidth
+				: target.clientHeight;
+			const splitThreshold = overlayIsSplit
+				? overlaySize / 5
+				: overlaySize / 10;
 
 			const posOnOverlay = $this.layoutVertically ? e.offsetX : e.offsetY;
 			const isOverSplitLeftOrUp = posOnOverlay < splitThreshold;
-			const isOverSplitRightOrBottom = posOnOverlay + splitThreshold > overlaySize;
+			const isOverSplitRightOrBottom =
+				posOnOverlay + splitThreshold > overlaySize;
 
 			let splitTarget: Position;
 
 			// No splitting if we reached maximum group count
 			if (groups === POSITIONS.length) {
 				splitTarget = null;
-			}
-
-			// Special splitting if we drag an editor of a group with only one editor
-			else if (!isCopy && draggedEditor && draggedEditor.group.count === 1) {
-				const positionOfDraggedEditor = stacks.positionOfGroup(draggedEditor.group);
+			} else if (!isCopy && draggedEditor && draggedEditor.group.count === 1) {
+				// Special splitting if we drag an editor of a group with only one editor
+				const positionOfDraggedEditor = stacks.positionOfGroup(
+					draggedEditor.group
+				);
 				switch (positionOfDraggedEditor) {
 					case Position.ONE:
 						if (position === Position.TWO && isOverSplitRightOrBottom) {
@@ -1177,19 +1436,19 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 					default:
 						splitTarget = null; // splitting not allowed
 				}
-			}
-
-			// Any other case, check for mouse position
-			else {
+			} else {
+				// Any other case, check for mouse position
 				if (isOverSplitRightOrBottom) {
-					splitTarget = (position === Position.ONE) ? Position.TWO : Position.THREE;
+					splitTarget = position === Position.ONE
+						? Position.TWO
+						: Position.THREE;
 				} else if (isOverSplitLeftOrUp) {
-					splitTarget = (position === Position.ONE) ? Position.ONE : Position.TWO;
+					splitTarget = position === Position.ONE ? Position.ONE : Position.TWO;
 				}
 			}
 
 			// Apply split target
-			const canSplit = (typeof splitTarget === 'number');
+			const canSplit = typeof splitTarget === 'number';
 			if (canSplit) {
 				overlay.setProperty(splitToPropertyKey, splitTarget);
 			} else {
@@ -1198,14 +1457,27 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 
 			// Update overlay styles
 			if (canSplit && isOverSplitRightOrBottom) {
-				overlay.style($this.layoutVertically ? { left: '50%', width: '50%' } : { top: '50%', height: '50%' });
+				overlay.style(
+					$this.layoutVertically
+						? { left: '50%', width: '50%' }
+						: { top: '50%', height: '50%' }
+				);
 			} else if (canSplit && isOverSplitLeftOrUp) {
-				overlay.style($this.layoutVertically ? { width: '50%' } : { height: '50%' });
+				overlay.style(
+					$this.layoutVertically ? { width: '50%' } : { height: '50%' }
+				);
 			} else {
 				if ($this.layoutVertically) {
 					overlay.style({ left: '0', width: '100%' });
 				} else {
-					overlay.style({ top: $this.tabOptions.showTabs ? `${EditorGroupsControl.EDITOR_TITLE_HEIGHT}px` : 0, height: $this.tabOptions.showTabs ? `calc(100% - ${EditorGroupsControl.EDITOR_TITLE_HEIGHT}px` : '100%' });
+					overlay.style({
+						top: $this.tabOptions.showTabs
+							? `${EditorGroupsControl.EDITOR_TITLE_HEIGHT}px`
+							: 0,
+						height: $this.tabOptions.showTabs
+							? `calc(100% - ${EditorGroupsControl.EDITOR_TITLE_HEIGHT}px`
+							: '100%'
+					});
 				}
 			}
 
@@ -1224,19 +1496,31 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 
 		function createOverlay(target: HTMLElement): void {
 			if (!overlay) {
-				const containers = $this.visibleEditors.filter(e => !!e).map(e => e.getContainer());
+				const containers = $this.visibleEditors
+					.filter(e => !!e)
+					.map(e => e.getContainer());
 				containers.forEach((container, index) => {
 					if (container && DOM.isAncestor(target, container.getHTMLElement())) {
-						const activeContrastBorderColor = $this.getColor(activeContrastBorder);
-						overlay = $('div').style({
-							top: $this.tabOptions.showTabs ? `${EditorGroupsControl.EDITOR_TITLE_HEIGHT}px` : 0,
-							height: $this.tabOptions.showTabs ? `calc(100% - ${EditorGroupsControl.EDITOR_TITLE_HEIGHT}px` : '100%',
-							backgroundColor: $this.getColor(EDITOR_DRAG_AND_DROP_BACKGROUND),
-							outlineColor: activeContrastBorderColor,
-							outlineOffset: activeContrastBorderColor ? '-2px' : null,
-							outlineStyle: activeContrastBorderColor ? 'dashed' : null,
-							outlineWidth: activeContrastBorderColor ? '2px' : null
-						}).id(overlayId);
+						const activeContrastBorderColor = $this.getColor(
+							activeContrastBorder
+						);
+						overlay = $('div')
+							.style({
+								top: $this.tabOptions.showTabs
+									? `${EditorGroupsControl.EDITOR_TITLE_HEIGHT}px`
+									: 0,
+								height: $this.tabOptions.showTabs
+									? `calc(100% - ${EditorGroupsControl.EDITOR_TITLE_HEIGHT}px`
+									: '100%',
+								backgroundColor: $this.getColor(
+									EDITOR_DRAG_AND_DROP_BACKGROUND
+								),
+								outlineColor: activeContrastBorderColor,
+								outlineOffset: activeContrastBorderColor ? '-2px' : null,
+								outlineStyle: activeContrastBorderColor ? 'dashed' : null,
+								outlineWidth: activeContrastBorderColor ? '2px' : null
+							})
+							.id(overlayId);
 
 						overlay.appendTo(container);
 
@@ -1249,9 +1533,12 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 							positionOverlay(e, containers.length, index);
 						});
 
-						overlay.on([DOM.EventType.DRAG_LEAVE, DOM.EventType.DRAG_END], () => {
-							cleanUp();
-						});
+						overlay.on(
+							[DOM.EventType.DRAG_LEAVE, DOM.EventType.DRAG_END],
+							() => {
+								cleanUp();
+							}
+						);
 
 						// Under some circumstances we have seen reports where the drop overlay is not being
 						// cleaned up and as such the editor area remains under the overlay so that you cannot
@@ -1271,69 +1558,104 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 		}
 
 		// let a dropped file open inside Code (only if dropped over editor area)
-		this.toUnbind.push(DOM.addDisposableListener(node, DOM.EventType.DROP, (e: DragEvent) => {
-			if (e.target === node || DOM.isAncestor(e.target as HTMLElement, node)) {
-				DOM.EventHelper.stop(e, true);
-				onDrop(e, Position.ONE);
-			} else {
-				this.updateFromDropping(node, false);
-			}
-		}));
+		this.toUnbind.push(
+			DOM.addDisposableListener(node, DOM.EventType.DROP, (e: DragEvent) => {
+				if (
+					e.target === node ||
+					DOM.isAncestor(e.target as HTMLElement, node)
+				) {
+					DOM.EventHelper.stop(e, true);
+					onDrop(e, Position.ONE);
+				} else {
+					this.updateFromDropping(node, false);
+				}
+			})
+		);
 
 		// Drag enter
 		let counter = 0; // see https://github.com/Microsoft/vscode/issues/14470
-		this.toUnbind.push(DOM.addDisposableListener(node, DOM.EventType.DRAG_ENTER, (e: DragEvent) => {
-			if (!TitleControl.getDraggedEditor()) {
-				// we used to check for the dragged resources here (via dnd.extractResources()) but this
-				// seems to be not possible on Linux and Windows where during DRAG_ENTER the resources
-				// are always undefined up until they are dropped when dragged from the tree. The workaround
-				// is to check for a datatransfer type being set. See https://github.com/Microsoft/vscode/issues/25789
-				if (!e.dataTransfer.types.length) {
-					return; // invalid DND
-				}
-			}
+		this.toUnbind.push(
+			DOM.addDisposableListener(
+				node,
+				DOM.EventType.DRAG_ENTER,
+				(e: DragEvent) => {
+					if (!TitleControl.getDraggedEditor()) {
+						// we used to check for the dragged resources here (via dnd.extractResources()) but this
+						// seems to be not possible on Linux and Windows where during DRAG_ENTER the resources
+						// are always undefined up until they are dropped when dragged from the tree. The workaround
+						// is to check for a datatransfer type being set. See https://github.com/Microsoft/vscode/issues/25789
+						if (!e.dataTransfer.types.length) {
+							return; // invalid DND
+						}
+					}
 
-			counter++;
-			this.updateFromDropping(node, true);
+					counter++;
+					this.updateFromDropping(node, true);
 
-			const target = <HTMLElement>e.target;
-			if (target) {
-				if (overlay && target.id !== overlayId) {
-					cleanUp(); // somehow we managed to move the mouse quickly out of the current overlay, so destroy it
-				}
-				createOverlay(target);
+					const target = <HTMLElement>e.target;
+					if (target) {
+						if (overlay && target.id !== overlayId) {
+							cleanUp(); // somehow we managed to move the mouse quickly out of the current overlay, so destroy it
+						}
+						createOverlay(target);
 
-				if (overlay) {
-					this.updateFromDropping(node, false); // if we show an overlay, we can remove the drop feedback from the editor background
+						if (overlay) {
+							this.updateFromDropping(node, false); // if we show an overlay, we can remove the drop feedback from the editor background
+						}
+					}
 				}
-			}
-		}));
+			)
+		);
 
 		// Drag leave
-		this.toUnbind.push(DOM.addDisposableListener(node, DOM.EventType.DRAG_LEAVE, (e: DragEvent) => {
-			counter--;
-			if (counter === 0) {
-				this.updateFromDropping(node, false);
-			}
-		}));
+		this.toUnbind.push(
+			DOM.addDisposableListener(
+				node,
+				DOM.EventType.DRAG_LEAVE,
+				(e: DragEvent) => {
+					counter--;
+					if (counter === 0) {
+						this.updateFromDropping(node, false);
+					}
+				}
+			)
+		);
 
 		// Drag end (also install globally to be safe)
 		[node, window].forEach(container => {
-			this.toUnbind.push(DOM.addDisposableListener(container, DOM.EventType.DRAG_END, (e: DragEvent) => {
-				counter = 0;
-				this.updateFromDropping(node, false);
-				cleanUp();
-			}));
+			this.toUnbind.push(
+				DOM.addDisposableListener(
+					container,
+					DOM.EventType.DRAG_END,
+					(e: DragEvent) => {
+						counter = 0;
+						this.updateFromDropping(node, false);
+						cleanUp();
+					}
+				)
+			);
 		});
 	}
 
-	private createTitleControl(context: IEditorGroup, silo: Builder, container: Builder, instantiationService: IInstantiationService): void {
-		const titleAreaControl = instantiationService.createInstance<ITitleAreaControl>(this.tabOptions.showTabs ? TabsTitleControl : NoTabsTitleControl);
+	private createTitleControl(
+		context: IEditorGroup,
+		silo: Builder,
+		container: Builder,
+		instantiationService: IInstantiationService
+	): void {
+		const titleAreaControl = instantiationService.createInstance<
+			ITitleAreaControl
+		>(this.tabOptions.showTabs ? TabsTitleControl : NoTabsTitleControl);
 		titleAreaControl.create(container.getHTMLElement());
 		titleAreaControl.setContext(context);
 		titleAreaControl.refresh(true /* instant */);
 
-		silo.child().setProperty(EditorGroupsControl.TITLE_AREA_CONTROL_KEY, titleAreaControl); // associate with container
+		silo
+			.child()
+			.setProperty(
+				EditorGroupsControl.TITLE_AREA_CONTROL_KEY,
+				titleAreaControl
+			); // associate with container
 	}
 
 	private findPosition(element: HTMLElement): Position {
@@ -1359,7 +1681,11 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 		titleContainer.on(DOM.EventType.MOUSE_DOWN, (e: MouseEvent) => {
 			const position = this.findPosition(titleContainer.getHTMLElement());
 			const titleAreaControl = this.getTitleAreaControl(position);
-			if (!titleAreaControl.allowDragging((e.target || e.srcElement) as HTMLElement)) {
+			if (
+				!titleAreaControl.allowDragging(
+					(e.target || e.srcElement) as HTMLElement
+				)
+			) {
 				return; // return early if we are not in the drag zone of the title widget
 			}
 
@@ -1381,10 +1707,12 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 
 			// Overlay the editor area with a div to be able to capture all mouse events
 			// Do NOT cover the title area to prevent missing double click events!
-			const overlayDiv = $('div').style({
-				top: `${EditorGroupsControl.EDITOR_TITLE_HEIGHT}px`,
-				height: `calc(100% - ${EditorGroupsControl.EDITOR_TITLE_HEIGHT}px)`
-			}).id('monaco-workbench-editor-move-overlay');
+			const overlayDiv = $('div')
+				.style({
+					top: `${EditorGroupsControl.EDITOR_TITLE_HEIGHT}px`,
+					height: `calc(100% - ${EditorGroupsControl.EDITOR_TITLE_HEIGHT}px)`
+				})
+				.id('monaco-workbench-editor-move-overlay');
 			overlayDiv.appendTo(this.silos[position]);
 
 			// Update flag
@@ -1392,157 +1720,213 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 
 			const visibleEditorCount = this.getVisibleEditorCount();
 			const mouseDownEvent = new StandardMouseEvent(e);
-			const startPos = this.layoutVertically ? mouseDownEvent.posx : mouseDownEvent.posy;
+			const startPos = this.layoutVertically
+				? mouseDownEvent.posx
+				: mouseDownEvent.posy;
 			let oldNewPos: number = null;
 
 			this.silos[position].addClass('drag');
 
 			const $window = $(window);
-			$window.on(DOM.EventType.MOUSE_MOVE, (e: MouseEvent) => {
-				DOM.EventHelper.stop(e, false);
+			$window
+				.on(DOM.EventType.MOUSE_MOVE, (e: MouseEvent) => {
+					DOM.EventHelper.stop(e, false);
 
-				const mouseMoveEvent = new StandardMouseEvent(e);
-				const diffPos = (this.layoutVertically ? mouseMoveEvent.posx : mouseMoveEvent.posy) - startPos;
-				let newPos: number = null;
+					const mouseMoveEvent = new StandardMouseEvent(e);
+					const diffPos =
+						(this.layoutVertically
+							? mouseMoveEvent.posx
+							: mouseMoveEvent.posy) - startPos;
+					let newPos: number = null;
 
-				if (Math.abs(diffPos) > 5) {
-					wasDragged = true;
-				}
-
-				switch (position) {
-
-					// [ ! ]|[ ]: Moves only to the right/bottom but not outside of dimension to the right/bottom
-					case Position.ONE: {
-						newPos = Math.max(-1 /* 1px border accomodation */, Math.min(diffPos, this.totalSize - this.silosSize[Position.ONE]));
-						break;
+					if (Math.abs(diffPos) > 5) {
+						wasDragged = true;
 					}
 
-					case Position.TWO: {
-
-						// [ ]|[ ! ]: Moves only to the left/top but not outside of dimension to the left/top
-						if (visibleEditorCount === 2) {
-							newPos = Math.min(this.silosSize[Position.ONE], Math.max(-1 /* 1px border accomodation */, this.silosSize[Position.ONE] + diffPos));
+					switch (position) {
+						// [ ! ]|[ ]: Moves only to the right/bottom but not outside of dimension to the right/bottom
+						case Position.ONE: {
+							newPos = Math.max(
+								-1 /* 1px border accomodation */,
+								Math.min(diffPos, this.totalSize - this.silosSize[Position.ONE])
+							);
+							break;
 						}
 
-						// [ ]|[ ! ]|[ ]: Moves to left/top and right/bottom but not outside of dimensions on both sides
-						else {
-							newPos = Math.min(this.totalSize - this.silosSize[Position.TWO], Math.max(-1 /* 1px border accomodation */, this.silosSize[Position.ONE] + diffPos));
+						case Position.TWO: {
+							// [ ]|[ ! ]: Moves only to the left/top but not outside of dimension to the left/top
+							if (visibleEditorCount === 2) {
+								newPos = Math.min(
+									this.silosSize[Position.ONE],
+									Math.max(
+										-1 /* 1px border accomodation */,
+										this.silosSize[Position.ONE] + diffPos
+									)
+								);
+							} else {
+								// [ ]|[ ! ]|[ ]: Moves to left/top and right/bottom but not outside of dimensions on both sides
+								newPos = Math.min(
+									this.totalSize - this.silosSize[Position.TWO],
+									Math.max(
+										-1 /* 1px border accomodation */,
+										this.silosSize[Position.ONE] + diffPos
+									)
+								);
+							}
+							break;
 						}
-						break;
-					}
 
-					// [ ]|[ ]|[ ! ]: Moves to the right/bottom but not outside of dimension on the left/top side
-					case Position.THREE: {
-						newPos = Math.min(this.silosSize[Position.ONE] + this.silosSize[Position.TWO], Math.max(-1 /* 1px border accomodation */, this.silosSize[Position.ONE] + this.silosSize[Position.TWO] + diffPos));
-						break;
-					}
-				}
-
-				// Return early if position did not change
-				if (oldNewPos === newPos) {
-					return;
-				}
-
-				oldNewPos = newPos;
-
-				// Live drag Feedback
-				const moveTo: Position = this.findMoveTarget(position, diffPos);
-				switch (position) {
-					case Position.ONE: {
-						if (moveTo === Position.ONE || moveTo === null) {
-							this.posSilo(Position.TWO, `${this.silosSize[Position.ONE]}px`, 'auto', '1px');
-							this.posSilo(Position.THREE, 'auto', 0);
-						} else if (moveTo === Position.TWO) {
-							this.posSilo(Position.TWO, 0, 'auto', 0);
-							this.silos[Position.TWO].addClass('draggedunder');
-							this.posSilo(Position.THREE, 'auto', 0);
-						} else if (moveTo === Position.THREE) {
-							this.posSilo(Position.TWO, 0, 'auto');
-							this.posSilo(Position.THREE, 'auto', `${this.silosSize[Position.ONE]}px`);
-							this.silos[Position.THREE].addClass('draggedunder');
+						// [ ]|[ ]|[ ! ]: Moves to the right/bottom but not outside of dimension on the left/top side
+						case Position.THREE: {
+							newPos = Math.min(
+								this.silosSize[Position.ONE] + this.silosSize[Position.TWO],
+								Math.max(
+									-1 /* 1px border accomodation */,
+									this.silosSize[Position.ONE] +
+										this.silosSize[Position.TWO] +
+										diffPos
+								)
+							);
+							break;
 						}
-						break;
 					}
 
-					case Position.TWO: {
-						if (moveTo === Position.ONE) {
-							this.posSilo(Position.ONE, `${this.silosSize[Position.TWO]}px`, 'auto');
-							this.silos[Position.ONE].addClass('draggedunder');
-						} else if (moveTo === Position.TWO || moveTo === null) {
-							this.posSilo(Position.ONE, 0, 'auto');
-							this.posSilo(Position.THREE, 'auto', 0);
-						} else if (moveTo === Position.THREE) {
-							this.posSilo(Position.THREE, 'auto', `${this.silosSize[Position.TWO]}px`);
-							this.silos[Position.THREE].addClass('draggedunder');
-							this.posSilo(Position.ONE, 0, 'auto');
+					// Return early if position did not change
+					if (oldNewPos === newPos) {
+						return;
+					}
+
+					oldNewPos = newPos;
+
+					// Live drag Feedback
+					const moveTo: Position = this.findMoveTarget(position, diffPos);
+					switch (position) {
+						case Position.ONE: {
+							if (moveTo === Position.ONE || moveTo === null) {
+								this.posSilo(
+									Position.TWO,
+									`${this.silosSize[Position.ONE]}px`,
+									'auto',
+									'1px'
+								);
+								this.posSilo(Position.THREE, 'auto', 0);
+							} else if (moveTo === Position.TWO) {
+								this.posSilo(Position.TWO, 0, 'auto', 0);
+								this.silos[Position.TWO].addClass('draggedunder');
+								this.posSilo(Position.THREE, 'auto', 0);
+							} else if (moveTo === Position.THREE) {
+								this.posSilo(Position.TWO, 0, 'auto');
+								this.posSilo(
+									Position.THREE,
+									'auto',
+									`${this.silosSize[Position.ONE]}px`
+								);
+								this.silos[Position.THREE].addClass('draggedunder');
+							}
+							break;
 						}
-						break;
-					}
 
-					case Position.THREE: {
-						if (moveTo === Position.ONE) {
-							this.posSilo(Position.ONE, `${this.silosSize[Position.THREE]}px`, 'auto');
-							this.silos[Position.ONE].addClass('draggedunder');
-						} else if (moveTo === Position.TWO) {
-							this.posSilo(Position.ONE, 0, 'auto');
-							this.posSilo(Position.TWO, `${this.silosSize[Position.ONE] + this.silosSize[Position.THREE]}px`, 'auto');
-							this.silos[Position.TWO].addClass('draggedunder');
-						} else if (moveTo === Position.THREE || moveTo === null) {
-							this.posSilo(Position.ONE, 0, 'auto');
-							this.posSilo(Position.TWO, `${this.silosSize[Position.ONE]}px`, 'auto');
+						case Position.TWO: {
+							if (moveTo === Position.ONE) {
+								this.posSilo(
+									Position.ONE,
+									`${this.silosSize[Position.TWO]}px`,
+									'auto'
+								);
+								this.silos[Position.ONE].addClass('draggedunder');
+							} else if (moveTo === Position.TWO || moveTo === null) {
+								this.posSilo(Position.ONE, 0, 'auto');
+								this.posSilo(Position.THREE, 'auto', 0);
+							} else if (moveTo === Position.THREE) {
+								this.posSilo(
+									Position.THREE,
+									'auto',
+									`${this.silosSize[Position.TWO]}px`
+								);
+								this.silos[Position.THREE].addClass('draggedunder');
+								this.posSilo(Position.ONE, 0, 'auto');
+							}
+							break;
 						}
-						break;
+
+						case Position.THREE: {
+							if (moveTo === Position.ONE) {
+								this.posSilo(
+									Position.ONE,
+									`${this.silosSize[Position.THREE]}px`,
+									'auto'
+								);
+								this.silos[Position.ONE].addClass('draggedunder');
+							} else if (moveTo === Position.TWO) {
+								this.posSilo(Position.ONE, 0, 'auto');
+								this.posSilo(
+									Position.TWO,
+									`${this.silosSize[Position.ONE] +
+										this.silosSize[Position.THREE]}px`,
+									'auto'
+								);
+								this.silos[Position.TWO].addClass('draggedunder');
+							} else if (moveTo === Position.THREE || moveTo === null) {
+								this.posSilo(Position.ONE, 0, 'auto');
+								this.posSilo(
+									Position.TWO,
+									`${this.silosSize[Position.ONE]}px`,
+									'auto'
+								);
+							}
+							break;
+						}
 					}
-				}
 
-				// Move the editor to provide feedback to the user and add class
-				if (newPos !== null) {
-					this.posSilo(position, `${newPos}px`);
-					this.updateFromDragging(position, true);
-				}
-			}).once(DOM.EventType.MOUSE_UP, (e: MouseEvent) => {
-				DOM.EventHelper.stop(e, false);
+					// Move the editor to provide feedback to the user and add class
+					if (newPos !== null) {
+						this.posSilo(position, `${newPos}px`);
+						this.updateFromDragging(position, true);
+					}
+				})
+				.once(DOM.EventType.MOUSE_UP, (e: MouseEvent) => {
+					DOM.EventHelper.stop(e, false);
 
-				// Destroy overlay
-				overlayDiv.destroy();
+					// Destroy overlay
+					overlayDiv.destroy();
 
-				// Update flag
-				this.dragging = false;
-				if (wasDragged) {
-					titleAreaControl.setDragged(true);
-				}
+					// Update flag
+					this.dragging = false;
+					if (wasDragged) {
+						titleAreaControl.setDragged(true);
+					}
 
-				// Restore styles
-				this.silos[position].removeClass('drag');
-				this.updateFromDragging(position, false);
-				POSITIONS.forEach(p => this.silos[p].removeClass('draggedunder'));
+					// Restore styles
+					this.silos[position].removeClass('drag');
+					this.updateFromDragging(position, false);
+					POSITIONS.forEach(p => this.silos[p].removeClass('draggedunder'));
 
-				this.posSilo(Position.ONE, 0, 'auto');
-				this.posSilo(Position.TWO, 'auto', 'auto', '1px');
-				this.posSilo(Position.THREE, 'auto', 0);
+					this.posSilo(Position.ONE, 0, 'auto');
+					this.posSilo(Position.TWO, 'auto', 'auto', '1px');
+					this.posSilo(Position.THREE, 'auto', 0);
 
-				// Find move target
-				const mouseUpEvent = new StandardMouseEvent(e);
-				const diffPos = (this.layoutVertically ? mouseUpEvent.posx : mouseUpEvent.posy) - startPos;
-				const moveTo: Position = this.findMoveTarget(position, diffPos);
+					// Find move target
+					const mouseUpEvent = new StandardMouseEvent(e);
+					const diffPos =
+						(this.layoutVertically ? mouseUpEvent.posx : mouseUpEvent.posy) -
+						startPos;
+					const moveTo: Position = this.findMoveTarget(position, diffPos);
 
-				// Move to valid position if any
-				if (moveTo !== null) {
-					this.editorGroupService.moveGroup(position, moveTo);
-				}
+					// Move to valid position if any
+					if (moveTo !== null) {
+						this.editorGroupService.moveGroup(position, moveTo);
+					} else {
+						// Otherwise layout to restore proper positioning
+						this.layoutContainers();
+					}
 
-				// Otherwise layout to restore proper positioning
-				else {
-					this.layoutContainers();
-				}
+					// If not dragging, make editor group active unless already active
+					if (!wasDragged && position !== this.getActivePosition()) {
+						this.editorGroupService.focusGroup(position);
+					}
 
-				// If not dragging, make editor group active unless already active
-				if (!wasDragged && position !== this.getActivePosition()) {
-					this.editorGroupService.focusGroup(position);
-				}
-
-				$window.off('mousemove');
-			});
+					$window.off('mousemove');
+				});
 		});
 	}
 
@@ -1556,14 +1940,21 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 		if (isDragging) {
 			this.parent.addClass('dragging');
 			silo.addClass('dragging');
-			borderColor = this.getColor(EDITOR_GROUP_BORDER) || this.getColor(contrastBorder);
+			borderColor =
+				this.getColor(EDITOR_GROUP_BORDER) || this.getColor(contrastBorder);
 		} else {
 			this.parent.removeClass('dragging');
 			silo.removeClass('dragging');
 		}
 
-		silo.style(this.layoutVertically ? 'border-left-color' : 'border-top-color', borderColor);
-		silo.style(this.layoutVertically ? 'border-right-color' : 'border-bottom-color', borderColor);
+		silo.style(
+			this.layoutVertically ? 'border-left-color' : 'border-top-color',
+			borderColor
+		);
+		silo.style(
+			this.layoutVertically ? 'border-right-color' : 'border-bottom-color',
+			borderColor
+		);
 
 		// Back to normal styles once dragging stops
 		if (!isDragging) {
@@ -1573,17 +1964,32 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 
 	private updateFromDropping(element: HTMLElement, isDropping: boolean): void {
 		const groupCount = this.stacks.groups.length;
-		const background = this.getColor(isDropping ? EDITOR_DRAG_AND_DROP_BACKGROUND : groupCount > 0 ? EDITOR_GROUP_BACKGROUND : null);
+		const background = this.getColor(
+			isDropping
+				? EDITOR_DRAG_AND_DROP_BACKGROUND
+				: groupCount > 0 ? EDITOR_GROUP_BACKGROUND : null
+		);
 		element.style.backgroundColor = background;
 
 		const activeContrastBorderColor = this.getColor(activeContrastBorder);
 		element.style.outlineColor = isDropping ? activeContrastBorderColor : null;
-		element.style.outlineStyle = isDropping && activeContrastBorderColor ? 'dashed' : null;
-		element.style.outlineWidth = isDropping && activeContrastBorderColor ? '2px' : null;
-		element.style.outlineOffset = isDropping && activeContrastBorderColor ? '-2px' : null;
+		element.style.outlineStyle = isDropping && activeContrastBorderColor
+			? 'dashed'
+			: null;
+		element.style.outlineWidth = isDropping && activeContrastBorderColor
+			? '2px'
+			: null;
+		element.style.outlineOffset = isDropping && activeContrastBorderColor
+			? '-2px'
+			: null;
 	}
 
-	private posSilo(pos: number, leftTop: string | number, rightBottom?: string | number, borderLeftTopWidth?: string | number): void {
+	private posSilo(
+		pos: number,
+		leftTop: string | number,
+		rightBottom?: string | number,
+		borderLeftTopWidth?: string | number
+	): void {
 		let style: any;
 		if (this.layoutVertically) {
 			style = { left: leftTop };
@@ -1592,7 +1998,10 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 				style['right'] = rightBottom;
 			}
 
-			if (typeof borderLeftTopWidth === 'number' || typeof borderLeftTopWidth === 'string') {
+			if (
+				typeof borderLeftTopWidth === 'number' ||
+				typeof borderLeftTopWidth === 'string'
+			) {
 				style['borderLeftWidth'] = borderLeftTopWidth;
 			}
 		} else {
@@ -1602,7 +2011,10 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 				style['bottom'] = rightBottom;
 			}
 
-			if (typeof borderLeftTopWidth === 'number' || typeof borderLeftTopWidth === 'string') {
+			if (
+				typeof borderLeftTopWidth === 'number' ||
+				typeof borderLeftTopWidth === 'string'
+			) {
 				style['borderTopWidth'] = borderLeftTopWidth;
 			}
 		}
@@ -1615,19 +2027,32 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 
 		switch (position) {
 			case Position.ONE: {
-
 				// [ ! ]|[] -> []|[ ! ]
-				if (visibleEditorCount === 2 && (diffPos >= this.silosSize[Position.ONE] / 2 || diffPos >= this.silosSize[Position.TWO] / 2)) {
+				if (
+					visibleEditorCount === 2 &&
+					(diffPos >= this.silosSize[Position.ONE] / 2 ||
+						diffPos >= this.silosSize[Position.TWO] / 2)
+				) {
 					return Position.TWO;
 				}
 
 				// [ ! ]|[]|[] -> []|[]|[ ! ]
-				if (visibleEditorCount === 3 && (diffPos >= this.silosSize[Position.ONE] / 2 + this.silosSize[Position.TWO] || diffPos >= this.silosSize[Position.THREE] / 2 + this.silosSize[Position.TWO])) {
+				if (
+					visibleEditorCount === 3 &&
+					(diffPos >=
+						this.silosSize[Position.ONE] / 2 + this.silosSize[Position.TWO] ||
+						diffPos >=
+							this.silosSize[Position.THREE] / 2 + this.silosSize[Position.TWO])
+				) {
 					return Position.THREE;
 				}
 
 				// [ ! ]|[]|[] -> []|[ ! ]|[]
-				if (visibleEditorCount === 3 && (diffPos >= this.silosSize[Position.ONE] / 2 || diffPos >= this.silosSize[Position.TWO] / 2)) {
+				if (
+					visibleEditorCount === 3 &&
+					(diffPos >= this.silosSize[Position.ONE] / 2 ||
+						diffPos >= this.silosSize[Position.TWO] / 2)
+				) {
 					return Position.TWO;
 				}
 				break;
@@ -1639,17 +2064,33 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 				}
 
 				// []|[ ! ] -> [ ! ]|[]
-				if (visibleEditorCount === 2 && (Math.abs(diffPos) >= this.silosSize[Position.TWO] / 2 || Math.abs(diffPos) >= this.silosSize[Position.ONE] / 2)) {
+				if (
+					visibleEditorCount === 2 &&
+					(Math.abs(diffPos) >= this.silosSize[Position.TWO] / 2 ||
+						Math.abs(diffPos) >= this.silosSize[Position.ONE] / 2)
+				) {
 					return Position.ONE;
 				}
 
 				// []|[ ! ]|[] -> [ ! ]|[]|[]
-				if (visibleEditorCount === 3 && ((diffPos < 0 && Math.abs(diffPos) >= this.silosSize[Position.TWO] / 2) || (diffPos < 0 && Math.abs(diffPos) >= this.silosSize[Position.ONE] / 2))) {
+				if (
+					visibleEditorCount === 3 &&
+					((diffPos < 0 &&
+						Math.abs(diffPos) >= this.silosSize[Position.TWO] / 2) ||
+						(diffPos < 0 &&
+							Math.abs(diffPos) >= this.silosSize[Position.ONE] / 2))
+				) {
 					return Position.ONE;
 				}
 
 				// []|[ ! ]|[] -> []|[]|[ ! ]
-				if (visibleEditorCount === 3 && ((diffPos > 0 && Math.abs(diffPos) >= this.silosSize[Position.TWO] / 2) || (diffPos > 0 && Math.abs(diffPos) >= this.silosSize[Position.THREE] / 2))) {
+				if (
+					visibleEditorCount === 3 &&
+					((diffPos > 0 &&
+						Math.abs(diffPos) >= this.silosSize[Position.TWO] / 2) ||
+						(diffPos > 0 &&
+							Math.abs(diffPos) >= this.silosSize[Position.THREE] / 2))
+				) {
 					return Position.THREE;
 				}
 				break;
@@ -1661,12 +2102,20 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 				}
 
 				// []|[]|[ ! ] -> [ ! ]|[]|[]
-				if (Math.abs(diffPos) >= this.silosSize[Position.THREE] / 2 + this.silosSize[Position.TWO] || Math.abs(diffPos) >= this.silosSize[Position.ONE] / 2 + this.silosSize[Position.TWO]) {
+				if (
+					Math.abs(diffPos) >=
+						this.silosSize[Position.THREE] / 2 + this.silosSize[Position.TWO] ||
+					Math.abs(diffPos) >=
+						this.silosSize[Position.ONE] / 2 + this.silosSize[Position.TWO]
+				) {
 					return Position.ONE;
 				}
 
 				// []|[]|[ ! ] -> []|[ ! ]|[]
-				if (Math.abs(diffPos) >= this.silosSize[Position.THREE] / 2 || Math.abs(diffPos) >= this.silosSize[Position.TWO] / 2) {
+				if (
+					Math.abs(diffPos) >= this.silosSize[Position.THREE] / 2 ||
+					Math.abs(diffPos) >= this.silosSize[Position.TWO] / 2
+				) {
 					return Position.TWO;
 				}
 				break;
@@ -1691,78 +2140,93 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 
 	private onSashOneDrag(e: ISashEvent): void {
 		let oldSiloOneSize = this.silosSize[Position.ONE];
-		let diffSize = this.layoutVertically ? (e.currentX - e.startX) : (e.currentY - e.startY);
+		let diffSize = this.layoutVertically
+			? e.currentX - e.startX
+			: e.currentY - e.startY;
 		let newSiloOneSize = this.startSiloOneSize + diffSize;
 
 		// Side-by-Side
 		if (this.sashTwo.isHidden()) {
-
 			// []|[      ] : left/top side can not get smaller than the minimal editor size
 			if (newSiloOneSize < this.minSize) {
 				newSiloOneSize = this.minSize;
-			}
-
-			// [      ]|[] : right/bottom side can not get smaller than the minimal editor size
-			else if (this.totalSize - newSiloOneSize < this.minSize) {
+			} else if (this.totalSize - newSiloOneSize < this.minSize) {
+				// [      ]|[] : right/bottom side can not get smaller than the minimal editor size
 				newSiloOneSize = this.totalSize - this.minSize;
-			}
-
-			// [ <-]|[      ] : left/top side can snap into minimized
-			else if (newSiloOneSize - this.snapToMinimizeThresholdSize <= this.minSize) {
+			} else if (
+				newSiloOneSize - this.snapToMinimizeThresholdSize <=
+				this.minSize
+			) {
+				// [ <-]|[      ] : left/top side can snap into minimized
 				newSiloOneSize = this.minSize;
-			}
-
-			// [      ]|[-> ] : right/bottom side can snap into minimized
-			else if (this.totalSize - newSiloOneSize - this.snapToMinimizeThresholdSize <= this.minSize) {
+			} else if (
+				this.totalSize - newSiloOneSize - this.snapToMinimizeThresholdSize <=
+				this.minSize
+			) {
+				// [      ]|[-> ] : right/bottom side can snap into minimized
 				newSiloOneSize = this.totalSize - this.minSize;
 			}
 
 			this.silosSize[Position.ONE] = newSiloOneSize;
 			this.silosSize[Position.TWO] = this.totalSize - newSiloOneSize;
-		}
-
-		// Side-by-Side-by-Side
-		else {
-
+		} else {
+			// Side-by-Side-by-Side
 			// [!]|[      ]|[  ] : left/top side can not get smaller than the minimal editor size
 			if (newSiloOneSize < this.minSize) {
 				newSiloOneSize = this.minSize;
-			}
-
-			// [      ]|[!]|[  ] : center side can not get smaller than the minimal editor size
-			else if (this.totalSize - newSiloOneSize - this.silosSize[Position.THREE] < this.minSize) {
-
+			} else if (
+				this.totalSize - newSiloOneSize - this.silosSize[Position.THREE] <
+				this.minSize
+			) {
+				// [      ]|[!]|[  ] : center side can not get smaller than the minimal editor size
 				// [      ]|[ ]|[!] : right/bottom side can not get smaller than the minimal editor size
-				if (this.totalSize - newSiloOneSize - this.silosSize[Position.TWO] < this.minSize) {
-					newSiloOneSize = this.totalSize - (2 * this.minSize);
-					this.silosSize[Position.TWO] = this.silosSize[Position.THREE] = this.minSize;
-				}
-
-				// [      ]|[ ]|[-> ] : right/bottom side can snap into minimized
-				else if (this.totalSize - newSiloOneSize - this.silosSize[Position.TWO] - this.snapToMinimizeThresholdSize <= this.minSize) {
+				if (
+					this.totalSize - newSiloOneSize - this.silosSize[Position.TWO] <
+					this.minSize
+				) {
+					newSiloOneSize = this.totalSize - 2 * this.minSize;
+					this.silosSize[Position.TWO] = this.silosSize[
+						Position.THREE
+					] = this.minSize;
+				} else if (
+					this.totalSize -
+						newSiloOneSize -
+						this.silosSize[Position.TWO] -
+						this.snapToMinimizeThresholdSize <=
+					this.minSize
+				) {
+					// [      ]|[ ]|[-> ] : right/bottom side can snap into minimized
 					this.silosSize[Position.THREE] = this.minSize;
-				}
-
-				// [      ]|[ ]|[ ] : right/bottom side shrinks
-				else {
-					this.silosSize[Position.THREE] = this.silosSize[Position.THREE] - (newSiloOneSize - oldSiloOneSize);
+				} else {
+					// [      ]|[ ]|[ ] : right/bottom side shrinks
+					this.silosSize[Position.THREE] =
+						this.silosSize[Position.THREE] - (newSiloOneSize - oldSiloOneSize);
 				}
 
 				this.sashTwo.layout();
-			}
-
-			// [ <-]|[      ]|[  ] : left/top side can snap into minimized
-			else if (newSiloOneSize - this.snapToMinimizeThresholdSize <= this.minSize) {
+			} else if (
+				newSiloOneSize - this.snapToMinimizeThresholdSize <=
+				this.minSize
+			) {
+				// [ <-]|[      ]|[  ] : left/top side can snap into minimized
 				newSiloOneSize = this.minSize;
-			}
-
-			// [      ]|[-> ]|[  ] : center side can snap into minimized
-			else if (this.totalSize - this.silosSize[Position.THREE] - newSiloOneSize - this.snapToMinimizeThresholdSize <= this.minSize) {
-				newSiloOneSize = this.totalSize - this.silosSize[Position.THREE] - this.minSize;
+			} else if (
+				this.totalSize -
+					this.silosSize[Position.THREE] -
+					newSiloOneSize -
+					this.snapToMinimizeThresholdSize <=
+				this.minSize
+			) {
+				// [      ]|[-> ]|[  ] : center side can snap into minimized
+				newSiloOneSize =
+					this.totalSize - this.silosSize[Position.THREE] - this.minSize;
 			}
 
 			this.silosSize[Position.ONE] = newSiloOneSize;
-			this.silosSize[Position.TWO] = this.totalSize - this.silosSize[Position.ONE] - this.silosSize[Position.THREE];
+			this.silosSize[Position.TWO] =
+				this.totalSize -
+				this.silosSize[Position.ONE] -
+				this.silosSize[Position.THREE];
 		}
 
 		// We allow silos to turn into minimized state from user dragging the sash,
@@ -1790,48 +2254,67 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 
 	private onSashTwoDrag(e: ISashEvent): void {
 		let oldSiloThreeSize = this.silosSize[Position.THREE];
-		let diffSize = this.layoutVertically ? (-e.currentX + e.startX) : (-e.currentY + e.startY);
+		let diffSize = this.layoutVertically
+			? -e.currentX + e.startX
+			: -e.currentY + e.startY;
 		let newSiloThreeSize = this.startSiloThreeSize + diffSize;
 
 		// [  ]|[      ]|[!] : right/bottom side can not get smaller than the minimal editor size
 		if (newSiloThreeSize < this.minSize) {
 			newSiloThreeSize = this.minSize;
-		}
-
-		// [      ]|[!]|[  ] : center side can not get smaller than the minimal editor size
-		else if (this.totalSize - newSiloThreeSize - this.silosSize[Position.ONE] < this.minSize) {
-
+		} else if (
+			this.totalSize - newSiloThreeSize - this.silosSize[Position.ONE] <
+			this.minSize
+		) {
+			// [      ]|[!]|[  ] : center side can not get smaller than the minimal editor size
 			// [!]|[ ]|[    ] : left/top side can not get smaller than the minimal editor size
-			if (this.totalSize - newSiloThreeSize - this.silosSize[Position.TWO] < this.minSize) {
-				newSiloThreeSize = this.totalSize - (2 * this.minSize);
-				this.silosSize[Position.ONE] = this.silosSize[Position.TWO] = this.minSize;
-			}
-
-			// [ <-]|[ ]|[    ] : left/top side can snap into minimized
-			else if (this.totalSize - newSiloThreeSize - this.silosSize[Position.TWO] - this.snapToMinimizeThresholdSize <= this.minSize) {
+			if (
+				this.totalSize - newSiloThreeSize - this.silosSize[Position.TWO] <
+				this.minSize
+			) {
+				newSiloThreeSize = this.totalSize - 2 * this.minSize;
+				this.silosSize[Position.ONE] = this.silosSize[
+					Position.TWO
+				] = this.minSize;
+			} else if (
+				this.totalSize -
+					newSiloThreeSize -
+					this.silosSize[Position.TWO] -
+					this.snapToMinimizeThresholdSize <=
+				this.minSize
+			) {
+				// [ <-]|[ ]|[    ] : left/top side can snap into minimized
 				this.silosSize[Position.ONE] = this.minSize;
-			}
-
-			// [  ]|[ ]|[   ] : left/top side shrinks
-			else {
-				this.silosSize[Position.ONE] = this.silosSize[Position.ONE] - (newSiloThreeSize - oldSiloThreeSize);
+			} else {
+				// [  ]|[ ]|[   ] : left/top side shrinks
+				this.silosSize[Position.ONE] =
+					this.silosSize[Position.ONE] - (newSiloThreeSize - oldSiloThreeSize);
 			}
 
 			this.sashOne.layout();
-		}
-
-		// [ ]|[      ]|[-> ] : right/bottom side can snap into minimized
-		else if (newSiloThreeSize - this.snapToMinimizeThresholdSize <= this.minSize) {
+		} else if (
+			newSiloThreeSize - this.snapToMinimizeThresholdSize <=
+			this.minSize
+		) {
+			// [ ]|[      ]|[-> ] : right/bottom side can snap into minimized
 			newSiloThreeSize = this.minSize;
-		}
-
-		// [ ]|[ <-]|[      ] : center side can snap into minimized
-		else if (this.totalSize - this.silosSize[Position.ONE] - newSiloThreeSize - this.snapToMinimizeThresholdSize <= this.minSize) {
-			newSiloThreeSize = this.totalSize - this.silosSize[Position.ONE] - this.minSize;
+		} else if (
+			this.totalSize -
+				this.silosSize[Position.ONE] -
+				newSiloThreeSize -
+				this.snapToMinimizeThresholdSize <=
+			this.minSize
+		) {
+			// [ ]|[ <-]|[      ] : center side can snap into minimized
+			newSiloThreeSize =
+				this.totalSize - this.silosSize[Position.ONE] - this.minSize;
 		}
 
 		this.silosSize[Position.THREE] = newSiloThreeSize;
-		this.silosSize[Position.TWO] = this.totalSize - this.silosSize[Position.ONE] - this.silosSize[Position.THREE];
+		this.silosSize[Position.TWO] =
+			this.totalSize -
+			this.silosSize[Position.ONE] -
+			this.silosSize[Position.THREE];
 
 		// We allow silos to turn into minimized state from user dragging the sash,
 		// so we need to update our stored state of minimized silos accordingly
@@ -1859,7 +2342,9 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 	}
 
 	public getVerticalSashLeft(sash: Sash): number {
-		return sash === this.sashOne ? this.silosSize[Position.ONE] : this.silosSize[Position.TWO] + this.silosSize[Position.ONE];
+		return sash === this.sashOne
+			? this.silosSize[Position.ONE]
+			: this.silosSize[Position.TWO] + this.silosSize[Position.ONE];
 	}
 
 	public getVerticalSashHeight(sash: Sash): number {
@@ -1867,7 +2352,9 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 	}
 
 	public getHorizontalSashTop(sash: Sash): number {
-		return sash === this.sashOne ? this.silosSize[Position.ONE] : this.silosSize[Position.TWO] + this.silosSize[Position.ONE];
+		return sash === this.sashOne
+			? this.silosSize[Position.ONE]
+			: this.silosSize[Position.TWO] + this.silosSize[Position.ONE];
 	}
 
 	public getHorizontalSashLeft(sash: Sash): number {
@@ -1906,17 +2393,21 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 
 		// Set preferred dimensions based on ratio to previous dimenions
 		let wasInitialRatioRestored = false;
-		const oldTotalSize = this.layoutVertically ? oldDimension.width : oldDimension.height;
+		const oldTotalSize = this.layoutVertically
+			? oldDimension.width
+			: oldDimension.height;
 		POSITIONS.forEach(position => {
 			if (this.visibleEditors[position]) {
-
 				// Keep minimized editors in tact by not letting them grow if we have size to give
 				if (!this.isSiloMinimized(position)) {
 					let siloSizeRatio: number;
 
 					// We have some stored initial ratios when the editor was restored on startup
 					// Use those ratios over anything else but only once.
-					if (this.silosInitialRatio && types.isNumber(this.silosInitialRatio[position])) {
+					if (
+						this.silosInitialRatio &&
+						types.isNumber(this.silosInitialRatio[position])
+					) {
 						siloSizeRatio = this.silosInitialRatio[position];
 						delete this.silosInitialRatio[position]; // dont use again
 						wasInitialRatioRestored = true;
@@ -1924,7 +2415,10 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 						siloSizeRatio = this.silosSize[position] / oldTotalSize;
 					}
 
-					this.silosSize[position] = Math.max(Math.round(this.totalSize * siloSizeRatio), this.minSize);
+					this.silosSize[position] = Math.max(
+						Math.round(this.totalSize * siloSizeRatio),
+						this.minSize
+					);
 				}
 
 				totalSize += this.silosSize[position];
@@ -1943,13 +2437,16 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 
 			// We have size to give
 			if (overflow < 0) {
-
 				// Find the first position from left/top to right/bottom that is not minimized
 				// to give size. This ensures that minimized editors are left like
 				// that if the user chose this layout.
 				let positionToGive: Position = null;
 				POSITIONS.forEach(position => {
-					if (this.visibleEditors[position] && positionToGive === null && !this.isSiloMinimized(position)) {
+					if (
+						this.visibleEditors[position] &&
+						positionToGive === null &&
+						!this.isSiloMinimized(position)
+					) {
 						positionToGive = position;
 					}
 				});
@@ -1959,10 +2456,8 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 				}
 
 				this.silosSize[positionToGive] -= overflow;
-			}
-
-			// We have size to take
-			else if (overflow > 0) {
+			} else if (overflow > 0) {
+				// We have size to take
 				POSITIONS.forEach(position => {
 					const maxCompensation = this.silosSize[position] - this.minSize;
 					if (maxCompensation >= overflow) {
@@ -1985,26 +2480,42 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 	}
 
 	private layoutContainers(): void {
-
 		// Layout containers
 		POSITIONS.forEach(position => {
-			const siloWidth = this.layoutVertically ? this.silosSize[position] : this.dimension.width;
-			const siloHeight = this.layoutVertically ? this.dimension.height : this.silosSize[position];
+			const siloWidth = this.layoutVertically
+				? this.silosSize[position]
+				: this.dimension.width;
+			const siloHeight = this.layoutVertically
+				? this.dimension.height
+				: this.silosSize[position];
 
 			this.silos[position].size(siloWidth, siloHeight);
 		});
 
 		if (this.layoutVertically) {
-			this.silos[Position.TWO].position(0, null, null, this.silosSize[Position.ONE]);
+			this.silos[Position.TWO].position(
+				0,
+				null,
+				null,
+				this.silosSize[Position.ONE]
+			);
 		} else {
-			this.silos[Position.TWO].position(this.silosSize[Position.ONE], null, null, 0);
+			this.silos[Position.TWO].position(
+				this.silosSize[Position.ONE],
+				null,
+				null,
+				0
+			);
 		}
 
 		// Visibility
 		POSITIONS.forEach(position => {
 			if (this.visibleEditors[position] && this.silos[position].isHidden()) {
 				this.silos[position].show();
-			} else if (!this.visibleEditors[position] && !this.silos[position].isHidden()) {
+			} else if (
+				!this.visibleEditors[position] &&
+				!this.silos[position].isHidden()
+			) {
 				this.silos[position].hide();
 			}
 		});
@@ -2026,8 +2537,13 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 	private layoutEditor(position: Position): void {
 		const editorSize = this.silosSize[position];
 		if (editorSize && this.visibleEditors[position]) {
-			let editorWidth = this.layoutVertically ? editorSize : this.dimension.width;
-			let editorHeight = (this.layoutVertically ? this.dimension.height : this.silosSize[position]) - EditorGroupsControl.EDITOR_TITLE_HEIGHT;
+			let editorWidth = this.layoutVertically
+				? editorSize
+				: this.dimension.width;
+			let editorHeight =
+				(this.layoutVertically
+					? this.dimension.height
+					: this.silosSize[position]) - EditorGroupsControl.EDITOR_TITLE_HEIGHT;
 
 			if (position !== Position.ONE) {
 				if (this.layoutVertically) {
@@ -2037,20 +2553,31 @@ export class EditorGroupsControl extends Themable implements IEditorGroupsContro
 				}
 			}
 
-			this.visibleEditors[position].layout(new Dimension(editorWidth, editorHeight));
+			this.visibleEditors[position].layout(
+				new Dimension(editorWidth, editorHeight)
+			);
 		}
 	}
 
 	public getInstantiationService(position: Position): IInstantiationService {
-		return this.getFromContainer(position, EditorGroupsControl.INSTANTIATION_SERVICE_KEY);
+		return this.getFromContainer(
+			position,
+			EditorGroupsControl.INSTANTIATION_SERVICE_KEY
+		);
 	}
 
 	public getProgressBar(position: Position): ProgressBar {
-		return this.getFromContainer(position, EditorGroupsControl.PROGRESS_BAR_CONTROL_KEY);
+		return this.getFromContainer(
+			position,
+			EditorGroupsControl.PROGRESS_BAR_CONTROL_KEY
+		);
 	}
 
 	private getTitleAreaControl(position: Position): ITitleAreaControl {
-		return this.getFromContainer(position, EditorGroupsControl.TITLE_AREA_CONTROL_KEY);
+		return this.getFromContainer(
+			position,
+			EditorGroupsControl.TITLE_AREA_CONTROL_KEY
+		);
 	}
 
 	private getFromContainer(position: Position, key: string): any {

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./messageController';
 import { any } from 'vs/base/common/event';
@@ -13,19 +13,40 @@ import { IDisposable, dispose } from 'vs/base/common/lifecycle';
 import { alert } from 'vs/base/browser/ui/aria/aria';
 import { Range } from 'vs/editor/common/core/range';
 import * as editorCommon from 'vs/editor/common/editorCommon';
-import { commonEditorContribution, CommonEditorRegistry, EditorCommand } from 'vs/editor/common/editorCommonExtensions';
-import { ICodeEditor, IContentWidget, IContentWidgetPosition, ContentWidgetPositionPreference } from 'vs/editor/browser/editorBrowser';
-import { IContextKeyService, RawContextKey, IContextKey } from 'vs/platform/contextkey/common/contextkey';
+import {
+	commonEditorContribution,
+	CommonEditorRegistry,
+	EditorCommand
+} from 'vs/editor/common/editorCommonExtensions';
+import {
+	ICodeEditor,
+	IContentWidget,
+	IContentWidgetPosition,
+	ContentWidgetPositionPreference
+} from 'vs/editor/browser/editorBrowser';
+import {
+	IContextKeyService,
+	RawContextKey,
+	IContextKey
+} from 'vs/platform/contextkey/common/contextkey';
 import { IPosition } from 'vs/editor/common/core/position';
-import { registerThemingParticipant, HIGH_CONTRAST } from 'vs/platform/theme/common/themeService';
-import { inputValidationInfoBorder, inputValidationInfoBackground } from 'vs/platform/theme/common/colorRegistry';
+import {
+	registerThemingParticipant,
+	HIGH_CONTRAST
+} from 'vs/platform/theme/common/themeService';
+import {
+	inputValidationInfoBorder,
+	inputValidationInfoBackground
+} from 'vs/platform/theme/common/colorRegistry';
 
 @commonEditorContribution
 export class MessageController {
-
 	private static _id = 'editor.contrib.messageController';
 
-	static CONTEXT_SNIPPET_MODE = new RawContextKey<boolean>('messageVisible', false);
+	static CONTEXT_SNIPPET_MODE = new RawContextKey<boolean>(
+		'messageVisible',
+		false
+	);
 
 	static get(editor: editorCommon.ICommonCodeEditor): MessageController {
 		return editor.getContribution<MessageController>(MessageController._id);
@@ -45,7 +66,9 @@ export class MessageController {
 		@IContextKeyService contextKeyService: IContextKeyService
 	) {
 		this._editor = editor;
-		this._visible = MessageController.CONTEXT_SNIPPET_MODE.bindTo(contextKeyService);
+		this._visible = MessageController.CONTEXT_SNIPPET_MODE.bindTo(
+			contextKeyService
+		);
 	}
 
 	dispose() {
@@ -53,7 +76,6 @@ export class MessageController {
 	}
 
 	showMessage(message: string, position: IPosition): void {
-
 		alert(message);
 
 		this._visible.set(true);
@@ -62,32 +84,43 @@ export class MessageController {
 		this._messageWidget = new MessageWidget(this._editor, position, message);
 
 		// close on blur, cursor, model change, dispose
-		this._messageListeners.push(any<any>(
-			this._editor.onDidBlurEditorText,
-			this._editor.onDidChangeCursorPosition,
-			this._editor.onDidDispose,
-			this._editor.onDidChangeModel
-		)(this.closeMessage, this));
+		this._messageListeners.push(
+			any<any>(
+				this._editor.onDidBlurEditorText,
+				this._editor.onDidChangeCursorPosition,
+				this._editor.onDidDispose,
+				this._editor.onDidChangeModel
+			)(this.closeMessage, this)
+		);
 
 		// close after 3s
-		this._messageListeners.push(setDisposableTimeout(() => this.closeMessage(), 3000));
+		this._messageListeners.push(
+			setDisposableTimeout(() => this.closeMessage(), 3000)
+		);
 
 		// close on mouse move
 		let bounds: Range;
-		this._messageListeners.push(this._editor.onMouseMove(e => {
-			// outside the text area
-			if (!e.target.position) {
-				return;
-			}
+		this._messageListeners.push(
+			this._editor.onMouseMove(e => {
+				// outside the text area
+				if (!e.target.position) {
+					return;
+				}
 
-			if (!bounds) {
-				// define bounding box around position and first mouse occurance
-				bounds = new Range(position.lineNumber - 3, 1, e.target.position.lineNumber + 3, 1);
-			} else if (!bounds.containsPosition(e.target.position)) {
-				// check if position is still in bounds
-				this.closeMessage();
-			}
-		}));
+				if (!bounds) {
+					// define bounding box around position and first mouse occurance
+					bounds = new Range(
+						position.lineNumber - 3,
+						1,
+						e.target.position.lineNumber + 3,
+						1
+					);
+				} else if (!bounds.containsPosition(e.target.position)) {
+					// check if position is still in bounds
+					this.closeMessage();
+				}
+			})
+		);
 	}
 
 	closeMessage(): void {
@@ -97,21 +130,23 @@ export class MessageController {
 	}
 }
 
-const MessageCommand = EditorCommand.bindToContribution<MessageController>(MessageController.get);
+const MessageCommand = EditorCommand.bindToContribution<MessageController>(
+	MessageController.get
+);
 
-
-CommonEditorRegistry.registerEditorCommand(new MessageCommand({
-	id: 'leaveEditorMessage',
-	precondition: MessageController.CONTEXT_SNIPPET_MODE,
-	handler: c => c.closeMessage(),
-	kbOpts: {
-		weight: CommonEditorRegistry.commandWeight(30),
-		primary: KeyCode.Escape
-	}
-}));
+CommonEditorRegistry.registerEditorCommand(
+	new MessageCommand({
+		id: 'leaveEditorMessage',
+		precondition: MessageController.CONTEXT_SNIPPET_MODE,
+		handler: c => c.closeMessage(),
+		kbOpts: {
+			weight: CommonEditorRegistry.commandWeight(30),
+			primary: KeyCode.Escape
+		}
+	})
+);
 
 class MessageWidget implements IContentWidget {
-
 	// Editor.IContentWidget.allowEditorOverflow
 	readonly allowEditorOverflow = true;
 	readonly suppressMouseDown = false;
@@ -133,14 +168,20 @@ class MessageWidget implements IContentWidget {
 		return { dispose };
 	}
 
-	constructor(editor: ICodeEditor, { lineNumber, column }: IPosition, text: string) {
-
+	constructor(
+		editor: ICodeEditor,
+		{ lineNumber, column }: IPosition,
+		text: string
+	) {
 		this._editor = editor;
 		this._editor.revealLinesInCenterIfOutsideViewport(lineNumber, lineNumber);
 		this._position = { lineNumber, column: 1 };
 
 		this._domNode = document.createElement('div');
-		this._domNode.style.paddingLeft = `${editor.getOffsetForColumn(lineNumber, column) - 6}px`;
+		this._domNode.style.paddingLeft = `${editor.getOffsetForColumn(
+			lineNumber,
+			column
+		) - 6}px`;
 		this._domNode.classList.add('monaco-editor-overlaymessage');
 
 		const message = document.createElement('div');
@@ -169,7 +210,10 @@ class MessageWidget implements IContentWidget {
 	}
 
 	getPosition(): IContentWidgetPosition {
-		return { position: this._position, preference: [ContentWidgetPositionPreference.ABOVE] };
+		return {
+			position: this._position,
+			preference: [ContentWidgetPositionPreference.ABOVE]
+		};
 	}
 }
 
@@ -177,11 +221,17 @@ registerThemingParticipant((theme, collector) => {
 	let border = theme.getColor(inputValidationInfoBorder);
 	if (border) {
 		let borderWidth = theme.type === HIGH_CONTRAST ? 2 : 1;
-		collector.addRule(`.monaco-editor .monaco-editor-overlaymessage .anchor { border-top-color: ${border}; }`);
-		collector.addRule(`.monaco-editor .monaco-editor-overlaymessage .message { border: ${borderWidth}px solid ${border}; }`);
+		collector.addRule(
+			`.monaco-editor .monaco-editor-overlaymessage .anchor { border-top-color: ${border}; }`
+		);
+		collector.addRule(
+			`.monaco-editor .monaco-editor-overlaymessage .message { border: ${borderWidth}px solid ${border}; }`
+		);
 	}
 	let background = theme.getColor(inputValidationInfoBackground);
 	if (background) {
-		collector.addRule(`.monaco-editor .monaco-editor-overlaymessage .message { background-color: ${background}; }`);
+		collector.addRule(
+			`.monaco-editor .monaco-editor-overlaymessage .message { background-color: ${background}; }`
+		);
 	}
 });

@@ -9,12 +9,13 @@ import * as fs from 'fs';
 
 export class Rule extends Lint.Rules.AbstractRule {
 	public apply(sourceFile: ts.SourceFile): Lint.RuleFailure[] {
-		return this.applyWithWalker(new TranslationRemindRuleWalker(sourceFile, this.getOptions()));
+		return this.applyWithWalker(
+			new TranslationRemindRuleWalker(sourceFile, this.getOptions())
+		);
 	}
 }
 
 class TranslationRemindRuleWalker extends Lint.RuleWalker {
-
 	private static NLS_MODULE: string = 'vs/nls';
 
 	constructor(file: ts.SourceFile, opts: Lint.IOptions) {
@@ -30,7 +31,9 @@ class TranslationRemindRuleWalker extends Lint.RuleWalker {
 		this.visitImportLikeDeclaration(node);
 	}
 
-    protected visitImportEqualsDeclaration(node: ts.ImportEqualsDeclaration): void {
+	protected visitImportEqualsDeclaration(
+		node: ts.ImportEqualsDeclaration
+	): void {
 		const reference = node.moduleReference.getText();
 		if (reference !== `require('${TranslationRemindRuleWalker.NLS_MODULE}')`) {
 			return;
@@ -39,7 +42,9 @@ class TranslationRemindRuleWalker extends Lint.RuleWalker {
 		this.visitImportLikeDeclaration(node);
 	}
 
-	private visitImportLikeDeclaration(node: ts.ImportDeclaration | ts.ImportEqualsDeclaration) {
+	private visitImportLikeDeclaration(
+		node: ts.ImportDeclaration | ts.ImportEqualsDeclaration
+	) {
 		const currentFile = node.getSourceFile().fileName;
 		const matchService = currentFile.match(/vs\/workbench\/services\/\w+/);
 		const matchPart = currentFile.match(/vs\/workbench\/parts\/\w+/);
@@ -61,7 +66,10 @@ class TranslationRemindRuleWalker extends Lint.RuleWalker {
 		});
 
 		if (!resourceDefined) {
-			this.addFailureAtNode(node, `Please add '${resource}' to ./builds/lib/i18n.resources.json file to use translations here.`);
+			this.addFailureAtNode(
+				node,
+				`Please add '${resource}' to ./builds/lib/i18n.resources.json file to use translations here.`
+			);
 		}
 	}
 }

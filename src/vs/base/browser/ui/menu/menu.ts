@@ -3,13 +3,17 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./menu';
 import { IDisposable } from 'vs/base/common/lifecycle';
 import { $ } from 'vs/base/browser/builder';
 import { IActionRunner, IAction } from 'vs/base/common/actions';
-import { ActionBar, IActionItemProvider, ActionsOrientation } from 'vs/base/browser/ui/actionbar/actionbar';
+import {
+	ActionBar,
+	IActionItemProvider,
+	ActionsOrientation
+} from 'vs/base/browser/ui/actionbar/actionbar';
 import { EventEmitter } from 'vs/base/common/eventEmitter';
 import { ResolvedKeybinding } from 'vs/base/common/keyCodes';
 
@@ -21,11 +25,14 @@ export interface IMenuOptions {
 }
 
 export class Menu extends EventEmitter {
-
 	private actionBar: ActionBar;
 	private listener: IDisposable;
 
-	constructor(container: HTMLElement, actions: IAction[], options: IMenuOptions = {}) {
+	constructor(
+		container: HTMLElement,
+		actions: IAction[],
+		options: IMenuOptions = {}
+	) {
 		super();
 
 		$(container).addClass('monaco-menu-container');

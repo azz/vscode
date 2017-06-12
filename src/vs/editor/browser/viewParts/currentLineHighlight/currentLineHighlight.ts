@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import 'vs/css!./currentLineHighlight';
 import { DynamicViewOverlay } from 'vs/editor/browser/view/dynamicViewOverlay';
@@ -11,7 +11,10 @@ import { ViewContext } from 'vs/editor/common/view/viewContext';
 import { RenderingContext } from 'vs/editor/common/view/renderingContext';
 import * as viewEvents from 'vs/editor/common/view/viewEvents';
 import { registerThemingParticipant } from 'vs/platform/theme/common/themeService';
-import { editorLineHighlight, editorLineHighlightBorder } from 'vs/editor/common/view/editorColorRegistry';
+import {
+	editorLineHighlight,
+	editorLineHighlightBorder
+} from 'vs/editor/common/view/editorColorRegistry';
 
 export class CurrentLineHighlightOverlay extends DynamicViewOverlay {
 	private _context: ViewContext;
@@ -48,7 +51,9 @@ export class CurrentLineHighlightOverlay extends DynamicViewOverlay {
 
 	// --- begin event handlers
 
-	public onConfigurationChanged(e: viewEvents.ViewConfigurationChangedEvent): boolean {
+	public onConfigurationChanged(
+		e: viewEvents.ViewConfigurationChangedEvent
+	): boolean {
 		if (e.lineHeight) {
 			this._lineHeight = this._context.configuration.editor.lineHeight;
 		}
@@ -63,7 +68,9 @@ export class CurrentLineHighlightOverlay extends DynamicViewOverlay {
 		}
 		return true;
 	}
-	public onCursorStateChanged(e: viewEvents.ViewCursorStateChangedEvent): boolean {
+	public onCursorStateChanged(
+		e: viewEvents.ViewCursorStateChangedEvent
+	): boolean {
 		let hasChanged = false;
 
 		if (this._primaryCursorIsInEditableRange !== e.isInEditableRange) {
@@ -111,11 +118,11 @@ export class CurrentLineHighlightOverlay extends DynamicViewOverlay {
 		if (lineNumber === this._primaryCursorLineNumber) {
 			if (this._shouldShowCurrentLine()) {
 				return (
-					'<div class="current-line" style="width:'
-					+ String(Math.max(this._scrollWidth, this._contentWidth))
-					+ 'px; height:'
-					+ String(this._lineHeight)
-					+ 'px;"></div>'
+					'<div class="current-line" style="width:' +
+					String(Math.max(this._scrollWidth, this._contentWidth)) +
+					'px; height:' +
+					String(this._lineHeight) +
+					'px;"></div>'
 				);
 			} else {
 				return '';
@@ -125,23 +132,36 @@ export class CurrentLineHighlightOverlay extends DynamicViewOverlay {
 	}
 
 	private _shouldShowCurrentLine(): boolean {
-		return (this._renderLineHighlight === 'line' || this._renderLineHighlight === 'all') &&
+		return (
+			(this._renderLineHighlight === 'line' ||
+				this._renderLineHighlight === 'all') &&
 			this._selectionIsEmpty &&
-			this._primaryCursorIsInEditableRange;
+			this._primaryCursorIsInEditableRange
+		);
 	}
 }
 
 registerThemingParticipant((theme, collector) => {
 	let lineHighlight = theme.getColor(editorLineHighlight);
 	if (lineHighlight) {
-		collector.addRule(`.monaco-editor .view-overlays .current-line { background-color: ${lineHighlight}; }`);
+		collector.addRule(
+			`.monaco-editor .view-overlays .current-line { background-color: ${lineHighlight}; }`
+		);
 	}
-	if (!lineHighlight || lineHighlight.isTransparent() || theme.defines(editorLineHighlightBorder)) {
+	if (
+		!lineHighlight ||
+		lineHighlight.isTransparent() ||
+		theme.defines(editorLineHighlightBorder)
+	) {
 		let lineHighlightBorder = theme.getColor(editorLineHighlightBorder);
 		if (lineHighlightBorder) {
-			collector.addRule(`.monaco-editor .view-overlays .current-line { border: 2px solid ${lineHighlightBorder}; }`);
+			collector.addRule(
+				`.monaco-editor .view-overlays .current-line { border: 2px solid ${lineHighlightBorder}; }`
+			);
 			if (theme.type === 'hc') {
-				collector.addRule(`.monaco-editor .view-overlays .current-line { border-width: 1px; }`);
+				collector.addRule(
+					`.monaco-editor .view-overlays .current-line { border-width: 1px; }`
+				);
 			}
 		}
 	}

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import * as fs from 'fs';
 import * as path from 'path';
@@ -48,10 +48,18 @@ export class ConfigWatcher<T> implements IConfigWatcher<T>, IDisposable {
 	private disposables: IDisposable[];
 	private _onDidUpdateConfiguration: Emitter<IConfigurationChangeEvent<T>>;
 
-	constructor(private _path: string, private options: IConfigOptions<T> = { changeBufferDelay: 0, defaultConfig: Object.create(null) }) {
+	constructor(
+		private _path: string,
+		private options: IConfigOptions<T> = {
+			changeBufferDelay: 0,
+			defaultConfig: Object.create(null)
+		}
+	) {
 		this.disposables = [];
 
-		this._onDidUpdateConfiguration = new Emitter<IConfigurationChangeEvent<T>>();
+		this._onDidUpdateConfiguration = new Emitter<
+			IConfigurationChangeEvent<T>
+		>();
 		this.disposables.push(this._onDidUpdateConfiguration);
 
 		this.registerWatcher();
@@ -105,7 +113,9 @@ export class ConfigWatcher<T> implements IConfigWatcher<T>, IDisposable {
 		let res: T;
 		try {
 			this.parseErrors = [];
-			res = this.options.parse ? this.options.parse(raw, this.parseErrors) : json.parse(raw, this.parseErrors);
+			res = this.options.parse
+				? this.options.parse(raw, this.parseErrors)
+				: json.parse(raw, this.parseErrors);
 		} catch (error) {
 			// Ignore parsing errors
 		}
@@ -114,7 +124,6 @@ export class ConfigWatcher<T> implements IConfigWatcher<T>, IDisposable {
 	}
 
 	private registerWatcher(): void {
-
 		// Watch the parent of the path so that we detect ADD and DELETES
 		const parentFolder = path.dirname(this._path);
 		this.watch(parentFolder);
@@ -147,14 +156,18 @@ export class ConfigWatcher<T> implements IConfigWatcher<T>, IDisposable {
 			const watcher = fs.watch(path);
 			watcher.on('change', () => this.onConfigFileChange());
 
-			this.disposables.push(toDisposable(() => {
-				watcher.removeAllListeners();
-				watcher.close();
-			}));
+			this.disposables.push(
+				toDisposable(() => {
+					watcher.removeAllListeners();
+					watcher.close();
+				})
+			);
 		} catch (error) {
 			fs.exists(path, exists => {
 				if (exists) {
-					console.warn(`Failed to watch ${path} for configuration changes (${error.toString()})`);
+					console.warn(
+						`Failed to watch ${path} for configuration changes (${error.toString()})`
+					);
 				}
 			});
 		}
@@ -167,7 +180,10 @@ export class ConfigWatcher<T> implements IConfigWatcher<T>, IDisposable {
 		}
 
 		// we can get multiple change events for one change, so we buffer through a timeout
-		this.timeoutHandle = global.setTimeout(() => this.reload(), this.options.changeBufferDelay);
+		this.timeoutHandle = global.setTimeout(
+			() => this.reload(),
+			this.options.changeBufferDelay
+		);
 	}
 
 	public reload(callback?: (config: T) => void): void {

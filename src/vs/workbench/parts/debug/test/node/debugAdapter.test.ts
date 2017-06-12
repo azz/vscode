@@ -16,7 +16,7 @@ suite('Debug - Adapter', () => {
 	const rawAdapter = {
 		type: 'mock',
 		label: 'Mock Debug',
-		enableBreakpointsFor: { 'languageIds': ['markdown'] },
+		enableBreakpointsFor: { languageIds: ['markdown'] },
 		program: './out/mock/mockDebug.js',
 		args: ['arg1', 'arg2'],
 		configurationAttributes: {
@@ -24,9 +24,9 @@ suite('Debug - Adapter', () => {
 				required: ['program'],
 				properties: {
 					program: {
-						'type': 'string',
-						'description': 'Workspace relative path to a text file.',
-						'default': 'readme.md'
+						type: 'string',
+						description: 'Workspace relative path to a text file.',
+						default: 'readme.md'
 					}
 				}
 			}
@@ -43,8 +43,21 @@ suite('Debug - Adapter', () => {
 	};
 
 	setup(() => {
-		adapter = new Adapter(rawAdapter, { extensionFolderPath, id: 'adapter', name: 'myAdapter', version: '1.0.0', publisher: 'vscode', isBuiltin: false, engines: null },
-			null, new TestConfigurationService(), null);
+		adapter = new Adapter(
+			rawAdapter,
+			{
+				extensionFolderPath,
+				id: 'adapter',
+				name: 'myAdapter',
+				version: '1.0.0',
+				publisher: 'vscode',
+				isBuiltin: false,
+				engines: null
+			},
+			null,
+			new TestConfigurationService(),
+			null
+		);
 	});
 
 	teardown(() => {
@@ -56,7 +69,10 @@ suite('Debug - Adapter', () => {
 		assert.equal(adapter.label, rawAdapter.label);
 
 		return adapter.getAdapterExecutable(false).then(details => {
-			assert.equal(details.command, paths.join(extensionFolderPath, rawAdapter.program));
+			assert.equal(
+				details.command,
+				paths.join(extensionFolderPath, rawAdapter.program)
+			);
 			assert.deepEqual(details.args, rawAdapter.args);
 		});
 	});
@@ -65,7 +81,10 @@ suite('Debug - Adapter', () => {
 		const schemaAttribute = adapter.getSchemaAttributes()[0];
 		assert.notDeepEqual(schemaAttribute, rawAdapter.configurationAttributes);
 		Object.keys(rawAdapter.configurationAttributes.launch).forEach(key => {
-			assert.deepEqual(schemaAttribute[key], rawAdapter.configurationAttributes.launch[key]);
+			assert.deepEqual(
+				schemaAttribute[key],
+				rawAdapter.configurationAttributes.launch[key]
+			);
 		});
 
 		assert.equal(schemaAttribute['additionalProperties'], false);
@@ -76,7 +95,6 @@ suite('Debug - Adapter', () => {
 	});
 
 	test('merge', () => {
-
 		const da: IRawAdapter = {
 			type: 'mock',
 			win: {
@@ -104,25 +122,38 @@ suite('Debug - Adapter', () => {
 		});
 
 		return adapter.getAdapterExecutable(false).then(details => {
-			assert.equal(details.command, platform.isLinux ? da.linux.runtime : platform.isMacintosh ? da.osx.runtime : da.win.runtime);
-			assert.deepEqual(details.args, da.runtimeArgs.concat(['a/b/c/d/mockprogram'].concat(da.args)));
+			assert.equal(
+				details.command,
+				platform.isLinux
+					? da.linux.runtime
+					: platform.isMacintosh ? da.osx.runtime : da.win.runtime
+			);
+			assert.deepEqual(
+				details.args,
+				da.runtimeArgs.concat(['a/b/c/d/mockprogram'].concat(da.args))
+			);
 		});
 	});
 
 	test('initial config file content', () => {
-		adapter.getInitialConfigurationContent().then(content => {
-			const expected = ['{',
-				'	"version": "0.2.0",',
-				'	"configurations": [',
-				'		{',
-				'			"name": "Mock-Debug",',
-				'			"type": "mock",',
-				'			"request": "launch",',
-				'			"program": "readme.md"',
-				'		}',
-				'	]',
-				'}'].join('\n');
-			assert.equal(content, expected);
-		}, err => assert.fail());
+		adapter.getInitialConfigurationContent().then(
+			content => {
+				const expected = [
+					'{',
+					'	"version": "0.2.0",',
+					'	"configurations": [',
+					'		{',
+					'			"name": "Mock-Debug",',
+					'			"type": "mock",',
+					'			"request": "launch",',
+					'			"program": "readme.md"',
+					'		}',
+					'	]',
+					'}'
+				].join('\n');
+				assert.equal(content, expected);
+			},
+			err => assert.fail()
+		);
 	});
 });

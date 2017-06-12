@@ -3,32 +3,48 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
+('use strict');
 
 import nls = require('vs/nls');
 
 import { fileExists } from 'vs/base/node/pfs';
 import fs = require('fs');
-import { dirname, join, normalize, isValidBasename } from 'vs/base/common/paths';
+import {
+	dirname,
+	join,
+	normalize,
+	isValidBasename
+} from 'vs/base/common/paths';
 
-import { EmmetEditorAction, EmmetActionContext } from 'vs/workbench/parts/emmet/electron-browser/emmetActions';
+import {
+	EmmetEditorAction,
+	EmmetActionContext
+} from 'vs/workbench/parts/emmet/electron-browser/emmetActions';
 import { Action } from 'vs/base/common/actions';
 
-import { ServicesAccessor, editorAction } from 'vs/editor/common/editorCommonExtensions';
+import {
+	ServicesAccessor,
+	editorAction
+} from 'vs/editor/common/editorCommonExtensions';
 import { EditorContextKeys } from 'vs/editor/common/editorContextKeys';
 import { IMessageService, Severity } from 'vs/platform/message/common/message';
-import { IQuickOpenService, IInputOptions } from 'vs/platform/quickOpen/common/quickOpen';
+import {
+	IQuickOpenService,
+	IInputOptions
+} from 'vs/platform/quickOpen/common/quickOpen';
 import { IWorkspaceContextService } from 'vs/platform/workspace/common/workspace';
 
 @editorAction
 class EncodeDecodeDataUrlAction extends EmmetEditorAction {
-
 	private imageFilePath: string = null;
 
 	constructor() {
 		super({
 			id: 'editor.emmet.action.encodeDecodeDataUrl',
-			label: nls.localize('encodeDecodeDataUrl', "Emmet: Encode\\Decode data:URL image"),
+			label: nls.localize(
+				'encodeDecodeDataUrl',
+				'Emmet: Encode\\Decode data:URL image'
+			),
 			alias: 'Emmet: Encode\\Decode data:URL image',
 			precondition: EditorContextKeys.writable,
 			actionName: 'encode_decode_data_url'
@@ -56,24 +72,34 @@ class EncodeDecodeDataUrlAction extends EmmetEditorAction {
 		}
 
 		if (!workspaceContext.hasWorkspace()) {
-			const message = nls.localize('noWorkspace', "Decoding a data:URL image is only available inside a workspace folder.");
+			const message = nls.localize(
+				'noWorkspace',
+				'Decoding a data:URL image is only available inside a workspace folder.'
+			);
 			messageService.show(Severity.Info, message);
 			return;
 		}
 
 		let options: IInputOptions = {
-			prompt: nls.localize('enterImagePath', "Enter file path (absolute or relative)"),
-			placeHolder: nls.localize('path', "File path")
+			prompt: nls.localize(
+				'enterImagePath',
+				'Enter file path (absolute or relative)'
+			),
+			placeHolder: nls.localize('path', 'File path')
 		};
 
-		const quickPromise = quickOpenService.input(options)
+		const quickPromise = quickOpenService
+			.input(options)
 			.then(path => {
 				if (!this.isValidInput(messageService, path)) {
 					quickPromise.cancel();
 				}
 
 				this.imageFilePath = path;
-				const fullpath = this.createPath(ctx.editorAccessor.getFilePath(), path);
+				const fullpath = this.createPath(
+					ctx.editorAccessor.getFilePath(),
+					path
+				);
 				return fileExists(fullpath);
 			})
 			.then(status => {
@@ -82,13 +108,17 @@ class EncodeDecodeDataUrlAction extends EmmetEditorAction {
 					return;
 				}
 
-				const message = nls.localize('warnEscalation', "File **{0}** already exists.  Do you want to overwrite the existing file?", this.imageFilePath);
+				const message = nls.localize(
+					'warnEscalation',
+					'File **{0}** already exists.  Do you want to overwrite the existing file?',
+					this.imageFilePath
+				);
 				const actions = [
-					new Action('ok', nls.localize('ok', "OK"), '', true, () => {
+					new Action('ok', nls.localize('ok', 'OK'), '', true, () => {
 						this.encodeDecode(ctx, this.imageFilePath);
 						return null;
 					}),
-					new Action('cancel', nls.localize('cancel', "Cancel"), '', true)
+					new Action('cancel', nls.localize('cancel', 'Cancel'), '', true)
 				];
 				messageService.show(Severity.Warning, { message, actions });
 			});
@@ -124,7 +154,11 @@ class EncodeDecodeDataUrlAction extends EmmetEditorAction {
 		}
 
 		if (!isValidFilePath) {
-			const message = nls.localize('invalidFileNameError', "The name **{0}** is not valid as a file or folder name. Please choose a different name.", input);
+			const message = nls.localize(
+				'invalidFileNameError',
+				'The name **{0}** is not valid as a file or folder name. Please choose a different name.',
+				input
+			);
 			messageService.show(Severity.Error, message);
 			return false;
 		}

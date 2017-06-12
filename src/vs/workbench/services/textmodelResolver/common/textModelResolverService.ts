@@ -2,25 +2,41 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import { TPromise } from 'vs/base/common/winjs.base';
 import URI from 'vs/base/common/uri';
 import { first } from 'vs/base/common/async';
 import { IInstantiationService } from 'vs/platform/instantiation/common/instantiation';
 import { IModel } from 'vs/editor/common/editorCommon';
-import { IDisposable, toDisposable, IReference, ReferenceCollection, ImmortalReference } from 'vs/base/common/lifecycle';
+import {
+	IDisposable,
+	toDisposable,
+	IReference,
+	ReferenceCollection,
+	ImmortalReference
+} from 'vs/base/common/lifecycle';
 import { IModelService } from 'vs/editor/common/services/modelService';
 import { ResourceEditorModel } from 'vs/workbench/common/editor/resourceEditorModel';
 import { ITextFileService } from 'vs/workbench/services/textfile/common/textfiles';
 import network = require('vs/base/common/network');
-import { ITextModelResolverService, ITextModelContentProvider, ITextEditorModel } from 'vs/editor/common/services/resolverService';
-import { IUntitledEditorService, UNTITLED_SCHEMA } from 'vs/workbench/services/untitled/common/untitledEditorService';
+import {
+	ITextModelResolverService,
+	ITextModelContentProvider,
+	ITextEditorModel
+} from 'vs/editor/common/services/resolverService';
+import {
+	IUntitledEditorService,
+	UNTITLED_SCHEMA
+} from 'vs/workbench/services/untitled/common/untitledEditorService';
 import { TextFileEditorModel } from 'vs/workbench/services/textfile/common/textFileEditorModel';
 
-class ResourceModelCollection extends ReferenceCollection<TPromise<ITextEditorModel>> {
-
-	private providers: { [scheme: string]: ITextModelContentProvider[] } = Object.create(null);
+class ResourceModelCollection extends ReferenceCollection<
+	TPromise<ITextEditorModel>
+> {
+	private providers: {
+		[scheme: string]: ITextModelContentProvider[];
+	} = Object.create(null);
 
 	constructor(
 		@IInstantiationService private instantiationService: IInstantiationService,
@@ -36,10 +52,14 @@ class ResourceModelCollection extends ReferenceCollection<TPromise<ITextEditorMo
 			return this.textFileService.models.loadOrCreate(resource);
 		}
 
-		return this.resolveTextModelContent(key).then(() => this.instantiationService.createInstance(ResourceEditorModel, resource));
+		return this.resolveTextModelContent(key).then(() =>
+			this.instantiationService.createInstance(ResourceEditorModel, resource)
+		);
 	}
 
-	public destroyReferencedObject(modelPromise: TPromise<ITextEditorModel>): void {
+	public destroyReferencedObject(
+		modelPromise: TPromise<ITextEditorModel>
+	): void {
 		modelPromise.done(model => {
 			if (model instanceof TextFileEditorModel) {
 				this.textFileService.models.disposeModel(model);
@@ -49,7 +69,10 @@ class ResourceModelCollection extends ReferenceCollection<TPromise<ITextEditorMo
 		});
 	}
 
-	public registerTextModelContentProvider(scheme: string, provider: ITextModelContentProvider): IDisposable {
+	public registerTextModelContentProvider(
+		scheme: string,
+		provider: ITextModelContentProvider
+	): IDisposable {
 		const registry = this.providers;
 		const providers = registry[scheme] || (registry[scheme] = []);
 
@@ -83,7 +106,9 @@ class ResourceModelCollection extends ReferenceCollection<TPromise<ITextEditorMo
 
 		return first(factories).then(model => {
 			if (!model) {
-				console.error(`Unable to open '${resource}' resource is not available.`); // TODO PII
+				console.error(
+					`Unable to open '${resource}' resource is not available.`
+				); // TODO PII
 				return TPromise.wrapError<IModel>('resource is not available');
 			}
 
@@ -93,30 +118,37 @@ class ResourceModelCollection extends ReferenceCollection<TPromise<ITextEditorMo
 }
 
 export class TextModelResolverService implements ITextModelResolverService {
-
 	_serviceBrand: any;
 
 	private resourceModelCollection: ResourceModelCollection;
 
 	constructor(
 		@ITextFileService private textFileService: ITextFileService,
-		@IUntitledEditorService private untitledEditorService: IUntitledEditorService,
+		@IUntitledEditorService
+		private untitledEditorService: IUntitledEditorService,
 		@IInstantiationService private instantiationService: IInstantiationService,
 		@IModelService private modelService: IModelService
 	) {
-		this.resourceModelCollection = instantiationService.createInstance(ResourceModelCollection);
+		this.resourceModelCollection = instantiationService.createInstance(
+			ResourceModelCollection
+		);
 	}
 
-	public createModelReference(resource: URI): TPromise<IReference<ITextEditorModel>> {
+	public createModelReference(
+		resource: URI
+	): TPromise<IReference<ITextEditorModel>> {
 		return this._createModelReference(resource);
 	}
 
-	private _createModelReference(resource: URI): TPromise<IReference<ITextEditorModel>> {
-
+	private _createModelReference(
+		resource: URI
+	): TPromise<IReference<ITextEditorModel>> {
 		// Untitled Schema: go through cached input
 		// TODO ImmortalReference is a hack
 		if (resource.scheme === UNTITLED_SCHEMA) {
-			return this.untitledEditorService.loadOrCreate({ resource }).then(model => new ImmortalReference(model));
+			return this.untitledEditorService
+				.loadOrCreate({ resource })
+				.then(model => new ImmortalReference(model));
 		}
 
 		// InMemory Schema: go through model service cache
@@ -125,10 +157,19 @@ export class TextModelResolverService implements ITextModelResolverService {
 			const cachedModel = this.modelService.getModel(resource);
 
 			if (!cachedModel) {
-				return TPromise.wrapError<IReference<ITextEditorModel>>('Cant resolve inmemory resource');
+				return TPromise.wrapError<IReference<ITextEditorModel>>(
+					'Cant resolve inmemory resource'
+				);
 			}
 
-			return TPromise.as(new ImmortalReference(this.instantiationService.createInstance(ResourceEditorModel, resource)));
+			return TPromise.as(
+				new ImmortalReference(
+					this.instantiationService.createInstance(
+						ResourceEditorModel,
+						resource
+					)
+				)
+			);
 		}
 
 		const ref = this.resourceModelCollection.acquire(resource.toString());
@@ -143,7 +184,13 @@ export class TextModelResolverService implements ITextModelResolverService {
 		);
 	}
 
-	public registerTextModelContentProvider(scheme: string, provider: ITextModelContentProvider): IDisposable {
-		return this.resourceModelCollection.registerTextModelContentProvider(scheme, provider);
+	public registerTextModelContentProvider(
+		scheme: string,
+		provider: ITextModelContentProvider
+	): IDisposable {
+		return this.resourceModelCollection.registerTextModelContentProvider(
+			scheme,
+			provider
+		);
 	}
 }

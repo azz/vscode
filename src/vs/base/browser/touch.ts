@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import arrays = require('vs/base/common/arrays');
 import { IDisposable, dispose } from 'vs/base/common/lifecycle';
@@ -64,7 +64,6 @@ interface TouchEvent extends Event {
 }
 
 export class Gesture implements IDisposable {
-
 	private static HOLD_DELAY = 700;
 	private static SCROLL_FRICTION = -0.005;
 
@@ -72,7 +71,7 @@ export class Gesture implements IDisposable {
 	private callOnTarget: IDisposable[];
 	private handle: IDisposable;
 
-	private activeTouches: { [id: number]: TouchData; };
+	private activeTouches: { [id: number]: TouchData };
 
 	constructor(target: HTMLElement) {
 		this.callOnTarget = [];
@@ -100,9 +99,21 @@ export class Gesture implements IDisposable {
 			return;
 		}
 
-		this.callOnTarget.push(DomUtils.addDisposableListener(this.targetElement, 'touchstart', (e) => this.onTouchStart(e)));
-		this.callOnTarget.push(DomUtils.addDisposableListener(this.targetElement, 'touchend', (e) => this.onTouchEnd(e)));
-		this.callOnTarget.push(DomUtils.addDisposableListener(this.targetElement, 'touchmove', (e) => this.onTouchMove(e)));
+		this.callOnTarget.push(
+			DomUtils.addDisposableListener(this.targetElement, 'touchstart', e =>
+				this.onTouchStart(e)
+			)
+		);
+		this.callOnTarget.push(
+			DomUtils.addDisposableListener(this.targetElement, 'touchend', e =>
+				this.onTouchEnd(e)
+			)
+		);
+		this.callOnTarget.push(
+			DomUtils.addDisposableListener(this.targetElement, 'touchmove', e =>
+				this.onTouchMove(e)
+			)
+		);
 	}
 
 	private static newGestureEvent(type: string): GestureEvent {
@@ -150,7 +161,6 @@ export class Gesture implements IDisposable {
 		let activeTouchCount = Object.keys(this.activeTouches).length;
 
 		for (let i = 0, len = e.changedTouches.length; i < len; i++) {
-
 			let touch = e.changedTouches.item(i);
 
 			if (!this.activeTouches.hasOwnProperty(String(touch.identifier))) {
@@ -161,41 +171,43 @@ export class Gesture implements IDisposable {
 			let data = this.activeTouches[touch.identifier],
 				holdTime = Date.now() - data.initialTimeStamp;
 
-			if (holdTime < Gesture.HOLD_DELAY
-				&& Math.abs(data.initialPageX - arrays.tail(data.rollingPageX)) < 30
-				&& Math.abs(data.initialPageY - arrays.tail(data.rollingPageY)) < 30) {
-
+			if (
+				holdTime < Gesture.HOLD_DELAY &&
+				Math.abs(data.initialPageX - arrays.tail(data.rollingPageX)) < 30 &&
+				Math.abs(data.initialPageY - arrays.tail(data.rollingPageY)) < 30
+			) {
 				let evt = Gesture.newGestureEvent(EventType.Tap);
 				evt.initialTarget = data.initialTarget;
 				evt.pageX = arrays.tail(data.rollingPageX);
 				evt.pageY = arrays.tail(data.rollingPageY);
 				this.targetElement.dispatchEvent(evt);
-
-			} else if (holdTime >= Gesture.HOLD_DELAY
-				&& Math.abs(data.initialPageX - arrays.tail(data.rollingPageX)) < 30
-				&& Math.abs(data.initialPageY - arrays.tail(data.rollingPageY)) < 30) {
-
+			} else if (
+				holdTime >= Gesture.HOLD_DELAY &&
+				Math.abs(data.initialPageX - arrays.tail(data.rollingPageX)) < 30 &&
+				Math.abs(data.initialPageY - arrays.tail(data.rollingPageY)) < 30
+			) {
 				let evt = Gesture.newGestureEvent(EventType.Contextmenu);
 				evt.initialTarget = data.initialTarget;
 				evt.pageX = arrays.tail(data.rollingPageX);
 				evt.pageY = arrays.tail(data.rollingPageY);
 				this.targetElement.dispatchEvent(evt);
-
 			} else if (activeTouchCount === 1) {
 				let finalX = arrays.tail(data.rollingPageX);
 				let finalY = arrays.tail(data.rollingPageY);
 
-				let deltaT = arrays.tail(data.rollingTimestamps) - data.rollingTimestamps[0];
+				let deltaT =
+					arrays.tail(data.rollingTimestamps) - data.rollingTimestamps[0];
 				let deltaX = finalX - data.rollingPageX[0];
 				let deltaY = finalY - data.rollingPageY[0];
 
-				this.inertia(timestamp,		// time now
-					Math.abs(deltaX) / deltaT,	// speed
-					deltaX > 0 ? 1 : -1,		// x direction
-					finalX,						// x now
-					Math.abs(deltaY) / deltaT,  // y speed
-					deltaY > 0 ? 1 : -1,		// y direction
-					finalY						// y now
+				this.inertia(
+					timestamp, // time now
+					Math.abs(deltaX) / deltaT, // speed
+					deltaX > 0 ? 1 : -1, // x direction
+					finalX, // x now
+					Math.abs(deltaY) / deltaT, // y speed
+					deltaY > 0 ? 1 : -1, // y direction
+					finalY // y now
 				);
 			}
 
@@ -204,13 +216,22 @@ export class Gesture implements IDisposable {
 		}
 	}
 
-	private inertia(t1: number, vX: number, dirX: number, x: number, vY: number, dirY: number, y: number): void {
+	private inertia(
+		t1: number,
+		vX: number,
+		dirX: number,
+		x: number,
+		vY: number,
+		dirY: number,
+		y: number
+	): void {
 		this.handle = DomUtils.scheduleAtNextAnimationFrame(() => {
 			let now = Date.now();
 
 			// velocity: old speed + accel_over_time
 			let deltaT = now - t1,
-				delta_pos_x = 0, delta_pos_y = 0,
+				delta_pos_x = 0,
+				delta_pos_y = 0,
 				stopped = true;
 
 			vX += Gesture.SCROLL_FRICTION * deltaT;
@@ -244,7 +265,6 @@ export class Gesture implements IDisposable {
 		e.stopPropagation();
 
 		for (let i = 0, len = e.changedTouches.length; i < len; i++) {
-
 			let touch = e.changedTouches.item(i);
 
 			if (!this.activeTouches.hasOwnProperty(String(touch.identifier))) {

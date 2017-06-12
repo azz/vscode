@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-'use strict';
+('use strict');
 
 import 'vs/css!./inspectTMScopes';
 import * as nls from 'vs/nls';
@@ -11,32 +11,58 @@ import { Disposable } from 'vs/base/common/lifecycle';
 import { escape } from 'vs/base/common/strings';
 import { KeyCode } from 'vs/base/common/keyCodes';
 import { Position } from 'vs/editor/common/core/position';
-import { ICommonCodeEditor, IEditorContribution, IModel } from 'vs/editor/common/editorCommon';
-import { editorAction, EditorAction, ServicesAccessor } from 'vs/editor/common/editorCommonExtensions';
-import { ICodeEditor, ContentWidgetPositionPreference, IContentWidget, IContentWidgetPosition } from 'vs/editor/browser/editorBrowser';
+import {
+	ICommonCodeEditor,
+	IEditorContribution,
+	IModel
+} from 'vs/editor/common/editorCommon';
+import {
+	editorAction,
+	EditorAction,
+	ServicesAccessor
+} from 'vs/editor/common/editorCommonExtensions';
+import {
+	ICodeEditor,
+	ContentWidgetPositionPreference,
+	IContentWidget,
+	IContentWidgetPosition
+} from 'vs/editor/browser/editorBrowser';
 import { editorContribution } from 'vs/editor/browser/editorBrowserExtensions';
 import { TPromise } from 'vs/base/common/winjs.base';
 import { IGrammar, StackElement, IToken } from 'vscode-textmate';
 import { ITextMateService } from 'vs/editor/node/textMate/textMateService';
 import { IModeService } from 'vs/editor/common/services/modeService';
 import { TokenMetadata } from 'vs/editor/common/model/tokensBinaryEncoding';
-import { TokenizationRegistry, LanguageIdentifier, FontStyle, StandardTokenType } from 'vs/editor/common/modes';
+import {
+	TokenizationRegistry,
+	LanguageIdentifier,
+	FontStyle,
+	StandardTokenType
+} from 'vs/editor/common/modes';
 import { CharCode } from 'vs/base/common/charCode';
 import { findMatchingThemeRule } from 'vs/editor/electron-browser/textMate/TMHelper';
 import { IWorkbenchThemeService } from 'vs/workbench/services/themes/common/workbenchThemeService';
 import { Color } from 'vs/base/common/color';
 import { IMessageService } from 'vs/platform/message/common/message';
 import Severity from 'vs/base/common/severity';
-import { registerThemingParticipant, HIGH_CONTRAST } from 'vs/platform/theme/common/themeService';
-import { editorHoverBackground, editorHoverBorder } from 'vs/platform/theme/common/colorRegistry';
+import {
+	registerThemingParticipant,
+	HIGH_CONTRAST
+} from 'vs/platform/theme/common/themeService';
+import {
+	editorHoverBackground,
+	editorHoverBorder
+} from 'vs/platform/theme/common/colorRegistry';
 
 @editorContribution
-class InspectTMScopesController extends Disposable implements IEditorContribution {
-
+class InspectTMScopesController extends Disposable
+	implements IEditorContribution {
 	private static ID = 'editor.contrib.inspectTMScopes';
 
 	public static get(editor: ICommonCodeEditor): InspectTMScopesController {
-		return editor.getContribution<InspectTMScopesController>(InspectTMScopesController.ID);
+		return editor.getContribution<InspectTMScopesController>(
+			InspectTMScopesController.ID
+		);
 	}
 
 	private _editor: ICodeEditor;
@@ -51,7 +77,7 @@ class InspectTMScopesController extends Disposable implements IEditorContributio
 		@ITextMateService textMateService: ITextMateService,
 		@IModeService modeService: IModeService,
 		@IWorkbenchThemeService themeService: IWorkbenchThemeService,
-		@IMessageService messageService: IMessageService,
+		@IMessageService messageService: IMessageService
 	) {
 		super();
 		this._editor = editor;
@@ -61,9 +87,11 @@ class InspectTMScopesController extends Disposable implements IEditorContributio
 		this._messageService = messageService;
 		this._widget = null;
 
-		this._register(this._editor.onDidChangeModel((e) => this.stop()));
-		this._register(this._editor.onDidChangeModelLanguage((e) => this.stop()));
-		this._register(this._editor.onKeyUp((e) => e.keyCode === KeyCode.Escape && this.stop()));
+		this._register(this._editor.onDidChangeModel(e => this.stop()));
+		this._register(this._editor.onDidChangeModelLanguage(e => this.stop()));
+		this._register(
+			this._editor.onKeyUp(e => e.keyCode === KeyCode.Escape && this.stop())
+		);
 	}
 
 	public getId(): string {
@@ -82,7 +110,13 @@ class InspectTMScopesController extends Disposable implements IEditorContributio
 		if (!this._editor.getModel()) {
 			return;
 		}
-		this._widget = new InspectTMScopesWidget(this._editor, this._textMateService, this._modeService, this._themeService, this._messageService);
+		this._widget = new InspectTMScopesWidget(
+			this._editor,
+			this._textMateService,
+			this._modeService,
+			this._themeService,
+			this._messageService
+		);
 	}
 
 	public stop(): void {
@@ -103,11 +137,10 @@ class InspectTMScopesController extends Disposable implements IEditorContributio
 
 @editorAction
 class InspectTMScopes extends EditorAction {
-
 	constructor() {
 		super({
 			id: 'editor.action.inspectTMScopes',
-			label: nls.localize('inspectTMScopes', "Developer: Inspect TM Scopes"),
+			label: nls.localize('inspectTMScopes', 'Developer: Inspect TM Scopes'),
 			alias: 'Developer: Inspect TM Scopes',
 			precondition: null
 		});
@@ -138,10 +171,15 @@ interface IDecodedMetadata {
 
 function renderTokenText(tokenText: string): string {
 	if (tokenText.length > 40) {
-		tokenText = tokenText.substr(0, 20) + '…' + tokenText.substr(tokenText.length - 20);
+		tokenText =
+			tokenText.substr(0, 20) + '…' + tokenText.substr(tokenText.length - 20);
 	}
 	let result: string = '';
-	for (let charIndex = 0, len = tokenText.length; charIndex < len; charIndex++) {
+	for (
+		let charIndex = 0, len = tokenText.length;
+		charIndex < len;
+		charIndex++
+	) {
 		let charCode = tokenText.charCodeAt(charIndex);
 		switch (charCode) {
 			case CharCode.Tab:
@@ -172,7 +210,6 @@ function renderTokenText(tokenText: string): string {
 }
 
 class InspectTMScopesWidget extends Disposable implements IContentWidget {
-
 	private static _ID = 'editor.contrib.inspectTMScopesWidget';
 
 	// Editor.IContentWidget.allowEditorOverflow
@@ -203,9 +240,15 @@ class InspectTMScopesWidget extends Disposable implements IContentWidget {
 		this._model = this._editor.getModel();
 		this._domNode = document.createElement('div');
 		this._domNode.className = 'tm-inspect-widget';
-		this._grammar = textMateService.createGrammar(this._model.getLanguageIdentifier().language);
+		this._grammar = textMateService.createGrammar(
+			this._model.getLanguageIdentifier().language
+		);
 		this._beginCompute(this._editor.getPosition());
-		this._register(this._editor.onDidChangeCursorPosition((e) => this._beginCompute(this._editor.getPosition())));
+		this._register(
+			this._editor.onDidChangeCursorPosition(e =>
+				this._beginCompute(this._editor.getPosition())
+			)
+		);
 		this._editor.addContentWidget(this);
 	}
 
@@ -221,10 +264,14 @@ class InspectTMScopesWidget extends Disposable implements IContentWidget {
 
 	private _beginCompute(position: Position): void {
 		dom.clearNode(this._domNode);
-		this._domNode.appendChild(document.createTextNode(nls.localize('inspectTMScopesWidget.loading', "Loading...")));
+		this._domNode.appendChild(
+			document.createTextNode(
+				nls.localize('inspectTMScopesWidget.loading', 'Loading...')
+			)
+		);
 		this._grammar.then(
-			(grammar) => this._compute(grammar, position),
-			(err) => {
+			grammar => this._compute(grammar, position),
+			err => {
 				this._messageService.show(Severity.Warning, err);
 				setTimeout(() => {
 					InspectTMScopesController.get(this._editor).stop();
@@ -249,8 +296,8 @@ class InspectTMScopesWidget extends Disposable implements IContentWidget {
 		}
 
 		let token2Index = 0;
-		for (let i = (data.tokens2.length >>> 1); i >= 0; i--) {
-			if (position.column - 1 >= data.tokens2[(i << 1)]) {
+		for (let i = data.tokens2.length >>> 1; i >= 0; i--) {
+			if (position.column - 1 >= data.tokens2[i << 1]) {
 				token2Index = i;
 				break;
 			}
@@ -260,25 +307,45 @@ class InspectTMScopesWidget extends Disposable implements IContentWidget {
 
 		let tokenStartIndex = data.tokens1[token1Index].startIndex;
 		let tokenEndIndex = data.tokens1[token1Index].endIndex;
-		let tokenText = this._model.getLineContent(position.lineNumber).substring(tokenStartIndex, tokenEndIndex);
-		result += `<h2 class="tm-token">${renderTokenText(tokenText)}<span class="tm-token-length">(${tokenText.length} ${tokenText.length === 1 ? 'char' : 'chars'})</span></h2>`;
+		let tokenText = this._model
+			.getLineContent(position.lineNumber)
+			.substring(tokenStartIndex, tokenEndIndex);
+		result += `<h2 class="tm-token">${renderTokenText(
+			tokenText
+		)}<span class="tm-token-length">(${tokenText.length} ${tokenText.length ===
+			1
+			? 'char'
+			: 'chars'})</span></h2>`;
 
 		result += `<hr class="tm-metadata-separator" style="clear:both"/>`;
 
 		let metadata = this._decodeMetadata(data.tokens2[(token2Index << 1) + 1]);
 		result += `<table class="tm-metadata-table"><tbody>`;
-		result += `<tr><td class="tm-metadata-key">language</td><td class="tm-metadata-value">${escape(metadata.languageIdentifier.language)}</td>`;
-		result += `<tr><td class="tm-metadata-key">token type</td><td class="tm-metadata-value">${this._tokenTypeToString(metadata.tokenType)}</td>`;
-		result += `<tr><td class="tm-metadata-key">font style</td><td class="tm-metadata-value">${this._fontStyleToString(metadata.fontStyle)}</td>`;
+		result += `<tr><td class="tm-metadata-key">language</td><td class="tm-metadata-value">${escape(
+			metadata.languageIdentifier.language
+		)}</td>`;
+		result += `<tr><td class="tm-metadata-key">token type</td><td class="tm-metadata-value">${this._tokenTypeToString(
+			metadata.tokenType
+		)}</td>`;
+		result += `<tr><td class="tm-metadata-key">font style</td><td class="tm-metadata-value">${this._fontStyleToString(
+			metadata.fontStyle
+		)}</td>`;
 		result += `<tr><td class="tm-metadata-key">foreground</td><td class="tm-metadata-value">${metadata.foreground.toRGBAHex()}</td>`;
 		result += `<tr><td class="tm-metadata-key">background</td><td class="tm-metadata-value">${metadata.background.toRGBAHex()}</td>`;
 		result += `</tbody></table>`;
 
 		let theme = this._themeService.getColorTheme();
 		result += `<hr class="tm-metadata-separator"/>`;
-		let matchingRule = findMatchingThemeRule(theme, data.tokens1[token1Index].scopes);
+		let matchingRule = findMatchingThemeRule(
+			theme,
+			data.tokens1[token1Index].scopes
+		);
 		if (matchingRule) {
-			result += `<code class="tm-theme-selector">${matchingRule.rawSelector}\n${JSON.stringify(matchingRule.settings, null, '\t')}</code>`;
+			result += `<code class="tm-theme-selector">${matchingRule.rawSelector}\n${JSON.stringify(
+				matchingRule.settings,
+				null,
+				'\t'
+			)}</code>`;
 		} else {
 			result += `<span class="tm-theme-selector">No theme selector.</span>`;
 		}
@@ -290,7 +357,6 @@ class InspectTMScopesWidget extends Disposable implements IContentWidget {
 			result += `<li>${escape(data.tokens1[token1Index].scopes[i])}</li>`;
 		}
 		result += `</ul>`;
-
 
 		this._domNode.innerHTML = result;
 		this._editor.layoutContentWidget(this);
@@ -314,10 +380,14 @@ class InspectTMScopesWidget extends Disposable implements IContentWidget {
 
 	private _tokenTypeToString(tokenType: StandardTokenType): string {
 		switch (tokenType) {
-			case StandardTokenType.Other: return 'Other';
-			case StandardTokenType.Comment: return 'Comment';
-			case StandardTokenType.String: return 'String';
-			case StandardTokenType.RegEx: return 'RegEx';
+			case StandardTokenType.Other:
+				return 'Other';
+			case StandardTokenType.Comment:
+				return 'Comment';
+			case StandardTokenType.String:
+				return 'String';
+			case StandardTokenType.RegEx:
+				return 'RegEx';
 		}
 		return '??';
 	}
@@ -339,11 +409,20 @@ class InspectTMScopesWidget extends Disposable implements IContentWidget {
 		return r;
 	}
 
-	private _getTokensAtLine(grammar: IGrammar, lineNumber: number): ICompleteLineTokenization {
+	private _getTokensAtLine(
+		grammar: IGrammar,
+		lineNumber: number
+	): ICompleteLineTokenization {
 		let stateBeforeLine = this._getStateBeforeLine(grammar, lineNumber);
 
-		let tokenizationResult1 = grammar.tokenizeLine(this._model.getLineContent(lineNumber), stateBeforeLine);
-		let tokenizationResult2 = grammar.tokenizeLine2(this._model.getLineContent(lineNumber), stateBeforeLine);
+		let tokenizationResult1 = grammar.tokenizeLine(
+			this._model.getLineContent(lineNumber),
+			stateBeforeLine
+		);
+		let tokenizationResult2 = grammar.tokenizeLine2(
+			this._model.getLineContent(lineNumber),
+			stateBeforeLine
+		);
 
 		return {
 			startState: stateBeforeLine,
@@ -353,11 +432,17 @@ class InspectTMScopesWidget extends Disposable implements IContentWidget {
 		};
 	}
 
-	private _getStateBeforeLine(grammar: IGrammar, lineNumber: number): StackElement {
+	private _getStateBeforeLine(
+		grammar: IGrammar,
+		lineNumber: number
+	): StackElement {
 		let state: StackElement = null;
 
 		for (let i = 1; i < lineNumber; i++) {
-			let tokenizationResult = grammar.tokenizeLine(this._model.getLineContent(i), state);
+			let tokenizationResult = grammar.tokenizeLine(
+				this._model.getLineContent(i),
+				state
+			);
 			state = tokenizationResult.ruleStack;
 		}
 
@@ -371,7 +456,10 @@ class InspectTMScopesWidget extends Disposable implements IContentWidget {
 	public getPosition(): IContentWidgetPosition {
 		return {
 			position: this._editor.getPosition(),
-			preference: [ContentWidgetPositionPreference.BELOW, ContentWidgetPositionPreference.ABOVE]
+			preference: [
+				ContentWidgetPositionPreference.BELOW,
+				ContentWidgetPositionPreference.ABOVE
+			]
 		};
 	}
 }
@@ -380,11 +468,17 @@ registerThemingParticipant((theme, collector) => {
 	let border = theme.getColor(editorHoverBorder);
 	if (border) {
 		let borderWidth = theme.type === HIGH_CONTRAST ? 2 : 1;
-		collector.addRule(`.monaco-editor .tm-inspect-widget { border: ${borderWidth}px solid ${border}; }`);
-		collector.addRule(`.monaco-editor .tm-inspect-widget .tm-metadata-separator { background-color: ${border}; }`);
+		collector.addRule(
+			`.monaco-editor .tm-inspect-widget { border: ${borderWidth}px solid ${border}; }`
+		);
+		collector.addRule(
+			`.monaco-editor .tm-inspect-widget .tm-metadata-separator { background-color: ${border}; }`
+		);
 	}
 	let background = theme.getColor(editorHoverBackground);
 	if (background) {
-		collector.addRule(`.monaco-editor .tm-inspect-widget { background-color: ${background}; }`);
+		collector.addRule(
+			`.monaco-editor .tm-inspect-widget { background-color: ${background}; }`
+		);
 	}
 });

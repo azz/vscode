@@ -4,7 +4,10 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { IEditorOptions } from 'vs/editor/common/config/editorOptions';
-import { EditorAction, CommonEditorRegistry } from 'vs/editor/common/editorCommonExtensions';
+import {
+	EditorAction,
+	CommonEditorRegistry
+} from 'vs/editor/common/editorCommonExtensions';
 import { ICodeEditorService } from 'vs/editor/common/services/codeEditorService';
 import { IEditorContributionCtor } from 'vs/editor/browser/editorBrowser';
 import { CodeEditorWidget } from 'vs/editor/browser/widget/codeEditorWidget';
@@ -31,7 +34,15 @@ export class ReplInputEditor extends CodeEditorWidget {
 		@IContextKeyService contextKeyService: IContextKeyService,
 		@IThemeService themeService: IThemeService
 	) {
-		super(domElement, options, instantiationService, codeEditorService, commandService, contextKeyService, themeService);
+		super(
+			domElement,
+			options,
+			instantiationService,
+			codeEditorService,
+			commandService,
+			contextKeyService,
+			themeService
+		);
 	}
 
 	protected _getContributions(): IEditorContributionCtor[] {
@@ -41,7 +52,7 @@ export class ReplInputEditor extends CodeEditorWidget {
 			ContextMenuController,
 			SuggestController,
 			SnippetController2,
-			TabCompletionController,
+			TabCompletionController
 		];
 	}
 
