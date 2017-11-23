@@ -12,6 +12,7 @@ export interface LanguageFilter {
 	language?: string;
 	scheme?: string;
 	pattern?: string | IRelativePattern;
+	predicate?: (uri: URI, languageId: string) => boolean;
 }
 
 export type LanguageSelector = string | LanguageFilter | (string | LanguageFilter)[];
@@ -46,7 +47,7 @@ export function score(selector: LanguageSelector, candidateUri: URI, candidateLa
 
 	} else if (selector) {
 		// filter -> select accordingly, use defaults for scheme
-		const { language, pattern, scheme } = selector;
+		const { language, pattern, scheme, predicate } = selector;
 
 		let ret = 0;
 
@@ -72,6 +73,14 @@ export function score(selector: LanguageSelector, candidateUri: URI, candidateLa
 
 		if (pattern) {
 			if (pattern === candidateUri.fsPath || matchGlobPattern(pattern, candidateUri.fsPath)) {
+				ret = 10;
+			} else {
+				return 0;
+			}
+		}
+
+		if (predicate) {
+			if (predicate(candidateUri, candidateLanguage)) {
 				ret = 10;
 			} else {
 				return 0;

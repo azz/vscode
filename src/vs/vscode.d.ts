@@ -1751,6 +1751,11 @@ declare module 'vscode' {
 		 * to filter documents to a [workspace folder](#WorkspaceFolder).
 		 */
 		pattern?: GlobPattern;
+
+		/**
+		 * A predicate function. Return `false` to exclude a `uri`.
+		 */
+		predicate?: (uri: Uri, languageId: string) => boolean;
 	}
 
 	/**
